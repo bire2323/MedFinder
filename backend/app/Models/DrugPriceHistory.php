@@ -15,4 +15,14 @@ class DrugPriceHistory extends Model
         'NewPrice',
 
     ];
+
+    public function drug()
+    {
+        return $this->belongsTo(Drug::class, 'drugId');
+    }
+
+    public function pharmacy()
+    {
+        return $this->belongsTo(Pharmacy::class, 'pharmacyId');
+    }
 }

@@ -9,7 +9,17 @@ class HospitalDepartment extends Model
     //
     protected $table = 'HospitalDepartment';
     protected $fillable = [
-        'departmentId',
-        'hospitalId'
+        'DepartmentId',
+        'HospitalId'
     ];
+
+    public function hospital()
+    {
+        return $this->belongsTo(Hospital::class, 'HospitalId');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'DepartmentId');
+    }
 }

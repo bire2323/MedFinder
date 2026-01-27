@@ -30,4 +30,19 @@ class Hospital extends Model
     {
         return $this->morphMany(FacilityService::class, 'addressable');
     }
+
+    public function agent()
+    {
+        return $this->belongsTo(User::class, 'HospitalAgentId');
+    }
+
+    public function hospitalDepartments()
+    {
+        return $this->hasMany(HospitalDepartment::class, 'HospitalId');
+    }
+
+    public function departments()
+    {
+        return $this->belongsToMany(Department::class, 'HospitalDepartment', 'HospitalId', 'DepartmentId');
+    }
 }
