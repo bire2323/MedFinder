@@ -1,0 +1,14 @@
+{
+  "headingNav": { "home": "መግቢያ", "hospitals": "ሆስፒታሎች", "pharmacies": "ፋርማሲዎች", "map": "ካርታ" },
+  "heading": { "hospital_and_pharmacy_finder": "ሆስፒታል እና ፋርማሲ ፈላጊ" },
+
+  "Register": { "Wellcome": "እንኳን ወደ MedFinder በደህና መጣችሁ።", "Register": "ይመዝገቡ", "Name": "ስም", "Name Placeholder": "ለምሳሌ፡ አማኑኤል ደሴ", "Phone": "ስልክ ቁጥር", "Phone Placeholder": "ለምሳሌ፡ 0987654321 ወይም 0798654321", "Password": "ሚስጥር ቁጥር", "Password Placeholder": "ሚስጥር ቁጥር ያስገቡ", "Confirm Password": "ሚስጥር ቁጥር ያረጋግጡ", "Confirm Password Placeholder": "ሚስጥር ቁጥር ያረጋግጡ", "Error Name Required": "ስም መግባት አለበት", "Error Name Short": "ትክክለኛ ስም ያስገቡ", "Error Phone Invalid": "ስልክ ቁጥር በትክክል ያስገቡ", "Error Password Required": "ሚስጥር ቁጥር አላስገቡም", "Error Password Short": "ሚስጥር ቁጥር 8 አሃዝ በላይ መሆን አለበት", "Password Do Not Match": "ሚስጥር ቁጥርዎ አይመሳሰሉም", "Already Have Account": "አካዉንት አለዎት?", "Login": "ግባ", "Registering": "መዝገብ...", "Error Name Min 4": "ስም ከ 4 አሀዝ መብለጥ አለበት", "Error Phone Required": "ስልክ ቁጥር መግባት አለበት", "Error Phone Taken": "ስልክ ቁጥሩ ከዚህ በፊት ተመዝግቧል" },
+
+  "Login": { "Phone": "ስልክ ቁጥር", "Phone Placeholder": "ለምሳሌ፡ 0987654321 ወይም 0798654321", "Password": "ሚስጥር ቁጥር", "Password Placeholder": "ሚስጥር ቁጥር ያስገቡ", "Login": "ግባ", "Signing In": "መግቢያ...", "Don't Have Account": "አካዉንት አለዎት?", "Register": "ይመዝገቡ", "Error Phone And Password Required": "ስልክ ቁጥር እና ሚስጥር ቁጥር መግባት አለበት", "Login Failed": "ስልክ ቁጥርዎ ወይም ሚስጥር ቁጥር ተሳስቷል!", "forget password": "ሚስጥር ቁጥር እረስተዋል?", "click here": "ይጫኑ!" },
+
+  "Reset": { "ResetYourPassword": "የይለፍ ቁጥርዎን በአዲስ ይሙሉ", "EnterNewPassword": "አዲስ ይለፍ ቁጥር ያስገቡ", "NewPassword": "አዲስ ይለፍ ቁጥር", "ConfirmPassword": "ይለፍ ቁጥሩን ያረጋግጡ", "ShowPassword": "ይለፍ ቁጥሩን አሳይ", "UpdatePassword": "ይለፍ ቁጥሩን ቀይር", "PasswordMinLength": "ይለፍ ቁጥሩ 8 አሀዝ በላይ መሆን አለበት", "PasswordNotMatch": "የይለፍ ቁጥሩ አመሳስል", "Password_reset_failed": "ዉድቅ ሁኗል!" },
+
+  "Resetting": { "InterPhone": "ስልክ ቁጥርዎን ያስገቡ", "Phone": "ስልክ ቁጥር", "PhonePlaceholder": "ለምሳሌ፡ 0987654321 ወይም 0798654321", "ErrorPhoneInvalid": "ስልክ ቁጥር ተሳስቷል", "UserNotFound": "አልተገኘም", "SendOtp": "OTP ይላኑ", "SendingOtp": "OTP በመላክ ላይ", "SendOtpFailed": "OTP መላክ አልተሳካም" },
+
+  "VerifyOtp": { "Title": "OTP አረጋግጥ", "VerifyOtp": "OTP አረጋግጥ", "EnterOtpSentTo": "OTP ተልኳል በ ስልክ ቁጥር፡ ", "ButtonVerify": "OTP አረጋግጥ", "Verifying": "OTP በመረጋጥ ላይ...", "OtpIncomplete": "እባክዎ 4 ቁጥሮች ያስገቡ", "ExpiredOtp": "OTP ዉድቅ ሁኗል!", "ErrorOtpInvalid": "OTP ተሳስቷል", "TooManyAttempts": "ተደጋጋሚ ሙከራዎች፡ እባክዎ ከጥቂት ደቂቃዎች በኋላ ደግመው ይሞክሩ!", "ResendIn": "OTP እንደገና ለመላክ ይጠብቁ", "ResendOtp": "OTP እንደገና ላክ", "ResendWait": "OTP እንደገና ለመላክ ይጠብቁ!", "PhoneRequired": "ስልክ ቁጥር መግባት አለበት", "NoPendingRegistration": "አልተገኘም", "ResendFailed": "OTP መላክ ዉድቅ ሁኗል" }
+}
