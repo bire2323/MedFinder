@@ -13,4 +13,14 @@ class ChatSession extends Model
         "ChatContext",
 
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'userId');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(ChatMessage::class, 'sessionId');
+    }
 }

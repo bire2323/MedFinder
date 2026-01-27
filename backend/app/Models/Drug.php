@@ -15,4 +15,9 @@ class Drug extends Model
         "Manufacturer",
         "DrugCategory"
     ];
+
+    public function priceHistories()
+    {
+        return $this->hasMany(DrugPriceHistory::class, 'drugId');
+    }
 }

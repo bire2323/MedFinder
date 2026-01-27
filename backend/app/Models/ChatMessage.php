@@ -13,4 +13,9 @@ class ChatMessage extends Model
         "Message",
 
     ];
+
+    public function session()
+    {
+        return $this->belongsTo(ChatSession::class, 'sessionId');
+    }
 }

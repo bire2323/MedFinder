@@ -15,4 +15,14 @@ class LowStockExpirationAlert extends Model
         'NotifiedDate',
         'NotifionMessage'
     ];
+
+    public function pharmacy()
+    {
+        return $this->belongsTo(Pharmacy::class, 'pharmacyId');
+    }
+
+    public function drug()
+    {
+        return $this->belongsTo(Drug::class, 'drugId');
+    }
 }
