@@ -11,13 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('LowStockExpirationAlert', function (Blueprint $table) {
+        Schema::create('low_stock_expiration_alerts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pharmacyId')->constrained('Pharmacy')->onDelete('cascade');
-            $table->foreignId('drugId')->constrained('Drug')->onDelete('cascade');
-            $table->dateTime('ExpirationDate');
-            $table->dateTime('NotifiedDate');
-            $table->string('NotifionMessage');
+
+            // Foreign keys
+            $table->foreignId('pharmacy_id')
+                  ->constrained('pharmacies')
+                  ->cascadeOnDelete();
+
+            $table->foreignId('drug_id')
+                  ->constrained('drugs')
+                  ->cascadeOnDelete();
+
+            // Alert details
+            $table->dateTime('expiration_date');
+            $table->dateTime('notified_date');
+            $table->string('notification_message');
+
             $table->timestamps();
         });
     }
@@ -27,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('LowStockExpirationAlert');
+        Schema::dropIfExists('low_stock_expiration_alerts');
     }
 };

@@ -1,76 +1,139 @@
+/**
+ * Application Router Configuration
+ * Defines all routes for the MedFinder application
+ */
 import { createBrowserRouter } from "react-router-dom";
 
+// Layouts
 import MainLayout from "../layout/MainLayout";
 import OtherLayout from "../layout/OtherLayout";
+
+// Pages
 import HomePage from "../../pages/home/HomePage";
 import MapPage from "../../pages/map/MapPage";
 import PharmacyDashboard from "../../pages/pharmacyAgent/PharmacyDashboard";
+import HospitalDashboard from "../../pages/hospitalAgent/HospitalDashboard";
+import FacilityDetailPage from "../../pages/FacilityDetailPage";
+
+// Auth Pages
 import LoginRoute from "../Router/LoginRoute";
 import RegisterRoute from "../Router/RegisterRoute";
-import VerifyOtp from "../../pages/verifyOtp";
-
+import VerifyOtp from "../../pages/VerifyOtp";
 import LoginForm from "../../pages/LoginForm";
 import RegisterationForm from "../../pages/RegistrationForm";
 import ResettingPassword from "../../pages/ResettingPassword";
 import ResetForm from "../../pages/ResetForm";
 
+// Registration Wizard
+import { RegistrationWizard } from "../../pages/registration";
+
+// 404 Component
 function NotFound() {
-  return <h1>404 - Page Not Found</h1>;
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
+      <h1 className="text-6xl font-bold text-slate-300 dark:text-gray-700 mb-4">404</h1>
+      <p className="text-xl text-slate-600 dark:text-gray-400 mb-6">Page Not Found</p>
+      <a 
+        href="/" 
+        className="px-6 py-3 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-600 transition-colors"
+      >
+        Go Home
+      </a>
+    </div>
+  );
 }
 
 export const router = createBrowserRouter([
-  // Group 1: Routes that use MainLayout
+  // ==================== PUBLIC ROUTES (MainLayout) ====================
   {
     element: <MainLayout />,
     children: [
+      // Home page
       {
         path: "/",
         element: <HomePage />,
       },
+      // Map page
       {
         path: "/map",
         element: <MapPage />,
       },
+      // Login routes
       {
-  path: "login",
-  element:<LoginRoute/>,
-   children: [
-          { index: true, element: <LoginForm /> }, // /login
-          { path: "reset-password", element: <ResettingPassword /> }, // /login/reset-password
-           { path: "reset-password/get-otp-resetting", element: <ResetForm /> },
-           { path: "reset-password/verify-otp", element: <VerifyOtp /> },
+        path: "login",
+        element: <LoginRoute />,
+        children: [
+          { index: true, element: <LoginForm /> },
+          { path: "reset-password", element: <ResettingPassword /> },
+          { path: "reset-password/get-otp-resetting", element: <ResetForm /> },
+          { path: "reset-password/verify-otp", element: <VerifyOtp /> },
         ],
- 
-},
-
+      },
+      // Basic user registration
       {
         path: "register",
-        element: <RegisterRoute />, // modal wrapper
+        element: <RegisterRoute />,
         children: [
-          { index: true, element: <RegisterationForm /> }, // /register
-          { path: "verify-otp", element: <VerifyOtp /> }, // /register/verify-otp
+          { index: true, element: <RegisterationForm /> },
+          { path: "verify-otp", element: <VerifyOtp /> },
         ],
       },
     ],
   },
 
-  // Group 2: Routes that use OtherLayout (detail pages)
+  // ==================== FACILITY REGISTRATION (Standalone Pages) ====================
+  {
+    path: "/register/pharmacy",
+    element: <RegistrationWizard registrationType="pharmacy" />,
+  },
+  {
+    path: "/register/hospital",
+    element: <RegistrationWizard registrationType="hospital" />,
+  },
+
+  // ==================== AGENT DASHBOARDS (Standalone Pages) ====================
+  // Pharmacy Agent Dashboard
+  {
+    path: "/pharmacy-agent/dashboard",
+    element: <PharmacyDashboard />,
+  },
+  // Hospital Agent Dashboard
+  {
+    path: "/hospital-agent/dashboard",
+    element: <HospitalDashboard />,
+  },
+
+  // ==================== FACILITY DETAIL PAGES (OtherLayout) ====================
   {
     element: <OtherLayout />,
     children: [
+      // Pharmacy detail page
+      {
+        path: "/pharmacy/:id",
+        element: <FacilityDetailPage />,
+      },
+      // Hospital detail page
+      {
+        path: "/hospital/:id",
+        element: <FacilityDetailPage />,
+      },
+      // Legacy routes (keeping for backward compatibility)
       {
         path: "/pharmacy/detail/:id",
-        element: <HomePage />,
+        element: <FacilityDetailPage />,
       },
       {
         path: "/hospital/detail/:id",
-        element: <PharmacyDashboard />,
+        element: <FacilityDetailPage />,
       },
     ],
   },
 
+  // ==================== 404 CATCH-ALL ====================
   {
     path: "*",
     element: <NotFound />,
   },
 ]);
+
+export default router;

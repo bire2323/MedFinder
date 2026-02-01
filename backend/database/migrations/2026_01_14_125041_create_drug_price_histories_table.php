@@ -11,12 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('DrugPriceHistory', function (Blueprint $table) {
+        Schema::create('drug_price_histories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('drugId')->constrained("Drug")->onDelete('cascade');
-            $table->foreignId("pharmacyId")->constrained("Pharmacy")->onDelete('cascade');
-            $table->decimal('OldPrice', 10, 2);
-            $table->decimal('NewPrice', 10, 2);
+
+            // Foreign keys
+            $table->foreignId('drug_id')
+                  ->constrained('drugs')
+                  ->cascadeOnDelete();
+
+            $table->foreignId('pharmacy_id')
+                  ->constrained('pharmacies')
+                  ->cascadeOnDelete();
+
+            // Price history
+            $table->decimal('old_price', 10, 2);
+            $table->decimal('new_price', 10, 2);
+
             $table->timestamps();
         });
     }
@@ -26,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('DrugPriceHistory');
+        Schema::dropIfExists('drug_price_histories');
     }
 };

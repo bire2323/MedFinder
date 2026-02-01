@@ -2,7 +2,9 @@ import FloatingChatButton from "../../component/FloatingChatButton";
 import Header from "../../component/Header";
 import BackToTop from "../../component/BackToTop";
 
-import React, { useState } from "react";
+import { apiAddDepartment,apiGetHospitals,apiGetPharmacies } from "../../api/hospital";
+
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   FaHospital,
@@ -79,6 +81,33 @@ const fadeInUp = {
 const staggerContainer = {
   animate: { transition: { staggerChildren: 0.1 } },
 };
+
+  
+ apiGetHospitals().then((res)=>{
+  if (res.success) {
+    
+    console.log((res.data));
+  }else{
+    console.log('not');
+    
+  }
+})
+//console.log(res.data);
+
+apiGetPharmacies().then((res)=>{
+if (res.success) {
+  
+  console.log((res.data));
+}else{
+  console.log('not');
+  
+}
+})
+
+
+
+
+
 
 export default function HomePage() {
   const [searchType, setSearchType] = useState("hospital");

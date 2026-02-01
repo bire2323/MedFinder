@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('Drug', function (Blueprint $table) {
+        Schema::create('drugs', function (Blueprint $table) {
             $table->id();
-            $table->string('GenericName');
-            $table->string('BrandNameEn');
-            $table->string('BrandNameAm');
-            $table->string('Manufacturer')->nullable();
-            $table->string("DrugCategory")->nullable();
+
+            $table->string('generic_name');
+            $table->string('brand_name_en');
+            $table->string('brand_name_am');
+            $table->string('manufacturer')->nullable();
+            $table->string('drug_category')->nullable();
+
             $table->softDeletes();
             $table->timestamps();
         });
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('Drug');
+        Schema::dropIfExists('drugs');
     }
 };

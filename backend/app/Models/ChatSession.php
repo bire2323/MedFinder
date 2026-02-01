@@ -7,20 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 class ChatSession extends Model
 {
     //
-    protected $table = "ChatSession";
+    
     protected $fillable = [
-        "userId",
-        "ChatContext",
+        "user_id",
+        "chat_context",
 
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'userId');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function messages()
     {
-        return $this->hasMany(ChatMessage::class, 'sessionId');
+        return $this->hasMany(ChatMessage::class, 'session_id');
     }
 }

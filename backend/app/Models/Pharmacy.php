@@ -6,14 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pharmacy extends Model
 {
-    protected $table = "Pharmacy";
+   
     protected $fillable = [
-        "PharmacyAgentId",
-        "LicenceNumber",
-        "PharmacyLicenseCategory",
-        "PharmacyLicenseUpload",
-        "WorkingHour",
-        "Logo",
+        "pharmacy_agent_id",
+        "pharmacy_name_en",
+        "pharmacy_name_am",
+        "license_number",
+        "pharmacy_license_category",
+        "pharmacy_license_upload",
+        "working_hour",
+        "logo",
+        "address_description"
     ];
 
     public function addresses()
@@ -27,16 +30,16 @@ class Pharmacy extends Model
 
     public function agent()
     {
-        return $this->belongsTo(User::class, 'PharmacyAgentId');
+        return $this->belongsTo(User::class, 'pharmacy_agent_id');
     }
 
     public function inventories()
     {
-        return $this->hasMany(PharmacyDrugInventory::class, 'PharmacyId');
+        return $this->hasMany(PharmacyDrugInventory::class, 'pharmacy_id');
     }
 
     public function drugs()
     {
-        return $this->belongsToMany(Drug::class, 'PharmacyDrugInventory', 'PharmacyId', 'DrugId');
+        return $this->belongsToMany(Drug::class, 'PharmacyDrugInventory', 'pharmacy_id', 'drug_id');
     }
 }

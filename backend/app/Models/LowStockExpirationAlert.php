@@ -6,23 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class LowStockExpirationAlert extends Model
 {
-    //
-    protected $table = 'LowStockExpirationAlert';
+    
     protected $fillable = [
-        'pharmacyId',
-        'drugId',
-        'ExpirationDate',
-        'NotifiedDate',
-        'NotifionMessage'
+        'pharmacy_id',
+        'drug_id',
+        'expiration_date',
+        'notified_date',
+        'notification_message'
     ];
 
     public function pharmacy()
     {
-        return $this->belongsTo(Pharmacy::class, 'pharmacyId');
+        return $this->belongsTo(Pharmacy::class, 'pharmacy_id');
     }
 
     public function drug()
     {
-        return $this->belongsTo(Drug::class, 'drugId');
+        return $this->belongsTo(Drug::class, 'drug_id');
     }
 }

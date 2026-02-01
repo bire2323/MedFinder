@@ -6,17 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Hospital extends Model
 {
-    //
-    protected $table = 'Hospital';
+
     protected $fillable = [
-        "HospitalAgentId",
-        "IsFullTimeService",
-        "HospitalOwnershipType",
-        "WorkingHour",
-        "LicenseNumber",
-        "OfficialLicenseUpload",
-        "Logo",
-        "EmergencyContact",
+        "hospital_agent_id",
+        "hospital_name_en",
+        "hospital_name_am",
+        "is_full_time_service",
+        "hospital_ownership_type",
+        "working_hour",
+        "license_number",
+        "official_license_upload",
+        "logo",
+        "emergency_contact",
+        "address_description"
     ];
 
 
@@ -33,16 +35,16 @@ class Hospital extends Model
 
     public function agent()
     {
-        return $this->belongsTo(User::class, 'HospitalAgentId');
+        return $this->belongsTo(User::class, 'hospital_agent_id');
     }
 
     public function hospitalDepartments()
     {
-        return $this->hasMany(HospitalDepartment::class, 'HospitalId');
+        return $this->hasMany(HospitalDepartment::class, 'hospital_id');
     }
 
     public function departments()
     {
-        return $this->belongsToMany(Department::class, 'HospitalDepartment', 'HospitalId', 'DepartmentId');
+        return $this->belongsToMany(Department::class, 'HospitalDepartment', 'hospital_id', 'department_id');
     }
 }

@@ -54,6 +54,8 @@ Route::get('drugs/{drug}', [DrugController::class, 'show']);
 // Protected routes (require auth:sanctum)
 Route::middleware('auth:sanctum')->group(function () {
     // Full CRUD (explicit routes)
+    Route::post('register/hospital', [HospitalController::class, 'store']);
+    Route::post('register/pharmacy', [PharmacyController::class, 'store']);
     // Hospitals
     Route::post('hospitals', [HospitalController::class, 'store']);
     Route::put('hospitals/{hospital}', [HospitalController::class, 'update']);
@@ -113,6 +115,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('departments/{department}', [DepartmentController::class, 'destroy']);
 
     // Chat endpoints
+    Route::post('chat', [ChatSessionController::class, 'chat']);
     Route::get('chats', [ChatSessionController::class, 'index']);
     Route::post('chats', [ChatSessionController::class, 'store']);
     Route::get('chats/{chat}', [ChatSessionController::class, 'show']);

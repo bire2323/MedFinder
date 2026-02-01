@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class FacilityService extends Model
 {
     //
-    protected $table = "FacilityService";
+  
     protected $fillable = [
         "addressable_id",
         "addressable_type",
-        "IsAvailable",
-        "Notes"
+        "is_available",
+        "notes"
     ];
 
     public function addressable()

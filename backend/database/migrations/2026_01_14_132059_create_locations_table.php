@@ -11,20 +11,33 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('Location', function (Blueprint $table) {
+        Schema::create('locations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('addressable_id');          // the ID of hospital or pharmacy
+
+            // Polymorphic relation (hospital or pharmacy)
+            $table->unsignedBigInteger('addressable_id');
             $table->string('addressable_type');
-            $table->string("Region");
-            $table->string("Zone");
-            $table->string("City");
-            $table->string("SubCity");
-            $table->string("Kebele");
-            $table->decimal('Latitude', 20, 20);
-            $table->decimal('Longitude', 20, 20);
-            $table->string("AddressType");
+
+            // Address details
+            $table->string('region_en');
+            $table->string('region_am');
+            $table->string('zone_en');
+            $table->string('zone_am');
+           
+            $table->string('sub_city_en');
+            $table->string('sub_city_am');
+            $table->string('kebele');
+
+            // Coordinates
+            $table->decimal('latitude', 10, 7);
+            $table->decimal('longitude', 10, 7);
+
+            $table->string('address_type');
+
             $table->softDeletes();
             $table->timestamps();
+
+            // Polymorphic index
             $table->index(['addressable_id', 'addressable_type']);
         });
     }

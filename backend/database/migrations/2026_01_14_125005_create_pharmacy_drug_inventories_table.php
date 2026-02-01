@@ -11,14 +11,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('PharmacyDrugInventory', function (Blueprint $table) {
+        Schema::create('pharmacy_drug_inventories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('PharmacyId')->constrained("Pharmacy")->onDelete('cascade');
-            $table->foreignId('DrugId')->constrained("Drug")->onDelete('cascade');
-            $table->integer('QuantityAvailable');
-            $table->integer('UnitCost');
-            $table->integer('SellingPrice');
-            $table->string('Status');
+
+            // Foreign keys
+            $table->foreignId('pharmacy_id')
+                  ->constrained('pharmacies')
+                  ->cascadeOnDelete();
+
+            $table->foreignId('drug_id')
+                  ->constrained('drugs')
+                  ->cascadeOnDelete();
+
+            // Inventory fields
+            $table->integer('quantity_available')->default(0);
+            $table->decimal('unit_cost', 10, 2)->default(0);
+            $table->decimal('selling_price', 10, 2)->default(0);
+
+            // Status
+            $table->enum('status', ['AVAILABLE', 'OUT_OF_STOCK', 'DISCONTINUED'])
+                  ->default('AVAILABLE');
+
             $table->timestamps();
         });
     }
@@ -28,6 +41,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('PharmacyDrugInventory');
+        Schema::dropIfExists('pharmacy_drug_inventories');
     }
 };
