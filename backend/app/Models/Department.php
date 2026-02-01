@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Department extends Model
 {
     //
-    protected $table = "Department";
+    
     protected $fillable = [
-        "DepartmentNameEn",
-        "DepartmentNameAm",
-        "DepartmentCategoryNameEn",
-        "DepartmentCategoryNameAm"
+        "department_name_en",
+        "department_name_am",
+        "department_category_name_en",
+        "department_category_name_am"
     ];
 }

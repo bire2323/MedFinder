@@ -38,7 +38,10 @@ const rowPhone= (phone || "").trim();
       const res = await apiLogin(formData);
 
       if (res.success) {
-        alert(t("Login.Login") + " " + "successful"); // optionally translate message
+        localStorage.setItem('user',JSON.stringify(res.user));
+        localStorage.setItem('token',res.token);
+        //console.log(res);
+       // alert(t("Login.Login") + " " + "successful"); // optionally translate message
       navigate('/');
       } else {
         if (res.errors) {

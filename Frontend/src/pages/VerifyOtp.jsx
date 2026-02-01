@@ -128,7 +128,8 @@ useEffect(()=>{
         if (res.success) {
           console.log(res.token);
           localStorage.setItem("token", res.token);
-          localStorage.setItem("user", res.user);
+          localStorage.setItem("user", JSON.stringify(res.user));
+          //console.log(res.user);
           navigate("/"); // ← change to your success route
         } else if (res.message === "OTP expired") {
           setError(t("VerifyOtp.ExpiredOtp") || "expired OTP");

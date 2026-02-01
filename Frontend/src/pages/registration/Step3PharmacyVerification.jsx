@@ -1,0 +1,368 @@
+/**
+ * Step 3: Pharmacy Verification
+ * Uses local state for text inputs to prevent focus loss
+ */
+import React, { useRef, useState, useEffect } from 'react';
+import { useRegistrationStore } from '../../store/registrationStore';
+import { FileText, Upload, Clock, ArrowLeft, ArrowRight, ShieldCheck, Building2, Image, X } from 'lucide-react';
+
+const PHARMACY_TYPES = [
+  { value: '', label: 'Select Pharmacy Type' },
+  { value: 'community', label: 'Community Pharmacy' },
+  { value: 'hospital_based', label: 'Hospital-based Pharmacy' },
+  { value: 'wholesale', label: 'Wholesale Pharmacy' },
+  { value: 'import', label: 'Import Pharmacy' },
+];
+
+const Step3PharmacyVerification = () => {
+  const { formData, errors, updateFormData, syncFormDataFromLocal, nextStep, prevStep, validateStep3Pharmacy } = useRegistrationStore();
+
+  const [localData, setLocalData] = useState({ licenseNumber: '', pharmacyType: '', workingHours: '', confirmLicensed: false });
+  const licenseInputRef = useRef(null);
+  const logoInputRef = useRef(null);
+
+  useEffect(() => {
+    setLocalData({
+      licenseNumber: formData.licenseNumber || '',
+      pharmacyType: formData.pharmacyType || '',
+      workingHour: formData.workingHour    || '',
+      confirmLicensed: formData.confirmLicensed || false,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleNext = (e) => {
+    e.preventDefault();
+    syncFormDataFromLocal(localData);
+    if (validateStep3Pharmacy()) {
+      console.log('hr');
+      nextStep();
+    }else{
+      console.log('hrno');
+
+    }
+  };
+
+  const handleChange = (field) => (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    setLocalData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Handle license document upload
+  const handleLicenseUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Please upload an image (JPG, PNG, GIF) or PDF file.');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB.');
+        return;
+      }
+      updateFormData('licenseDocument', file);
+      updateFormData('licenseDocumentName', file.name);
+    }
+  };
+
+  // Handle logo upload
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type (images only for logo)
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Please upload an image file (JPG, PNG, GIF, WebP).');
+        return;
+      }
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('Logo file size must be less than 2MB.');
+        return;
+      }
+      updateFormData('pharmacyLogo', file);
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      updateFormData('pharmacyLogoPreview', previewUrl);
+    }
+  };
+
+  // Remove uploaded file
+  const removeLicenseDocument = () => {
+    updateFormData('licenseDocument', null);
+    updateFormData('licenseDocumentName', '');
+    if (licenseInputRef.current) {
+      licenseInputRef.current.value = '';
+    }
+  };
+
+  const removeLogo = () => {
+    if (formData.pharmacyLogoPreview) URL.revokeObjectURL(formData.pharmacyLogoPreview);
+    updateFormData('pharmacyLogo', null);
+    updateFormData('pharmacyLogoPreview', '');
+    if (logoInputRef.current) logoInputRef.current.value = '';
+  };
+
+  return (
+    <form onSubmit={handleNext} className="p-6 md:p-8">
+      <div className="space-y-6">
+        {/* License Number */}
+        <div className="space-y-2">
+          <label 
+            htmlFor="licenseNumber" 
+            className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
+          >
+            <FileText size={16} className="text-blue-500" />
+            License Number
+            <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="licenseNumber"
+            type="text"
+            value={localData.licenseNumber}
+            onChange={handleChange('licenseNumber')}
+            placeholder="e.g., PH-1234-ETH"
+            className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${errors.licenseNumber ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'}`}
+          />
+          {errors.licenseNumber && (
+            <p className="text-xs text-red-500">{errors.licenseNumber}</p>
+          )}
+        </div>
+
+        {/* License Document Upload */}
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <Upload size={16} className="text-blue-500" />
+            License Document
+            <span className="text-red-500">*</span>
+          </label>
+          
+          {formData.licenseDocument ? (
+            <div className="flex items-center justify-between p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-gray-400 dark:border-gray-500">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-emerald-100 dark:bg-emerald-800 rounded-lg">
+                  <FileText size={20} className="text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-800 dark:text-white">
+                    {formData.licenseDocumentName}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {(formData.licenseDocument.size / 1024).toFixed(1)} KB
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={removeLicenseDocument}
+                className="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                aria-label="Remove file"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          ) : (
+            <div
+              onClick={() => licenseInputRef.current?.click()}
+              className={`
+                p-8 border-2 border-dashed rounded-xl text-center cursor-pointer
+                transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50
+                ${errors.licenseDocument ? 'border-red-400 bg-red-50/50 dark:bg-red-900/10' : 'border-gray-400 dark:border-gray-500'}
+              `}
+            >
+              <Upload size={32} className="mx-auto text-gray-400 mb-2" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Click to upload license document
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                Supports: JPG, PNG, GIF, PDF (max 5MB)
+              </p>
+            </div>
+          )}
+          <input
+            ref={licenseInputRef}
+            type="file"
+            accept="image/*,.pdf"
+            onChange={handleLicenseUpload}
+            className="hidden"
+          />
+          {errors.licenseDocument && (
+            <p className="text-xs text-red-500">{errors.licenseDocument}</p>
+          )}
+        </div>
+
+        {/* Pharmacy Type */}
+        <div className="space-y-2">
+          <label 
+            htmlFor="pharmacyType" 
+            className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
+          >
+            <Building2 size={16} className="text-blue-500" />
+            Pharmacy Type
+            <span className="text-red-500">*</span>
+          </label>
+          <select
+            id="pharmacyType"
+            value={localData.pharmacyType}
+            onChange={handleChange('pharmacyType')}
+            className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-0 appearance-none cursor-pointer ${errors.pharmacyType ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'}`}
+          >
+            {PHARMACY_TYPES.map((type) => (
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
+            ))}
+          </select>
+          {errors.pharmacyType && (
+            <p className="text-xs text-red-500">{errors.pharmacyType}</p>
+          )}
+        </div>
+
+        {/* Working Hours */}
+        <div className="space-y-2">
+          <label 
+            htmlFor="workingHours" 
+            className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
+          >
+            <Clock size={16} className="text-blue-500" />
+            Working Hours
+            <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="workingHour"
+            type="text"
+            value={localData.workingHour}
+            onChange={handleChange('workingHour')}
+            placeholder="e.g., 08:00 - 20:00 or 24/7"
+            className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${errors.workingHours ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'}`}
+          />
+          {errors.workingHours && (
+            <p className="text-xs text-red-500">{errors.workingHour}</p>
+          )}
+        </div>
+
+        {/* Pharmacy Logo Upload */}
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <Image size={16} className="text-blue-500" />
+            Pharmacy Logo
+            <span className="text-xs text-gray-400 font-normal">(optional)</span>
+          </label>
+          
+          {formData.pharmacyLogoPreview ? (
+            <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-400 dark:border-gray-500">
+              <img
+                src={formData.pharmacyLogoPreview}
+                alt="Logo preview"
+                className="w-16 h-16 object-cover rounded-lg"
+              />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-800 dark:text-white">
+                  Logo uploaded
+                </p>
+                <p className="text-xs text-gray-500">
+                  {formData.pharmacyLogo?.name}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={removeLogo}
+                className="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                aria-label="Remove logo"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          ) : (
+            <div
+              onClick={() => logoInputRef.current?.click()}
+              className="p-6 border-2 border-dashed border-gray-400 dark:border-gray-500 rounded-xl text-center cursor-pointer transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+            >
+              <Image size={28} className="mx-auto text-gray-400 mb-2" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Click to upload logo
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                JPG, PNG, GIF, WebP (max 2MB)
+              </p>
+            </div>
+          )}
+          <input
+            ref={logoInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleLogoUpload}
+            className="hidden"
+          />
+        </div>
+
+        <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-gray-400 dark:border-gray-500">
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <div className="relative mt-0.5">
+              <input
+                type="checkbox"
+                checked={localData.confirmLicensed}
+                onChange={handleChange('confirmLicensed')}
+                className="sr-only peer"
+              />
+              <div className={`
+                w-5 h-5 rounded border-2 transition-all duration-200
+                flex items-center justify-center
+                peer-checked:bg-emerald-500 peer-checked:border-emerald-500
+                ${errors.confirmLicensed ? 'border-red-400' : 'border-gray-400 dark:border-gray-500'} group-hover:border-emerald-400`}>
+                {localData.confirmLicensed && (
+                  <ShieldCheck size={14} className="text-white" />
+                )}
+              </div>
+            </div>
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              I confirm that this is a <strong>licensed pharmacy</strong> and all 
+              information provided is accurate and verifiable.
+              <span className="text-red-500"> *</span>
+            </span>
+          </label>
+          {errors.confirmLicensed && (
+            <p className="text-xs text-red-500 mt-2 ml-8">
+              {errors.confirmLicensed}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Navigation Buttons */}
+      <div className="mt-8 flex justify-between">
+        <button
+          type="button"
+          onClick={prevStep}
+          className="
+            flex items-center gap-2 px-6 py-3 rounded-xl font-semibold
+            bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300
+            hover:bg-gray-200 dark:hover:bg-gray-600
+            transition-all duration-200
+          "
+        >
+          <ArrowLeft size={18} />
+          Back
+        </button>
+        <button
+          type="submit"
+          className="
+            flex items-center gap-2 px-8 py-3 rounded-xl font-semibold
+            bg-gradient-to-r from-blue-500 to-emerald-500 text-white
+            hover:from-blue-600 hover:to-emerald-600
+            transform hover:scale-[1.02] active:scale-[0.98]
+            transition-all duration-200 shadow-lg hover:shadow-xl
+          "
+        >
+          Review & Submit
+          <ArrowRight size={18} />
+        </button>
+      </div>
+    </form>
+  );
+};
+
+export default Step3PharmacyVerification;

@@ -7,15 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class ChatMessage extends Model
 {
     //
-    protected $table = "ChatMessage";
+   
     protected $fillable = [
-        "sessionId",
-        "Message",
+        "chat_session_id",
+        "message",
 
     ];
 
     public function session()
     {
-        return $this->belongsTo(ChatSession::class, 'sessionId');
+        return $this->belongsTo(ChatSession::class, 'chat_session_id');
     }
 }

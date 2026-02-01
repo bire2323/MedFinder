@@ -7,17 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 class Drug extends Model
 {
     //
-    protected $table = "Drug";
+   
     protected $fillable = [
-        "GenericName",
-        "BrandNameEn",
-        "BrandNameAm",
-        "Manufacturer",
-        "DrugCategory"
+        "generic_name",
+        "brand_name_en",
+        "brand_name_am",
+        "manufacturer",
+        "drug_category"
     ];
 
     public function priceHistories()
     {
-        return $this->hasMany(DrugPriceHistory::class, 'drugId');
+        return $this->hasMany(DrugPriceHistory::class, 'drug_id');
     }
 }

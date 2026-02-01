@@ -11,11 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('HospitalDepartment', function (Blueprint $table) {
+        Schema::create('hospital_departments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('hospitalId')->constrained('Hospital')->onDelete('cascade');
-            $table->foreignId('departmentId')->constrained('Department')->onDelete('cascade');
+
+            // Foreign keys
+            $table->foreignId('hospital_id')
+                  ->constrained('hospitals')
+                  ->cascadeOnDelete();
+
+            $table->foreignId('department_id')
+                  ->constrained('departments')
+                  ->cascadeOnDelete();
+
             $table->timestamps();
+
+            // Optional: prevent duplicate hospital-department entries
+            $table->unique(['hospital_id', 'department_id']);
         });
     }
 
@@ -24,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('HospitalDepartment');
+        Schema::dropIfExists('hospital_departments');
     }
 };

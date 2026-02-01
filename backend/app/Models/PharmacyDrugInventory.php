@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class PharmacyDrugInventory extends Model
 {
     //
-    protected $table = 'PharmacyDrugInventory';
+    protected $table = 'pharmacy_drug_inventories';
     protected $fillable = [
-        'DrugId',
-        'PharmacyId',
-        'QuantityAvailable',
-        'UnitCost',
-        'SellingPrice',
-        'Status'
+        'drug_id',
+        'pharmacy_id',
+        'quantity_available',
+        'unit_cost',
+        'selling_price',
+        'status'
     ];
 }

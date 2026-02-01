@@ -5,8 +5,11 @@ import {
   FaArrowRight,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // ... (Other imports and variants)
+
 
 const registrationCards = [
   {
@@ -47,9 +50,28 @@ const fadeInUp = {
 const staggerContainer = {
   animate: { transition: { staggerChildren: 0.1 } },
 };
-
 export default function RegisterPharmacy() {
+
+  const navigate=useNavigate();
   // ... existing code ...
+  const handleClick=(type)=>{
+  if (type==='pharmacy') {
+    const user=localStorage.getItem('user');
+    if(!user){
+      navigate('/login');
+    }else{
+      navigate('/register/pharmacy')
+    }
+  }else if (type==='hospital') {
+    const user=localStorage.getItem('user');
+    if (!user) {
+      navigate("/login");
+    }else{
+
+      navigate('/register/hospital')
+    }
+  }
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gray-900 transition-colors duration-300">
@@ -143,6 +165,7 @@ export default function RegisterPharmacy() {
                         ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 dark:shadow-none"
                         : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-200 dark:shadow-none"
                     }`}
+                    onClick={(()=>handleClick(card.type))}
                   >
                     {card.buttonText}
                     <FaArrowRight className="text-sm group-hover:translate-x-1 transition-transform" />

@@ -11,13 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('FacilityService', function (Blueprint $table) {
+        Schema::create('facility_services', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('addressable_id');          // the ID of hospital or pharmacy
+
+            // Polymorphic relation (hospital or pharmacy)
+            $table->unsignedBigInteger('addressable_id');
             $table->string('addressable_type');
-            $table->boolean('IsAvailable');
-            $table->string('Notes');
+
+             $table->foreignId('service_id')
+          ->constrained('services')
+          ->cascadeOnDelete();
+
+            // Facility service details
+            $table->boolean('is_available')->default(false);
+            $table->string('notes')->nullable();
+
             $table->timestamps();
+
+            // Polymorphic index
+            $table->index(['addressable_id', 'addressable_type']);
         });
     }
 
@@ -26,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('FacilityService');
+        Schema::dropIfExists('facility_services');
     }
 };

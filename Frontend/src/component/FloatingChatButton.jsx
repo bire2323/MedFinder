@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { BsChatRightFill, BsSendFill } from "react-icons/bs";
 import { IoClose } from "react-icons/io5";
 import { RiRobot2Line } from "react-icons/ri";
+import { sendMessage } from "../api/ChatBot";
 
 export default function FloatingChatButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,16 +40,14 @@ export default function FloatingChatButton() {
 
     try {
       // Connect to your Laravel API
-      const res = await axios.post("http://localhost:8000/api/chat", {
-        message: input,
-      });
-      setMessages((prev) => [...prev, { role: "bot", text: res.data.reply }]);
-    } catch (err) {
-      setMessages((prev) => [
-        ...prev,
-        { role: "bot", text: "Connection error. Is Ollama running?" },
-      ]);
-    } finally {
+      sendMessage(input).then((data)=>{
+        setMessages((prev)=>[...prev,{role:"bot", text: data.reply}])
+      }).catch((err) => {
+        setMessages((prev) => [
+          ...prev,
+          { role: "bot", text: "Connection error. Is Ollama running?" },
+        ]);
+      })}finally {
       setLoading(false);
     }
   };

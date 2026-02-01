@@ -11,17 +11,36 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('Hospital', function (Blueprint $table) {
+        Schema::create('hospitals', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("HospitalAgentId")->constrained("users")->onDelete('cascade');
-            $table->string('HospitalOwnershipType');
-            $table->integer('LicenseNumber');
-            $table->string('OfficialLicenseUpload');
-            $table->string('WorkingHour');
-            $table->string('Logo');
 
-            $table->boolean("IsFullTimeService");
-            $table->integer('EmergencyContact');
+            // Hospital registered by hospital agent (user)
+            $table->foreignId('hospital_agent_id')
+                  ->constrained('users')
+                  ->cascadeOnDelete();
+
+            // Admin who approved/rejected hospital (user)
+            $table->foreignId('approved_by')
+                  ->nullable()
+                  ->constrained('users')
+                  ->nullOnDelete();
+         $table->string("hospital_name_en");
+         $table->string("hospital_name_am");
+            $table->string('hospital_ownership_type');
+            $table->string('license_number');
+            $table->string('official_license_upload');
+            $table->string('working_hour');
+            $table->string('logo')->nullable();
+
+            $table->boolean('is_full_time_service')->default(false);
+            $table->string('emergency_contact');
+            $table->string('address_description');
+
+
+            // Approval status
+            $table->enum('status', ['PENDING', 'APPROVED', 'REJECTED'])
+                  ->default('PENDING');
+
             $table->softDeletes();
             $table->timestamps();
         });
@@ -32,6 +51,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('Hospital');
+        Schema::dropIfExists('hospitals');
     }
 };
