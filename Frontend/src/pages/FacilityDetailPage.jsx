@@ -23,9 +23,12 @@ import {
   ExternalLink,
   MessageSquare,
 } from 'lucide-react';
+import { useLoaderData } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { localizeFacility } from '../hooks/Localizer';
 
 const FacilityDetailPage = () => {
-  const { type, id } = useParams(); // type: 'pharmacy' or 'hospital'
+  const {  id } = useParams(); // type: 'pharmacy' or 'hospital'
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -33,96 +36,17 @@ const FacilityDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Determine facility type from URL
-  const isPharmacy = type === 'pharmacy' || location.pathname.includes('pharmacy');
-  const isHospital = type === 'hospital' || location.pathname.includes('hospital');
-
+ const {type,data}=useLoaderData();
+ const {i18n} = useTranslation();
+console.log('data',data);
+console.log('fac',facility);
   // Fetch facility details
   useEffect(() => {
-    const fetchFacility = async () => {
-      setIsLoading(true);
-      try {
-        // In real app, fetch from API
-        // const response = await fetch(`/api/${type}s/${id}`);
-        // const data = await response.json();
-        
-        // Mock data for demonstration
-        setTimeout(() => {
-          if (isPharmacy) {
-            setFacility({
-              id,
-              name: 'Central Wellness Pharmacy',
-              type: 'pharmacy',
-              description: 'A leading pharmacy providing quality medications and healthcare products in Addis Ababa.',
-              license: 'PH-9920-ETH',
-              rating: 4.8,
-              reviewCount: 124,
-              address: 'Bole Road, Mega Building, Addis Ababa',
-              region: 'Addis Ababa',
-              coordinates: { lat: 9.01, lng: 38.75 },
-              phone: '+251 911 22 33 44',
-              alternatePhone: '+251 911 55 66 77',
-              email: 'contact@centralwellness.com',
-              workingHours: '08:00 AM - 10:00 PM',
-              pharmacyType: 'Community Pharmacy',
-              isVerified: true,
-              services: [
-                'Prescription Filling',
-                'Over-the-Counter Medications',
-                'Health Consultations',
-                'Medicine Delivery',
-              ],
-              inventory: [
-                { name: 'Paracetamol', generic: 'Paracetamol', price: 25, available: true },
-                { name: 'Amoxicillin', generic: 'Amoxicillin', price: 85, available: true },
-                { name: 'Ibuprofen', generic: 'Ibuprofen', price: 35, available: true },
-                { name: 'Metformin', generic: 'Metformin HCL', price: 95, available: false },
-              ],
-            });
-          } else {
-            setFacility({
-              id,
-              name: 'St. Gabriel General Hospital',
-              type: 'hospital',
-              description: 'A comprehensive healthcare facility offering quality medical services with state-of-the-art equipment.',
-              license: 'HO-4520-ETH',
-              rating: 4.6,
-              reviewCount: 312,
-              address: 'Megenagna, Addis Ababa',
-              region: 'Addis Ababa',
-              coordinates: { lat: 9.02, lng: 38.78 },
-              phone: '+251 911 55 66 77',
-              emergencyPhone: '+251 911 00 00 00',
-              email: 'info@stgabriel.com',
-              workingHours: '24/7',
-              ownershipType: 'Private',
-              providesEmergency: true,
-              operates24Hours: true,
-              isVerified: true,
-              departments: [
-                { name: 'Cardiology', head: 'Dr. Abebe Kebede' },
-                { name: 'Pediatrics', head: 'Dr. Sara Hailu' },
-                { name: 'Orthopedics', head: 'Dr. Dawit Tesfa' },
-                { name: 'Emergency', head: 'Dr. Helen Mengistu' },
-              ],
-              services: [
-                { name: 'General Consultation', price: 500 },
-                { name: 'ECG Test', price: 800 },
-                { name: 'X-Ray', price: 600 },
-                { name: 'Blood Test', price: 350 },
-              ],
-            });
-          }
-          setIsLoading(false);
-        }, 500);
-      } catch (error) {
-        console.error('Error fetching facility:', error);
-        setIsLoading(false);
-      }
-    };
+   const result = localizeFacility(data,type, i18n.language);
+    setFacility(result);
+    setIsLoading(false);
+  }, [i18n.language]);
 
-    fetchFacility();
-  }, [id, type, isPharmacy, isHospital]);
 
   // Open in Google Maps
   const openInMaps = () => {
@@ -140,7 +64,7 @@ const FacilityDetailPage = () => {
     );
   }
 
-  if (!facility) {
+  if (!data) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
         <Building2 size={64} className="text-slate-300 mb-4" />
@@ -168,13 +92,13 @@ const FacilityDetailPage = () => {
           </button>
           <div className="flex-1">
             <h1 className="text-lg font-bold text-slate-800 dark:text-white truncate">
-              {facility.name}
+              {data.facility_name}
             </h1>
             <p className="text-xs text-slate-500 dark:text-gray-400">
-              {isPharmacy ? 'Pharmacy' : 'Hospital'} Details
+              {type==='pharmacy' ? 'Pharmacy' : 'Hospital'} Details
             </p>
           </div>
-          {facility.isVerified && (
+          {data.status==='APPROVED' && (
             <div className="flex items-center gap-1 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-full text-xs font-semibold">
               <Shield size={14} />
               Verified
@@ -192,9 +116,9 @@ const FacilityDetailPage = () => {
           className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg border border-slate-200 dark:border-gray-700 overflow-hidden mb-6"
         >
           {/* Gradient Header */}
-          <div className={`h-32 ${isPharmacy ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-gradient-to-r from-blue-500 to-indigo-500'}`}>
+          <div className={`h-32 ${type==='Pharmacy' ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-gradient-to-r from-blue-500 to-indigo-500'}`}>
             <div className="h-full flex items-center justify-center">
-              {isPharmacy ? (
+              {type==='pharmacy' ? (
                 <Pill size={48} className="text-white/50" />
               ) : (
                 <Building2 size={48} className="text-white/50" />
@@ -206,8 +130,8 @@ const FacilityDetailPage = () => {
           <div className="p-6 -mt-12">
             <div className="flex flex-col md:flex-row items-start gap-4">
               {/* Logo/Icon */}
-              <div className={`w-24 h-24 rounded-2xl ${isPharmacy ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-blue-100 dark:bg-blue-900/30'} flex items-center justify-center border-4 border-white dark:border-gray-800 shadow-lg`}>
-                {isPharmacy ? (
+              <div className={`w-24 h-24 rounded-2xl ${type==="pharmacy" ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-blue-100 dark:bg-blue-900/30'} flex items-center justify-center border-4 border-white dark:border-gray-800 shadow-lg`}>
+                {type==='pharmacy' ? (
                   <Pill size={40} className="text-emerald-600" />
                 ) : (
                   <Building2 size={40} className="text-blue-600" />
@@ -218,9 +142,9 @@ const FacilityDetailPage = () => {
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
-                    {facility.name}
+                    {facility.facility_name}
                   </h2>
-                  {isHospital && facility.providesEmergency && (
+                  {type==='hospital' && facility.emergency_contact && (
                     <span className="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-full text-xs font-semibold flex items-center gap-1">
                       <Heart size={12} />
                       Emergency
@@ -229,7 +153,7 @@ const FacilityDetailPage = () => {
                 </div>
 
                 <p className="text-slate-600 dark:text-gray-400 text-sm mb-4">
-                  {facility.description}
+                  {facility.address_description}
                 </p>
 
                 {/* Rating */}
@@ -242,7 +166,7 @@ const FacilityDetailPage = () => {
                   <span className="text-slate-300">|</span>
                   <div className="flex items-center gap-1 text-sm text-slate-500">
                     <Clock size={14} />
-                    {facility.workingHours}
+                    {facility.working_hour}
                   </div>
                 </div>
               </div>
@@ -250,8 +174,8 @@ const FacilityDetailPage = () => {
               {/* Actions */}
               <div className="flex gap-2 w-full md:w-auto">
                 <a
-                  href={`tel:${facility.phone}`}
-                  className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold ${isPharmacy ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-blue-500 hover:bg-blue-600'} text-white transition-colors`}
+                  href={`tel:${facility.emergency_contact}`}
+                  className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold ${type==='pharmacy' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-blue-500 hover:bg-blue-600'} text-white transition-colors`}
                 >
                   <Phone size={18} />
                   Call
@@ -270,13 +194,13 @@ const FacilityDetailPage = () => {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          {['overview', isPharmacy ? 'inventory' : 'departments', 'services', 'contact'].map((tab) => (
+          {['overview', type==='pharmacy' ? 'inventory' : 'departments', 'services', 'contact'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-6 py-2 rounded-xl font-semibold text-sm whitespace-nowrap transition-all ${
                 activeTab === tab
-                  ? isPharmacy
+                  ? type==='pharmacy'
                     ? 'bg-emerald-500 text-white'
                     : 'bg-blue-500 text-white'
                   : 'bg-white dark:bg-gray-800 text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-700'
@@ -300,18 +224,18 @@ const FacilityDetailPage = () => {
               {/* Quick Info */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-200 dark:border-gray-700">
                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                  <Globe size={18} className={isPharmacy ? 'text-emerald-500' : 'text-blue-500'} />
+                  <Globe size={18} className={type==='pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
                   Quick Information
                 </h3>
                 <div className="space-y-4">
-                  <InfoRow label="License" value={facility.license} />
+                  <InfoRow label="License" value={facility.license_number} />
                   <InfoRow label="Region" value={facility.region} />
-                  {isPharmacy && <InfoRow label="Type" value={facility.pharmacyType} />}
-                  {isHospital && <InfoRow label="Ownership" value={facility.ownershipType} />}
-                  {isHospital && (
+                  {type==='pharmacy' && <InfoRow label="Type" value={facility.facility_ownership_type} />}
+                  {type==='hospital' && <InfoRow label="Ownership" value={facility.facility_ownership_type} />}
+                  {type==='hospital' && (
                     <InfoRow 
                       label="24/7 Operation" 
-                      value={facility.operates24Hours ? 'Yes' : 'No'} 
+                      value={facility.is_full_time_service ? 'Yes' : 'No'} 
                     />
                   )}
                 </div>
@@ -320,7 +244,7 @@ const FacilityDetailPage = () => {
               {/* Location */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-200 dark:border-gray-700">
                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                  <MapPin size={18} className={isPharmacy ? 'text-emerald-500' : 'text-blue-500'} />
+                  <MapPin size={18} className={type==='pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
                   Location
                 </h3>
                 <p className="text-slate-600 dark:text-gray-400 mb-4">{facility.address}</p>
@@ -339,7 +263,7 @@ const FacilityDetailPage = () => {
           )}
 
           {/* Inventory Tab (Pharmacy) */}
-          {activeTab === 'inventory' && isPharmacy && (
+          {activeTab === 'inventory' && type==='pharmacy' && (
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 overflow-hidden">
               <div className="p-6 border-b dark:border-gray-700">
                 <h3 className="font-bold text-lg flex items-center gap-2">
@@ -367,7 +291,7 @@ const FacilityDetailPage = () => {
           )}
 
           {/* Departments Tab (Hospital) */}
-          {activeTab === 'departments' && isHospital && (
+          {activeTab === 'departments' && type==='hospital' && (
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 overflow-hidden">
               <div className="p-6 border-b dark:border-gray-700">
                 <h3 className="font-bold text-lg flex items-center gap-2">
@@ -391,11 +315,11 @@ const FacilityDetailPage = () => {
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 overflow-hidden">
               <div className="p-6 border-b dark:border-gray-700">
                 <h3 className="font-bold text-lg flex items-center gap-2">
-                  <Stethoscope size={18} className={isPharmacy ? 'text-emerald-500' : 'text-blue-500'} />
+                  <Stethoscope size={18} className={type==='pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
                   Services
                 </h3>
               </div>
-              {isPharmacy ? (
+              {type==='hospital' ? (
                 <div className="p-6">
                   <div className="flex flex-wrap gap-2">
                     {facility.services?.map((service, index) => (
@@ -422,7 +346,7 @@ const FacilityDetailPage = () => {
           {activeTab === 'contact' && (
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-200 dark:border-gray-700">
               <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
-                <MessageSquare size={18} className={isPharmacy ? 'text-emerald-500' : 'text-blue-500'} />
+                <MessageSquare size={18} className={type==='hospital' ? 'text-emerald-500' : 'text-blue-500'} />
                 Contact Information
               </h3>
               <div className="space-y-4">

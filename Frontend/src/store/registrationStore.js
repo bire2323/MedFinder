@@ -22,7 +22,8 @@ const initialFormData = {
   subCity_en: '',
   subCity_am: '',
   kebele: '',
-  detailedAddress: '',
+  detailedAddress_en: '',
+  detailedAddress_am: '',
   latitude: '',
   longitude: '',
   workingHour: '',
@@ -174,6 +175,15 @@ export const useRegistrationStore = create((set, get) => ({
   if (!formData.subCity_am?.trim()) {
     errors.subCity_am = 'ንዑስ ከተማ / ወረዳ (አማርኛ) ያስፈልጋል';
   }
+  if (!formData.kebele?.trim()) {
+     errors.kebele= "enter your kebele";    
+  }
+  if (!formData.detailedAddress_am) {
+    errors.detailedAddress_am ='አድራሻ ያስገቡ'
+    }
+    if (!formData.detailedAddress_en) {
+      errors.detailedAddress_en = "enter address litrally"
+    }
     // Latitude validation
     if (!formData.latitude) {
       errors.latitude = 'Latitude is required';

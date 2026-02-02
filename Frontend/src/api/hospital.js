@@ -17,7 +17,7 @@ export async function apiGetHospitals() {
       'Accept': 'application/json',
     },
   });
-  return res.json();
+  return res;
 }
 
 export async function apiGetPharmacies() {

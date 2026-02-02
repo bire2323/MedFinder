@@ -13,18 +13,8 @@ return new class extends Migration
     {
         Schema::create('pharmacies', function (Blueprint $table) {
             $table->id();
-
-            // Pharmacy registered by pharmacy agent (user)
-            $table->foreignId('pharmacy_agent_id')
-                  ->constrained('users')
-                  ->cascadeOnDelete();
-
-            // Admin who approves/rejects pharmacy
-            $table->foreignId('approved_by')
-                  ->nullable()
-                  ->constrained('users')
-                  ->nullOnDelete();
-
+            $table->foreignId('pharmacy_agent_id') ->constrained('users')->cascadeOnDelete();
+            $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->string('pharmacy_name_en');
             $table->string('pharmacy_name_am');
             $table->string('license_number');
@@ -32,10 +22,9 @@ return new class extends Migration
             $table->string('pharmacy_license_upload');
 
             $table->string('working_hour');
-            $table->string('address_description')->nullable();
-            $table->string('logo')->nullable();
-
-            // Approval status
+            $table->string('address_description_en')->nullable();
+            $table->string('address_description_am')->nullable();
+            $table->string('logo')->nullable(); 
             $table->enum('status', ['PENDING', 'APPROVED', 'REJECTED'])
                   ->default('PENDING');
 

@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
 import RegisterPharmacy from "../../component/RegisterPharmacy";
+import { useLoaderData, useNavigate } from "react-router-dom";
 
 // --- Mock Data ---
 const stats = [
@@ -43,6 +44,7 @@ const offerings = [
     icon: <FaMapMarkedAlt className="text-orange-500" />,
   },
 ];
+
 
 const topFacilities = [
   {
@@ -83,34 +85,16 @@ const staggerContainer = {
 };
 
   
- apiGetHospitals().then((res)=>{
-  if (res.success) {
-    
-    console.log((res.data));
-  }else{
-    console.log('not');
-    
-  }
-})
-//console.log(res.data);
-
-apiGetPharmacies().then((res)=>{
-if (res.success) {
-  
-  console.log((res.data));
-}else{
-  console.log('not');
-  
-}
-})
-
-
+ 
 
 
 
 
 export default function HomePage() {
+  const navigate=useNavigate();
   const [searchType, setSearchType] = useState("hospital");
+  const hospitals=useLoaderData().data;
+
   return (
     <>
       <Header />
@@ -270,7 +254,7 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {topFacilities.map((facility) => (
+              {hospitals.map((facility) => (
                 <motion.div
                   key={facility.id}
                   whileHover={{ scale: 1.02 }}
@@ -278,12 +262,12 @@ export default function HomePage() {
                 >
                   <div className="h-48 overflow-hidden relative">
                     <img
-                      src={facility.image}
-                      alt={facility.name}
+                      src={facility?.logo}
+                      alt={facility.hospital_name_en}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 text-sm font-bold">
-                      <FaStar className="text-yellow-400" /> {facility.rating}
+                      <FaStar className="text-yellow-400" /> {facility?.rating}
                     </div>
                   </div>
                   <div className="p-6">
@@ -297,12 +281,17 @@ export default function HomePage() {
                       {facility.type}
                     </span>
                     <h3 className="text-lg font-bold mt-3 dark:text-white">
-                      {facility.name}
+                      {facility.hospital_name_en}
                     </h3>
                     <p className="text-slate-400 text-sm mt-1">
-                      Open 24/7 • 2.4 miles away
+                     {facility.address_description_en}
                     </p>
-                    <button className="w-full mt-6 py-3 bg-slate-50 dark:bg-gray-700 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-white rounded-xl font-bold transition-colors">
+                    <p className="text-slate-400 text-sm mt-1">
+                     {facility.is_full_time_service===1 && <>24/7 hour</>}
+                    </p>
+
+                    <button className="w-full mt-6 py-3 bg-slate-50 dark:bg-gray-700 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-white rounded-xl font-bold transition-colors"
+                    onClick={()=>navigate(`/hospital/${facility.id}`)}>
                       View Details
                     </button>
                   </div>

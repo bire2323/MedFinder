@@ -25,9 +25,9 @@ return new class extends Migration
 
             // Inventory fields
             $table->integer('quantity_available')->default(0);
-            $table->decimal('unit_cost', 10, 2)->default(0);
             $table->decimal('selling_price', 10, 2)->default(0);
-
+            $table->date('expire_date')->nullable();
+        
             // Status
             $table->enum('status', ['AVAILABLE', 'OUT_OF_STOCK', 'DISCONTINUED'])
                   ->default('AVAILABLE');

@@ -16,7 +16,8 @@ class Pharmacy extends Model
         "pharmacy_license_upload",
         "working_hour",
         "logo",
-        "address_description"
+        "address_description_en",
+        "address_description_am"
     ];
 
     public function addresses()
@@ -38,8 +39,12 @@ class Pharmacy extends Model
         return $this->hasMany(PharmacyDrugInventory::class, 'pharmacy_id');
     }
 
-    public function drugs()
+     public function drugs()
     {
-        return $this->belongsToMany(Drug::class, 'PharmacyDrugInventory', 'pharmacy_id', 'drug_id');
+        return $this->belongsToMany(Drug::class)
+                    ->withPivot('quantity_available', 'selling_price', 'expire_date','status')
+                    ->withTimestamps();
     }
+   
+
 }
