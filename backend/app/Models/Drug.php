@@ -20,4 +20,10 @@ class Drug extends Model
     {
         return $this->hasMany(DrugPriceHistory::class, 'drug_id');
     }
+      public function pharmacies()
+    {
+        return $this->belongsToMany(Pharmacy::class)
+                    ->withPivot('quantity_available',"selling_price", 'expiry_date','status')
+                    ->withTimestamps();
+    }
 }

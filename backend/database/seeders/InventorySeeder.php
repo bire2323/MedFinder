@@ -17,9 +17,9 @@ class InventorySeeder extends Seeder
                 'pharmacy_id'        => 1,
                 'drug_id'            => 1,
                 'quantity_available' => 150,
-                'unit_cost'          => 5.50,
                 'selling_price'      => 7.00,
                 'status'             => 'AVAILABLE',
+                'expire_date'=>'2026-02-02 01:09:33',
                 'created_at'         => now(),
                 'updated_at'         => now(),
             ],
@@ -27,9 +27,11 @@ class InventorySeeder extends Seeder
                 'pharmacy_id'        => 1,
                 'drug_id'            => 2,
                 'quantity_available' => 0,
-                'unit_cost'          => 8.00,
+            
                 'selling_price'      => 10.00,
                 'status'             => 'OUT_OF_STOCK',
+                'expire_date'=>'2026-02-02 01:09:33',
+
                 'created_at'         => now(),
                 'updated_at'         => now(),
             ],
@@ -37,9 +39,11 @@ class InventorySeeder extends Seeder
                 'pharmacy_id'        => 2,
                 'drug_id'            => 1,
                 'quantity_available' => 80,
-                'unit_cost'          => 5.40,
+                
                 'selling_price'      => 6.80,
                 'status'             => 'AVAILABLE',
+                'expire_date'=>'2026-02-02 01:09:33',
+
                 'created_at'         => now(),
                 'updated_at'         => now(),
             ],
@@ -47,9 +51,11 @@ class InventorySeeder extends Seeder
                 'pharmacy_id'        => 2,
                 'drug_id'            => 3,
                 'quantity_available' => 30,
-                'unit_cost'          => 12.00,
+         
                 'selling_price'      => 15.00,
                 'status'             => 'AVAILABLE',
+                'expire_date'=>'2026-02-02 01:09:33',
+
                 'created_at'         => now(),
                 'updated_at'         => now(),
             ],
@@ -57,9 +63,11 @@ class InventorySeeder extends Seeder
                 'pharmacy_id'        => 3,
                 'drug_id'            => 4,
                 'quantity_available' => 5,
-                'unit_cost'          => 20.00,
+         
                 'selling_price'      => 25.00,
                 'status'             => 'DISCONTINUED',
+                'expire_date'=>'2026-02-02 01:09:33',
+
                 'created_at'         => now(),
                 'updated_at'         => now(),
             ],

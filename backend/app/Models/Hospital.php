@@ -18,7 +18,8 @@ class Hospital extends Model
         "official_license_upload",
         "logo",
         "emergency_contact",
-        "address_description"
+        "address_description_en",
+        "address_description_am"
     ];
 
 

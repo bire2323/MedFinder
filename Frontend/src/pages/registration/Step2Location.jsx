@@ -83,7 +83,8 @@ const Step2Location = () => {
     subCity_en: '',
     subCity_am: '',
     kebele: '',
-    detailedAddress: '',
+    detailedAddress_en: '',
+    detailedAddress_am: '',
     latitude: '',
     longitude: '',
     workingHour: '',
@@ -100,7 +101,8 @@ const Step2Location = () => {
       subCity_en: storeFormData.subCity_en || '',
       subCity_am: storeFormData.subCity_am || '',
       kebele: storeFormData.kebele || '',
-      detailedAddress: storeFormData.detailedAddress || '',
+      detailedAddress: storeFormData.detailedAddress_en || '',
+      detailedAddress: storeFormData.detailedAddress_am || '',
       latitude: storeFormData.latitude || '',
       longitude: storeFormData.longitude || '',
       workingHour: storeFormData.workingHour || '',
@@ -238,7 +240,6 @@ const Step2Location = () => {
         </div>
 
         {/* Kebele & Detailed Address */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InputField
             id="kebele"
             label="Kebele"
@@ -248,17 +249,29 @@ const Step2Location = () => {
             error={errors.kebele}
             onChange={handleInputChange}
           />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           <InputField
-            id="detailedAddress"
-            label="Detailed Address / Landmark"
+            id="detailedAddress_en"
+            label="Detailed Address / Landmark (english)"
             icon={Map}
             placeholder="e.g., Near Edna Mall"
-            value={localData.detailedAddress}
-            error={errors.detailedAddress}
+            value={localData.detailedAddress_en}
+            error={errors.detailedAddress_en}
             onChange={handleInputChange}
           />
-        </div>
+     <div>
+     <InputField
+            id="detailedAddress_am"
+            label="Detailed Address / Landmark (amharic)"
+            icon={Map}
+            placeholder="ለምሳሌ፤, ማራኪ በርበር"
+            value={localData.detailedAddress_am}
+            error={errors.detailedAddress_am}
+            onChange={handleInputChange}
+          />
+     </div>
+        </div> 
 
         {/* GPS Coordinates */}
         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-gray-400 dark:border-gray-500">

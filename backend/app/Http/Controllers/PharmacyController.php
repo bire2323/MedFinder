@@ -16,21 +16,12 @@ class PharmacyController extends Controller
     $pharmacys= Pharmacy::with('addresses')->get();
 
 
-    // Now you can access:
-    foreach ($pharmacys as $pharmacy) {
-        echo $pharmacy->hospital_name_en;
-        if ($pharmacy->location) {
-            echo $pharmacy->location->region_en;
-            echo $pharmacy->location->region_am;
-            echo $pharmacy->location->latitude;
-        }
-    }
-    
+   
     
     return response()->json([
         'success' => true,
         'data' => $pharmacys,
-    ], 500);
+    ], 200);
         }
 
     /**
@@ -55,7 +46,8 @@ class PharmacyController extends Controller
             'sub_city_en' => 'required|string|max:255',
             'sub_city_am' => 'required|string|max:255',
             'kebele' => 'nullable|string|max:100',
-            'detailed_address' => 'nullable|string|max:500',
+            'detailed_address_en' => 'nullable|string|max:500',
+            'detailed_address_am' => 'nullable|string|max:500',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
             'working_hour' => 'required|string',
@@ -93,8 +85,9 @@ class PharmacyController extends Controller
                 'pharmacy_license_category' => $validated['pharmacy_type'],
                 'pharmacy_license_upload' => $licensePath,
                 'working_hour' => $validated["working_hour"], // Can be updated later
-               "address_description"=>$validated['detailed_address'] ?? null,
-                'logo' => $validated['logo'],
+               "address_description_en"=>$validated['detailed_address_en'] ?? null,
+               "address_description_am"=>$validated['detailed_address_am'] ?? null,
+                'logo' => $logoPath, // 2MB max
                 
                 'status' => 'PENDING', // Admin will approve later
             ]);
@@ -137,7 +130,9 @@ class PharmacyController extends Controller
      */
     public function show(Pharmacy $pharmacy)
     {
-        //
+         $pharmacy = Pharmacy::with('addresses')->find($pharmacy->id)->first();
+
+        return response()->json(["success"=>true,"data"=>$pharmacy]);
     }
 
     /**

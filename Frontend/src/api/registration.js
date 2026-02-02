@@ -30,7 +30,8 @@ export async function apiRegisterPharmacy(formData) {
   data.append('sub_city_en', formData.subCity_en);
   data.append('sub_city_am', formData.subCity_am);
   data.append('kebele', formData.kebele || '');
-  data.append('detailed_address', formData.detailedAddress || '');
+  data.append('detailed_address_en', formData.detailedAddress_en || '');
+  data.append('detailed_address_am', formData.detailedAddress_am || '');
   data.append('latitude', formData.latitude);
   data.append('longitude', formData.longitude);
  data.append('working_hour', formData.workingHour);
@@ -88,7 +89,8 @@ export async function apiRegisterHospital(formData) {
   data.append('sub_city_en', formData.subCity_en);
   data.append('sub_city_am', formData.subCity_am);
   data.append('kebele', formData.kebele || '');
-  data.append('detailed_address', formData.detailedAddress || '');
+   data.append('detailed_address_en', formData.detailedAddress_en || '');
+  data.append('detailed_address_am', formData.detailedAddress_am || '');
   data.append('latitude', formData.latitude);
   data.append('longitude', formData.longitude);
   data.append('working_hour', formData.workingHour);

@@ -34,7 +34,8 @@ return new class extends Migration
 
             $table->boolean('is_full_time_service')->default(false);
             $table->string('emergency_contact');
-            $table->string('address_description');
+            $table->string('address_description_en')->nullable();
+            $table->string('address_description_am')->nullable();
 
 
             // Approval status

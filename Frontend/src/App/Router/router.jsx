@@ -26,6 +26,7 @@ import ResetForm from "../../pages/ResetForm";
 
 // Registration Wizard
 import { RegistrationWizard } from "../../pages/registration";
+import { apiGetHospitals } from "../../api/hospital";
 
 // 404 Component
 function NotFound() {
@@ -47,11 +48,21 @@ export const router = createBrowserRouter([
   // ==================== PUBLIC ROUTES (MainLayout) ====================
   {
     element: <MainLayout />,
+    
     children: [
       // Home page
       {
         path: "/",
         element: <HomePage />,
+        loader: async () => {
+      const res = await apiGetHospitals();
+
+      if (!res.ok) {
+        throw new Response("Failed to load hospitals", { status: 500 });
+      }
+
+      return res.json();
+    },
       },
       // Map page
       {
@@ -111,21 +122,67 @@ export const router = createBrowserRouter([
       {
         path: "/pharmacy/:id",
         element: <FacilityDetailPage />,
+         loader: async ({ params }) => {
+    const res = await fetch(
+      `http://localhost:8000/api/pharmacies/${params.id}`
+    );
+
+    if (!res.ok) {
+      throw new Response("Pharmacy not found", { status: 404 });
+    }
+
+    const json = await res.json();
+    return {
+      type: "pharmacy",
+      data: json.data,
+    };
+  },
       },
       // Hospital detail page
       {
         path: "/hospital/:id",
         element: <FacilityDetailPage />,
+          loader: async ({ params }) => {
+    const res = await fetch(
+      `http://localhost:8000/api/hospitals/${params.id}`
+    );
+
+    if (!res.ok) {
+      throw new Response("hospital not found", { status: 404 });
+    }
+
+    const json = await res.json();
+    return {
+      type: "hospital",
+      data: json.data,
+    };
+  },
       },
       // Legacy routes (keeping for backward compatibility)
       {
         path: "/pharmacy/detail/:id",
         element: <FacilityDetailPage />,
+        loader: async ({ params }) => {
+  return fetch(`/api/pharmacies/${params.id}`).then(r => r.json());
+}
+
       },
       {
         path: "/hospital/detail/:id",
         element: <FacilityDetailPage />,
-      },
+        loader: async ({ params }) => {
+      const res = await fetch(
+        `http://localhost:8000/api/hospitals/${params.id}`
+      );
+
+      if (!res.ok) {
+        throw new Response("Hospital not found", { status: 404 });
+      }
+
+      const json = await res.json();
+      return json.data; // 👈 important
+    },
+  }
     ],
   },
 

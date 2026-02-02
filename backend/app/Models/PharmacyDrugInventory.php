@@ -12,8 +12,8 @@ class PharmacyDrugInventory extends Model
         'drug_id',
         'pharmacy_id',
         'quantity_available',
-        'unit_cost',
         'selling_price',
+        "expire_date",
         'status'
     ];
 }

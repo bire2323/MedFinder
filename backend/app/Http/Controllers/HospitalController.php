@@ -18,20 +18,12 @@ $hospitals = Hospital::with('addresses')->get();
 
 
 // Now you can access:
-foreach ($hospitals as $hospital) {
-    echo $hospital->hospital_name_en;
-    if ($hospital->location) {
-        echo $hospital->location->region_en;
-        echo $hospital->location->region_am;
-        echo $hospital->location->latitude;
-    }
-}
 
 
 return response()->json([
     'success' => true,
     'data' => $hospitals,
-], 500);
+]);
     }
 
     /**
@@ -56,7 +48,8 @@ return response()->json([
             'sub_city_en' => 'required|string|max:255',
             'sub_city_am' => 'required|string|max:255',
             'kebele' => 'nullable|string|max:100',
-            'detailed_address' => 'nullable|string|max:500',
+            'detailed_address_en' => 'nullable|string|max:500',
+            'detailed_address_am' => 'nullable|string|max:500',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
             'working_hour' => 'required|string',
@@ -95,7 +88,8 @@ return response()->json([
                 'hospital_ownership_type' => $validated['ownership_type'],
                 'official_license_upload' => $licensePath,
                 'working_hour' => $validated["working_hour"], // Can be updated later
-                "address_description"=>$validated["detailed_address"],
+                "address_description_en"=>$validated["detailed_address_en"],
+                "address_description_am"=>$validated["detailed_address_am"],
                 'logo' => $logoPath,
                 'is_full_time_service' => $validated['operates_24_hours'],
                 'emergency_contact' => $validated['alternate_phone'] ?? $validated['emergency_contact'],
@@ -141,7 +135,9 @@ return response()->json([
      */
     public function show(Hospital $hospital)
     {
-        //
+        $hospital = Hospital::with('addresses')->find($hospital->id);
+
+        return response()->json(["success"=>true,"data"=>$hospital]);
     }
 
     /**

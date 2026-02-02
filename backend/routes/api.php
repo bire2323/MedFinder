@@ -14,6 +14,10 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\DepartmentController;
 
+use App\Models\Hospital;
+use App\Models\Pharmacy;
+use App\Models\Location;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -41,7 +45,19 @@ Route::post('/reset-password', [UserController::class, 'resetPassword']);
 Route::get('search/hospitals', [HospitalController::class, 'searchByLocation']);
 Route::get('search/pharmacies', [PharmacyController::class, 'searchByLocation']);
 
+Route::get('/medical-facilities', function () {
+    $hospitals = Hospital::with('addresses')->get()->map(function($item) {
+        $item->type = 'hospital';
+        return $item;
+    });
 
+    $pharmacies = Pharmacy::with('addresses')->get()->map(function($item) {
+        $item->type = 'pharmacy';
+        return $item;
+    });
+
+    return response()->json($hospitals->concat($pharmacies));
+});
 
 // Public read-only resources
 Route::get('hospitals', [HospitalController::class, 'index']);

@@ -100,7 +100,7 @@ function mapBackendErrorToTranslation(errorKey) {
   return (
     
          
-            <div className="w-full md:w-1/2 py-16 md:px-4 lg:px-16">
+            <div className="w-full h-fit md:w-1/2 py-16 md:px-4 lg:px-16">
             <div className="flex items-center gap-3 mb-4 pb-10">
               <div className="bg-blue-600 p-2 rounded-lg">
                 <FaHospitalSymbol className="text-white text-xl" />
