@@ -24,9 +24,12 @@ return new class extends Migration
                   ->cascadeOnDelete();
 
             // Inventory fields
-            $table->integer('quantity_available')->default(0);
-            $table->decimal('selling_price', 10, 2)->default(0);
-            $table->date('expire_date')->nullable();
+            $table->integer('stock')->default(0);
+            $table->decimal('price', 10, 2)->default(0);
+            $table->string('about_drug_en');
+            $table->string('about_drug_am')->nullable();
+            $table->boolean('prescription_required')->default(false);
+            $table->date('expire_date');
         
             // Status
             $table->enum('status', ['AVAILABLE', 'OUT_OF_STOCK', 'DISCONTINUED'])

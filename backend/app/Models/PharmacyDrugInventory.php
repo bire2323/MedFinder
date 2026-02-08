@@ -11,8 +11,11 @@ class PharmacyDrugInventory extends Model
     protected $fillable = [
         'drug_id',
         'pharmacy_id',
-        'quantity_available',
-        'selling_price',
+        'stock',
+        'price',
+        'about_drug_en',
+        'about_drug_am',
+        "prescription_required",
         "expire_date",
         'status'
     ];

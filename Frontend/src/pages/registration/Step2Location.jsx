@@ -1,6 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
 import { useRegistrationStore } from '../../store/registrationStore';
 import { MapPin, Phone, Navigation, ArrowLeft, ArrowRight, Globe, Building, Map, Timer } from 'lucide-react';
+import handleKeyDown from '../../hooks/handleKeyDown';
 
 const ETHIOPIAN_REGIONS_EN = [
   { value: '', label: 'Select Region' },
@@ -37,9 +38,9 @@ const ETHIOPIAN_REGIONS_AM = [
 ];
 
 // Memoized InputField – moved outside to prevent recreation on every render
-const InputField = memo(({ 
-  id, label, icon: Icon, type = 'text', placeholder, required = false, 
-  value, error, hint, dir = 'ltr', onChange 
+const InputField = memo(({
+  id, label, icon: Icon, type = 'text', placeholder, required = false,
+  value, error, hint, dir = 'ltr', onChange
 }) => (
   <div className="space-y-2">
     <label htmlFor={id} className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -50,13 +51,13 @@ const InputField = memo(({
     <input
       id={id}
       type={type}
+      onKeyDown={handleKeyDown}
       value={value ?? ''}
       onChange={onChange}
       placeholder={placeholder}
       dir={dir}
-      className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${
-        error ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'
-      }`}
+      className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${error ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'
+        }`}
       aria-describedby={error ? `${id}-error` : undefined}
     />
     {error && <p id={`${id}-error`} className="text-xs text-red-500">{error}</p>}
@@ -152,11 +153,11 @@ const Step2Location = () => {
             </label>
             <select
               id="region_en"
+              onKeyDown={handleKeyDown}
               value={localData.region_en}
               onChange={handleInputChange}
-              className={`w-full px-4 py-3 rounded-xl border-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none appearance-none cursor-pointer ${
-                errors.region_en ? 'border-red-400' : 'border-gray-400 dark:border-gray-500'
-              }`}
+              className={`w-full px-4 py-3 rounded-xl border-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none appearance-none cursor-pointer ${errors.region_en ? 'border-red-400' : 'border-gray-400 dark:border-gray-500'
+                }`}
             >
               {ETHIOPIAN_REGIONS_EN.map((r) => (
                 <option key={r.value} value={r.value}>{r.label}</option>
@@ -172,12 +173,12 @@ const Step2Location = () => {
             </label>
             <select
               id="region_am"
+              onKeyDown={handleKeyDown}
               value={localData.region_am}
               onChange={handleInputChange}
               dir="rtl"
-              className={`w-full px-4 py-3 rounded-xl border-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none appearance-none cursor-pointer ${
-                errors.region_am ? 'border-red-400' : 'border-gray-400 dark:border-gray-500'
-              }`}
+              className={`w-full px-4 py-3 rounded-xl border-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none appearance-none cursor-pointer ${errors.region_am ? 'border-red-400' : 'border-gray-400 dark:border-gray-500'
+                }`}
             >
               {ETHIOPIAN_REGIONS_AM.map((r) => (
                 <option key={r.value} value={r.value}>{r.label}</option>
@@ -191,6 +192,7 @@ const Step2Location = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InputField
             id="zone_en"
+            onKeyDown={handleKeyDown}
             label="Zone / City (English)"
             icon={Building}
             placeholder="e.g., Addis Ababa, Bahir Dar"
@@ -202,6 +204,7 @@ const Step2Location = () => {
 
           <InputField
             id="zone_am"
+            onKeyDown={handleKeyDown}
             label="ዞን / ከተማ (አማርኛ)"
             icon={Building}
             placeholder="ለምሳሌ፡ አዲስ አበባ፣ ባህር ዳር"
@@ -217,6 +220,7 @@ const Step2Location = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InputField
             id="subCity_en"
+            onKeyDown={handleKeyDown}
             label="Sub-city / Woreda (English)"
             icon={MapPin}
             placeholder="e.g., Bole, Kirkos"
@@ -228,6 +232,7 @@ const Step2Location = () => {
 
           <InputField
             id="subCity_am"
+            onKeyDown={handleKeyDown}
             label="ንዑስ ከተማ / ወረዳ (አማርኛ)"
             icon={MapPin}
             placeholder="ለምሳሌ፡ ቦሌ፣ ቂርቆስ"
@@ -240,38 +245,41 @@ const Step2Location = () => {
         </div>
 
         {/* Kebele & Detailed Address */}
-          <InputField
-            id="kebele"
-            label="Kebele"
-            icon={MapPin}
-            placeholder="e.g., 03/05"
-            value={localData.kebele}
-            error={errors.kebele}
-            onChange={handleInputChange}
-          />
+        <InputField
+          id="kebele"
+          onKeyDown={handleKeyDown}
+          label="Kebele"
+          icon={MapPin}
+          placeholder="e.g., 03/05"
+          value={localData.kebele}
+          error={errors.kebele}
+          onChange={handleInputChange}
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           <InputField
             id="detailedAddress_en"
             label="Detailed Address / Landmark (english)"
             icon={Map}
+            onKeyDown={handleKeyDown}
             placeholder="e.g., Near Edna Mall"
             value={localData.detailedAddress_en}
             error={errors.detailedAddress_en}
             onChange={handleInputChange}
           />
-     <div>
-     <InputField
-            id="detailedAddress_am"
-            label="Detailed Address / Landmark (amharic)"
-            icon={Map}
-            placeholder="ለምሳሌ፤, ማራኪ በርበር"
-            value={localData.detailedAddress_am}
-            error={errors.detailedAddress_am}
-            onChange={handleInputChange}
-          />
-     </div>
-        </div> 
+          <div>
+            <InputField
+              id="detailedAddress_am"
+              label="Detailed Address / Landmark (amharic)"
+              icon={Map}
+              onKeyDown={handleKeyDown}
+              placeholder="ለምሳሌ፤, ማራኪ በርበር"
+              value={localData.detailedAddress_am}
+              error={errors.detailedAddress_am}
+              onChange={handleInputChange}
+            />
+          </div>
+        </div>
 
         {/* GPS Coordinates */}
         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-gray-400 dark:border-gray-500">
@@ -292,6 +300,7 @@ const Step2Location = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
               id="latitude"
+              onKeyDown={handleKeyDown}
               label="Latitude"
               icon={MapPin}
               type="number"
@@ -304,6 +313,7 @@ const Step2Location = () => {
             />
             <InputField
               id="longitude"
+              onKeyDown={handleKeyDown}
               label="Longitude"
               icon={MapPin}
               type="number"
@@ -320,26 +330,28 @@ const Step2Location = () => {
         {/* Working Hour & Main Contact */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-         {
-          registrationType==='hospital' &&
-          <InputField
-          id="workingHour"
-          label="Working Hour"
-          icon={Timer}
-          type="text"
-          placeholder="e.g 2:00 - 12:00AM"
-          required
-          value={localData.workingHour}
-          error={errors.workingHour}
-          onChange={handleInputChange}
-        />
-         }
+          {
+            registrationType === 'hospital' &&
+            <InputField
+              id="workingHour"
+              onKeyDown={handleKeyDown}
+              label="Working Hour"
+              icon={Timer}
+              type="text"
+              placeholder="e.g 2:00 - 12:00AM"
+              required
+              value={localData.workingHour}
+              error={errors.workingHour}
+              onChange={handleInputChange}
+            />
+          }
 
           <InputField
             id="mainContactPhone"
             label={registrationType === 'hospital' ? 'Emergency Phone' : 'Main contact Phone'}
             icon={Phone}
             type="tel"
+            onKeyDown={handleKeyDown}
             placeholder="09XXXXXXXX"
             required={registrationType === 'hospital'}
             value={localData.mainContactPhone}

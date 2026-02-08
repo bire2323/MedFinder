@@ -4,7 +4,8 @@ import { apiRegister } from "../api/auth";
 import { FaHospitalSymbol } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import VerifyOtp from "./verifyOtp";
+//import VerifyOtp from "./verifyOtp";
+import handleKeyDown from "../hooks/handleKeyDown";
 
 export default function RegisterationForm() {
   const { t } = useTranslation();
@@ -16,7 +17,7 @@ export default function RegisterationForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-   const [phoneVerifingWithOTP,setPhoneVerifingWithOTP]=useState(false);
+  const [phoneVerifingWithOTP, setPhoneVerifingWithOTP] = useState(false);
 
   async function submit(e) {
     e.preventDefault();
@@ -67,135 +68,140 @@ export default function RegisterationForm() {
       const res = await apiRegister(payload);
 
       if (res.success) {
-       navigate("/register/verify-otp", { state: { phone: phone } });
+        navigate("/register/verify-otp", { state: { phone: phone } });
       } if (!res.success) {
         if (res.errors) {
           const firstField = Object.keys(res.errors)[0];
           const firstMessage = res.errors[firstField][0];
-         setError(t(mapBackendErrorToTranslation(firstMessage)));
+          setError(t(mapBackendErrorToTranslation(firstMessage)));
         } else {
           setError(res.message || t("Register.Registration Failed"));
         }
       }
-    }catch (err) {
+    } catch (err) {
       setError(err.message || t("Register.Registration Failed"));
     } finally {
       setLoading(false);
     }
   }
-function mapBackendErrorToTranslation(errorKey) {
-  const mapping = {
-    phone_required: "Register.Error Phone Required",
-    phone_taken: "Register.Error Phone Taken",
-    name_required: "Register.Error Name Required",
-    name_min_4: "Register.Error Name Min 4"
-  };
-  return mapping[errorKey] || errorKey; // fallback
-}
+  function mapBackendErrorToTranslation(errorKey) {
+    const mapping = {
+      phone_required: "Register.Error Phone Required",
+      phone_taken: "Register.Error Phone Taken",
+      name_required: "Register.Error Name Required",
+      name_min_4: "Register.Error Name Min 4"
+    };
+    return mapping[errorKey] || errorKey; // fallback
+  }
   function openLoginRoute() {
     navigate("/login", { state: { background: location } });
   }
 
 
+
   return (
-    
-         
-            <div className="w-full h-fit md:w-1/2 py-16 md:px-4 lg:px-16">
-            <div className="flex items-center gap-3 mb-4 pb-10">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <FaHospitalSymbol className="text-white text-xl" />
-              </div>
-              <div className="flex flex-col leading-none">
-                <span className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                  {t("Register.Wellcome")}
-                </span>
-              </div>
-            </div>
 
-            <h2 className="text-2xl pb-8 font-bold mb-2 text-slate-900 dark:text-white">
-              {t("Register.Register")}
-            </h2>
 
-            <form onSubmit={submit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-gray-200">
-                  {t("Register.Name")}
-                </label>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="block w-full rounded-md border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-10 py-2"
-                  placeholder={t("Register.Name Placeholder")}
-                  required
-                />
-              </div>
+    <div className="w-full h-fit md:w-1/2 py-16 md:px-4 lg:px-16">
+      <div className="flex items-center gap-3 mb-4 pb-10">
+        <div className="bg-blue-600 p-2 rounded-lg">
+          <FaHospitalSymbol className="text-white text-xl" />
+        </div>
+        <div className="flex flex-col leading-none">
+          <span className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+            {t("Register.Wellcome")}
+          </span>
+        </div>
+      </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-gray-200">
-                  {t("Register.Phone")}
-                </label>
-                <input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2"
-                  placeholder={t("Register.Phone Placeholder")}
-                  required
-                  maxLength="10"
-                />
-              </div>
+      <h2 className="text-2xl pb-8 font-bold mb-2 text-slate-900 dark:text-white">
+        {t("Register.Register")}
+      </h2>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-gray-200">
-                  {t("Register.Password")}
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2"
-                  placeholder={t("Register.Password Placeholder")}
-                  required
-                />
-              </div>
+      <form onSubmit={submit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-gray-200">
+            {t("Register.Name")}
+          </label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="block w-full rounded-md border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-10 py-2"
+            placeholder={t("Register.Name Placeholder")}
+            required
+          />
+        </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-gray-200">
-                  {t("Register.Confirm Password")}
-                </label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2"
-                  placeholder={t("Register.Confirm Password Placeholder")}
-                  required
-                />
-              </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-gray-200">
+            {t("Register.Phone")}
+          </label>
+          <input
+            value={phone}
+            onKeyDown={handleKeyDown}
+            onChange={(e) => setPhone(e.target.value)}
+            className="mt-1 block w-full rounded-md border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2"
+            placeholder={t("Register.Phone Placeholder")}
+            required
+            maxLength="10"
+          />
+        </div>
 
-              {error && <p className="text-[10px] text-red-500">{t(error)}</p>}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-gray-200">
+            {t("Register.Password")}
+          </label>
+          <input
+            type="password"
+            value={password}
+            onKeyDown={handleKeyDown}
+            onChange={(e) => setPassword(e.target.value)}
+            className="mt-1 block w-full rounded-md border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2"
+            placeholder={t("Register.Password Placeholder")}
+            required
+          />
+        </div>
 
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-                >
-                  {loading ? t("Register.Registering") : t("Register.Register")}
-                </button>
-              </div>
-            </form>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-gray-200">
+            {t("Register.Confirm Password")}
+          </label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onKeyDown={handleKeyDown}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="mt-1 block w-full rounded-md border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2"
+            placeholder={t("Register.Confirm Password Placeholder")}
+            required
+          />
+        </div>
 
-            <div className="mt-3 text-center text-sm text-slate-600 dark:text-slate-300">
-              <span>{t("Register.Already Have Account")}</span>
-              <button
-                type="button"
-                onClick={openLoginRoute}
-                className="text-blue-600 dark:text-blue-400 hover:underline ml-1"
-              >
-                {t("Register.Login")}
-              </button>
-            </div>
-          </div>
-    
+        {error && <p className="text-[10px] text-red-500">{t(error)}</p>}
+
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+          >
+            {loading ? t("Register.Registering") : t("Register.Register")}
+          </button>
+        </div>
+      </form>
+
+      <div className="mt-3 text-center text-sm text-slate-600 dark:text-slate-300">
+        <span>{t("Register.Already Have Account")}</span>
+        <button
+          type="button"
+          onClick={openLoginRoute}
+          className="text-blue-600 dark:text-blue-400 hover:underline ml-1"
+        >
+          {t("Register.Login")}
+        </button>
+      </div>
+    </div>
+
   );
 }

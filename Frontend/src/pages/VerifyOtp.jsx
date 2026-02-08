@@ -2,11 +2,14 @@ import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { apiOtpVerify, apiOtpResend, apiUserResetPasswordVerifyOtp } from "../api/auth"; // ← assume you have resend API
 import { useLocation, useNavigate } from "react-router-dom";
+import useAuthStore from "../store/UserAuthStore";
+
 
 export default function VerifyOtp() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+
 
   const phone = location.state?.phone;
   const issue = location.state?.issue;
@@ -17,7 +20,9 @@ export default function VerifyOtp() {
   const [countdown, setCountdown] = useState(60);
   const [count, setCount] = useState(1);
   const [canResend, setCanResend] = useState(false);
-  const [disableButton,setDisableButton]=useState(false);
+  const [disableButton, setDisableButton] = useState(false);
+
+  const { login } = useAuthStore();
 
   const timerRef = useRef(null);
 
@@ -48,9 +53,9 @@ export default function VerifyOtp() {
       }
     };
   }, []); // ← empty dependency → runs once
-useEffect(()=>{
-  setCountdown(60*count);
-},[count])
+  useEffect(() => {
+    setCountdown(60 * count);
+  }, [count])
   // Handle OTP input change + auto focus
   const handleChange = (index, value) => {
     if (!/^\d?$/.test(value)) return; // only allow single digit
@@ -105,16 +110,16 @@ useEffect(()=>{
       if (issue === "resetting") {
         const res = await apiUserResetPasswordVerifyOtp({ phone, otp: otpCode });
         if (res.success) {
-           const { token, phone } = res;
+          const { token, phone } = res;
 
-        navigate(
-          `/login/reset-password/get-otp-resetting?token=${encodeURIComponent(token)}&phone=${encodeURIComponent(phone)}`
-        );
-         
+          navigate(
+            `/login/reset-password/get-otp-resetting?token=${encodeURIComponent(token)}&phone=${encodeURIComponent(phone)}`
+          );
+
         } else if (res.message === "OTP expired") {
           setError(t("VerifyOtp.ExpiredOtp") || "expired OTP");
         } else if (res.message === "Too many attempts") {
-          
+
           localStorage.setItem("blockedphone", phone)
           setDisableButton(true);
         } else if (res.message === "Invalid OTP") {
@@ -122,13 +127,12 @@ useEffect(()=>{
         }
 
       }
-      else{
+      else {
 
         const res = await apiOtpVerify({ phone, otp: otpCode });
         if (res.success) {
-          console.log(res.token);
-          localStorage.setItem("token", res.token);
-          localStorage.setItem("user", JSON.stringify(res.user));
+          login(res.user, res.token, res.roles);
+
           //console.log(res.user);
           navigate("/"); // ← change to your success route
         } else if (res.message === "OTP expired") {
@@ -161,13 +165,13 @@ useEffect(()=>{
       const res = await apiOtpResend({ phone });
       if (res.success) {
         // Optional: show toast/message "OTP resent"
-         localStorage.removeItem("blockedphone");
-         setCanResend(false);
-         setCount((prev)=>prev+1);
-         setDisableButton(false);
+        localStorage.removeItem("blockedphone");
+        setCanResend(false);
+        setCount((prev) => prev + 1);
+        setDisableButton(false);
       }
       else if (res.message === "Please wait 1 minute before requesting new OTP") {
-       setCanResend(true);
+        setCanResend(true);
         setError(t("VerifyOtp.ResendWait") || "Wait before requesting new OTP!");
       }
       else if (res.message === "phone_required") {

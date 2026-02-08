@@ -1,10 +1,11 @@
 /**
  * API functions for pharmacy and hospital registration
  */
+import useAuthStore from "../store/UserAuthStore";
 
 const API_BASE_Local = "http://localhost:8000/api";
 
-const getAuthToken = () => localStorage.getItem('token');
+const getAuthToken = () => useAuthStore.getState().token;
 /**
  * Register a new pharmacy
  * @param {Object} formData - The pharmacy registration data
@@ -13,16 +14,16 @@ const getAuthToken = () => localStorage.getItem('token');
 export async function apiRegisterPharmacy(formData) {
   // Create FormData for file uploads
   const data = new FormData();
-  
+
   // Basic info
   data.append('facilityNameEn', formData.facilityNameEn);
   data.append('facilityNameAm', formData.facilityNameAm);
- 
+
   data.append('email', formData.email || '');
 
-  
+
   // Location info
-    data.append('region_en', formData.region_en);
+  data.append('region_en', formData.region_en);
   data.append('region_am', formData.region_am);
   data.append('zone_en', formData.zone_en);
   data.append('zone_am', formData.zone_am);
@@ -34,14 +35,14 @@ export async function apiRegisterPharmacy(formData) {
   data.append('detailed_address_am', formData.detailedAddress_am || '');
   data.append('latitude', formData.latitude);
   data.append('longitude', formData.longitude);
- data.append('working_hour', formData.workingHour);
+  data.append('working_hour', formData.workingHour);
   data.append('emergency_contact', formData.mainContactPhone);
-  
+
   // Verification info
   data.append('license_number', formData.licenseNumber);
   data.append('pharmacy_type', formData.pharmacyType);
   data.append('working_hours', formData.workingHours);
-  
+
   // File uploads
   if (formData.licenseDocument) {
     data.append('license_document', formData.licenseDocument);
@@ -59,7 +60,7 @@ export async function apiRegisterPharmacy(formData) {
     },
     body: data,
   });
-  
+
   return res.json();
 }
 
@@ -71,14 +72,14 @@ export async function apiRegisterPharmacy(formData) {
 export async function apiRegisterHospital(formData) {
   // Create FormData for file uploads
   const data = new FormData();
-  
+
   // Basic info
   data.append('facilityNameEn', formData.facilityNameEn);
   data.append('facilityNameAm', formData.facilityNameAm);
 
   data.append('email', formData.email || '');
-  
-  
+
+
   // Location info
 
   data.append('region_en', formData.region_en);
@@ -89,19 +90,19 @@ export async function apiRegisterHospital(formData) {
   data.append('sub_city_en', formData.subCity_en);
   data.append('sub_city_am', formData.subCity_am);
   data.append('kebele', formData.kebele || '');
-   data.append('detailed_address_en', formData.detailedAddress_en || '');
+  data.append('detailed_address_en', formData.detailedAddress_en || '');
   data.append('detailed_address_am', formData.detailedAddress_am || '');
   data.append('latitude', formData.latitude);
   data.append('longitude', formData.longitude);
   data.append('working_hour', formData.workingHour);
   data.append('emergency_contact', formData.mainContactPhone);
-  
+
   // Verification info
   data.append('license_number', formData.licenseNumber);
   data.append('ownership_type', formData.ownershipType);
   data.append('provides_emergency', formData.providesEmergency ? '1' : '0');
   data.append('operates_24_hours', formData.operates24Hours ? '1' : '0');
-  
+
   // File uploads
   if (formData.licenseDocument) {
     data.append('license_document', formData.licenseDocument);
@@ -118,7 +119,7 @@ export async function apiRegisterHospital(formData) {
     },
     body: data,
   });
-  
+
   return res.json();
 }
 

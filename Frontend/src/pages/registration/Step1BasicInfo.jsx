@@ -5,56 +5,59 @@
  */
 import React, { useState, useEffect } from 'react';
 import { useRegistrationStore } from '../../store/registrationStore';
-import { 
-  Building2, 
-  
-  Mail, 
-   
+import handleKeyDown from '../../hooks/handleKeyDown';
+import { useNavigate } from 'react-router-dom';
+import {
+  Building2,
+
+  Mail,
+  ArrowLeft,
   ArrowRight,
   FileCheck,
   Globe
 } from 'lucide-react';
 
 const Step1BasicInfo = () => {
-  const { 
-    formData: storeFormData, 
-    errors, 
+  const navigate = useNavigate();
+  const {
+    formData: storeFormData,
+    errors,
     syncFormDataFromLocal,
-    nextStep, 
+    nextStep,
     validateStep1,
-    registrationType 
+    registrationType
   } = useRegistrationStore();
-  
+
   // Local state to prevent focus loss - only sync to store on Next
   const [localData, setLocalData] = useState({
-   facilityNameEn: '',          
+    facilityNameEn: '',
     facilityNameAm: '',
-    
+
     email: '',
-   
+
     agreedToTerms: false,
   });
-  
-  
+
+
   // Initialize from store when component mounts (empty deps = run once on mount)
   useEffect(() => {
     setLocalData({
-     facilityNameEn: storeFormData.facilityNameEn || '',
+      facilityNameEn: storeFormData.facilityNameEn || '',
       facilityNameAm: storeFormData.facilityNameAm || '',
-    
+
       email: storeFormData.email || '',
-     
+
       agreedToTerms: storeFormData.agreedToTerms || false,
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleNext = (e) => {
     e.preventDefault();
-  
+
     syncFormDataFromLocal(localData);
     if (validateStep1()) {
-    
+
       nextStep();
     }
   };
@@ -67,56 +70,58 @@ const Step1BasicInfo = () => {
   return (
     <form onSubmit={handleNext} className="p-6 md:p-8">
       <div className="space-y-6">
-         <div className="flex flex-col md:flex-row gap-3 justify-between mt-4 ">
-       {/* English Name - REQUIRED */}
-        <div className="space-y-2  w-full">
-          <label htmlFor="facilityName" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-            <Building2 size={16} className="text-blue-500" />
-            {registrationType === 'pharmacy' ? 'Pharmacy Name (English)' : 'Hospital Name (English)'}
-            <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="facilityName"
-            type="text"
-            value={localData.facilityNameEn}
-            onChange={handleChange('facilityNameEn')}
-            placeholder={`Enter ${registrationType} name in English`}
-            className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${errors.facilityName ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'}`}
-            aria-describedby={errors.facilityNameEn ? 'facilityName-error' : undefined}
-          />
-          {errors.facilityNameEn && (
-            <p id="facilityName-error" className="text-xs text-red-500 mt-1">
-              {errors.facilityNameEn}
-            </p>
-          )}
+        <div className="flex flex-col md:flex-row gap-3 justify-between mt-4 ">
+          {/* English Name - REQUIRED */}
+          <div className="space-y-2  w-full">
+            <label htmlFor="facilityName" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <Building2 size={16} className="text-blue-500" />
+              {registrationType === 'pharmacy' ? 'Pharmacy Name (English)' : 'Hospital Name (English)'}
+              <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="facilityName"
+              type="text"
+              onKeyDown={handleKeyDown}
+              value={localData.facilityNameEn}
+              onChange={handleChange('facilityNameEn')}
+              placeholder={`Enter ${registrationType} name in English`}
+              className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${errors.facilityName ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'}`}
+              aria-describedby={errors.facilityNameEn ? 'facilityName-error' : undefined}
+            />
+            {errors.facilityNameEn && (
+              <p id="facilityName-error" className="text-xs text-red-500 mt-1">
+                {errors.facilityNameEn}
+              </p>
+            )}
+          </div>
+
+          {/* Amharic Name - REQUIRED */}
+          <div className="space-y-2 w-full">
+            <label htmlFor="facilityNameAm" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <Globe size={16} className="text-green-500" />
+              {registrationType === 'pharmacy' ? 'የመድሃኒት ስም (አማርኛ)' : 'የሆስፒታል ስም (አማርኛ)'}
+              <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="facilityNameAm"
+              type="text"
+              onKeyDown={handleKeyDown}
+              value={localData.facilityNameAm}
+              onChange={handleChange('facilityNameAm')}
+              placeholder={`የ${registrationType === 'pharmacy' ? 'መድሃኒት' : 'ሆስፒታል'} ስም በአማርኛ ያስገቡ`}
+              className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${errors.facilityNameAm ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-green-500'}`}
+              dir="ltr" // Right-to-left writing direction for Amharic
+              aria-describedby={errors.facilityNameAm ? 'facilityNameAm-error' : undefined}
+            />
+            {errors.facilityNameAm && (
+              <p id="facilityNameAm-error" className="text-xs text-red-500 mt-1">
+                {errors.facilityNameAm}
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* Amharic Name - REQUIRED */}
-        <div className="space-y-2 w-full">
-          <label htmlFor="facilityNameAm" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-            <Globe size={16} className="text-green-500" />
-            {registrationType === 'pharmacy' ? 'የመድሃኒት ስም (አማርኛ)' : 'የሆስፒታል ስም (አማርኛ)'}
-            <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="facilityNameAm"
-            type="text"
-            value={localData.facilityNameAm}
-            onChange={handleChange('facilityNameAm')}
-            placeholder={`የ${registrationType === 'pharmacy' ? 'መድሃኒት' : 'ሆስፒታል'} ስም በአማርኛ ያስገቡ`}
-            className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${errors.facilityNameAm ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-green-500'}`}
-            dir="ltr" // Right-to-left writing direction for Amharic
-            aria-describedby={errors.facilityNameAm ? 'facilityNameAm-error' : undefined}
-          />
-          {errors.facilityNameAm && (
-            <p id="facilityNameAm-error" className="text-xs text-red-500 mt-1">
-              {errors.facilityNameAm}
-            </p>
-          )}
-        </div>
-       </div>
 
-       
 
         <div className="space-y-2">
           <label htmlFor="email" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -126,6 +131,7 @@ const Step1BasicInfo = () => {
           <input
             id="email"
             type="email"
+            onKeyDown={handleKeyDown}
             value={localData.email}
             onChange={handleChange('email')}
             placeholder="contact@example.com"
@@ -135,7 +141,7 @@ const Step1BasicInfo = () => {
           {errors.email && <p id="email-error" className="text-xs text-red-500 mt-1">{errors.email}</p>}
         </div>
 
-      
+
 
         <div className="space-y-2">
           <label className="flex items-start gap-3 cursor-pointer group">
@@ -154,7 +160,14 @@ const Step1BasicInfo = () => {
         </div>
       </div>
 
-      <div className="mt-8 flex justify-end">
+      <div className="mt-8 flex justify-between">
+        <button
+          type="button"
+          onClick={() => { navigate(-1) }}
+          className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200"
+        >
+          <ArrowLeft size={18} /> Exit
+        </button>
         <button type="submit" className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold bg-gradient-to-r from-blue-500 to-emerald-500 text-white hover:from-blue-600 hover:to-emerald-600 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg hover:shadow-xl">
           Next Step
           <ArrowRight size={18} />

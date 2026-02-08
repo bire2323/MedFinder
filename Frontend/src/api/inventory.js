@@ -1,13 +1,15 @@
 /**
  * API functions for pharmacy inventory management
  */
+import useAuthStore from "../store/UserAuthStore";
 
 const API_BASE_Local = "http://localhost:8000/api";
 
 /**
  * Get auth token from localStorage
  */
-const getAuthToken = () => localStorage.getItem('token');
+
+const getAuthToken = () => useAuthStore.getState().token;
 
 /**
  * Get all drugs in pharmacy inventory
@@ -25,12 +27,25 @@ export async function apiGetInventory() {
   return res.json();
 }
 
+export async function apiGetDrug(id) {
+  const res = await fetch(`${API_BASE_Local}/pharmacy/inventory/${id}`, {
+    method: "GET",
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getAuthToken()}`,
+    },
+  });
+  return res.json();
+}
+
 /**
  * Add a new drug to inventory
  * @param {Object} drugData - The drug data to add
  * @returns {Promise<Object>} - API response
  */
 export async function apiAddDrug(drugData) {
+  console.log(drugData);
   const res = await fetch(`${API_BASE_Local}/pharmacy/inventory`, {
     method: "POST",
     headers: {
@@ -50,6 +65,7 @@ export async function apiAddDrug(drugData) {
  * @returns {Promise<Object>} - API response
  */
 export async function apiUpdateDrug(drugId, drugData) {
+
   const res = await fetch(`${API_BASE_Local}/pharmacy/inventory/${drugId}`, {
     method: "PUT",
     headers: {
@@ -96,10 +112,10 @@ export async function apiSearchDrugs(query) {
   return res.json();
 }
 
-export default { 
-  apiGetInventory, 
-  apiAddDrug, 
-  apiUpdateDrug, 
-  apiDeleteDrug, 
-  apiSearchDrugs 
+export default {
+  apiGetInventory,
+  apiAddDrug,
+  apiUpdateDrug,
+  apiDeleteDrug,
+  apiSearchDrugs
 };

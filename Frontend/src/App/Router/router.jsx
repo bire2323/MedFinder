@@ -34,8 +34,8 @@ function NotFound() {
     <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
       <h1 className="text-6xl font-bold text-slate-300 dark:text-gray-700 mb-4">404</h1>
       <p className="text-xl text-slate-600 dark:text-gray-400 mb-6">Page Not Found</p>
-      <a 
-        href="/" 
+      <a
+        href="/"
         className="px-6 py-3 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-600 transition-colors"
       >
         Go Home
@@ -48,21 +48,21 @@ export const router = createBrowserRouter([
   // ==================== PUBLIC ROUTES (MainLayout) ====================
   {
     element: <MainLayout />,
-    
+
     children: [
       // Home page
       {
         path: "/",
         element: <HomePage />,
         loader: async () => {
-      const res = await apiGetHospitals();
+          const res = await apiGetHospitals();
 
-      if (!res.ok) {
-        throw new Response("Failed to load hospitals", { status: 500 });
-      }
+          if (!res.ok) {
+            throw new Response("Failed to load hospitals", { status: 500 });
+          }
 
-      return res.json();
-    },
+          return res.json();
+        },
       },
       // Map page
       {
@@ -122,67 +122,67 @@ export const router = createBrowserRouter([
       {
         path: "/pharmacy/:id",
         element: <FacilityDetailPage />,
-         loader: async ({ params }) => {
-    const res = await fetch(
-      `http://localhost:8000/api/pharmacies/${params.id}`
-    );
+        loader: async ({ params }) => {
+          const res = await fetch(
+            `http://localhost:8000/api/pharmacies/${params.id}`
+          );
 
-    if (!res.ok) {
-      throw new Response("Pharmacy not found", { status: 404 });
-    }
+          if (!res.ok) {
+            throw new Response("Pharmacy not found", { status: 404 });
+          }
 
-    const json = await res.json();
-    return {
-      type: "pharmacy",
-      data: json.data,
-    };
-  },
+          const json = await res.json();
+          return {
+            type: "pharmacy",
+            data: json.data,
+          };
+        },
       },
       // Hospital detail page
       {
         path: "/hospital/:id",
         element: <FacilityDetailPage />,
-          loader: async ({ params }) => {
-    const res = await fetch(
-      `http://localhost:8000/api/hospitals/${params.id}`
-    );
+        loader: async ({ params }) => {
+          const res = await fetch(
+            `http://localhost:8000/api/hospitals/${params.id}`
+          );
 
-    if (!res.ok) {
-      throw new Response("hospital not found", { status: 404 });
-    }
+          if (!res.ok) {
+            throw new Response("hospital not found", { status: 404 });
+          }
 
-    const json = await res.json();
-    return {
-      type: "hospital",
-      data: json.data,
-    };
-  },
+          const json = await res.json();
+          return {
+            type: "hospital",
+            data: json.data,
+          };
+        },
       },
       // Legacy routes (keeping for backward compatibility)
       {
         path: "/pharmacy/detail/:id",
         element: <FacilityDetailPage />,
         loader: async ({ params }) => {
-  return fetch(`/api/pharmacies/${params.id}`).then(r => r.json());
-}
+          return fetch(`/api/pharmacies/${params.id}`).then(r => r.json());
+        }
 
       },
       {
         path: "/hospital/detail/:id",
         element: <FacilityDetailPage />,
         loader: async ({ params }) => {
-      const res = await fetch(
-        `http://localhost:8000/api/hospitals/${params.id}`
-      );
+          const res = await fetch(
+            `http://localhost:8000/api/hospitals/${params.id}`
+          );
 
-      if (!res.ok) {
-        throw new Response("Hospital not found", { status: 404 });
+          if (!res.ok) {
+            throw new Response("Hospital not found", { status: 404 });
+          }
+
+          const json = await res.json();
+          return json.data; // 👈 important
+        },
       }
-
-      const json = await res.json();
-      return json.data; // 👈 important
-    },
-  }
     ],
   },
 

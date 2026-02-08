@@ -5,7 +5,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useRegistrationStore } from '../../store/registrationStore';
 import { FileText, Upload, Clock, ArrowLeft, ArrowRight, ShieldCheck, Building2, Image, X } from 'lucide-react';
-
+import handleKeyDown from '../../hooks/handleKeyDown';
 const PHARMACY_TYPES = [
   { value: '', label: 'Select Pharmacy Type' },
   { value: 'community', label: 'Community Pharmacy' },
@@ -17,7 +17,7 @@ const PHARMACY_TYPES = [
 const Step3PharmacyVerification = () => {
   const { formData, errors, updateFormData, syncFormDataFromLocal, nextStep, prevStep, validateStep3Pharmacy } = useRegistrationStore();
 
-  const [localData, setLocalData] = useState({ licenseNumber: '', pharmacyType: '', workingHours: '', confirmLicensed: false });
+  const [localData, setLocalData] = useState({ licenseNumber: '', pharmacyType: '', workingHour: '', confirmLicensed: false });
   const licenseInputRef = useRef(null);
   const logoInputRef = useRef(null);
 
@@ -25,10 +25,10 @@ const Step3PharmacyVerification = () => {
     setLocalData({
       licenseNumber: formData.licenseNumber || '',
       pharmacyType: formData.pharmacyType || '',
-      workingHour: formData.workingHour    || '',
+      workingHour: formData.workingHour || '',
       confirmLicensed: formData.confirmLicensed || false,
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleNext = (e) => {
@@ -37,7 +37,7 @@ const Step3PharmacyVerification = () => {
     if (validateStep3Pharmacy()) {
       console.log('hr');
       nextStep();
-    }else{
+    } else {
       console.log('hrno');
 
     }
@@ -111,8 +111,8 @@ const Step3PharmacyVerification = () => {
       <div className="space-y-6">
         {/* License Number */}
         <div className="space-y-2">
-          <label 
-            htmlFor="licenseNumber" 
+          <label
+            htmlFor="licenseNumber"
             className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
           >
             <FileText size={16} className="text-blue-500" />
@@ -122,6 +122,7 @@ const Step3PharmacyVerification = () => {
           <input
             id="licenseNumber"
             type="text"
+            onKeyDown={handleKeyDown}
             value={localData.licenseNumber}
             onChange={handleChange('licenseNumber')}
             placeholder="e.g., PH-1234-ETH"
@@ -139,7 +140,7 @@ const Step3PharmacyVerification = () => {
             License Document
             <span className="text-red-500">*</span>
           </label>
-          
+
           {formData.licenseDocument ? (
             <div className="flex items-center justify-between p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-gray-400 dark:border-gray-500">
               <div className="flex items-center gap-3">
@@ -185,6 +186,7 @@ const Step3PharmacyVerification = () => {
           <input
             ref={licenseInputRef}
             type="file"
+            onKeyDown={handleKeyDown}
             accept="image/*,.pdf"
             onChange={handleLicenseUpload}
             className="hidden"
@@ -196,8 +198,8 @@ const Step3PharmacyVerification = () => {
 
         {/* Pharmacy Type */}
         <div className="space-y-2">
-          <label 
-            htmlFor="pharmacyType" 
+          <label
+            htmlFor="pharmacyType"
             className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
           >
             <Building2 size={16} className="text-blue-500" />
@@ -223,8 +225,8 @@ const Step3PharmacyVerification = () => {
 
         {/* Working Hours */}
         <div className="space-y-2">
-          <label 
-            htmlFor="workingHours" 
+          <label
+            htmlFor="workingHours"
             className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
           >
             <Clock size={16} className="text-blue-500" />
@@ -234,6 +236,7 @@ const Step3PharmacyVerification = () => {
           <input
             id="workingHour"
             type="text"
+            onKeyDown={handleKeyDown}
             value={localData.workingHour}
             onChange={handleChange('workingHour')}
             placeholder="e.g., 08:00 - 20:00 or 24/7"
@@ -251,7 +254,7 @@ const Step3PharmacyVerification = () => {
             Pharmacy Logo
             <span className="text-xs text-gray-400 font-normal">(optional)</span>
           </label>
-          
+
           {formData.pharmacyLogoPreview ? (
             <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-400 dark:border-gray-500">
               <img
@@ -319,7 +322,7 @@ const Step3PharmacyVerification = () => {
               </div>
             </div>
             <span className="text-sm text-gray-700 dark:text-gray-300">
-              I confirm that this is a <strong>licensed pharmacy</strong> and all 
+              I confirm that this is a <strong>licensed pharmacy</strong> and all
               information provided is accurate and verifiable.
               <span className="text-red-500"> *</span>
             </span>

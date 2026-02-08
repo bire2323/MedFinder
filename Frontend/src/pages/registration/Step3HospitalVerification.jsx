@@ -4,9 +4,10 @@
  */
 import React, { useRef, useState, useEffect } from 'react';
 import { useRegistrationStore } from '../../store/registrationStore';
-import { 
-  FileText, 
-  Upload, 
+import handleKeyDown from '../../hooks/handleKeyDown';
+import {
+  FileText,
+  Upload,
   Clock,
   ArrowLeft,
   ArrowRight,
@@ -40,7 +41,7 @@ const Step3HospitalVerification = () => {
       providesEmergency: formData.providesEmergency || false,
       operates24Hours: formData.operates24Hours || false,
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleNext = (e) => {
@@ -127,6 +128,7 @@ const Step3HospitalVerification = () => {
         <input
           type="checkbox"
           id={id}
+          onKeyDOwn={handleKeyDown}
           checked={checked}
           onChange={onChange}
           className="sr-only peer"
@@ -141,8 +143,8 @@ const Step3HospitalVerification = () => {
       <div className="space-y-6">
         {/* License Number */}
         <div className="space-y-2">
-          <label 
-            htmlFor="licenseNumber" 
+          <label
+            htmlFor="licenseNumber"
             className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
           >
             <FileText size={16} className="text-blue-500" />
@@ -152,6 +154,7 @@ const Step3HospitalVerification = () => {
           <input
             id="licenseNumber"
             type="text"
+            onKeyDOwn={handleKeyDown}
             value={localData.licenseNumber}
             onChange={handleChange('licenseNumber')}
             placeholder="e.g., HO-1234-ETH"
@@ -160,8 +163,8 @@ const Step3HospitalVerification = () => {
               bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white
               placeholder:text-gray-400 dark:placeholder:text-gray-500
               focus:outline-none focus:ring-0
-              ${errors.licenseNumber 
-                ? 'border-red-400 focus:border-red-500' 
+              ${errors.licenseNumber
+                ? 'border-red-400 focus:border-red-500'
                 : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'
               }
             `}
@@ -178,7 +181,7 @@ const Step3HospitalVerification = () => {
             License Document
             <span className="text-red-500">*</span>
           </label>
-          
+
           {formData.licenseDocument ? (
             <div className="flex items-center justify-between p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-800">
               <div className="flex items-center gap-3">
@@ -209,8 +212,8 @@ const Step3HospitalVerification = () => {
               className={`
                 p-8 border-2 border-dashed rounded-xl text-center cursor-pointer
                 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50
-                ${errors.licenseDocument 
-                  ? 'border-red-400 bg-red-50/50 dark:bg-red-900/10' 
+                ${errors.licenseDocument
+                  ? 'border-red-400 bg-red-50/50 dark:bg-red-900/10'
                   : 'border-gray-400 dark:border-gray-500'
                 }
               `}
@@ -227,6 +230,7 @@ const Step3HospitalVerification = () => {
           <input
             ref={licenseInputRef}
             type="file"
+            onKeyDOwn={handleKeyDown}
             accept="image/*,.pdf"
             onChange={handleLicenseUpload}
             className="hidden"
@@ -238,8 +242,8 @@ const Step3HospitalVerification = () => {
 
         {/* Ownership Type */}
         <div className="space-y-2">
-          <label 
-            htmlFor="ownershipType" 
+          <label
+            htmlFor="ownershipType"
             className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
           >
             <Building2 size={16} className="text-blue-500" />
@@ -254,8 +258,8 @@ const Step3HospitalVerification = () => {
               w-full px-4 py-3 rounded-xl border-2 transition-all duration-200
               bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white
               focus:outline-none focus:ring-0 appearance-none cursor-pointer
-              ${errors.ownershipType 
-                ? 'border-red-400 focus:border-red-500' 
+              ${errors.ownershipType
+                ? 'border-red-400 focus:border-red-500'
                 : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'
               }
             `}
@@ -277,16 +281,17 @@ const Step3HospitalVerification = () => {
             <Stethoscope size={16} className="text-blue-500" />
             Service Options
           </h3>
-          
+
           <ToggleSwitch
             id="providesEmergency"
+            onKeyDOwn={handleKeyDown}
             label="Emergency Services"
             description="Hospital provides emergency medical services"
             checked={localData.providesEmergency}
             onChange={handleChange('providesEmergency')}
             icon={AlertCircle}
           />
-          
+
           <ToggleSwitch
             id="operates24Hours"
             label="24/7 Operation"
@@ -304,7 +309,7 @@ const Step3HospitalVerification = () => {
             Hospital Logo
             <span className="text-xs text-gray-400 font-normal">(optional)</span>
           </label>
-          
+
           {formData.hospitalLogoPreview ? (
             <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-400 dark:border-gray-500">
               <img
@@ -346,6 +351,8 @@ const Step3HospitalVerification = () => {
           <input
             ref={logoInputRef}
             type="file"
+            onKeyDOwn={handleKeyDown}
+
             accept="image/*"
             onChange={handleLogoUpload}
             className="hidden"

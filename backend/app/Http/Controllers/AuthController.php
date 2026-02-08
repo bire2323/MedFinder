@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Models\PendingUser;
 use App\Models\OtpVerification;
+use Illuminate\Support\Facades\Auth;
+use App\Models\AuditLog;
 
 
 class AuthController extends Controller
@@ -36,11 +38,20 @@ class AuthController extends Controller
         ]);
         }
             $token = $user->createToken('api-token')->plainTextToken;
-
+        AuditLog::create([
+            'user_id' => $user->id,
+            'category' => 'user',
+            'event' => 'user Registration ',
+            'detail' => "{$user->Name} loged successfully",
+            'ip_address' => $request->ip(),
+            'metadata' => json_encode($user),
+            'event_status' => 'success',
+        ]);
         return response()->json([
             'success' => true,
             'user' => $user,
-            'token' => $token
+            'token' => $token,
+             'roles'=>$user->getRoleNames(),
         ]);
 
     }
@@ -127,17 +138,27 @@ public function verifyOtp(Request $request)
         'Password' => $pendingUser->password,
     ]);
 
-    $user->assignRole('admin'); // or default role
+    $user->assignRole('patient'); // or default role
     $token = $user->createToken('api-token')->plainTextToken;
 
     // Cleanup
     $otpRow->delete();
     $pendingUser->delete();
+            AuditLog::create([
+            'user_id' => $user->id,
+            'category' => 'user',
+            'event' => 'user Registration ',
+            'detail' => "{$user->Name} registered successfully",
+            'ip_address' => $request->ip(),
+            'metadata' => json_encode($user),
+            'event_status' => 'success',
+        ]);
 
     return response()->json([
         'success' => true,
         'token' => $token,
         'user' => $user,
+        'roles'=>$user->getRoleNames(),
     ]);
 }
  public function resendOtp(Request $request)
@@ -179,8 +200,17 @@ public function verifyOtp(Request $request)
      
     }
     // POST /api/logout (protected)
-    public function logout(Request $request)
-    {
-        // handle logout (structure only)
+     public function logout(Request $request)
+{
+    $user = $request->user();
+
+    if ($user && $request->user()->currentAccessToken()) {
+        $request->user()->currentAccessToken()->delete();
     }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Logged out successfully',
+    ], 200);
+}
 }

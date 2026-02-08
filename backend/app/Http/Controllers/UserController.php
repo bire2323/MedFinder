@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\PendingUser;
 use App\Models\OtpVerification;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller{
 
@@ -153,5 +154,48 @@ $token = Str::random(64);
         'token' => $token,
          "phone"=>$user->Phone
     ]);
-}
-}
+    }
+  
+
+       public function auditLogs(Request $request)
+      {
+          /** @var \App\Models\User $user */
+          $user = auth('sanctum')->user();
+          if(!$user){
+              return response()->json(['success'=>false,'message'=>'unauthorized']);
+          }
+          if ($user->hasRole('admin')) {
+              $query = AuditLog::query();
+    
+              if ($request->search) {
+                  $query->where(function ($q) use ($request) {
+                      $q->where('event', 'like', "%{$request->search}%")
+                          ->orWhere('detail', 'like', "%{$request->search}%")
+                          ->orWhere('event_status', 'like', "%{$request->search}%");
+                  });
+              }
+              if ($request->start_date && $request->end_date) {
+                  $query->whereBetween('created_at', [
+                      $request->start_date . " 00:00:00",
+                      $request->end_date . " 23:59:59"
+                  ]);
+              } else if ($request->start_date) {
+                  $query->whereDate('created_at', '>=', $request->start_date);
+              } else if ($request->end_date) {
+                  $query->whereDate('created_at', '<=', $request->end_date);
+              }
+              if ($request->category && $request->category !== 'ALL') {
+                  $query->where('category', $request->category);
+              }
+    
+              $auditLogs = $query->orderBy('id', 'desc')->paginate(10);
+              return response()->json(['ok' => true, 'data' => $auditLogs]);
+          }
+    
+          return response()->json(['ok' => false, 'message' => 'Unauthorized'], 403);
+      }
+    
+    }
+
+
+

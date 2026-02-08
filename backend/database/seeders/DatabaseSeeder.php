@@ -25,11 +25,11 @@ class DatabaseSeeder extends Seeder
         RolesAndPermissionsSeeder::class,
     
         HospitalPharmacySeeder::class,
-    HospitalSeeder::class,
+   // HospitalSeeder::class,
     DepartmentSeeder::class,
     ServiceSeeder::class,
     FacilityServiceSeeder::class,
-    PharmacySeeder::class,
+    //PharmacySeeder::class,
     InventorySeeder::class,
     DrugSeeder::class,
 

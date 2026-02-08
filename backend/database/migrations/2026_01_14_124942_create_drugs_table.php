@@ -16,9 +16,7 @@ return new class extends Migration
 
             $table->string('generic_name');
             $table->string('brand_name_en');
-            $table->string('brand_name_am');
-            $table->string('manufacturer')->nullable();
-            $table->string('drug_category')->nullable();
+            $table->string('brand_name_am')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

@@ -43,31 +43,31 @@ export default function MapPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDestination, setSelectedDestination] = useState(null);
   const [followUser, setFollowUser] = useState(true);
- useEffect(() => {
-  fetch('http://localhost:8000/api/medical-facilities')
-    .then(res => res.json())
-    .then(data => {
-      // Data normalization to flatten the 'addresses' array
-      const normalizedData = data.map(f => {
-        // Get the first address from the addresses array
-        const mainAddress = f.addresses && f.addresses.length > 0 ? f.addresses[0] : null;
+  useEffect(() => {
+    fetch('http://localhost:8000/api/medical-facilities')
+      .then(res => res.json())
+      .then(data => {
+        // Data normalization to flatten the 'addresses' array
+        const normalizedData = data.map(f => {
+          // Get the first address from the addresses array
+          const mainAddress = f.addresses && f.addresses.length > 0 ? f.addresses[0] : null;
 
-        return {
-          ...f,
-          // Unique ID to avoid conflicts between hospital/pharmacy IDs
-          id: `${f.type}-${f.id}`, 
-          // Uniform name field
-          name: f.hospital_name_en || f.pharmacy_name_en,
-          // Extract lat/lng from the first address object and convert to numbers
-          lat: mainAddress ? parseFloat(mainAddress.latitude) : null,
-          lng: mainAddress ? parseFloat(mainAddress.longitude) : null,
-        };
-      }).filter(f => f.lat !== null && f.lng !== null); // Filter out facilities without coordinates
+          return {
+            ...f,
+            // Unique ID to avoid conflicts between hospital/pharmacy IDs
+            id: `${f.type}-${f.id}`,
+            // Uniform name field
+            name: f.hospital_name_en || f.pharmacy_name_en,
+            // Extract lat/lng from the first address object and convert to numbers
+            lat: mainAddress ? parseFloat(mainAddress.latitude) : null,
+            lng: mainAddress ? parseFloat(mainAddress.longitude) : null,
+          };
+        }).filter(f => f.lat !== null && f.lng !== null); // Filter out facilities without coordinates
 
-      setFacilities(normalizedData);
-    })
-    .catch(err => console.error("API Fetch Error:", err));
-}, []);
+        setFacilities(normalizedData);
+      })
+      .catch(err => console.error("API Fetch Error:", err));
+  }, []);
 
   // 2. Live User Tracking
   useEffect(() => {
@@ -86,28 +86,29 @@ export default function MapPage() {
   // 3. Distance Calculation & Sorting
   const sortedFacilities = userLocation && facilities.length > 0
     ? facilities
-        .map((p) => ({
-          ...p,
-          distance: getDistanceFromLatLonInMeters(
-            userLocation[0],
-            userLocation[1],
-            p.lat,
-            p.lng
-          ),
-        }))
-        .sort((a, b) => a.distance - b.distance)
+      .map((p) => ({
+        ...p,
+        distance: getDistanceFromLatLonInMeters(
+          userLocation[0],
+          userLocation[1],
+          p.lat,
+          p.lng
+        ),
+      }))
+      .sort((a, b) => a.distance - b.distance)
     : [];
 
   // 4. Search Filter
   const filteredPlaces = searchQuery.trim()
     ? facilities.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
     : [];
+  console.log(facilities);
 
   const routeDestination = selectedDestination
     ? [selectedDestination.lat, selectedDestination.lng]
     : sortedFacilities.length > 0
-    ? [sortedFacilities[0].lat, sortedFacilities[0].lng]
-    : null;
+      ? [sortedFacilities[0].lat, sortedFacilities[0].lng]
+      : null;
 
   return (
     <div className="relative w-screen h-screen">
@@ -157,40 +158,40 @@ export default function MapPage() {
         {/* Dynamic Markers from API */}
         {/* ... inside your MapPage return ... */}
 
-{facilities.map((place) => (
-  <Marker 
-    key={place.id} 
-    position={[place.lat, place.lng]} 
-    icon={place.type === 'pharmacy' ? pharmacyIcon : new L.Icon.Default()}
-  >
-    {/* This makes the name appear when you HOVER over the marker */}
-    <Tooltip direction="top" offset={[0, -32]} opacity={1}>
-      <span className="font-bold">{place.name}</span>
-    </Tooltip>
+        {facilities.map((place) => (
+          <Marker
+            key={place.id}
+            position={[place.lat, place.lng]}
+            icon={place.type === 'pharmacy' ? pharmacyIcon : new L.Icon.Default()}
+          >
+            {/* This makes the name appear when you HOVER over the marker */}
+            <Tooltip direction="top" offset={[0, -32]} opacity={1}>
+              <span className="font-bold">{place.name}</span>
+            </Tooltip>
 
-    {/* This makes the name and details appear when you CLICK the marker */}
-    <Popup>
-      <div className="p-1">
-        <h3 className="text-sm font-bold border-b pb-1 mb-1">
-          {place.name}
-        </h3>
-        <p className="text-xs text-gray-600">
-          <span className="font-semibold">Type:</span> {place.type === 'hospital' ? '🏥 Hospital' : '💊 Pharmacy'}
-        </p>
-        <p className="text-xs text-gray-600">
-          <span className="font-semibold">Sub-city:</span> {place.addresses[0]?.sub_city_en}
-        </p>
-        
-        <button 
-           onClick={() => setSelectedDestination(place)}
-           className="mt-3 w-full bg-blue-600 text-white text-[10px] py-1.5 rounded hover:bg-blue-700 transition-colors uppercase font-bold"
-        >
-          {t("Map.GetDirections") || "Get Directions"}
-        </button>
-      </div>
-    </Popup>
-  </Marker>
-))}
+            {/* This makes the name and details appear when you CLICK the marker */}
+            <Popup>
+              <div className="p-1">
+                <h3 className="text-sm font-bold border-b pb-1 mb-1">
+                  {place.name}
+                </h3>
+                <p className="text-xs text-gray-600">
+                  <span className="font-semibold">Type:</span> {place.type === 'hospital' ? '🏥 Hospital' : '💊 Pharmacy'}
+                </p>
+                <p className="text-xs text-gray-600">
+                  <span className="font-semibold">Sub-city:</span> {place.addresses[0]?.sub_city_en}
+                </p>
+
+                <button
+                  onClick={() => setSelectedDestination(place)}
+                  className="mt-3 w-full bg-blue-600 text-white text-[10px] py-1.5 rounded hover:bg-blue-700 transition-colors uppercase font-bold"
+                >
+                  {t("Map.GetDirections") || "Get Directions"}
+                </button>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
 
         {userLocation && routeDestination && (
           <Routing from={userLocation} to={routeDestination} />
