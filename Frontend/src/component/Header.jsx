@@ -15,23 +15,41 @@ import { LuLogOut } from "react-icons/lu";
 import { AiFillProduct } from "react-icons/ai";
 import ThemeToggle from "./DarkLightTeam";
 import { useNavigate, useLocation } from "react-router-dom";
+import useAuthStore from "../store/UserAuthStore";
 
 
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { apiLogout } from "../api/auth";
 
 export default function Header() {
   const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [toggleProfileDropDown, setToggleProfileDropDown] = useState(false);
- 
+  const { user, isAuthenticated, logout } = useAuthStore();
+
   const navigate = useNavigate();
   const location = useLocation();
 
- 
+
+
   const handleProfileClick = () => {
     setToggleProfileDropDown(!toggleProfileDropDown);
   };
+  const handleLogout = () => {
+    apiLogout().then((res) => {
+      if (res.success) {
+        logout();
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('roles');
+        navigate("/");
+      }
+      else {
+        logout();
+      }
+    })
+  }
   return (
     <header className="sticky top-0 z-40 w-full bg-white/80 dark:bg-gray-800 border-b border-slate-100 dark:border-gray-600 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -81,109 +99,112 @@ export default function Header() {
 
           {/* 3. RIGHT SECTION (Location & Profile) */}
           <div className="hidden md:flex items-center gap-4">
-            <button
-              onClick={() => {
-                navigate('/login', { state: { background: location } });
-              }}
-              className="text-sm font-semibold text-slate-600 dark:text-white hover:text-blue-600 transition px-3 py-1 rounded"
-            >
-              Login
-            </button>
+            {!user
+              ? <>
 
-            <button
-              onClick={() => {
-                navigate('/register', { state: { background: location } });
-              }}
-              className="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition px-3 py-1 rounded"
-            >
-              Register
-            </button>
-
-            <div className="flex items-center gap-1 text-slate-500 border-r pr-4 border-slate-200">
-              <HiOutlineLocationMarker className="text-blue-600" />
-              <span className="text-xs font-medium dark:text-white">
-                Addis ababa, NY
-              </span>
-            </div>
-
-            <button
-              className="p-1 text-slate-400 dark:text-white hover:text-blue-600 transition"
-              onClick={handleProfileClick}
-            >
-              <FaUserCircle size={28} />
-            </button>
-            {toggleProfileDropDown && (
-              <div
-                className="fixed inset-0 z-10"
-                onClick={() => setToggleProfileDropDown(false)}
-              >
-                <div
-                  onClick={(e) => e.stopPropagation()}
-                  className="absolute z-20  top-[75px] right-8  bg-cyan-700 dark:bg-gray-800 shadow-2xl rounded-lg"
-                >
-                  <ul
-                    className={` bg-cyan-700 cursor-pointer dark:bg-gray-800 shadow-2xl`}
+                <div>
+                  <button
+                    onClick={() => {
+                      navigate('/login', { state: { background: location } });
+                    }}
+                    className="text-sm font-semibold text-slate-600 dark:text-white hover:text-blue-600 transition px-3 py-1 rounded"
                   >
-                    {true && (
-                      <li className="px-3 py-2">
-                        <div className="px-4 py-3 border-b border-gray-100">
-                          <p className="text-sm leading-5 font-medium text-white">
-                            sign_in_as
-                          </p>
-                          <p className="text-sm leading-5 text-gray-300 truncate">
-                            {/* {user.u_email} */}
-                          </p>
-                        </div>
-                        <NavLink
-                          className="flex items-start justify-start  gap-x-2 pt-2"
-                          to={"/user/dashboard"}
-                          onClick={handleProfileClick}
-                        >
-                          {" "}
-                          <FaUser className="w-4 h-4" />
-                          <span className="text-[14px] text-gray-300 sm:text-sm ">
-                            {" "}
-                            My Profile
-                          </span>
-                        </NavLink>
-                      </li>
-                    )}
+                    Login
+                  </button>
 
-                    <li className="px-3 py-2 text-white ">
-                      <NavLink
-                        className="flex items-start justify-start  gap-x-2"
-                        to={"/home"}
-                        onClick={handleProfileClick}
-                      >
-                        {" "}
-                        <AiFillProduct className="w-4 h-4" />
-                        <span className="text-[14px] sm:text-sm ">
-                          Go To Home
-                        </span>
-                      </NavLink>
-                    </li>
-                    <li
-                      className="cursor-pointer px-4 py-2 text-white "
-                      onClick={handleProfileClick}
-                    >
-                      <NavLink
-                        className="flex items-start justify-start gap-x-2"
-                        // onClick={handleLogoutCLick}
-                      >
-                        <LuLogOut className="w-4 h-4" />
-                        <span className="text-[14px] sm:text-sm ">Logout</span>
-                      </NavLink>
-                    </li>
-                  </ul>
+                  <button
+                    onClick={() => {
+                      navigate('/register', { state: { background: location } });
+                    }}
+                    className="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition px-3 py-1 rounded"
+                  >
+                    Register
+                  </button>
+
                 </div>
-              </div>
-            )}
+              </> : <>
+                <div className="flex items-center gap-1 text-slate-500 border-r pr-4 border-slate-200">
+                  <HiOutlineLocationMarker className="text-blue-600" />
+                  <span className="text-xs font-medium dark:text-white">
+                    Addis ababa, NY
+                  </span>
+                </div>
+                <div className="relative">
+                  <button
+                    className="p-1 text-slate-400 dark:text-white hover:text-blue-600 transition"
+                    onClick={handleProfileClick}
+                  >
+                    <FaUserCircle size={28} />
+                  </button>
+                  {toggleProfileDropDown && (
+                    <>
+                      {/* Backdrop */}
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setToggleProfileDropDown(false)}
+                      />
+
+                      {/* Dropdown */}
+                      <div
+                        className="absolute right-0 mt-2 w-56 z-20
+                 bg-white dark:bg-gray-800
+                 rounded-lg shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ul className="py-2 text-sm">
+                          <li className="px-4 py-3 border-b border-gray-200 dark:border-gray-600">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              Signed in as
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">
+                              {user?.email}
+                            </p>
+                          </li>
+
+                          <li>
+                            <NavLink
+                              to="/user/dashboard"
+                              onClick={handleProfileClick}
+                              className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            >
+                              <FaUser />
+                              My Profile
+                            </NavLink>
+                          </li>
+
+                          <li>
+                            <NavLink
+                              to="/home"
+                              onClick={handleProfileClick}
+                              className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            >
+                              <AiFillProduct />
+                              Go To Home
+                            </NavLink>
+                          </li>
+
+                          <li>
+                            <button
+                              className="w-full flex items-center gap-2 px-4 py-2 hover:bg-red-100 dark:hover:bg-red-700"
+                              onClick={handleLogout}
+                            >
+                              <LuLogOut />
+                              Logout
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </>}
+
             <LanguageSwitcher />
             <ThemeToggle />
           </div>
 
-         
-        
+
+
 
           {/* MOBILE TOGGLE */}
           <div className="md:hidden flex items-center">
@@ -222,25 +243,32 @@ export default function Header() {
           >
             Find on Map
           </a>
-          <div className="flex justify-center items-center gap-2 py-2 text-slate-500 border-t">
-            <button
-              onClick={() => {
-                navigate('/login', { state: { background: location } });
-              }}
-              className="text-sm font-semibold text-slate-600 dark:text-white hover:text-blue-600 transition px-3 py-1 rounded"
-            >
-              Login
-            </button>
+          {user === '' ?
+            <>
 
-            <button
-              onClick={() => {
-                navigate('/register', { state: { background: location } });
-              }}
-              className="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition px-3 py-1 rounded"
-            >
-              Register
-            </button>
-          </div>
+              <div className="flex justify-center items-center gap-2 py-2 text-slate-500 border-t">
+                <button
+                  onClick={() => {
+                    navigate('/login', { state: { background: location } });
+                  }}
+                  className="text-sm font-semibold text-slate-600 dark:text-white hover:text-blue-600 transition px-3 py-1 rounded"
+                >
+                  Login
+                </button>
+
+                <button
+                  onClick={() => {
+                    navigate('/register', { state: { background: location } });
+                  }}
+                  className="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition px-3 py-1 rounded"
+                >
+                  Register
+                </button>
+              </div>
+            </> : <>
+              <div>user</div>
+            </>}
+
         </div>
       )}
     </header>

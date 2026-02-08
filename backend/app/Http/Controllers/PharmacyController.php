@@ -89,7 +89,7 @@ class PharmacyController extends Controller
                "address_description_am"=>$validated['detailed_address_am'] ?? null,
                 'logo' => $logoPath, // 2MB max
                 
-                'status' => 'PENDING', // Admin will approve later
+                'status' => 'PENDING', 
             ]);
             
             // 5. Create Location Record (polymorphic)

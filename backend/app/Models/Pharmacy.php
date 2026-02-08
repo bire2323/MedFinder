@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pharmacy extends Model
 {
-   
+   protected $table = "pharmacies";
     protected $fillable = [
         "pharmacy_agent_id",
         "pharmacy_name_en",
@@ -42,7 +42,7 @@ class Pharmacy extends Model
      public function drugs()
     {
         return $this->belongsToMany(Drug::class)
-                    ->withPivot('quantity_available', 'selling_price', 'expire_date','status')
+                    ->withPivot('stock', 'price','about_drug_en', 'about_drug_am','expire_date','status')
                     ->withTimestamps();
     }
    

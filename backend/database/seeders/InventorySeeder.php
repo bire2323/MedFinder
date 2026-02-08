@@ -12,67 +12,44 @@ class InventorySeeder extends Seeder
      */
     public function run(): void
     {
-        $inventories = [
-            [
-                'pharmacy_id'        => 1,
-                'drug_id'            => 1,
-                'quantity_available' => 150,
-                'selling_price'      => 7.00,
-                'status'             => 'AVAILABLE',
-                'expire_date'=>'2026-02-02 01:09:33',
-                'created_at'         => now(),
-                'updated_at'         => now(),
-            ],
+       $inventories = [
+         
             [
                 'pharmacy_id'        => 1,
                 'drug_id'            => 2,
-                'quantity_available' => 0,
-            
-                'selling_price'      => 10.00,
-                'status'             => 'OUT_OF_STOCK',
-                'expire_date'=>'2026-02-02 01:09:33',
-
-                'created_at'         => now(),
-                'updated_at'         => now(),
+                'stock' => 0,
+                'price' => 85,
+                'about_drug_en' => "400mg",
+                'about_drug_am' => "400mg",
+                'expire_date' => "2026-06-30",
+                'prescription_required' => true,
+                
             ],
             [
                 'pharmacy_id'        => 2,
                 'drug_id'            => 1,
-                'quantity_available' => 80,
-                
-                'selling_price'      => 6.80,
-                'status'             => 'AVAILABLE',
-                'expire_date'=>'2026-02-02 01:09:33',
-
-                'created_at'         => now(),
-                'updated_at'         => now(),
+                'stock' => 12,
+                'price' => 25,
+                'about_drug_en' => "400mg",
+                'about_drug_am' => "400mg",
+                'expire_date' => "2026-08-20",
+                'prescription_required' => false,
+               
             ],
             [
                 'pharmacy_id'        => 2,
                 'drug_id'            => 3,
-                'quantity_available' => 30,
-         
-                'selling_price'      => 15.00,
-                'status'             => 'AVAILABLE',
-                'expire_date'=>'2026-02-02 01:09:33',
-
-                'created_at'         => now(),
-                'updated_at'         => now(),
+                'stock' => 450,
+                'price' => 120,
+                'about_drug_en' => "400mg",
+                'about_drug_am' => "400mg",
+                'expire_date' => "2026-12-15",
+                'prescription_required' => true,
+               
             ],
-            [
-                'pharmacy_id'        => 3,
-                'drug_id'            => 4,
-                'quantity_available' => 5,
          
-                'selling_price'      => 25.00,
-                'status'             => 'DISCONTINUED',
-                'expire_date'=>'2026-02-02 01:09:33',
-
-                'created_at'         => now(),
-                'updated_at'         => now(),
-            ],
         ];
-
+ 
         DB::table('pharmacy_drug_inventories')->insert($inventories);
     }
 }

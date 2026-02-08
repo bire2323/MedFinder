@@ -32,6 +32,7 @@ use App\Models\Location;
 // Public auth
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
+Route::post('/logout', [AUthController::class, 'logout']);
 Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
 Route::post('resend-otp', [AuthController::class, 'resendOtp']);
 
@@ -84,17 +85,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('pharmacies/{pharmacy}', [PharmacyController::class, 'update']);
     Route::delete('pharmacies/{pharmacy}', [PharmacyController::class, 'destroy']);
 
+       Route::get('/auditlogs', [UserController::class, 'auditLogs']);
+
     // Drugs
     Route::post('drugs', [DrugController::class, 'store']);
     Route::put('drugs/{drug}', [DrugController::class, 'update']);
     Route::patch('drugs/{drug}', [DrugController::class, 'update']);
     Route::delete('drugs/{drug}', [DrugController::class, 'destroy']);
+    Route::get('pharmacy/inventory/{drug}', [DrugController::class, 'show']);
 
     // Inventories (uses PharmacyDrugInventoryController)
-    Route::get('inventories', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'index']);
-    Route::post('inventories', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'store']);
+    Route::get('pharmacy/inventory', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getInventory']);
+    Route::post('pharmacy/inventory', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'addDrug']);
     Route::get('inventories/{inventory}', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'show']);
-    Route::put('inventories/{inventory}', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'update']);
+    Route::put('pharmacy/inventory/{inventory}', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'update']);
     Route::patch('inventories/{inventory}', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'update']);
     Route::delete('inventories/{inventory}', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'destroy']);
 

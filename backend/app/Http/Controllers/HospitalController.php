@@ -111,7 +111,7 @@ return response()->json([
                 'longitude' => $validated['longitude'],
                 'address_type' => 'main', // or 'branch' if you support multiple
             ]);
-           // $user->syncRoles('hospitalAgent');
+            $user->syncRoles('hospitalAgent');
 
             // 6. Return success response
             return response()->json([

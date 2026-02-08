@@ -28,7 +28,8 @@ class DrugController extends Controller
      */
     public function show(Drug $drug)
     {
-        //
+        $data=$drug;
+       return response()->json(['success'=>true,'data'=>$data]);
     }
 
     /**

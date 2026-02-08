@@ -50,14 +50,15 @@ protected $guard_name = 'sanctum';
 
     public function hospitals()
     {
-        return $this->hasOne(Hospital::class, 'HospitalAgentId');
+        return $this->hasOne(Hospital::class, 'hospital_agent_id');
     }
 
     public function pharmacies()
     {
-        return $this->hasOne(Pharmacy::class, 'PharmacyAgentId');
+        return $this->hasOne(Pharmacy::class, 'pharmacy_agent_id');
     }
     public function chatSession(){
         return $this->hasMany(chatSession::class,'user_id');
     }
+    
 }

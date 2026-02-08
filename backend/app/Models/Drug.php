@@ -12,8 +12,7 @@ class Drug extends Model
         "generic_name",
         "brand_name_en",
         "brand_name_am",
-        "manufacturer",
-        "drug_category"
+       
     ];
 
     public function priceHistories()
@@ -23,7 +22,7 @@ class Drug extends Model
       public function pharmacies()
     {
         return $this->belongsToMany(Pharmacy::class)
-                    ->withPivot('quantity_available',"selling_price", 'expiry_date','status')
+                    ->withPivot('stock',"price",'about_drug_en','about_drug_am', 'expire_date','status')
                     ->withTimestamps();
     }
 }
