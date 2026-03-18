@@ -23,7 +23,7 @@ class AuthController extends Controller
               'phone.required' => 'phone_required',
              'name.required' => 'name_required',
         ]);
-        $user= User::where('phone',$request->phone)->first();
+        $user = User::where('Phone', $request->phone)->first();
         if(!$user){
             return response()->json([
                 'success' => false,
@@ -37,7 +37,8 @@ class AuthController extends Controller
             "message"=>"Invalid_credentials",
         ]);
         }
-            $token = $user->createToken('api-token')->plainTextToken;
+        Auth::login($user);
+        $request->session()->regenerate();
         AuditLog::create([
             'user_id' => $user->id,
             'category' => 'user',
@@ -50,7 +51,6 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'user' => $user,
-            'token' => $token,
              'roles'=>$user->getRoleNames(),
         ]);
 
@@ -139,7 +139,8 @@ public function verifyOtp(Request $request)
     ]);
 
     $user->assignRole('patient'); // or default role
-    $token = $user->createToken('api-token')->plainTextToken;
+    Auth::login($user);
+    $request->session()->regenerate();
 
     // Cleanup
     $otpRow->delete();
@@ -156,7 +157,6 @@ public function verifyOtp(Request $request)
 
     return response()->json([
         'success' => true,
-        'token' => $token,
         'user' => $user,
         'roles'=>$user->getRoleNames(),
     ]);
@@ -202,15 +202,29 @@ public function verifyOtp(Request $request)
     // POST /api/logout (protected)
      public function logout(Request $request)
 {
-    $user = $request->user();
-
-    if ($user && $request->user()->currentAccessToken()) {
-        $request->user()->currentAccessToken()->delete();
-    }
+    Auth::guard('web')->logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
 
     return response()->json([
         'success' => true,
         'message' => 'Logged out successfully',
     ], 200);
 }
+
+    // GET /api/user (protected)
+    public function user(Request $request)
+    {
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        return response()->json([
+            'success' => true,
+            'user' => $user,
+            'roles' => $user->getRoleNames(),
+        ]);
+    }
 }

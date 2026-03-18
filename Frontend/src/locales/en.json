@@ -9,7 +9,7 @@
     "hospital_and_pharmacy_finder": "hospital and pharmacy finder"
   },
   "Register": {
-    "Wellcome": "Welcome",
+    "Wellcome": "Welcome To MedFinder",
     "Register": "Register",
     "Name": "Full Name",
     "Name Placeholder": "Enter your full name",
@@ -27,6 +27,7 @@
     "Password Do Not Match": "Passwords do not match",
     "Already Have Account": "Already have an account?",
     "Login": "Login",
+    "join_medFinder":"Join-MedFinder",
     "Registering": "Registering...",
     "Error Name Min 4": "Full name must be at least 4 characters",
     "Error Phone Required": "Phone number is required",
@@ -46,7 +47,7 @@
     "Password": "Password",
     "Password Placeholder": "Enter password",
     "Login": "Login",
-    "Signing In": "Signing in...",
+    "Signing_In": "Signing in...",
     "Don't Have Account": "Don't have an account?",
     "Register": "Register",
     "Error Phone And Password Required": "Phone and password are required",
@@ -180,5 +181,163 @@
     "GetDirections": "Get directions",
     "Pharmacy": "pharmacy",
     "Hospital": "hospital"
-  }
+  },
+  "inventory": {
+    "title": "Inventory",
+    "searchPlaceholder": "Search drugs...",
+    "addDrug": "Add Drug",
+    "editDrug": "Edit Drug",
+    "noDrugsFound": "No drugs found",
+    "table": {
+      "id": "ID",
+      "drugName": "Drug Name",
+      "genericName": "Generic Name",
+      "stock": "Stock",
+      "price": "Price",
+      "bookedDate": "Booked Date",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "outOfStock": "Out of Stock",
+      "lowStock": "Low Stock",
+      "inStock": "In Stock"
+    },
+    "toast": {
+      "drugAdded": "Drug added to the inventory",
+      "drugDeleted": "Drug deleted",
+      "failedAdd": "Failed to add drug. Please try again.",
+      "failedUpdate": "Failed to update drug. Please try again.",
+      "failedDelete": "Failed to delete drug"
+    }
+  },
+  "modal": {
+    "delete": {
+      "title": "Delete Drug",
+      "confirmMessage": "Are you sure you want to delete <strong>{{name}}</strong>? This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleting": "Deleting..."
+    },
+    "drugInventory": {
+      "titleAdd": "Add New Drug",
+      "titleEdit": "Edit Drug",
+      "drugNameEnglish": "Drug Name (English) *",
+      "drugNameAmharic": "Drug Name (አማርኛ) *",
+      "genericName": "Generic Name *",
+      "stock": "Stock *",
+      "price": "Price (ETB)",
+      "expiryDate": "Expiry Date *",
+      "aboutDrugEnglish": "About Drug (English) *",
+      "aboutDrugAmharic": "About Drug (አማርኛ)",
+      "prescriptionRequired": "Prescription Required",
+      "placeholder": {
+        "drugNameEn": "e.g., Panadol",
+        "drugNameAm": "ለምሳሌ፡- ማስታገሻ",
+        "genericName": "e.g., Paracetamol",
+        "stock": "0",
+        "price": "0",
+        "aboutEn": "e.g., manufactured in 2025",
+        "aboutAm": "ለምሳሌ፡- በ 2025 የተመረተ፣"
+      },
+      "error": {
+        "required": "This field is required"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "processing": "Processing...",
+        "submitAdd": "Add Drug",
+        "submitEdit": "Update Drug"
+      }
+    }
+  },
+    "stats": {
+      "hospitals": "Partner Hospitals",
+      "pharmacies": "Certified Pharmacies",
+      "users": "Active Users"
+    },
+    "features": {
+      "header": "Smart Healthcare Features",
+      "learn_more": "Learn More",
+      "ai_chat": {
+        "title": "AI Chat Assistance",
+        "desc": "Explain what you want to the AI and get real-time information!"
+      },
+      "prescription": {
+        "title": "Prescription Verifier",
+        "desc": "Upload or type your prescription to check availability in nearby pharmacies."
+      },
+      "navigation": {
+        "title": "Real-time Navigation",
+        "desc": "Get turn-by-turn directions to the nearest healthcare facility with live traffic."
+      }
+    },
+    "facilities": {
+      "title": "Top Rated Facilities",
+      "subtitle": "Handpicked hospitals and pharmacies based on user feedback.",
+      "view_all": "View All"
+    },
+    "footer": {
+      "tagline": "Making healthcare accessible through technology. Find the right care at the right time.",
+      "columns": {
+        "platform": "Platform",
+        "support": "Support",
+        "newsletter": "Newsletter"
+      },
+      "links": {
+        "find_hospital": "Find Hospital",
+        "find_pharmacy": "Find Pharmacy",
+        "ai_chatbot": "AI Chatbot",
+        "help_center": "Help Center",
+        "privacy": "Privacy Policy"
+      },
+      "newsletter_placeholder": "Email",
+      "newsletter_btn": "Join",
+      "rights": "All rights reserved."
+    },
+      "hero": {
+        "badge": "Smart Health Locator",
+        "title_main": "Find the right care,",
+        "title_accent": "right now.",
+        "description": "Search thousands of certified hospitals and pharmacies. Powered by AI to guide your health journey.",
+        "search_box": {
+          "tab_hospitals": "Hospitals",
+          "tab_pharmacies": "Pharmacies",
+          "placeholder": "Search by name, medicine or city...",
+          "button_text": "Search"
+        }
+      },
+        "registration": {
+          "header": "Are you a Healthcare Provider?",
+          "subheader": "Join the MedFinder network to improve patient reach, automate inquiries, and streamline your facility's digital presence.",
+          "hospital": {
+            "title": "For Hospital Administrators",
+            "desc": "Digitalize your facility's guidance and help patients find your departments instantly through our AI assistant.",
+            "button": "Register Your Hospital",
+            "benefits": [
+              "Real-time bed availability",
+              "Facility indoor navigation",
+              "Emergency routing"
+            ]
+          },
+          "pharmacy": {
+            "title": "For Pharmacy Owners",
+            "desc": "List your inventory and allow users to check prescription availability in real-time. Boost your local foot traffic.",
+            "button": "Register Your Pharmacy",
+            "benefits": [
+              "Inventory management tools",
+              "Digital prescription verification",
+              "Automated stock alerts"
+            ]
+          }
+        },
+          "error": {
+            "title": "Oops! Connection Issue",
+            "server_error": "Our servers are currently unreachable. Please check your internet or try again shortly.",
+            "generic_error": "Something unexpected happened while loading this page.",
+            "retry_btn": "Try Again",
+            "home_btn": "Back to Home"
+          }
+        
+      
 }

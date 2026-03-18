@@ -1,24 +1,336 @@
 {
-  "headingNav": { "home": "መግቢያ", "hospitals": "ሆስፒታሎች", "pharmacies": "ፋርማሲዎች", "map": "ካርታ" },
-  "heading": { "hospital_and_pharmacy_finder": "ሆስፒታል እና ፋርማሲ ፈላጊ" },
+  "headingNav": {
+    "home": "መግቢያ",
+    "hospitals": "ሆስፒታሎች",
+    "pharmacies": "ፋርማሲዎች",
+    "map": "ካርታ"
+  },
+  "heading": {
+    "hospital_and_pharmacy_finder": "ሆስፒታል እና ፋርማሲ ፈላጊ"
+  },
+  "Register": {
+    "Wellcome": "እንኳን ወደ MedFinder በደህና መጣችሁ።",
+    "Register": "ይመዝገቡ",
+    "Name": "ስም",
+    "Name Placeholder": "ለምሳሌ፡ አማኑኤል ደሴ",
+    "Phone": "ስልክ ቁጥር",
+    "Phone Placeholder": "ለምሳሌ፡ 0987654321 ወይም 0798654321",
+    "Password": "ሚስጥር ቁጥር",
+    "Password Placeholder": "ሚስጥር ቁጥር ያስገቡ",
+    "Confirm Password": "ሚስጥር ቁጥር ያረጋግጡ",
+    "Confirm Password Placeholder": "ሚስጥር ቁጥር ያረጋግጡ",
+    "Error Name Required": "ስም መግባት አለበት",
+    "Error Name Short": "ትክክለኛ ስም ያስገቡ",
+    "Error Phone Invalid": "ስልክ ቁጥር በትክክል ያስገቡ",
+    "Error Password Required": "ሚስጥር ቁጥር አላስገቡም",
+    "Error Password Short": "ሚስጥር ቁጥር 8 አሃዝ በላይ መሆን አለበት",
+    "Password Do Not Match": "ሚስጥር ቁጥርዎ አይመሳሰሉም",
+    "Already Have Account": "አካዉንት አለዎት?",
+    "Login": "ግባ",
+    "join_medFinder":"ይመዝገቡ",
+    "Registering": "መዝገብ...",
+    "Error Name Min 4": "ስም ከ 4 አሀዝ መብለጥ አለበት",
+    "Error Phone Required": "ስልክ ቁጥር መግባት አለበት",
+    "Error Phone Taken": "ስልክ ቁጥሩ ከዚህ በፊት ተመዝግቧል"
+  },
+  "Login": {
+    "Phone": "ስልክ ቁጥር",
+    "Phone Placeholder": "ለምሳሌ፡ 0987654321 ወይም 0798654321",
+    "Password": "ሚስጥር ቁጥር",
+    "Password Placeholder": "ሚስጥር ቁጥር ያስገቡ",
+    "Login": "ግባ",
+    "Signing_In": "መግቢያ...",
+    "Don't Have Account": "አካዉንት አለዎት?",
+    "Register": "ይመዝገቡ",
+    "Error Phone And Password Required": "ስልክ ቁጥር እና ሚስጥር ቁጥር መግባት አለበት",
+    "Login Failed": "ስልክ ቁጥርዎ ወይም ሚስጥር ቁጥር ተሳስቷል!",
+    "forget password": "ሚስጥር ቁጥር እረስተዋል?",
+    "click here": "ይጫኑ!"
+  },
+  "Reset": {
+    "ResetYourPassword": "የይለፍ ቁጥርዎን በአዲስ ይሙሉ",
+    "EnterNewPassword": "አዲስ ይለፍ ቁጥር ያስገቡ",
+    "NewPassword": "አዲስ ይለፍ ቁጥር",
+    "ConfirmPassword": "ይለፍ ቁጥሩን ያረጋግጡ",
+    "ShowPassword": "ይለፍ ቁጥሩን አሳይ",
+    "UpdatePassword": "ይለፍ ቁጥሩን ቀይር",
+    "PasswordMinLength": "ይለፍ ቁጥሩ 8 አሀዝ በላይ መሆን አለበት",
+    "PasswordNotMatch": "የይለፍ ቁጥሩ አመሳስል",
+    "Password_reset_failed": "ዉድቅ ሁኗል!"
+  },
+  "Resetting": {
+    "InterPhone": "ስልክ ቁጥርዎን ያስገቡ",
+    "Phone": "ስልክ ቁጥር",
+    "PhonePlaceholder": "ለምሳሌ፡ 0987654321 ወይም 0798654321",
+    "ErrorPhoneInvalid": "ስልክ ቁጥር ተሳስቷል",
+    "UserNotFound": "አልተገኘም",
+    "SendOtp": "OTP ይላኑ",
+    "SendingOtp": "OTP በመላክ ላይ",
+    "SendOtpFailed": "OTP መላክ አልተሳካም"
+  },
+  "VerifyOtp": {
+    "Title": "OTP አረጋግጥ",
+    "VerifyOtp": "OTP አረጋግጥ",
+    "EnterOtpSentTo": "OTP ተልኳል በ ስልክ ቁጥር፡ ",
+    "ButtonVerify": "OTP አረጋግጥ",
+    "Verifying": "OTP በመረጋጥ ላይ...",
+    "OtpIncomplete": "እባክዎ 4 ቁጥሮች ያስገቡ",
+    "ExpiredOtp": "OTP ዉድቅ ሁኗል!",
+    "ErrorOtpInvalid": "OTP ተሳስቷል",
+    "TooManyAttempts": "ተደጋጋሚ ሙከራዎች፡ እባክዎ ከጥቂት ደቂቃዎች በኋላ ደግመው ይሞክሩ!",
+    "ResendIn": "OTP እንደገና ለመላክ ይጠብቁ",
+    "ResendOtp": "OTP እንደገና ላክ",
+    "ResendWait": "OTP እንደገና ለመላክ ይጠብቁ!",
+    "PhoneRequired": "ስልክ ቁጥር መግባት አለበት",
+    "NoPendingRegistration": "አልተገኘም",
+    "ResendFailed": "OTP መላክ ዉድቅ ሁኗል"
+  },
+  "Common": {
+    "Back": "ተመለስ",
+    "Home": "መነሻ",
+    "Save": "ያስቀምጡ",
+    "Cancel": "ሰርዝ",
+    "Edit": "አርትዕ",
+    "Delete": "ሰርዝ",
+    "Add": "ጨምር",
+    "Search": "ፈልግ",
+    "Loading": "በመጫን ላይ..."
+  },
+  "Registration": {
+    "PharmacyRegistration": "ፋርማሲ ምዝገባ",
+    "HospitalRegistration": "ሆስፒታል ምዝገባ",
+    "RegisterFacility": "በMedFinder ዝርዝር ላይ ለመገኘት ተቋምዎን ይመዝገቡ",
+    "Step1": "መሠረታዊ መረጃ",
+    "Step2": "ቦታ",
+    "Step3": "ማረጋገጫ",
+    "Step4": "ማስረዳት",
+    "NextStep": "ቀጣይ ደረጃ",
+    "Back": "ተመለስ",
+    "Submit": "ለአስተዳዳሪ ማረጋገጫ አስገባ",
+    "PharmacyName": "የፋርማሲ ስም",
+    "HospitalName": "የሆስፒታል ስም",
+    "EmailOptional": "(አማራጭ)",
+    "PhoneFormat": "የኢትዮጵያ ስልክ፡ 09 ወይም +2519 በመጀመር",
+    "AgreeTerms": "በአገልግሎት ውሎች እና የግል መብት ደንቦች ተስማምቻለሁ",
+    "SelectRegion": "ክልል ይምረጡ",
+    "GetMyLocation": "ቦታዬን አምጣ",
+    "MainContact": "ዋና የእውቂያ ስልክ",
+    "EmergencyPhone": "የእስረኞች ስልክ",
+    "AlternatePhone": "አማራጭ ስልክ",
+    "ReviewInfo": "መረጃዎን ይሸምቱ",
+    "ReviewDesc": "ማስገባት በመጀመርዎ በፊት ሁሉንም ዝርዝሮች ይሸምቱ",
+    "SuccessTitle": "ምዝገባ ቀርቧል!",
+    "SuccessDesc": "ምዝገባዎ በተሳካ ሁኔታ ቀርቧል። በአስተዳዳሪ ማረጋገጫ ላይ ነው። በSMS/ኢሜይል ይገነዘባሉ።",
+    "ReturnHome": "ወደ መነሻ ተመለስ",
+    "GoToLogin": "ወደ መግቢያ ሂድ"
+  },
+  "PharmacyDashboard": {
+    "Overview": "ማያያዝ",
+    "Inventory": "ቆሻሻ እቃዎች",
+    "Prescriptions": "መመሪያዎች",
+    "Settings": "ቅንብሮች",
+    "AddDrug": "መድኃኒት ጨምር",
+    "SearchDrugs": "መድኃኒቶችን ፈልግ...",
+    "TotalDrugs": "ጠቅላላ መድኃኒቶች",
+    "LowStock": "ዝቅተኛ ክምችት",
+    "OutOfStock": "ክምችት የለም",
+    "RecentChats": "የቅርብ ጊዜ ውይይቶች",
+    "InventoryOverview": "የክምችት ማያያዝ",
+    "ViewAll": "ሁሉንም ይመልከት",
+    "DrugName": "የመድኃኒት ስም",
+    "GenericName": "አጠቃላይ ስም",
+    "BookedDate": "የተመዘገበበት ቀን",
+    "InStock": "በክምችት ላይ",
+    "EditDrug": "መድኃኒት አርትዕ",
+    "DeleteDrug": "መድኃኒት ሰርዝ",
+    "ConfirmDelete": "እርግጠኛ ነህ መሰረዝ ትፈልጋለህ",
+    "CannotUndo": "ይህ እርምጃ ሊመለስ አይችልም።"
+  },
+  "HospitalDashboard": {
+    "Overview": "ማያያዝ",
+    "Departments": "ዳይሬክቶሬቶች",
+    "Services": "አገልግሎቶች",
+    "Settings": "ቅንብሮች",
+    "AddDepartment": "ዳይሬክቶሬት ጨምር",
+    "AddService": "አገልግሎት ጨምር",
+    "SearchDepartments": "ዳይሬክቶሬቶችን ፈልግ...",
+    "SearchServices": "አገልግሎቶችን ፈልግ...",
+    "RecentInquiries": "የቅርብ ጊዜ ጥያቄዎች",
+    "ActiveDepartments": "ንቁ ዳይሬክቶሬቶች",
+    "DepartmentName": "የዳይሬክቶሬት ስም",
+    "HeadDoctor": "ዋና ዶክተር",
+    "Status": "ሁኔታ",
+    "Active": "ንቁ",
+    "Inactive": "ንቁ ያልሆነ",
+    "Available": "ይገኛል",
+    "Unavailable": "አይገኝም"
+  },
+  "Map": {
+    "SearchPlaceholder": "ፋርማሲ ወይም ሆስፒታል ፈልግ...",
+    "Nearest": "ቅርብ",
+    "Live": "ቀጥተኛ",
+    "YouAreHere": "እዚህ ነህ",
+    "GetDirections": "መንገድ አግኝ",
+    "Pharmacy": "ፋርማሲ",
+    "Hospital": "ሆስፒታል"
+  },
+  "inventory": {
+    "title": "እንቨንቶሪ",
+    "searchPlaceholder": "መድሃኒት ፈልግ...",
+    "addDrug": "መድሃኒት ጨምር",
+    "editDrug": "መድሃኒት አርትዕ",
+    "noDrugsFound": "ምንም መድሃኒት የለም",
+    "table": {
+      "id": "ተ/ቁ",
+      "drugName": "የመዳኒቱ መጠሪያ",
+      "genericName": "ሳይንሳዊ ስም",
+      "stock": "እስቶክ",
+      "price": "ዋጋ",
+      "bookedDate": "የተመዘገበበት ቀን",
+      "status": "ሁኔታ",
+      "actions": "ድርጊቶች"
+    },
+    "status": {
+      "outOfStock": "የለም",
+      "lowStock": "አዲስ ግብኣት",
+      "inStock": "አለ"
+    },
+    "toast": {
+      "drugAdded": "መድሃኒቱ ወደ መዝገብ ተጨምሯል",
+      "drugDeleted": "መድሃኒቱ ተሰርዟል",
+      "failedAdd": "Failed to add drug. Please try again.",
+      "failedUpdate": "Failed to update drug. Please try again.",
+      "failedDelete": "Failed to delete drug"
+    }
+  },
+  "modal": {
+    "delete": {
+      "title": "መድሃኒቱ አጥፋ",
+      "confirmMessage": "እርግጠኛ ነግ መድሃኒት <strong>{{name}}</strong> ከመዝገብ ለማትፋት? ይህ ድርጊት አይመለስም፡",
+      "cancel": "ሰርዝ",
+      "delete": "አጥፋ",
+      "deleting": "በማጥፋት ላይ..."
+    },
+    "drugInventory": {
+      "titleAdd": "አዲስ መድሃኒት አስገባ",
+      "titleEdit": "የመድሃኒቱ አስተካክል",
+      "drugNameEnglish": "Drug Name (English) *",
+      "drugNameAmharic": "የመድሃኒቱ ስም (አማርኛ) *",
+      "genericName": "የመድሃኒቱ ሳይንሳዊ ስም *",
+      "stock": "እስቶክ *",
+      "price": "ዋጋ (ብር)",
+      "expiryDate": "የሚያበቃበት ቀን *",
+      "aboutDrugEnglish": "About Drug (English) *",
+      "aboutDrugAmharic": "ስለ መድሃኒቱ (አማርኛ)",
+      "prescriptionRequired": "የሃኪም ማዘዣ ያስፈልጋልን",
+      "placeholder": {
+        "drugNameEn": "e.g., Panadol",
+        "drugNameAm": "ለምሳሌ፡- ማስታገሻ",
+        "genericName": "e.g., Paracetamol",
+        "stock": "0",
+        "price": "0",
+        "aboutEn": "e.g., manufactured in 2025",
+        "aboutAm": "ለምሳሌ፡- በ 2025 የተመረተ፣"
+      },
+      "error": {
+        "required": "በትክክል ይሙሉ"
+      },
+      "actions": {
+        "cancel": "ሰርዝ",
+        "processing": "በሂደት ላይ...",
+        "submitAdd": "መድሃኒት ጨምር",
+        "submitEdit": "መድሃኒት አርትዕ"
+      }
+    }
+  },
 
-  "Register": { "Wellcome": "እንኳን ወደ MedFinder በደህና መጣችሁ።", "Register": "ይመዝገቡ", "Name": "ስም", "Name Placeholder": "ለምሳሌ፡ አማኑኤል ደሴ", "Phone": "ስልክ ቁጥር", "Phone Placeholder": "ለምሳሌ፡ 0987654321 ወይም 0798654321", "Password": "ሚስጥር ቁጥር", "Password Placeholder": "ሚስጥር ቁጥር ያስገቡ", "Confirm Password": "ሚስጥር ቁጥር ያረጋግጡ", "Confirm Password Placeholder": "ሚስጥር ቁጥር ያረጋግጡ", "Error Name Required": "ስም መግባት አለበት", "Error Name Short": "ትክክለኛ ስም ያስገቡ", "Error Phone Invalid": "ስልክ ቁጥር በትክክል ያስገቡ", "Error Password Required": "ሚስጥር ቁጥር አላስገቡም", "Error Password Short": "ሚስጥር ቁጥር 8 አሃዝ በላይ መሆን አለበት", "Password Do Not Match": "ሚስጥር ቁጥርዎ አይመሳሰሉም", "Already Have Account": "አካዉንት አለዎት?", "Login": "ግባ", "Registering": "መዝገብ...", "Error Name Min 4": "ስም ከ 4 አሀዝ መብለጥ አለበት", "Error Phone Required": "ስልክ ቁጥር መግባት አለበት", "Error Phone Taken": "ስልክ ቁጥሩ ከዚህ በፊት ተመዝግቧል" },
-
-  "Login": { "Phone": "ስልክ ቁጥር", "Phone Placeholder": "ለምሳሌ፡ 0987654321 ወይም 0798654321", "Password": "ሚስጥር ቁጥር", "Password Placeholder": "ሚስጥር ቁጥር ያስገቡ", "Login": "ግባ", "Signing In": "መግቢያ...", "Don't Have Account": "አካዉንት አለዎት?", "Register": "ይመዝገቡ", "Error Phone And Password Required": "ስልክ ቁጥር እና ሚስጥር ቁጥር መግባት አለበት", "Login Failed": "ስልክ ቁጥርዎ ወይም ሚስጥር ቁጥር ተሳስቷል!", "forget password": "ሚስጥር ቁጥር እረስተዋል?", "click here": "ይጫኑ!" },
-
-  "Reset": { "ResetYourPassword": "የይለፍ ቁጥርዎን በአዲስ ይሙሉ", "EnterNewPassword": "አዲስ ይለፍ ቁጥር ያስገቡ", "NewPassword": "አዲስ ይለፍ ቁጥር", "ConfirmPassword": "ይለፍ ቁጥሩን ያረጋግጡ", "ShowPassword": "ይለፍ ቁጥሩን አሳይ", "UpdatePassword": "ይለፍ ቁጥሩን ቀይር", "PasswordMinLength": "ይለፍ ቁጥሩ 8 አሀዝ በላይ መሆን አለበት", "PasswordNotMatch": "የይለፍ ቁጥሩ አመሳስል", "Password_reset_failed": "ዉድቅ ሁኗል!" },
-
-  "Resetting": { "InterPhone": "ስልክ ቁጥርዎን ያስገቡ", "Phone": "ስልክ ቁጥር", "PhonePlaceholder": "ለምሳሌ፡ 0987654321 ወይም 0798654321", "ErrorPhoneInvalid": "ስልክ ቁጥር ተሳስቷል", "UserNotFound": "አልተገኘም", "SendOtp": "OTP ይላኑ", "SendingOtp": "OTP በመላክ ላይ", "SendOtpFailed": "OTP መላክ አልተሳካም" },
-
-  "VerifyOtp": { "Title": "OTP አረጋግጥ", "VerifyOtp": "OTP አረጋግጥ", "EnterOtpSentTo": "OTP ተልኳል በ ስልክ ቁጥር፡ ", "ButtonVerify": "OTP አረጋግጥ", "Verifying": "OTP በመረጋጥ ላይ...", "OtpIncomplete": "እባክዎ 4 ቁጥሮች ያስገቡ", "ExpiredOtp": "OTP ዉድቅ ሁኗል!", "ErrorOtpInvalid": "OTP ተሳስቷል", "TooManyAttempts": "ተደጋጋሚ ሙከራዎች፡ እባክዎ ከጥቂት ደቂቃዎች በኋላ ደግመው ይሞክሩ!", "ResendIn": "OTP እንደገና ለመላክ ይጠብቁ", "ResendOtp": "OTP እንደገና ላክ", "ResendWait": "OTP እንደገና ለመላክ ይጠብቁ!", "PhoneRequired": "ስልክ ቁጥር መግባት አለበት", "NoPendingRegistration": "አልተገኘም", "ResendFailed": "OTP መላክ ዉድቅ ሁኗል" },
-
-  "Common": { "Back": "ተመለስ", "Home": "መነሻ", "Save": "ያስቀምጡ", "Cancel": "ሰርዝ", "Edit": "አርትዕ", "Delete": "ሰርዝ", "Add": "ጨምር", "Search": "ፈልግ", "Loading": "በመጫን ላይ..." },
-
-  "Registration": { "PharmacyRegistration": "ፋርማሲ ምዝገባ", "HospitalRegistration": "ሆስፒታል ምዝገባ", "RegisterFacility": "በMedFinder ዝርዝር ላይ ለመገኘት ተቋምዎን ይመዝገቡ", "Step1": "መሠረታዊ መረጃ", "Step2": "ቦታ", "Step3": "ማረጋገጫ", "Step4": "ማስረዳት", "NextStep": "ቀጣይ ደረጃ", "Back": "ተመለስ", "Submit": "ለአስተዳዳሪ ማረጋገጫ አስገባ", "PharmacyName": "የፋርማሲ ስም", "HospitalName": "የሆስፒታል ስም", "EmailOptional": "(አማራጭ)", "PhoneFormat": "የኢትዮጵያ ስልክ፡ 09 ወይም +2519 በመጀመር", "AgreeTerms": "በአገልግሎት ውሎች እና የግል መብት ደንቦች ተስማምቻለሁ", "SelectRegion": "ክልል ይምረጡ", "GetMyLocation": "ቦታዬን አምጣ", "MainContact": "ዋና የእውቂያ ስልክ", "EmergencyPhone": "የእስረኞች ስልክ", "AlternatePhone": "አማራጭ ስልክ", "ReviewInfo": "መረጃዎን ይሸምቱ", "ReviewDesc": "ማስገባት በመጀመርዎ በፊት ሁሉንም ዝርዝሮች ይሸምቱ", "SuccessTitle": "ምዝገባ ቀርቧል!", "SuccessDesc": "ምዝገባዎ በተሳካ ሁኔታ ቀርቧል። በአስተዳዳሪ ማረጋገጫ ላይ ነው። በSMS/ኢሜይል ይገነዘባሉ።", "ReturnHome": "ወደ መነሻ ተመለስ", "GoToLogin": "ወደ መግቢያ ሂድ" },
-
-  "PharmacyDashboard": { "Overview": "ማያያዝ", "Inventory": "ቆሻሻ እቃዎች", "Prescriptions": "መመሪያዎች", "Settings": "ቅንብሮች", "AddDrug": "መድኃኒት ጨምር", "SearchDrugs": "መድኃኒቶችን ፈልግ...", "TotalDrugs": "ጠቅላላ መድኃኒቶች", "LowStock": "ዝቅተኛ ክምችት", "OutOfStock": "ክምችት የለም", "RecentChats": "የቅርብ ጊዜ ውይይቶች", "InventoryOverview": "የክምችት ማያያዝ", "ViewAll": "ሁሉንም ይመልከት", "DrugName": "የመድኃኒት ስም", "GenericName": "አጠቃላይ ስም", "BookedDate": "የተመዘገበበት ቀን", "InStock": "በክምችት ላይ", "EditDrug": "መድኃኒት አርትዕ", "DeleteDrug": "መድኃኒት ሰርዝ", "ConfirmDelete": "እርግጠኛ ነህ መሰረዝ ትፈልጋለህ", "CannotUndo": "ይህ እርምጃ ሊመለስ አይችልም።" },
-
-  "HospitalDashboard": { "Overview": "ማያያዝ", "Departments": "ዳይሬክቶሬቶች", "Services": "አገልግሎቶች", "Settings": "ቅንብሮች", "AddDepartment": "ዳይሬክቶሬት ጨምር", "AddService": "አገልግሎት ጨምር", "SearchDepartments": "ዳይሬክቶሬቶችን ፈልግ...", "SearchServices": "አገልግሎቶችን ፈልግ...", "RecentInquiries": "የቅርብ ጊዜ ጥያቄዎች", "ActiveDepartments": "ንቁ ዳይሬክቶሬቶች", "DepartmentName": "የዳይሬክቶሬት ስም", "HeadDoctor": "ዋና ዶክተር", "Status": "ሁኔታ", "Active": "ንቁ", "Inactive": "ንቁ ያልሆነ", "Available": "ይገኛል", "Unavailable": "አይገኝም" },
-
-  "Map": { "SearchPlaceholder": "ፋርማሲ ወይም ሆስፒታል ፈልግ...", "Nearest": "ቅርብ", "Live": "ቀጥተኛ", "YouAreHere": "እዚህ ነህ", "GetDirections": "መንገድ አግኝ", "Pharmacy": "ፋርማሲ", "Hospital": "ሆስፒታል" }
+    "stats": {
+      "hospitals": "አጋር ሆስፒታሎች",
+      "pharmacies": "የተረጋገጡ ፋርማሲዎች",
+      "users": "ንቁ ተጠቃሚዎች"
+    },
+    "features": {
+      "header": "ብልጥ የጤና እንክብካቤ አገልግሎቶች",
+      "learn_more": "ተጨማሪ ይረዱ",
+      "ai_chat": {
+        "title": "የAI ውይይት ድጋፍ",
+        "desc": "የሚፈልጉትን ለAI በማስረዳት ቅጽበታዊ መረጃ ያግኙ!"
+      },
+      "prescription": {
+        "title": "የመድኃኒት ማዘዣ አረጋጋጭ",
+        "desc": "በአቅራቢያዎ ባሉ ፋርማሲዎች ውስጥ መኖሩን ለማረጋገጥ የታዘዘልዎትን መድሃኒት እዚህ ይጫኑ ወይም ይጻፉ።"
+      },
+      "navigation": {
+        "title": "ቅጽበታዊ አቅጣጫ ጠቋሚ",
+        "desc": "ወደ ቅርብ የጤና ተቋም የሚወስድዎትን ቀጥታ መንገድ በካርታ ያግኙ።"
+      }
+    },
+    "facilities": {
+      "title": "ከፍተኛ ደረጃ የተሰጣቸው ተቋማት",
+      "subtitle": "በተጠቃሚዎች አስተያየት ላይ ተመስርተው የተመረጡ ሆስፒታሎች እና ፋርማሲዎች።",
+      "view_all": "ሁሉንም ይመልከቱ"
+    },
+    "footer": {
+      "tagline": "ቴክኖሎጂን በመጠቀም የጤና አገልግሎትን ተደራሽ ማድረግ። ትክክለኛውን እንክብካቤ በትክክለኛው ጊዜ ያግኙ።",
+      "columns": {
+        "platform": "ፕላትፎርም",
+        "support": "ድጋፍ",
+        "newsletter": "ዜና መጽሔት"
+      },
+      "links": {
+        "find_hospital": "ሆስፒታል ፈልግ",
+        "find_pharmacy": "ፋርማሲ ፈልግ",
+        "ai_chatbot": "የAI ረዳት",
+        "help_center": "የእርዳታ ማዕከል",
+        "privacy": "የግል መረጃ ጥበቃ"
+      },
+      "newsletter_placeholder": "ኢሜይል",
+      "newsletter_btn": "ይቀላቀሉ",
+      "rights": "መብቱ በህግ የተጠበቀ ነው።"
+    },
+      "hero": {
+        "badge": "ብልጥ የጤና መፈለጊያ",
+        "title_main": "ትክክለኛውን እንክብካቤ፣",
+        "title_accent": "አሁን ያግኙ።",
+        "description": "በሺዎች የሚቆጠሩ የተረጋገጡ ሆስፒታሎችን እና ፋርማሲዎችን ይፈልጉ። በAI የታገዘ የጤና ጉዞዎን ይምሩ።",
+        "search_box": {
+          "tab_hospitals": "ሆስፒታሎች",
+          "tab_pharmacies": "ፋርማሲዎች",
+          "placeholder": "በስም፣ በመድኃኒት ወይም በከተማ ይፈልጉ...",
+          "button_text": "ፈልግ"
+        }
+      },
+        "registration": {
+          "header": "የጤና አገልግሎት ሰጪ ነዎት?",
+          "subheader": "የታካሚዎችን ተደራሽነት ለማሻሻል፣ ጥያቄዎችን በራስ-ሰር ለመመለስ እና የተቋምዎን ዲጂታል ገጽታ ለማሳደግ የሜድፋይንደር (MedFinder) መረብን ይቀላቀሉ።",
+          "hospital": {
+            "title": "ለሆስፒታል አስተዳዳሪዎች",
+            "desc": "የተቋምዎን መመሪያዎች ዲጂታላይዝ ያድርጉ እና ታካሚዎች በAI ረዳታችን አማካኝነት ክፍሎችን ወዲያውኑ እንዲያገኙ ያግዙ።",
+            "button": "ሆስፒታልዎን ይመዝግቡ",
+            "benefits": [
+              "የአልጋ መኖር መረጃ በቅጽበት",
+              "የተቋም ውስጥ አቅጣጫ ጠቋሚ",
+              "የአደጋ ጊዜ መንገድ አመላካች"
+            ]
+          },
+          "pharmacy": {
+            "title": "ለፋርማሲ ባለቤቶች",
+            "desc": "የመድኃኒት ዝርዝርዎን ያሳውቁ እና ተጠቃሚዎች ያሉዎትን መድኃኒቶች በቅጽበት እንዲያዩ ይፍቀዱ። የደንበኛ ፍሰትዎን ይጨምሩ።",
+            "button": "ፋርማሲዎን ይመዝግቡ",
+            "benefits": [
+              "የመድኃኒት ክምችት መቆጣጠሪያ መሣሪያዎች",
+              "ዲጂታል የመድኃኒት ማዘዣ ማረጋገጫ",
+              "የክምችት እጥረት ማስጠንቀቂያ"
+            ]
+          }
+        },
+        
+          "error": {
+            "title": "ይቅርታ! የግንኙነት ችግር ተፈጥሯል",
+            "server_error": "የመረጃ ማዕከላችንን ማግኘት አልተቻለም። እባክዎ ኢንተርኔትዎን ያረጋግጡ ወይም ትንሽ ቆይተው እንደገና ይሞክሩ።",
+            "generic_error": "ይህንን ገጽ በመጫን ላይ ያልተጠበቀ ችግር አጋጥሟል።",
+            "retry_btn": "እንደገና ይሞክሩ",
+            "home_btn": "ወደ ዋናው ገጽ ተመለስ"
+          }
+        
 }

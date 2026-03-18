@@ -1,11 +1,7 @@
 /**
  * API functions for pharmacy and hospital registration
  */
-import useAuthStore from "../store/UserAuthStore";
-
-const API_BASE_Local = "http://localhost:8000/api";
-
-const getAuthToken = () => useAuthStore.getState().token;
+import { apiFetch, ensureCsrfCookie } from "./client";
 /**
  * Register a new pharmacy
  * @param {Object} formData - The pharmacy registration data
@@ -51,17 +47,11 @@ export async function apiRegisterPharmacy(formData) {
     data.append('logo', formData.pharmacyLogo);
   }
 
-  const res = await fetch(`${API_BASE_Local}/register/pharmacy`, {
+  await ensureCsrfCookie();
+  return apiFetch("/api/register/pharmacy", {
     method: "POST",
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-      // Note: Don't set Content-Type for FormData - browser sets it automatically with boundary
-    },
     body: data,
   });
-
-  return res.json();
 }
 
 /**
@@ -111,16 +101,11 @@ export async function apiRegisterHospital(formData) {
     data.append('logo', formData.hospitalLogo);
   }
 
-  const res = await fetch(`${API_BASE_Local}/register/hospital`, {
+  await ensureCsrfCookie();
+  return apiFetch("/api/register/hospital", {
     method: "POST",
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
     body: data,
   });
-
-  return res.json();
 }
 
 export default { apiRegisterPharmacy, apiRegisterHospital };

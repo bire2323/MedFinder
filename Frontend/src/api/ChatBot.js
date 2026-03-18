@@ -1,42 +1,32 @@
-
-const API_BASE = import.meta.env.VITE_API_BASE || '';
-const API_BASE_Local = "http://localhost:8000/api";
+import { apiFetch, ensureCsrfCookie } from "./client";
 
 async function sendMessage(text) {
-    const userLng= localStorage.getItem("lng");
-const userLat= localStorage.getItem("lat");
-const token= localStorage.getItem("token");
-const lang=localStorage.getItem("i18nextLng");
-  const res = await fetch(`${API_BASE_Local}/chat`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      message: text,
-      lat: userLat,
-      lng: userLng,
-      lang:lang,
-    }),
+  await ensureCsrfCookie();
+  return apiFetch("/api/detectIntent", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question: text }),
   });
-
-  return res.json();
 }
 
-
-async function uploadPrescription(file) {
-  const form = new FormData();
-  form.append('file', file);
-  form.append('lat', userLat);
-  form.append('lng', userLng);
-
-  const res = await fetch(`${API_BASE_Local}/prescription/read`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}` },
-    body: form,
+export const getTriage = async (symptoms) => {
+  await ensureCsrfCookie();
+  const res = await apiFetch("/api/ai/triage", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ symptoms }),
   });
+  return res?.response ?? res;
+};
 
-  return res.json();
-}
-export {sendMessage, uploadPrescription};
+export const uploadPrescription = async (file) => {
+  await ensureCsrfCookie();
+  const formData = new FormData();
+  formData.append("file", file);
+  return apiFetch("/api/ai/prescription", {
+    method: "POST",
+    body: formData,
+  });
+};
+
+export { sendMessage };

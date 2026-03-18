@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Drug extends Model
 {
     //
@@ -19,10 +19,12 @@ class Drug extends Model
     {
         return $this->hasMany(DrugPriceHistory::class, 'drug_id');
     }
-      public function pharmacies()
+      public function pharmacies(): BelongsToMany
     {
-        return $this->belongsToMany(Pharmacy::class)
-                    ->withPivot('stock',"price",'about_drug_en','about_drug_am', 'expire_date','status')
-                    ->withTimestamps();
+        return $this->belongsToMany(Pharmacy::class,'pharmacy_drug_inventories')
+                    ->withPivot('id','stock',"price",'about_drug_en','about_drug_am','prescription_required', 'expire_date','status')
+                    ->withTimestamps()
+                    ->using(PharmacyDrugInventory::class)
+                    ->as('inventory');
     }
 }

@@ -8,40 +8,12 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/UserAuthStore";
+import { useTranslation } from "react-i18next"; 
 
 // ... (Other imports and variants)
 
 
-const registrationCards = [
-  {
-    type: "hospital",
-    title: "For Hospital Administrators",
-    description:
-      "Digitalize your facility's guidance and help patients find your departments instantly through our AI assistant.",
-    benefits: [
-      "Real-time bed availability",
-      "Facility indoor navigation",
-      "Emergency emergency routing",
-    ],
-    icon: <FaHospitalSymbol />,
-    color: "blue",
-    buttonText: "Register Your Hospital",
-  },
-  {
-    type: "pharmacy",
-    title: "For Pharmacy Owners",
-    description:
-      "List your inventory and allow users to check prescription availability in real-time. Boost your local foot traffic.",
-    benefits: [
-      "Inventory management tools",
-      "Digital prescription verification",
-      "Automated stock alerts",
-    ],
-    icon: <FaPills />,
-    color: "emerald",
-    buttonText: "Register Your Pharmacy",
-  },
-];
+
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
@@ -54,6 +26,7 @@ const staggerContainer = {
 export default function RegisterPharmacy() {
 
   const navigate = useNavigate();
+  const {t}= useTranslation();
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   // ... existing code ...
@@ -75,7 +48,26 @@ export default function RegisterPharmacy() {
       }
     }
   }
-
+  const registrationCards = [
+    {
+      type: "hospital",
+      title: t("registration.hospital.title"),
+      description: t("registration.hospital.desc"),
+      benefits: t("registration.hospital.benefits", { returnObjects: true }), // Important: returnObjects for arrays
+      icon: <FaHospitalSymbol />,
+      color: "blue",
+      buttonText: t("registration.hospital.button"),
+    },
+    {
+      type: "pharmacy",
+      title: t("registration.pharmacy.title"),
+      description: t("registration.pharmacy.desc"),
+      benefits: t("registration.pharmacy.benefits", { returnObjects: true }),
+      icon: <FaPills />,
+      color: "emerald",
+      buttonText: t("registration.pharmacy.button"),
+    },
+  ];
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gray-900 transition-colors duration-300">
       {/* ... Hero, Stats, What We Offer, Top Facilities ... */}

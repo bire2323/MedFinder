@@ -10,6 +10,7 @@ class PendingUser extends Model
         'name',
         'phone',
         'password',
+        'reset_token',
         'expires_at',
     ];
 

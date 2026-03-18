@@ -9,6 +9,7 @@ use App\Models\PendingUser;
 use App\Models\OtpVerification;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller{
 
@@ -73,7 +74,7 @@ public function resetPassword(Request $request){
         return response()->json(["success"=>false,"message"=>"token_expired"]);
     }
 
-    if (Hash::check($request->token,$pendingUser->rest_token)){
+    if (!Hash::check($request->token,$pendingUser->reset_token)){
         return response()->json(["success"=>false,"message"=>"invalid_token"]);
     }
    
@@ -82,8 +83,13 @@ public function resetPassword(Request $request){
     $user->update(['Password' => bcrypt($request->new_password)]);
     $otpRow->delete();
 
+ return response()->json([
+        'success' => true,
+        'token' => $pendingUser->reset_token,
+        'user' => $user,
+        'roles'=>$user->getRoleNames(),
+    ]);
 
-    return response()->json(['success'=>true, 'message' => 'Password reset successfully']);
 }
 public function verifyUserResttingPasswordOtp(Request $request)
 {
@@ -128,7 +134,6 @@ public function verifyUserResttingPasswordOtp(Request $request)
     ]);
 
     $user->assignRole('admin'); // or default role
-    $token = $user->createToken('api-token')->plainTextToken;
 
     // Cleanup
     $otpRow->delete();
@@ -194,7 +199,25 @@ $token = Str::random(64);
     
           return response()->json(['ok' => false, 'message' => 'Unauthorized'], 403);
       }
-    
+
+public function detectIntent(Request $request){
+$request->validate([
+    'question' => 'required|string'
+],[
+    "question.required"=>"question_required",
+    "question.string"=>"question_must_be_string"
+]);
+$response = Http::post('http://127.0.0.1:5001/detect-intent', [
+    'question' => $request->question
+]);
+
+$intent = $response->json();
+return response()->json([
+    'success' => true,
+    'intent' => $intent,
+    'entities' => $intent['entities'] ?? null,
+]);
+}
     }
 
 

@@ -10,6 +10,7 @@ import OtherLayout from "../layout/OtherLayout";
 
 // Pages
 import HomePage from "../../pages/home/HomePage";
+import SearchResultsHomePage from "../../pages/home/SearchResultsHomePage";
 import MapPage from "../../pages/map/MapPage";
 import PharmacyDashboard from "../../pages/pharmacyAgent/PharmacyDashboard";
 import HospitalDashboard from "../../pages/hospitalAgent/HospitalDashboard";
@@ -26,7 +27,10 @@ import ResetForm from "../../pages/ResetForm";
 
 // Registration Wizard
 import { RegistrationWizard } from "../../pages/registration";
-import { apiGetHospitals } from "../../api/hospital";
+import { apiGetFacilities, apiGetHospitals } from "../../api/hospital";
+import AdminDashboard from "../../pages/AdminPage/AdminDashboard";
+import HomeError from "../../component/HomeError";
+import UserDashboard from "../../pages/UserDashboard/UserDashboard";
 
 // 404 Component
 function NotFound() {
@@ -55,14 +59,25 @@ export const router = createBrowserRouter([
         path: "/",
         element: <HomePage />,
         loader: async () => {
-          const res = await apiGetHospitals();
+          try {
+            const res = await apiGetFacilities();
 
-          if (!res.ok) {
-            throw new Response("Failed to load hospitals", { status: 500 });
+            if (!res.ok) {
+              throw new Response("Failed to load hospitals", { status: res.status });
+            }
+
+            return res.json();
+
+          } catch (error) {
+            throw new Response("Server not reachable", { status: 500 });
           }
-
-          return res.json();
         },
+        errorElement: <HomeError />
+      },
+      // Search results home page (after landing search)
+      {
+        path: "/home",
+        element: <SearchResultsHomePage />,
       },
       // Map page
       {
@@ -112,6 +127,14 @@ export const router = createBrowserRouter([
   {
     path: "/hospital-agent/dashboard",
     element: <HospitalDashboard />,
+  },
+  {
+    path: "/user/dashboard",
+    element: <UserDashboard />,
+  },
+  {
+    path: "/admin/dashboard",
+    element: <AdminDashboard />,
   },
 
   // ==================== FACILITY DETAIL PAGES (OtherLayout) ====================
@@ -180,7 +203,7 @@ export const router = createBrowserRouter([
           }
 
           const json = await res.json();
-          return json.data; // 👈 important
+          return json.data;
         },
       }
     ],

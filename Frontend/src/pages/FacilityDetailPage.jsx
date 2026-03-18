@@ -1,10 +1,11 @@
 /**
  * FacilityDetailPage - Dynamic detail page for hospitals and pharmacies
  * Shows facility information, services/inventory, location, and contact details
+ * Now includes patient-initiated real-time chat
  */
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useParams, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Building2,
   Pill,
@@ -22,31 +23,46 @@ import {
   Package,
   ExternalLink,
   MessageSquare,
+  Loader2,
+  X,
 } from 'lucide-react';
 import { useLoaderData } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { localizeFacility } from '../hooks/Localizer';
+import ChatWindow from './pharmacyAgent/ChatWindow';
+import apiStartChatSession from '../api/RealtimeChat';
+import useAuthStore from '../store/UserAuthStore';
 
 const FacilityDetailPage = () => {
-  const {  id } = useParams(); // type: 'pharmacy' or 'hospital'
+  const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
+
+  const { type, data } = useLoaderData();
+  const { i18n } = useTranslation();
 
   const [facility, setFacility] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
 
- const {type,data}=useLoaderData();
- const {i18n} = useTranslation();
-console.log('data',data);
-console.log('fac',facility);
-  // Fetch facility details
+  // Chat states
+  const [chatSession, setChatSession] = useState(null);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState(null);
+  const [showChat, setShowChat] = useState(false);
+
+
+
+
+  // Current user ID (adjust based on your auth system)
+  const { user, isAuthenticated } = useAuthStore();
+  const currentUserId = user?.id;
+
+  // Load and localize facility
   useEffect(() => {
-   const result = localizeFacility(data,type, i18n.language);
+    const result = localizeFacility(data, type, i18n.language);
     setFacility(result);
     setIsLoading(false);
-  }, [i18n.language]);
-
+  }, [data, type, i18n.language]);
 
   // Open in Google Maps
   const openInMaps = () => {
@@ -56,15 +72,50 @@ console.log('fac',facility);
     }
   };
 
+
+  // Start or get chat session
+  const handleStartChat = async () => {
+    if (!isAuthenticated || !currentUserId || !token) {
+      alert('Please log in to chat with the facility');
+      // Optional: navigate('/login');
+      return;
+    }
+
+    setChatLoading(true);
+    setChatError(null);
+
+    try {
+      // Build payload directly — no extra state needed
+      const payload = {
+        language: i18n.language.startsWith('am') ? 'am' : 'en',
+        [type === 'pharmacy' ? 'pharmacy_id' : 'hospital_id']: id,   // dynamic key
+      };
+
+      const response = await apiStartChatSession(payload);   // ← pass payload
+      // If apiStartChatSession is a fetch wrapper, handle it like this:
+
+
+      const sessionData = await response;
+      setChatSession(sessionData);
+      setShowChat(true); // Open chat modal
+    } catch (err) {
+      setChatError(err.message || 'Something went wrong. Please try again.');
+      console.error('Chat initiation error:', err);
+    } finally {
+      setChatLoading(false);
+    }
+
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+        <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
       </div>
     );
   }
 
-  if (!data) {
+  if (!data || !facility) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
         <Building2 size={64} className="text-slate-300 mb-4" />
@@ -80,7 +131,7 @@ console.log('fac',facility);
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-900 relative">
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 border-b border-slate-200 dark:border-gray-700 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
@@ -92,13 +143,13 @@ console.log('fac',facility);
           </button>
           <div className="flex-1">
             <h1 className="text-lg font-bold text-slate-800 dark:text-white truncate">
-              {data.facility_name}
+              {facility.facility_name}
             </h1>
             <p className="text-xs text-slate-500 dark:text-gray-400">
-              {type==='pharmacy' ? 'Pharmacy' : 'Hospital'} Details
+              {type === 'pharmacy' ? 'Pharmacy' : 'Hospital'} Details
             </p>
           </div>
-          {data.status==='APPROVED' && (
+          {data.status === 'APPROVED' && (
             <div className="flex items-center gap-1 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-full text-xs font-semibold">
               <Shield size={14} />
               Verified
@@ -106,6 +157,21 @@ console.log('fac',facility);
           )}
         </div>
       </header>
+
+      {/* Floating Chat Button (quick access) */}
+      <button
+        onClick={handleStartChat}
+        disabled={chatLoading}
+        className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-lg text-white flex items-center justify-center transition-all ${chatLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+          }`}
+        title="Chat with facility"
+      >
+        {chatLoading ? (
+          <Loader2 className="h-6 w-6 animate-spin" />
+        ) : (
+          <MessageSquare size={24} />
+        )}
+      </button>
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-6">
@@ -116,9 +182,9 @@ console.log('fac',facility);
           className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg border border-slate-200 dark:border-gray-700 overflow-hidden mb-6"
         >
           {/* Gradient Header */}
-          <div className={`h-32 ${type==='Pharmacy' ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-gradient-to-r from-blue-500 to-indigo-500'}`}>
+          <div className={`h-32 ${type === 'pharmacy' ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-gradient-to-r from-blue-500 to-indigo-500'}`}>
             <div className="h-full flex items-center justify-center">
-              {type==='pharmacy' ? (
+              {type === 'pharmacy' ? (
                 <Pill size={48} className="text-white/50" />
               ) : (
                 <Building2 size={48} className="text-white/50" />
@@ -130,8 +196,8 @@ console.log('fac',facility);
           <div className="p-6 -mt-12">
             <div className="flex flex-col md:flex-row items-start gap-4">
               {/* Logo/Icon */}
-              <div className={`w-24 h-24 rounded-2xl ${type==="pharmacy" ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-blue-100 dark:bg-blue-900/30'} flex items-center justify-center border-4 border-white dark:border-gray-800 shadow-lg`}>
-                {type==='pharmacy' ? (
+              <div className={`w-24 h-24 rounded-2xl ${type === "pharmacy" ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-blue-100 dark:bg-blue-900/30'} flex items-center justify-center border-4 border-white dark:border-gray-800 shadow-lg`}>
+                {type === 'pharmacy' ? (
                   <Pill size={40} className="text-emerald-600" />
                 ) : (
                   <Building2 size={40} className="text-blue-600" />
@@ -144,7 +210,7 @@ console.log('fac',facility);
                   <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
                     {facility.facility_name}
                   </h2>
-                  {type==='hospital' && facility.emergency_contact && (
+                  {type === 'hospital' && facility.emergency_contact && (
                     <span className="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-full text-xs font-semibold flex items-center gap-1">
                       <Heart size={12} />
                       Emergency
@@ -174,8 +240,9 @@ console.log('fac',facility);
               {/* Actions */}
               <div className="flex gap-2 w-full md:w-auto">
                 <a
-                  href={`tel:${facility.emergency_contact}`}
-                  className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold ${type==='pharmacy' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-blue-500 hover:bg-blue-600'} text-white transition-colors`}
+                  href={`tel:${facility.phone || facility.emergency_contact}`}
+                  className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold ${type === 'pharmacy' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-blue-500 hover:bg-blue-600'
+                    } text-white transition-colors`}
                 >
                   <Phone size={18} />
                   Call
@@ -194,17 +261,16 @@ console.log('fac',facility);
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          {['overview', type==='pharmacy' ? 'inventory' : 'departments', 'services', 'contact'].map((tab) => (
+          {['overview', type === 'pharmacy' ? 'inventory' : 'departments', 'services', 'contact'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2 rounded-xl font-semibold text-sm whitespace-nowrap transition-all ${
-                activeTab === tab
-                  ? type==='pharmacy'
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-blue-500 text-white'
-                  : 'bg-white dark:bg-gray-800 text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-700'
-              }`}
+              className={`px-6 py-2 rounded-xl font-semibold text-sm whitespace-nowrap transition-all ${activeTab === tab
+                ? type === 'pharmacy'
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-blue-500 text-white'
+                : 'bg-white dark:bg-gray-800 text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-700'
+                }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
@@ -224,18 +290,18 @@ console.log('fac',facility);
               {/* Quick Info */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-200 dark:border-gray-700">
                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                  <Globe size={18} className={type==='pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
+                  <Globe size={18} className={type === 'pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
                   Quick Information
                 </h3>
                 <div className="space-y-4">
                   <InfoRow label="License" value={facility.license_number} />
                   <InfoRow label="Region" value={facility.region} />
-                  {type==='pharmacy' && <InfoRow label="Type" value={facility.facility_ownership_type} />}
-                  {type==='hospital' && <InfoRow label="Ownership" value={facility.facility_ownership_type} />}
-                  {type==='hospital' && (
-                    <InfoRow 
-                      label="24/7 Operation" 
-                      value={facility.is_full_time_service ? 'Yes' : 'No'} 
+                  {type === 'pharmacy' && <InfoRow label="Type" value={facility.facility_ownership_type} />}
+                  {type === 'hospital' && <InfoRow label="Ownership" value={facility.facility_ownership_type} />}
+                  {type === 'hospital' && (
+                    <InfoRow
+                      label="24/7 Operation"
+                      value={facility.is_full_time_service ? 'Yes' : 'No'}
                     />
                   )}
                 </div>
@@ -244,7 +310,7 @@ console.log('fac',facility);
               {/* Location */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-200 dark:border-gray-700">
                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                  <MapPin size={18} className={type==='pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
+                  <MapPin size={18} className={type === 'pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
                   Location
                 </h3>
                 <p className="text-slate-600 dark:text-gray-400 mb-4">{facility.address}</p>
@@ -263,7 +329,7 @@ console.log('fac',facility);
           )}
 
           {/* Inventory Tab (Pharmacy) */}
-          {activeTab === 'inventory' && type==='pharmacy' && (
+          {activeTab === 'inventory' && type === 'pharmacy' && (
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 overflow-hidden">
               <div className="p-6 border-b dark:border-gray-700">
                 <h3 className="font-bold text-lg flex items-center gap-2">
@@ -291,7 +357,7 @@ console.log('fac',facility);
           )}
 
           {/* Departments Tab (Hospital) */}
-          {activeTab === 'departments' && type==='hospital' && (
+          {activeTab === 'departments' && type === 'hospital' && (
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 overflow-hidden">
               <div className="p-6 border-b dark:border-gray-700">
                 <h3 className="font-bold text-lg flex items-center gap-2">
@@ -315,11 +381,11 @@ console.log('fac',facility);
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 overflow-hidden">
               <div className="p-6 border-b dark:border-gray-700">
                 <h3 className="font-bold text-lg flex items-center gap-2">
-                  <Stethoscope size={18} className={type==='pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
+                  <Stethoscope size={18} className={type === 'pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
                   Services
                 </h3>
               </div>
-              {type==='hospital' ? (
+              {type === 'hospital' ? (
                 <div className="p-6">
                   <div className="flex flex-wrap gap-2">
                     {facility.services?.map((service, index) => (
@@ -342,13 +408,55 @@ console.log('fac',facility);
             </div>
           )}
 
-          {/* Contact Tab */}
+          {/* Contact Tab – Now with Chat button */}
           {activeTab === 'contact' && (
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-200 dark:border-gray-700">
               <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
-                <MessageSquare size={18} className={type==='hospital' ? 'text-emerald-500' : 'text-blue-500'} />
+                <MessageSquare size={18} className={type === 'hospital' ? 'text-emerald-500' : 'text-blue-500'} />
                 Contact Information
               </h3>
+
+              {/* Chat initiation section */}
+              <div className="mb-8 p-6 bg-blue-50 dark:bg-blue-950/30 rounded-xl border border-blue-100 dark:border-blue-900">
+                <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                  <MessageSquare size={20} className="text-blue-600" />
+                  Chat with {facility.facility_name}
+                </h4>
+                <p className="text-sm text-slate-600 dark:text-gray-400 mb-4">
+                  Ask about availability, prices, directions, or anything else — get instant replies in real time.
+                </p>
+
+                {chatError && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    {chatError}
+                  </div>
+                )}
+
+                <button
+                  onClick={handleStartChat}
+                  disabled={chatLoading || chatSession}
+                  className={`w-full md:w-auto px-6 py-3 rounded-lg font-medium text-white flex items-center justify-center gap-2 transition ${chatLoading || chatSession
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
+                >
+                  {chatLoading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Starting chat...
+                    </>
+                  ) : chatSession ? (
+                    'Chat Opened'
+                  ) : (
+                    <>
+                      <MessageSquare size={18} />
+                      Start Chat Now
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Contact details */}
               <div className="space-y-4">
                 <ContactItem icon={Phone} label="Phone" value={facility.phone} href={`tel:${facility.phone}`} />
                 {facility.alternatePhone && (
@@ -366,11 +474,53 @@ console.log('fac',facility);
           )}
         </motion.div>
       </main>
+
+      {/* Chat Modal / Inline Window */}
+      <AnimatePresence>
+        {showChat && chatSession && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+            onClick={() => setShowChat(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] overflow-hidden flex flex-col relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="p-4 border-b dark:border-gray-700 flex items-center justify-between bg-slate-50 dark:bg-gray-800">
+                <h3 className="font-semibold text-lg">
+                  Chat with {facility.facility_name}
+                </h3>
+                <button
+                  onClick={() => setShowChat(false)}
+                  className="p-2 hover:bg-slate-200 dark:hover:bg-gray-700 rounded-full"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Chat Content */}
+              <div className="flex-1 overflow-hidden">
+                <ChatWindow
+                  sessionId={chatSession.id}
+                  currentUserId={currentUserId}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
-// Helper Components
+// Helper Components (unchanged)
 const InfoRow = ({ label, value }) => (
   <div className="flex justify-between items-center">
     <span className="text-slate-500 dark:text-gray-400 text-sm">{label}</span>

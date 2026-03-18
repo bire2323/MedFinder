@@ -1,3 +1,76 @@
+import { apiFetch, ensureCsrfCookie } from "./client";
+
+// Hospital Management
+export async function getHospitalDetails(token) {
+  return apiFetch("/api/hospital", { method: "GET" });
+}
+
+export async function createOrUpdateHospital(token, payload) {
+  await ensureCsrfCookie();
+  return apiFetch("/api/hospital", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteHospital(token, hospitalId) {
+  await ensureCsrfCookie();
+  return apiFetch(`/api/hospital/${hospitalId}`, { method: "DELETE" });
+}
+
+// Department & Service Management
+export async function getDepartments(token, hospitalId) {
+  return apiFetch(`/api/hospitals/${hospitalId}/departments`, { method: "GET" });
+}
+
+export async function saveDepartment(token, hospitalId, department) {
+  const method = department.id ? 'PUT' : 'POST';
+  const url = department.id
+    ? `/api/hospitals/${hospitalId}/departments/${department.id}`
+    : `/api/hospitals/${hospitalId}/departments`;
+
+  await ensureCsrfCookie();
+  return apiFetch(url, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(department),
+  });
+}
+
+export async function deleteDepartment(token, hospitalId, departmentId) {
+  await ensureCsrfCookie();
+  return apiFetch(`/api/hospitals/${hospitalId}/departments/${departmentId}`, { method: "DELETE" });
+}
+
+// Profile Management
+export async function getAgentProfile(token) {
+  return apiFetch("/api/hospital-agent/profile", { method: "GET" });
+}
+
+export async function updateAgentProfile(token, payload) {
+  await ensureCsrfCookie();
+  return apiFetch("/api/hospital-agent/profile", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getVerificationStatus(token) {
+  return apiFetch("/api/hospital-agent/verification-status", { method: "GET" });
+}
+
+// Logging
+export async function logHospitalEvent(token, payload) {
+  await ensureCsrfCookie();
+  return apiFetch("/api/hospital-agent/logs", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
 /**
  * API functions for hospital dashboard management (departments & services)
  */
@@ -7,27 +80,24 @@ const API_BASE_Local = "http://localhost:8000/api";
 /**
  * Get auth token from localStorage
  */
-const getAuthToken = () => localStorage.getItem('token');
-
-
-export async function apiGetHospitals() {
-  const res = await fetch(`${API_BASE_Local}/hospitals`, {
-    method: "GET",
-    headers: {
-      'Accept': 'application/json',
-    },
-  });
+export async function apiGetTopFacilities() {
+  const res = await apiFetch("/api/top-medical-facilities", { method: "GET" });
+  // keep backward-compat shape expected by router loader
+  console.log("api",res);
   return res;
+}
+export async function apiGetFacilities() {
+  const res = await apiFetch("/api/medical-facilities", { method: "GET" });
+  // keep backward-compat shape expected by router loader
+  return { ok: true, json: async () => res };
+}
+export async function apiGetHospitals() {
+  const res = await apiFetch("/api/hospitals", { method: "GET" });
+  return { ok: true, json: async () => res };
 }
 
 export async function apiGetPharmacies() {
-  const res = await fetch(`${API_BASE_Local}/pharmacies`, {
-    method: "GET",
-    headers: {
-      'Accept': 'application/json',
-    },
-  });
-  return res.json();
+  return apiFetch("/api/pharmacies", { method: "GET" });
 }
 
 
@@ -38,15 +108,7 @@ export async function apiGetPharmacies() {
  * @returns {Promise<Object>} - API response with departments list
  */
 export async function apiGetDepartments() {
-  const res = await fetch(`${API_BASE_Local}/hospital/departments`, {
-    method: "GET",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
-  });
-  return res.json();
+  return apiFetch("/api/hospital/departments", { method: "GET" });
 }
 
 /**
@@ -55,16 +117,12 @@ export async function apiGetDepartments() {
  * @returns {Promise<Object>} - API response
  */
 export async function apiAddDepartment(departmentData) {
-  const res = await fetch(`${API_BASE_Local}/hospital/departments`, {
+  await ensureCsrfCookie();
+  return apiFetch("/api/hospital/departments", {
     method: "POST",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(departmentData),
   });
-  return res.json();
 }
 
 /**
@@ -74,16 +132,12 @@ export async function apiAddDepartment(departmentData) {
  * @returns {Promise<Object>} - API response
  */
 export async function apiUpdateDepartment(departmentId, departmentData) {
-  const res = await fetch(`${API_BASE_Local}/hospital/departments/${departmentId}`, {
+  await ensureCsrfCookie();
+  return apiFetch(`/api/hospital/departments/${departmentId}`, {
     method: "PUT",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(departmentData),
   });
-  return res.json();
 }
 
 /**
@@ -92,15 +146,8 @@ export async function apiUpdateDepartment(departmentId, departmentData) {
  * @returns {Promise<Object>} - API response
  */
 export async function apiDeleteDepartment(departmentId) {
-  const res = await fetch(`${API_BASE_Local}/hospital/departments/${departmentId}`, {
-    method: "DELETE",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
-  });
-  return res.json();
+  await ensureCsrfCookie();
+  return apiFetch(`/api/hospital/departments/${departmentId}`, { method: "DELETE" });
 }
 
 // ==================== SERVICES ====================
@@ -110,15 +157,7 @@ export async function apiDeleteDepartment(departmentId) {
  * @returns {Promise<Object>} - API response with services list
  */
 export async function apiGetServices() {
-  const res = await fetch(`${API_BASE_Local}/hospital/services`, {
-    method: "GET",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
-  });
-  return res.json();
+  return apiFetch("/api/hospital/services", { method: "GET" });
 }
 
 /**
@@ -127,16 +166,12 @@ export async function apiGetServices() {
  * @returns {Promise<Object>} - API response
  */
 export async function apiAddService(serviceData) {
-  const res = await fetch(`${API_BASE_Local}/hospital/services`, {
+  await ensureCsrfCookie();
+  return apiFetch("/api/hospital/services", {
     method: "POST",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(serviceData),
   });
-  return res.json();
 }
 
 /**
@@ -146,16 +181,12 @@ export async function apiAddService(serviceData) {
  * @returns {Promise<Object>} - API response
  */
 export async function apiUpdateService(serviceId, serviceData) {
-  const res = await fetch(`${API_BASE_Local}/hospital/services/${serviceId}`, {
+  await ensureCsrfCookie();
+  return apiFetch(`/api/hospital/services/${serviceId}`, {
     method: "PUT",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(serviceData),
   });
-  return res.json();
 }
 
 /**
@@ -164,15 +195,8 @@ export async function apiUpdateService(serviceId, serviceData) {
  * @returns {Promise<Object>} - API response
  */
 export async function apiDeleteService(serviceId) {
-  const res = await fetch(`${API_BASE_Local}/hospital/services/${serviceId}`, {
-    method: "DELETE",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
-  });
-  return res.json();
+  await ensureCsrfCookie();
+  return apiFetch(`/api/hospital/services/${serviceId}`, { method: "DELETE" });
 }
 
 /**
@@ -181,15 +205,7 @@ export async function apiDeleteService(serviceId) {
  * @returns {Promise<Object>} - API response with filtered departments
  */
 export async function apiSearchDepartments(query) {
-  const res = await fetch(`${API_BASE_Local}/hospital/departments/search?q=${encodeURIComponent(query)}`, {
-    method: "GET",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
-  });
-  return res.json();
+  return apiFetch(`/api/hospital/departments/search?q=${encodeURIComponent(query)}`, { method: "GET" });
 }
 
 /**
@@ -198,22 +214,14 @@ export async function apiSearchDepartments(query) {
  * @returns {Promise<Object>} - API response with filtered services
  */
 export async function apiSearchServices(query) {
-  const res = await fetch(`${API_BASE_Local}/hospital/services/search?q=${encodeURIComponent(query)}`, {
-    method: "GET",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
-  });
-  return res.json();
+  return apiFetch(`/api/hospital/services/search?q=${encodeURIComponent(query)}`, { method: "GET" });
 }
 
-export default { 
-  
-  apiGetDepartments, 
-  apiAddDepartment, 
-  apiUpdateDepartment, 
+export default {
+
+  apiGetDepartments,
+  apiAddDepartment,
+  apiUpdateDepartment,
   apiDeleteDepartment,
   apiGetServices,
   apiAddService,

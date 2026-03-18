@@ -8,6 +8,11 @@ use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
+use App\Models\ChatSession;
+use App\Models\ChatMessage;
+use Illuminate\Support\Facades\Auth;
+
+
 
 class ChatSessionController extends Controller
 {
@@ -19,6 +24,86 @@ class ChatSessionController extends Controller
         $this->openAiKey  = config('services.openai.key');
         $this->openAiModel = config('services.openai.model', 'gpt-4o-mini');
     }
+
+    // Create a new chat session (e.g., patient starts chat with pharmacy)
+  public function store(Request $request)
+{
+    $validated = $request->validate([
+        'pharmacy_id' => 'nullable|exists:pharmacies,id',
+        'hospital_id' => 'nullable|exists:hospitals,id',
+        'language' => 'in:en,am',
+    ]);
+
+    // Ensure at least one facility
+    if (! $validated['pharmacy_id'] && ! $validated['hospital_id']) {
+        return response()->json(['error' => 'Facility required'], 422);
+    }
+
+    $patientId = Auth::id();
+    
+    // Try to find an existing session with the same participants
+    $session = ChatSession::where('patient_id', $patientId);
+    
+    if (isset($validated['pharmacy_id'])) {
+        $session = $session->where('pharmacy_id', $validated['pharmacy_id']);
+    } else {
+        $session = $session->whereNull('pharmacy_id');
+    }
+    
+    if (isset($validated['hospital_id'])) {
+        $session = $session->where('hospital_id', $validated['hospital_id']);
+    } else {
+        $session = $session->whereNull('hospital_id');
+    }
+    
+    // Get the first matching session (if any)
+    $existingSession = $session->first();
+    
+    if ($existingSession) {
+        // Update status if needed (e.g., if it was "Closed" or "Completed")
+        if ($existingSession->status === 'Closed' || $existingSession->status === 'Completed') {
+            $existingSession->update(['status' => 'Initiated']);
+        }
+        
+        return response()->json($existingSession, 200);
+    }
+    
+    // No existing session found - create a new one
+    $newSession = ChatSession::create([
+        'patient_id' => $patientId,
+        'pharmacy_id' => $validated['pharmacy_id'] ?? null,
+        'hospital_id' => $validated['hospital_id'] ?? null,
+        'status' => 'Initiated',
+        'language' => $validated['language'] ?? 'en',
+    ]);
+
+    return response()->json($newSession, 201);
+}
+
+    // Get active sessions for user (patient or agent dashboard)
+    public function index()
+    {
+        $user = Auth::user();
+
+        if ($user->role === 'patient') {
+            return ChatSession::where('patient_id', $user->id)
+                ->with(['pharmacy', 'hospital'])
+                ->latest()
+                ->get();
+        }
+
+        // For agents: sessions linked to their facility
+        $sessions = ChatSession::where(function ($query) use ($user) {
+            $query->whereHas('pharmacy', fn($q) => $q->where('pharmacy_agent_id', $user->id))
+                  ->orWhereHas('hospital', fn($q) => $q->where('hospital_agent_id', $user->id));
+        })
+            ->with('patient')
+            ->latest()
+            ->get();
+
+        return $sessions;
+    }
+
 
     /**
      * Main chat endpoint
@@ -273,52 +358,4 @@ class ChatSessionController extends Controller
 
 
 
-
-
-
-
-
-
-
-
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(ChatSession $chatSession)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, ChatSession $chatSession)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(ChatSession $chatSession)
-    {
-        //
-    }
 }

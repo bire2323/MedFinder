@@ -18,9 +18,13 @@ return new class extends Migration
             $table->foreignId('chat_session_id')
                   ->constrained('chat_sessions')
                   ->cascadeOnDelete();
+           $table->foreignId("sender_id")
+                   ->constrained('users')
+                  ->cascadeOnDelete();
 
             // Message content
             $table->text('message');
+            $table->boolean('is_read')->default(false);
 
             $table->timestamps();
         });

@@ -2,11 +2,13 @@ import React, { useState } from "react";
 
 import { Phone } from "lucide-react";
 import { FaHospitalSymbol } from "react-icons/fa";
-import { apiLogin } from "../api/auth";
+import { FcGoogle } from "react-icons/fc";
+import { apiLogin, apiMe } from "../api/auth";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import useAuthStore from "../store/UserAuthStore";
 import handleKeyDown from "../hooks/handleKeyDown";
+import {navigateByRole} from "../utils/UserNavigation";
 
 export default function LoginForm() {
   const { t } = useTranslation();
@@ -17,7 +19,7 @@ export default function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuthStore();
+  const { setSession } = useAuthStore();
 
   const [passwordReseting, setPasswordReseting] = useState(false);
 
@@ -42,19 +44,13 @@ export default function LoginForm() {
       const res = await apiLogin(formData);
 
       if (res.success) {
-        localStorage.setItem('user', JSON.stringify(res.user));
-        localStorage.setItem('token', res.token);
-        login(res.user, res.token, res.roles);
-        if (res.roles?.includes('pharmacyAgent')) {
-          navigate('/pharmacy-agent/dashboard');
+        const me = await apiMe();
+        const roles = me?.roles || res.roles || [];
+        const user = me?.user || res.user;
 
-        } else if (res.roles?.includes('hospitalAgent')) {
-          navigate('/hospital-agent/dashboard');
+        setSession(user, roles);
 
-        } else {
-          navigate('/');
-
-        }
+        navigateByRole(roles, navigate);
       } else {
         if (res.errors) {
           const firstField = Object.keys(res.errors)[0];
@@ -86,7 +82,7 @@ export default function LoginForm() {
         </div>
         <div className="flex flex-col leading-none">
           <span className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-            {t("Registration.welcome")}
+            {t("Register.Wellcome")}
           </span>
         </div>
       </div>
@@ -135,13 +131,20 @@ export default function LoginForm() {
           <div className="text-[14px] text-gray-800 dark:text-gray-50">{t('Login.forget password')}</div>
           <div className="text-[14px] text-gray-800 dark:text-gray-50"><p onClick={() => navigate("/login/reset-password")} className="cursor-pointer hover:underline focus:underline">{t('Login.click here')}</p></div>
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-end ">
           <button
             type="submit"
             disabled={loading}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
           >
-            {loading ? t("Login.Signing In") : t("Login.Login")}
+            {loading ? 
+         (  <>
+         <div className="flex">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+            <span>{ t("Login.Signing_In")} </span>
+            </div>
+             </>)
+             : t("Login.Login")}
           </button>
         </div>
       </form>
@@ -155,6 +158,19 @@ export default function LoginForm() {
         >
           {t("Login.Register")}
         </button>
+      </div>
+      <div
+        className="flex justify-center items-center text-sm gap-1.5 border p-2 m-2 hover:bg-gray-50 hover:shadow-2xs dark:text-white
+                  dark:hover:bg-gray-400 transform transition-all duration-500 shadow-black rounded-2xl cursor-pointer"
+        onClick={() =>
+        (window.location.href =
+          "http://localhost:8000/api/auth/google/redirect")
+        }
+      >
+        <FcGoogle className="w-6 h-6" />
+        <p className="dark:hover:text-white select-none">
+          {t("sign_in_with_google")}
+        </p>
       </div>
     </div>
   );

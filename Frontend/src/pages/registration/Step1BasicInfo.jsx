@@ -99,7 +99,7 @@ const Step1BasicInfo = () => {
           <div className="space-y-2 w-full">
             <label htmlFor="facilityNameAm" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
               <Globe size={16} className="text-green-500" />
-              {registrationType === 'pharmacy' ? 'የመድሃኒት ስም (አማርኛ)' : 'የሆስፒታል ስም (አማርኛ)'}
+              {registrationType === 'pharmacy' ? 'የመድሃኒት ቤቱ ስም (አማርኛ)' : 'የሆስፒታል ስም (አማርኛ)'}
               <span className="text-red-500">*</span>
             </label>
             <input
@@ -108,7 +108,7 @@ const Step1BasicInfo = () => {
               onKeyDown={handleKeyDown}
               value={localData.facilityNameAm}
               onChange={handleChange('facilityNameAm')}
-              placeholder={`የ${registrationType === 'pharmacy' ? 'መድሃኒት' : 'ሆስፒታል'} ስም በአማርኛ ያስገቡ`}
+              placeholder={`የ${registrationType === 'pharmacy' ? 'መድሃኒት ቤት' : 'ሆስፒታል'} ስም በአማርኛ ያስገቡ`}
               className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${errors.facilityNameAm ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-green-500'}`}
               dir="ltr" // Right-to-left writing direction for Amharic
               aria-describedby={errors.facilityNameAm ? 'facilityNameAm-error' : undefined}
@@ -126,7 +126,7 @@ const Step1BasicInfo = () => {
         <div className="space-y-2">
           <label htmlFor="email" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
             <Mail size={16} className="text-blue-500" />
-            Email Address<span className="text-xs text-gray-400 font-normal">(optional)</span>
+            Email Address<span className="text-xs text-gray-400 font-normal"></span>
           </label>
           <input
             id="email"

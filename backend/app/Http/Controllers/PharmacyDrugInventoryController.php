@@ -9,14 +9,17 @@ use App\Models\Pharmacy;
 use App\Models\PharmacyDrugInventory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Log;
 
 class PharmacyDrugInventoryController extends Controller
 {
     public function getInventory()
     {
-        $pharmacy = Auth::user()->pharmacies; // Assume user has pharmacy relation
-        $inventory = $pharmacy->inventories()->get();
-        return response()->json(['success' => true, 'data' => $inventory]);
+        $pharmacy = Auth::user()->pharmacies; 
+       
+        $pharmacydata = Pharmacy::with('drugs')->find($pharmacy->id);
+
+        return response()->json(['success' => true, 'data' => $pharmacydata]);
     }
 
     public function addDrug(Request $request)
@@ -36,10 +39,8 @@ class PharmacyDrugInventoryController extends Controller
         $pharmacy = Auth::user()->pharmacies;
 
         // Check if drug exists, create if not
-        $drug = Drug::firstOrCreate([
-           
+        $drug = Drug::Create([
             'generic_name' => $validated['genericName'],
-        ], [
              'brand_name_en' => $validated['brand_name_en'],
              'brand_name_am' => $validated['brand_name_am'],
         ]);
@@ -98,15 +99,32 @@ class PharmacyDrugInventoryController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function deleteDrug($id)
-    {
-        $pharmacy = Auth::user()->pharmacies;
-        $inventory = PharmacyDrugInventory::where('id', $id)
-            ->where('pharmacy_id', $pharmacy->id)
-            ->firstOrFail();
-        $inventory->delete();
-        return response()->json(['success' => true]);
+  public function deleteDrug(Request $request, $id)
+{
+    $inventory = PharmacyDrugInventory::find($id);  
+
+    $drug_id=$inventory->drug_id;
+    if (!$inventory) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Inventory item not found or already deleted',
+        ], 404);
     }
 
+    // Optional: ownership check (very important!)
+    if ($inventory->pharmacy_id !== auth()->user()->pharmacies->id) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized action',
+        ], 403);
+    }
+    $inventory->delete();
+    $drug=Drug::findorfail($drug_id);
+    $drug->delete();
 
+    return response()->json([
+        'success' => true,
+        'message' => 'Inventory deleted successfully',
+    ], 200);
+}
 }
