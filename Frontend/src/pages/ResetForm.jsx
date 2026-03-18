@@ -1,19 +1,22 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { apiResetPassword } from "../api/auth";
-import { useSearchParams} from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import useAuthStore from "../store/UserAuthStore";
 
 
 export default function ResetForm() {
   const { t } = useTranslation();
-const navigate= useNavigate();
+  const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
-const [searchParams]= useSearchParams();
+  const { login } = useAuthStore();
+
+  const [searchParams] = useSearchParams();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -30,18 +33,30 @@ const [searchParams]= useSearchParams();
 
     setError("");
 
-const phone = searchParams.get("phone");
-const token = searchParams.get("token");
-console.log(token)
-console.log(password)
-console.log(phone)
-  apiResetPassword({phone: phone,token: token, new_password: password}).then((res)=>{
-    if (res.success) {
-     navigate("/");
-    } else {
-      setError(t("Reset.password_reset_failed")|| "Password reset failed!");
-    }
-  })
+    const phone = searchParams.get("phone");
+    const token = searchParams.get("token");
+
+    apiResetPassword({ phone: phone, token: token, new_password: password }).then((res) => {
+      if (res.success) {
+        login(res.user, res.token, res.roles);
+        if (res.roles?.includes('pharmacyAgent')) {
+          navigate('/pharmacy-agent/dashboard');
+
+        } else if (res.roles?.includes('hospitalAgent')) {
+          navigate('/hospital-agent/dashboard');
+
+        }
+        else if (res.roles?.includes('admin')) {
+          navigate('/admin/dashboard');
+
+        } else {
+          navigate('/');
+
+        }
+      } else {
+        setError(t("Reset.password_reset_failed") || "Password reset failed!");
+      }
+    })
     console.log("Password reset:", password);
   };
 

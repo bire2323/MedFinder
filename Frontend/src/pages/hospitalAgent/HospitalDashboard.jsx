@@ -1,3 +1,417 @@
+
+
+
+function HospitalForm({ hospital, onSave }) {
+  const [form, setForm] = useState(() => ({
+    name: hospital?.name || '',
+    location: hospital?.location || '',
+    working_hours: hospital?.working_hours || '',
+    services: hospital?.services || '',
+    logo_url: hospital?.logo_url || '',
+    license_details: hospital?.license_details || '',
+    emergency_contact: hospital?.emergency_contact || '',
+    latitude: hospital?.latitude || '',
+    longitude: hospital?.longitude || '',
+  }));
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setForm((prev) => ({
+      ...prev,
+      name: hospital?.name || '',
+      location: hospital?.location || '',
+      working_hours: hospital?.working_hours || '',
+      services: hospital?.services || '',
+      logo_url: hospital?.logo_url || '',
+      license_details: hospital?.license_details || '',
+      emergency_contact: hospital?.emergency_contact || '',
+      latitude: hospital?.latitude || '',
+      longitude: hospital?.longitude || '',
+    }));
+  }, [hospital]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.location.trim()) return;
+    try {
+      setSaving(true);
+      await onSave(form);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+    >
+      <Input
+        label="Hospital Name"
+        name="name"
+        value={form.name}
+        onChange={handleChange}
+        required
+      />
+      <Input
+        label="Location"
+        name="location"
+        value={form.location}
+        onChange={handleChange}
+        required
+      />
+      <Input
+        label="Working Hours"
+        name="working_hours"
+        value={form.working_hours}
+        onChange={handleChange}
+        placeholder="e.g., 24/7 or Mon–Fri 8:00–18:00"
+      />
+      <Input
+        label="Emergency Contact"
+        name="emergency_contact"
+        value={form.emergency_contact}
+        onChange={handleChange}
+        placeholder="+251-xxx-xxx-xxx"
+      />
+      <div className="md:col-span-2">
+        <Label>Services</Label>
+        <textarea
+          name="services"
+          value={form.services}
+          onChange={handleChange}
+          rows={3}
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+          placeholder="List key services, separated by commas"
+        />
+      </div>
+      <Input
+        label="Logo URL"
+        name="logo_url"
+        value={form.logo_url}
+        onChange={handleChange}
+      />
+      <Input
+        label="License Details"
+        name="license_details"
+        value={form.license_details}
+        onChange={handleChange}
+      />
+      <Input
+        label="Latitude"
+        name="latitude"
+        value={form.latitude}
+        onChange={handleChange}
+      />
+      <Input
+        label="Longitude"
+        name="longitude"
+        value={form.longitude}
+        onChange={handleChange}
+      />
+      <div className="md:col-span-2 flex justify-end pt-2">
+        <button
+          type="submit"
+          disabled={saving || !form.name.trim() || !form.location.trim()}
+          className="inline-flex items-center px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {saving ? 'Saving...' : 'Save Hospital Info'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function DepartmentManager({ hospital, departments, onSave }) {
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({
+    name: '',
+    working_hours: '',
+    services: '',
+  });
+
+  const startNew = () => {
+    setEditing(null);
+    setForm({ name: '', working_hours: '', services: '' });
+  };
+
+  const startEdit = (dep) => {
+    setEditing(dep);
+    setForm({
+      name: dep.name || '',
+      working_hours: dep.working_hours || '',
+      services: dep.services || '',
+    });
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name.trim()) return;
+    await onSave({ ...(editing || {}), ...form });
+    startNew();
+  };
+
+  if (!hospital?.id) {
+    return (
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Save hospital information first to manage departments and services.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 dark:bg-gray-900/40 p-4 rounded-lg"
+      >
+        <Input
+          label="Department Name"
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          required
+        />
+        <Input
+          label="Working Hours"
+          name="working_hours"
+          value={form.working_hours}
+          onChange={handleChange}
+        />
+        <Input
+          label="Services"
+          name="services"
+          value={form.services}
+          onChange={handleChange}
+          placeholder="Comma separated"
+        />
+        <div className="md:col-span-3 flex justify-end gap-2 pt-2">
+          {editing && (
+            <button
+              type="button"
+              onClick={startNew}
+              className="px-3 py-2 rounded-md border border-gray-300 dark:border-gray-700 text-sm"
+            >
+              Cancel
+            </button>
+          )}
+          <button
+            type="submit"
+            disabled={!form.name.trim()}
+            className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium disabled:opacity-50"
+          >
+            {editing ? 'Update Department' : 'Add Department'}
+          </button>
+        </div>
+      </form>
+
+      <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+        <table className="min-w-full text-sm">
+          <thead className="bg-gray-100 dark:bg-gray-900/60">
+            <tr>
+              <th className="px-3 py-2 text-left font-medium">Name</th>
+              <th className="px-3 py-2 text-left font-medium">Working Hours</th>
+              <th className="px-3 py-2 text-left font-medium">Services</th>
+              <th className="px-3 py-2 text-right font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+            {(departments || []).map((dep) => (
+              <tr key={dep.id}>
+                <td className="px-3 py-2">{dep.name}</td>
+                <td className="px-3 py-2">{dep.working_hours}</td>
+                <td className="px-3 py-2">
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                    {dep.services}
+                  </span>
+                </td>
+                <td className="px-3 py-2 text-right">
+                  <button
+                    type="button"
+                    onClick={() => startEdit(dep)}
+                    className="text-blue-600 hover:underline text-xs"
+                  >
+                    Edit
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {(!departments || departments.length === 0) && (
+              <tr>
+                <td
+                  colSpan={4}
+                  className="px-3 py-4 text-center text-gray-500 dark:text-gray-400 text-sm"
+                >
+                  No departments yet. Add your first department above.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function ProfileForm({ profile, onSave }) {
+  const [form, setForm] = useState(() => ({
+    name: profile?.name || '',
+    email: profile?.email || '',
+    phone: profile?.phone || '',
+  }));
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setForm({
+      name: profile?.name || '',
+      email: profile?.email || '',
+      phone: profile?.phone || '',
+    });
+  }, [profile]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.email.trim()) return;
+    try {
+      setSaving(true);
+      await onSave(form);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-xl space-y-4"
+    >
+      <Input
+        label="Full Name"
+        name="name"
+        value={form.name}
+        onChange={handleChange}
+        required
+      />
+      <Input
+        label="Email"
+        name="email"
+        type="email"
+        value={form.email}
+        onChange={handleChange}
+        required
+      />
+      <Input
+        label="Phone"
+        name="phone"
+        value={form.phone}
+        onChange={handleChange}
+      />
+      <div className="flex justify-end">
+        <button
+          type="submit"
+          disabled={saving || !form.name.trim() || !form.email.trim()}
+          className="inline-flex items-center px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {saving ? 'Saving...' : 'Save Profile'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function HospitalMap({ hospital }) {
+  if (!hospital?.latitude || !hospital?.longitude) {
+    return (
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Add latitude and longitude to hospital information to enable map view.
+      </p>
+    );
+  }
+
+  const lat = parseFloat(hospital.latitude);
+  const lng = parseFloat(hospital.longitude);
+
+  if (Number.isNaN(lat) || Number.isNaN(lng)) {
+    return (
+      <p className="text-sm text-red-600 dark:text-red-400">
+        Invalid coordinates. Please enter valid latitude and longitude.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Patients can navigate to this location via OpenStreetMap.
+      </p>
+      <div className="h-80 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+        <MapContainer
+          center={[lat, lng]}
+          zoom={15}
+          scrollWheelZoom={false}
+          className="h-full w-full"
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <Marker position={[lat, lng]}>
+            <Popup>
+              {hospital.name}
+              <br />
+              {hospital.location}
+            </Popup>
+          </Marker>
+        </MapContainer>
+      </div>
+      <a
+        href={`https://www.openstreetmap.org/directions?from=&to=${lat}%2C${lng}`}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center text-sm text-blue-600 dark:text-blue-400 hover:underline"
+      >
+        Open directions in OpenStreetMap
+      </a>
+    </div>
+  );
+}
+
+function Label({ children }) {
+  return (
+    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
+      {children}
+    </label>
+  );
+}
+
+function Input({ label, ...props }) {
+  return (
+    <div className="space-y-1">
+      <Label>{label}</Label>
+      <input
+        {...props}
+        className={`mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm ${props.className || ''
+          }`}
+      />
+    </div>
+  );
+}
+
 /**
  * Hospital Agent Dashboard
  * Comprehensive dashboard with department & service management, overview stats, and settings
@@ -31,7 +445,7 @@ import {
   Layers,
   ChevronLeft,
   ChevronRight,
-  
+
 } from "lucide-react";
 import ThemeToggle from "../../component/DarkLightTeam";
 import {
@@ -361,7 +775,7 @@ const HospitalDashboard = () => {
       <nav className={`fixed sm:relative inset-y-0 left-0 z-40 w-16 sm:w-20 lg:w-64 bg-white dark:bg-gray-800 border-r border-gray-400 dark:border-gray-500 flex flex-col transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'}`}>
         <div className="p-3 sm:p-6 flex items-center justify-between sm:justify-start gap-3">
           <div className="flex items-center gap-3">
-            <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg flex-shrink-0">
+            <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shrink-0">
               <Building2 size={20} className="sm:w-6 sm:h-6" />
             </div>
             <span className="hidden lg:block font-bold text-lg sm:text-xl tracking-tight">
@@ -415,18 +829,18 @@ const HospitalDashboard = () => {
 
       <main className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* HEADER */}
-        <header className="h-14 sm:h-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-400 dark:border-gray-500 px-3 sm:px-6 lg:px-8 flex items-center justify-between z-10 flex-shrink-0">
+        <header className="h-14 sm:h-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-400 dark:border-gray-500 px-3 sm:px-6 lg:px-8 flex items-center justify-between z-10 shrink-0">
           <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 -ml-2 flex-shrink-0" aria-label="Open menu">
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 -ml-2 shrink-0" aria-label="Open menu">
               <ChevronRight size={20} className="rotate-180" />
             </button>
-            <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="p-1.5 sm:p-2 hover:bg-slate-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0" title="Back to Home">
+            <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="p-1.5 sm:p-2 hover:bg-slate-100 dark:hover:bg-gray-700 rounded-lg transition-colors shrink-0" title="Back to Home">
               <ChevronLeft size={20} />
             </a>
             <h2 className="text-base sm:text-xl font-bold capitalize truncate">{activeTab}</h2>
           </div>
-          <div className="flex items-center gap-1 sm:gap-4 flex-shrink-0">
-           {/* <LanguageSwitcher /> */}
+          <div className="flex items-center gap-1 sm:gap-4 shrink-0">
+            {/* <LanguageSwitcher /> */}
             <ThemeToggle />
             {profile.providesEmergency && (
               <div className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-red-50 dark:bg-red-900/20 text-red-600 border border-red-200">
@@ -435,16 +849,14 @@ const HospitalDashboard = () => {
               </div>
             )}
             <div
-              className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border transition-colors ${
-                profile.isPublic
-                  ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 border-blue-200"
-                  : "bg-red-50 text-red-600 border-red-200"
-              }`}
+              className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border transition-colors ${profile.isPublic
+                ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 border-blue-200"
+                : "bg-red-50 text-red-600 border-red-200"
+                }`}
             >
               <span
-                className={`w-2 h-2 rounded-full ${
-                  profile.isPublic ? "bg-blue-500 animate-pulse" : "bg-red-500"
-                }`}
+                className={`w-2 h-2 rounded-full ${profile.isPublic ? "bg-blue-500 animate-pulse" : "bg-red-500"
+                  }`}
               ></span>
               {profile.isPublic ? "Live on Map" : "Hidden"}
             </div>
@@ -542,11 +954,10 @@ const HospitalDashboard = () => {
                       {recentChats.map((chat) => (
                         <div
                           key={chat.id}
-                          className={`p-4 rounded-2xl ${
-                            chat.status === "unread"
-                              ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800"
-                              : "bg-slate-50 dark:bg-gray-700/30"
-                          }`}
+                          className={`p-4 rounded-2xl ${chat.status === "unread"
+                            ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800"
+                            : "bg-slate-50 dark:bg-gray-700/30"
+                            }`}
                         >
                           <div className="flex items-center justify-between mb-2">
                             <p className="text-xs font-bold">{chat.user}</p>
@@ -631,11 +1042,10 @@ const HospitalDashboard = () => {
                                 <td className="px-6 py-4 text-xs text-slate-500">{dept.floor || "N/A"}</td>
                                 <td className="px-6 py-4">
                                   <span
-                                    className={`px-2 py-1 rounded-lg text-xs font-bold ${
-                                      dept.isActive
-                                        ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30"
-                                        : "bg-slate-100 text-slate-500 dark:bg-gray-700"
-                                    }`}
+                                    className={`px-2 py-1 rounded-lg text-xs font-bold ${dept.isActive
+                                      ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30"
+                                      : "bg-slate-100 text-slate-500 dark:bg-gray-700"
+                                      }`}
                                   >
                                     {dept.isActive ? "Active" : "Inactive"}
                                   </span>
@@ -742,11 +1152,10 @@ const HospitalDashboard = () => {
                                 <td className="px-6 py-4 text-xs text-slate-500">{service.duration || "N/A"}</td>
                                 <td className="px-6 py-4">
                                   <span
-                                    className={`px-2 py-1 rounded-lg text-xs font-bold ${
-                                      service.isAvailable
-                                        ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30"
-                                        : "bg-slate-100 text-slate-500 dark:bg-gray-700"
-                                    }`}
+                                    className={`px-2 py-1 rounded-lg text-xs font-bold ${service.isAvailable
+                                      ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30"
+                                      : "bg-slate-100 text-slate-500 dark:bg-gray-700"
+                                      }`}
                                   >
                                     {service.isAvailable ? "Available" : "Unavailable"}
                                   </span>
@@ -1273,11 +1682,10 @@ const StatCard = ({ title, value, trend, icon, color }) => {
 const NavItem = ({ icon, label, active, onClick }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all ${
-      active
-        ? "bg-blue-600 text-white shadow-lg"
-        : "text-slate-500 hover:bg-slate-100 dark:hover:bg-gray-700"
-    }`}
+    className={`w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all ${active
+      ? "bg-blue-600 text-white shadow-lg"
+      : "text-slate-500 hover:bg-slate-100 dark:hover:bg-gray-700"
+      }`}
   >
     {icon}
     <span className="hidden lg:block font-bold text-sm">{label}</span>

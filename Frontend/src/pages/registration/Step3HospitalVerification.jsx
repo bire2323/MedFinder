@@ -307,7 +307,6 @@ const Step3HospitalVerification = () => {
           <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
             <Image size={16} className="text-blue-500" />
             Hospital Logo
-            <span className="text-xs text-gray-400 font-normal">(optional)</span>
           </label>
 
           {formData.hospitalLogoPreview ? (
@@ -316,6 +315,7 @@ const Step3HospitalVerification = () => {
                 src={formData.hospitalLogoPreview}
                 alt="Logo preview"
                 className="w-16 h-16 object-cover rounded-lg"
+
               />
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-800 dark:text-white">
@@ -352,10 +352,10 @@ const Step3HospitalVerification = () => {
             ref={logoInputRef}
             type="file"
             onKeyDOwn={handleKeyDown}
-
             accept="image/*"
             onChange={handleLogoUpload}
             className="hidden"
+            required
           />
         </div>
       </div>

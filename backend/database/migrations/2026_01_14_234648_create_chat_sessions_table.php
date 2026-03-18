@@ -15,11 +15,20 @@ return new class extends Migration
             $table->id();
 
             // User who owns the chat session
-            $table->foreignId('user_id')
+            $table->foreignId('patient_id')
                   ->constrained('users')
                   ->cascadeOnDelete();
-
-            $table->text('chat_context');
+  $table->foreignId('pharmacy_id')
+  ->nullable()
+                  ->constrained('pharmacies')
+                  
+                  ->cascadeOnDelete();
+ $table->foreignId('hospital_id')
+ ->nullable()
+                  ->constrained('hospitals')
+                  ->cascadeOnDelete();
+            $table->text('status');
+            $table->text('language');
 
             $table->timestamps();
         });

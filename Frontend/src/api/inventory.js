@@ -1,42 +1,18 @@
 /**
  * API functions for pharmacy inventory management
  */
-import useAuthStore from "../store/UserAuthStore";
-
-const API_BASE_Local = "http://localhost:8000/api";
-
-/**
- * Get auth token from localStorage
- */
-
-const getAuthToken = () => useAuthStore.getState().token;
+import { apiFetch, ensureCsrfCookie } from "./client";
 
 /**
  * Get all drugs in pharmacy inventory
  * @returns {Promise<Object>} - API response with inventory list
  */
 export async function apiGetInventory() {
-  const res = await fetch(`${API_BASE_Local}/pharmacy/inventory`, {
-    method: "GET",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
-  });
-  return res.json();
+  return apiFetch("/api/pharmacy/inventory", { method: "GET" });
 }
 
 export async function apiGetDrug(id) {
-  const res = await fetch(`${API_BASE_Local}/pharmacy/inventory/${id}`, {
-    method: "GET",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
-  });
-  return res.json();
+  return apiFetch(`/api/pharmacy/inventory/${id}`, { method: "GET" });
 }
 
 /**
@@ -45,17 +21,12 @@ export async function apiGetDrug(id) {
  * @returns {Promise<Object>} - API response
  */
 export async function apiAddDrug(drugData) {
-  console.log(drugData);
-  const res = await fetch(`${API_BASE_Local}/pharmacy/inventory`, {
+  await ensureCsrfCookie();
+  return apiFetch("/api/pharmacy/inventory", {
     method: "POST",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(drugData),
   });
-  return res.json();
 }
 
 /**
@@ -65,17 +36,12 @@ export async function apiAddDrug(drugData) {
  * @returns {Promise<Object>} - API response
  */
 export async function apiUpdateDrug(drugId, drugData) {
-
-  const res = await fetch(`${API_BASE_Local}/pharmacy/inventory/${drugId}`, {
+  await ensureCsrfCookie();
+  return apiFetch(`/api/pharmacy/inventory/${drugId}`, {
     method: "PUT",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(drugData),
   });
-  return res.json();
 }
 
 /**
@@ -84,15 +50,8 @@ export async function apiUpdateDrug(drugId, drugData) {
  * @returns {Promise<Object>} - API response
  */
 export async function apiDeleteDrug(drugId) {
-  const res = await fetch(`${API_BASE_Local}/pharmacy/inventory/${drugId}`, {
-    method: "DELETE",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
-  });
-  return res.json();
+  await ensureCsrfCookie();
+  return apiFetch(`/api/pharmacy/inventory/${drugId}`, { method: "DELETE" });
 }
 
 /**
@@ -101,15 +60,7 @@ export async function apiDeleteDrug(drugId) {
  * @returns {Promise<Object>} - API response with filtered inventory
  */
 export async function apiSearchDrugs(query) {
-  const res = await fetch(`${API_BASE_Local}/pharmacy/inventory/search?q=${encodeURIComponent(query)}`, {
-    method: "GET",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getAuthToken()}`,
-    },
-  });
-  return res.json();
+  return apiFetch(`/api/pharmacy/inventory/search?q=${encodeURIComponent(query)}`, { method: "GET" });
 }
 
 export default {

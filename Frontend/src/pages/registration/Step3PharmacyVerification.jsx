@@ -252,7 +252,6 @@ const Step3PharmacyVerification = () => {
           <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
             <Image size={16} className="text-blue-500" />
             Pharmacy Logo
-            <span className="text-xs text-gray-400 font-normal">(optional)</span>
           </label>
 
           {formData.pharmacyLogoPreview ? (
@@ -298,7 +297,9 @@ const Step3PharmacyVerification = () => {
             type="file"
             accept="image/*"
             onChange={handleLogoUpload}
-            className="hidden"
+            className="opacity-0 absolute pointer-events-none"
+            name='file'
+            required
           />
         </div>
 

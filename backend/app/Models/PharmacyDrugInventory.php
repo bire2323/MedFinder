@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
-class PharmacyDrugInventory extends Model
+use Illuminate\Database\Eloquent\Relations\Pivot;
+class PharmacyDrugInventory extends Pivot
 {
     //
     protected $table = 'pharmacy_drug_inventories';
