@@ -5,9 +5,7 @@ export const navigateByRole = (roles, navigate) => {
     navigate('/hospital-agent/dashboard', { replace: true });
   } else if (roles?.includes('admin')) {
     navigate('/admin/dashboard', { replace: true });
-  } else if (roles?.includes('patient')) {
-    navigate('/user/dashboard', { replace: true });
-  } else {
+  }  else {
     navigate('/', { replace: true });
   }
 };

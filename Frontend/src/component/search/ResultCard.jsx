@@ -38,7 +38,6 @@ export default function ResultCard({ facility, onClick }) {
 
   const isHospital = facility.type === "hospital";
   const isPharmacy = facility.type === "pharmacy";
-
   const typeLabel = isHospital ? "Hospital" : isPharmacy ? "Pharmacy" : "Facility";
   const typeTone = isHospital
     ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200"

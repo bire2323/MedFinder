@@ -1,9 +1,18 @@
 {
   "headingNav": {
+    "Find Care":"መግቢያ",
     "home": "መግቢያ",
     "hospitals": "ሆስፒታሎች",
     "pharmacies": "ፋርማሲዎች",
-    "map": "ካርታ"
+    "map": "ካርታ",
+    "open_live_map":"ካርታ ላይ",
+    "location":"መገኛ",
+    "profile_dropdown":{
+     
+      "account":"ማህደር",
+      "my_dashboard":"የኔ አገልግሎት",
+      "logout":"ዘግተው ይውጡ!"
+    }
   },
   "heading": {
     "hospital_and_pharmacy_finder": "ሆስፒታል እና ፋርማሲ ፈላጊ"
@@ -125,17 +134,17 @@
     "GoToLogin": "ወደ መግቢያ ሂድ"
   },
   "PharmacyDashboard": {
-    "Overview": "ማያያዝ",
-    "Inventory": "ቆሻሻ እቃዎች",
-    "Prescriptions": "መመሪያዎች",
-    "Settings": "ቅንብሮች",
+    "Overview": "አጠቃላይ እይታ",
+    "Inventory": "መድሃኒቶችቶች",
+    "Prescriptions": "የህክምና ማዘዣዎችማዘዣዎች",
+    "Settings": "ማስተካክያማስተካክያ",
     "AddDrug": "መድኃኒት ጨምር",
     "SearchDrugs": "መድኃኒቶችን ፈልግ...",
     "TotalDrugs": "ጠቅላላ መድኃኒቶች",
     "LowStock": "ዝቅተኛ ክምችት",
     "OutOfStock": "ክምችት የለም",
     "RecentChats": "የቅርብ ጊዜ ውይይቶች",
-    "InventoryOverview": "የክምችት ማያያዝ",
+    "InventoryOverview": "መድሃኒቶች እይታ",
     "ViewAll": "ሁሉንም ይመልከት",
     "DrugName": "የመድኃኒት ስም",
     "GenericName": "አጠቃላይ ስም",
@@ -167,10 +176,10 @@
   },
   "Map": {
     "SearchPlaceholder": "ፋርማሲ ወይም ሆስፒታል ፈልግ...",
-    "Nearest": "ቅርብ",
-    "Live": "ቀጥተኛ",
+    "Nearest": "በአቅራቢያ የሚገኙየሚገኙ",
+    "Live": "ቀጥታታ",
     "YouAreHere": "እዚህ ነህ",
-    "GetDirections": "መንገድ አግኝ",
+    "GetDirections": "አቅጣጫአቅጣጫ አግኝ",
     "Pharmacy": "ፋርማሲ",
     "Hospital": "ሆስፒታል"
   },
@@ -206,7 +215,7 @@
   "modal": {
     "delete": {
       "title": "መድሃኒቱ አጥፋ",
-      "confirmMessage": "እርግጠኛ ነግ መድሃኒት <strong>{{name}}</strong> ከመዝገብ ለማትፋት? ይህ ድርጊት አይመለስም፡",
+      "confirmMessage": "እርግጠኛ ነህህ መድሃኒት <strong>{{name}}</strong> ከመዝገብ ለማጥፋት? ይህ ድርጊት አይመለስም፡",
       "cancel": "ሰርዝ",
       "delete": "አጥፋ",
       "deleting": "በማጥፋት ላይ..."
@@ -222,7 +231,7 @@
       "expiryDate": "የሚያበቃበት ቀን *",
       "aboutDrugEnglish": "About Drug (English) *",
       "aboutDrugAmharic": "ስለ መድሃኒቱ (አማርኛ)",
-      "prescriptionRequired": "የሃኪም ማዘዣ ያስፈልጋልን",
+      "prescriptionRequired": "የሃኪም ማዘዣ ያስፈልጋልን?",
       "placeholder": {
         "drugNameEn": "e.g., Panadol",
         "drugNameAm": "ለምሳሌ፡- ማስታገሻ",
@@ -250,8 +259,8 @@
       "users": "ንቁ ተጠቃሚዎች"
     },
     "features": {
-      "header": "ብልጥ የጤና እንክብካቤ አገልግሎቶች",
-      "learn_more": "ተጨማሪ ይረዱ",
+      "header": "የ MedFinder አገልግሎቶች",
+      "learn_more": "ተጨማሪ",
       "ai_chat": {
         "title": "የAI ውይይት ድጋፍ",
         "desc": "የሚፈልጉትን ለAI በማስረዳት ቅጽበታዊ መረጃ ያግኙ!"
@@ -275,7 +284,7 @@
       "columns": {
         "platform": "ፕላትፎርም",
         "support": "ድጋፍ",
-        "newsletter": "ዜና መጽሔት"
+        "feedback": "አስተያየትዎን እንሻለን!"
       },
       "links": {
         "find_hospital": "ሆስፒታል ፈልግ",
@@ -284,13 +293,14 @@
         "help_center": "የእርዳታ ማዕከል",
         "privacy": "የግል መረጃ ጥበቃ"
       },
-      "newsletter_placeholder": "ኢሜይል",
-      "newsletter_btn": "ይቀላቀሉ",
+      "email_placeholder":"ኢሜይል",
+      "feedback_placeholder": "አስተያየትዎ...አስተያየትዎ...",
+      "feedback_btn": "ይቀላቀሉ",
       "rights": "መብቱ በህግ የተጠበቀ ነው።"
     },
       "hero": {
-        "badge": "ብልጥ የጤና መፈለጊያ",
-        "title_main": "ትክክለኛውን እንክብካቤ፣",
+        "badge": "የጤና አገልግሎት መፈለጊያ/ አቅጣጫዎችን ያግኙ",
+        "title_main": "ትክክለኛ የ MedFinder አገልግሎቶች፣",
         "title_accent": "አሁን ያግኙ።",
         "description": "በሺዎች የሚቆጠሩ የተረጋገጡ ሆስፒታሎችን እና ፋርማሲዎችን ይፈልጉ። በAI የታገዘ የጤና ጉዞዎን ይምሩ።",
         "search_box": {

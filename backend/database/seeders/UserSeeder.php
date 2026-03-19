@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
@@ -13,72 +14,60 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        // 1. Define your users and their Spatie roles
         $users = [
-            // Admin
             [
                 'name' => 'Admin User',
                 'phone' => '0911000001',
-                'phone_verified_at' => now(),
-                'password' => Hash::make('admin123'), // always hash passwords
-                'created_at' => now(),
-                'updated_at' => now(),
+                'password' => 'admin123',
+                'role' => 'admin',
             ],
-
-            // Hospital Agents
             [
                 'name' => 'Hospital Agent 1',
                 'phone' => '0911000002',
-                'phone_verified_at' => now(),
-                'password' => Hash::make('agent123'),
-                'created_at' => now(),
-                'updated_at' => now(),
+                'password' => 'agent123',
+                'role' => 'hospitalAgent',
             ],
             [
                 'name' => 'Hospital Agent 2',
                 'phone' => '0911000003',
-                'phone_verified_at' => now(),
-                'password' => Hash::make('agent123'),
-                'created_at' => now(),
-                'updated_at' => now(),
+                'password' => 'agent123',
+                'role' => 'hospitalAgent',
             ],
-
-            // Pharmacy Agents
             [
                 'name' => 'Pharmacy Agent 1',
                 'phone' => '0911000004',
-                'phone_verified_at' => now(),
-                'password' => Hash::make('agent123'),
-                'created_at' => now(),
-                'updated_at' => now(),
+                'password' => 'agent123',
+                'role' => 'pharmacyAgent',
             ],
             [
                 'name' => 'Pharmacy Agent 2',
                 'phone' => '0911000005',
-                'phone_verified_at' => now(),
-                'password' => Hash::make('agent123'),
-                'created_at' => now(),
-                'updated_at' => now(),
+                'password' => 'agent123',
+                'role' => 'pharmacyAgent',
             ],
-
-            // Regular Users
             [
                 'name' => 'John Doe',
                 'phone' => '0911000006',
-                'phone_verified_at' => now(),
-                'password' => Hash::make('user123'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Jane Smith',
-                'phone' => '0911000007',
-                'phone_verified_at' => now(),
-                'password' => Hash::make('user123'),
-                'created_at' => now(),
-                'updated_at' => now(),
+                'password' => 'user123',
+                'role' => 'patient', // No special role
             ],
         ];
 
-        DB::table('users')->insert($users);
+        foreach ($users as $userData) {
+            // Create the user using Eloquent
+            $user = User::create([
+                'name' => $userData['name'],
+                'phone' => $userData['phone'],
+                'phone_verified_at' => now(),
+                'password' => Hash::make($userData['password']),
+            ]);
+
+            // 2. Use Spatie's assignRole method
+            if ($userData['role']) {
+                // This automatically handles the pivot table entry
+                $user->assignRole($userData['role']);
+            }
+        }
     }
 }

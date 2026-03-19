@@ -15,13 +15,14 @@ function SkeletonCard() {
         </div>
         <div className="w-20">
           <div className="h-3 w-14 bg-slate-200 dark:bg-gray-700 rounded animate-pulse ml-auto" />
-          <div className="mt-2 h-5 w-16 bg-slate-200 dark:bg-gray-700 rounded animate-pulse ml-auto" />
         </div>
       </div>
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex justify-between gap-2 ">
+        <div className="flex gap-x-2">
         <div className="h-6 w-20 bg-slate-200 dark:bg-gray-700 rounded-full animate-pulse" />
         <div className="h-6 w-24 bg-slate-200 dark:bg-gray-700 rounded-full animate-pulse" />
-        <div className="h-6 w-16 bg-slate-200 dark:bg-gray-700 rounded-full animate-pulse" />
+        </div>
+        <div className="h-6 w-16 bg-slate-200 dark:bg-gray-700 rounded-full animate-pulse  " />
       </div>
     </div>
   );
