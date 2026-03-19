@@ -1,9 +1,17 @@
 {
   "headingNav": {
-    "home": "Home",
-    "hospitals": "Hospitals",
-    "pharmacies": "Pharmacies",
-    "map": "Map"
+    "Find Care":"Find Care",
+    "home": "HOME",
+    "hospitals": "HOSPITALS",
+    "pharmacies": "PHARMACIES",
+    "map": "MAP",
+    "open_live_map":"Open Live Map",
+    "location":"LOCATION",
+    "profile_dropdown":{
+      "account":"ACCOUNT",
+      "my_dashboard":"MY DASHBOARD",
+      "logout":"LOGOUT"
+    }
   },
   "heading": {
     "hospital_and_pharmacy_finder": "hospital and pharmacy finder"
@@ -282,7 +290,7 @@
       "columns": {
         "platform": "Platform",
         "support": "Support",
-        "newsletter": "Newsletter"
+        "feedback": "Feed Back"
       },
       "links": {
         "find_hospital": "Find Hospital",
@@ -291,8 +299,9 @@
         "help_center": "Help Center",
         "privacy": "Privacy Policy"
       },
-      "newsletter_placeholder": "Email",
-      "newsletter_btn": "Join",
+      "email_placeholder":"email...",
+      "feedback_placeholder": "say Something...",
+      "feedback_submit_btn": "Submit",
       "rights": "All rights reserved."
     },
       "hero": {

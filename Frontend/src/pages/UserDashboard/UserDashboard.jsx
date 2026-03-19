@@ -212,7 +212,7 @@ export default function UserDashboard() {
                                                         key={`${f.type}:${String(f.id)}`}
                                                         type="button"
                                                         onClick={() => openFacilityInMapAndRoute(f)}
-                                                        className="text-left border border-slate-200 dark:border-gray-700 rounded-2xl p-4 hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
+                                                        className="text-left border border-slate-200 dark:border-gray-700 rounded-2xl p-4 hover:bg-slate-50 shadow-sm dark:hover:bg-gray-800/60 transition-colors"
                                                     >
                                                         <div className="flex items-start justify-between gap-3">
                                                             <div className="min-w-0">
@@ -261,7 +261,7 @@ export default function UserDashboard() {
                                                         key={`${f.type}:${String(f.id)}`}
                                                         type="button"
                                                         onClick={() => openFacilityInMapAndRoute(f)}
-                                                        className="w-full text-left border border-slate-200 dark:border-gray-700 rounded-2xl p-4 hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
+                                                        className="w-full text-left shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-4 hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
                                                     >
                                                         <p className="font-extrabold">{f.name}</p>
                                                         <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">{f.type === "hospital" ? "Hospital" : "Pharmacy"}</p>
@@ -285,7 +285,7 @@ export default function UserDashboard() {
                                     <button
                                         type="button"
                                         onClick={() => setActiveSection("search")}
-                                        className="bg-white dark:bg-gray-800/40 border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
+                                        className="bg-white dark:bg-gray-800/40 shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
                                     >
                                         <p className="font-extrabold">Facility Search</p>
                                         <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Find nearest hospitals or pharmacies and draw routes.</p>
@@ -293,7 +293,7 @@ export default function UserDashboard() {
                                     <button
                                         type="button"
                                         onClick={() => setActiveSection("messages")}
-                                        className="bg-white dark:bg-gray-800/40 border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
+                                        className="bg-white dark:bg-gray-800/40 shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
                                     >
                                         <p className="font-extrabold">Real-time Chat</p>
                                         <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Talk with pharmacy agents about availability and prices.</p>
@@ -301,7 +301,7 @@ export default function UserDashboard() {
                                     <button
                                         type="button"
                                         onClick={() => setActiveSection("profile")}
-                                        className="bg-white dark:bg-gray-800/40 border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
+                                        className="bg-white dark:bg-gray-800/40 shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
                                     >
                                         <p className="font-extrabold">Profile & Security</p>
                                         <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Update your info, change password, and manage your photo.</p>

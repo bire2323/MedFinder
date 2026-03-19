@@ -48,6 +48,8 @@ export default function RegisterPharmacy() {
       }
     }
   }
+
+ 
   const registrationCards = [
     {
       type: "hospital",
@@ -81,12 +83,13 @@ export default function RegisterPharmacy() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
+         
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-              Are you a Healthcare Provider?
+             {t("registration.header")}
             </h2>
             <p className="text-slate-500 dark:text-gray-400 max-w-2xl mx-auto">
-              Join the MedFinder network to improve patient reach, automate
-              inquiries, and streamline your facility's digital presence.
+             {t("registration.subheader")}
+              
             </p>
           </motion.div>
 

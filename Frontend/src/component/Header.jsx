@@ -105,7 +105,7 @@ export default function Header() {
             ) : (
               <div className="flex items-center gap-4 border-l pl-6 border-slate-200 dark:border-gray-800">
                 <div className="hidden xl:flex flex-col items-end">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Your Location</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{t("headingNav.location")}</span>
                   <div className="flex items-center gap-1 text-slate-700 dark:text-gray-200">
                     <HiOutlineLocationMarker className="text-blue-600" />
                     <span className="text-xs font-bold italic">Addis Ababa</span>
@@ -127,14 +127,20 @@ export default function Header() {
                       <div className="fixed inset-0 z-10" onClick={() => setToggleProfileDropDown(false)} />
                       <div className="absolute right-0 mt-3 w-64 z-20 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-gray-800 p-2 overflow-hidden animate-in fade-in zoom-in duration-200">
                         <div className="px-4 py-3 border-b border-slate-50 dark:border-gray-800 mb-2">
-                          <p className="text-xs font-bold text-slate-400 uppercase">Account</p>
+                          <p className="text-xs font-bold text-slate-400 ">{t("headingNav.profile_dropdown.account")}</p>
                           <p className="text-sm font-bold truncate dark:text-white">{user?.email}</p>
                         </div>
-                        <NavLink to="#" onClick={()=>navigateByRole(roles,navigate)} className="flex items-center cursor-pointer gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-xl transition-all">
-                          <FaUser className="text-blue-500" /><span > My Dashboard</span>
+                        <NavLink to="#" onClick={()=>{
+                          if (roles?.includes('patient')) {
+                            navigate('/user/dashboard', { replace: true });
+                          }else{ 
+                            navigateByRole(roles,navigate);
+                          }
+                        }} className="flex items-center cursor-pointer gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-xl transition-all">
+                          <FaUser className="text-blue-500" /><span > {t("headingNav.profile_dropdown.my_dashboard")}</span>
                         </NavLink>
                         <button onClick={handleLogout} className="w-full flex items-center cursor-pointer gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all">
-                          <LuLogOut /> Sign Out
+                          <LuLogOut /> {t("headingNav.profile_dropdown.logout")}
                         </button>
                       </div>
                     </>
@@ -158,12 +164,12 @@ export default function Header() {
       {isMenuOpen && (
         <div className="lg:hidden bg-white dark:bg-gray-950 border-t border-slate-100 dark:border-gray-800 p-6 space-y-6">
           <div className="flex flex-col gap-4">
-            <Link to="/home" className="text-lg font-bold dark:text-white">Find Care</Link>
-            <Link to="/hospitals" className="text-lg font-bold dark:text-white">Hospitals</Link>
-            <Link to="/pharmacies" className="text-lg font-bold dark:text-white">Pharmacies</Link>
+            <Link to="/home" className="text-lg font-bold dark:text-white">{t("headingNav.Find Care")}</Link>
+            <Link to="/hospitals" className="text-lg font-bold dark:text-white">{t("headingNav.hospitals")}</Link>
+            <Link to="/pharmacies" className="text-lg font-bold dark:text-white">{t("headingNav.pharmacies")}</Link>
           </div>
           <Link to="/map" className="flex items-center justify-center gap-2 w-full py-4 bg-emerald-500 text-white rounded-2xl font-bold shadow-lg shadow-emerald-200">
-            <FaMapMarkedAlt /> Open Live Map
+            <FaMapMarkedAlt />{t("headingNav.open_live_map")}
           </Link>
           {!user && (
              <button onClick={() => navigate('/login')} className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold">{t("Register.login")}</button>

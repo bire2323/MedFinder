@@ -32,7 +32,7 @@ export default function HeroSection({ onSearch }) {
             {t("hero.badge")}
           </span>
           
-          <h1 className="text-5xl md:text-7xl font-black text-slate-700 dark:text-white mb-6 leading-[1.1]">
+          <h1 className="text-5xl md:text-7xl font-black text-slate-700 dark:text-white/70 mb-6 leading-[1.1]">
             {t("hero.title_main")} <br />
             <span className="text-gray-600">{t("hero.title_accent")}</span>
           </h1>
