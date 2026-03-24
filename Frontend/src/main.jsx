@@ -7,41 +7,58 @@ import "./index.css";
 import "leaflet/dist/leaflet.css";
 import useAuthStore from "./store/UserAuthStore";
 
-import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
-import { getXsrfToken } from "./api/client";
-
-
 window.Pusher = Pusher;
 
-// Optional: get token dynamically to avoid stale values
-const getAuthToken = () => useAuthStore.getState().token;
+import Echo from 'laravel-echo';
 
-window.Echo = new Echo({
-  broadcaster: 'reverb',                // ✅ Must be 'pusher'
-  key: import.meta.env.VITE_REVERB_APP_KEY,
-  wsHost: import.meta.env.VITE_REVERB_HOST || 'localhost',
-  wsPort: import.meta.env.VITE_REVERB_PORT || 8080, // use env or fallback to 8080
-  forceTLS: false,                       // ✅ Use ws://, not wss://
-  enabledTransports: ['ws'],              // Optional: restrict to ws only
-  disableStats: true,
-  withCredentials: true,
+import { getXsrfToken, ensureCsrfCookie } from "./api/client";
 
-  // Auth endpoint & headers
-  authEndpoint: 'http://localhost:8000/api/broadcasting/auth',
-  auth: {
-    headers: {
-      "X-XSRF-TOKEN": getXsrfToken() || "",
-      Accept: 'application/json',
+// Initialize Echo only after CSRF cookie is present.
+// IMPORTANT: getXsrfToken() MUST be called AFTER ensureCsrfCookie() resolves.
+// Calling it before leaves it empty → Echo sends a blank X-XSRF-TOKEN → 419.
+(async () => {
+  try {
+    await ensureCsrfCookie();
+  } catch (e) {
+    console.warn('Failed to fetch CSRF cookie before Echo init', e);
+  }
+
+  // Read the XSRF token AFTER the cookie has been set by the server
+  const xsrfToken = getXsrfToken();
+
+  window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: import.meta.env.VITE_REVERB_APP_KEY,
+    wsHost: import.meta.env.VITE_REVERB_HOST || 'localhost',
+    wsPort: parseInt(import.meta.env.VITE_REVERB_PORT || '8080'),
+    forceTLS: false,
+    enabledTransports: ['ws'],
+    disableStats: true,
+    withCredentials: true,
+
+    // Use a RELATIVE path — goes through the Vite proxy (same-origin).
+    // An absolute http://localhost:8000 URL is cross-origin from localhost:5173,
+    // so the browser will not attach the laravel_session or XSRF-TOKEN cookies,
+    // causing a 419 on /broadcasting/auth.
+    authEndpoint: '/broadcasting/auth',
+    auth: {
+      headers: {
+        "X-XSRF-TOKEN": xsrfToken || "",
+        Accept: "application/json",
+      }
     },
-  },
-});
+    cluster: '',
+  });
 
-console.log('Echo connecting to:', {
-  host: import.meta.env.VITE_REVERB_HOST || 'localhost',
-  port: import.meta.env.VITE_REVERB_PORT || 8080,
-  key: import.meta.env.VITE_REVERB_APP_KEY,
-});
+  // console.log('Echo initialized. XSRF token present:', !!xsrfToken);
+  //console.log('Echo connecting to:', {
+  // host: import.meta.env.VITE_REVERB_HOST || 'localhost',
+  // port: import.meta.env.VITE_REVERB_PORT || 8080,
+  // key: import.meta.env.VITE_REVERB_APP_KEY,
+  // });
+})();
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <App />
 );

@@ -9,6 +9,7 @@ export async function apiRegister(formData) {
 }
 
 export async function apiLogin(formData) {
+
   await ensureCsrfCookie();
   return apiFetch("/api/login", {
     method: "POST",
@@ -63,9 +64,9 @@ export async function apiLogout() {
 }
 
 export async function apiMe() {
-  return apiFetch("/api/user",  {
+  return apiFetch("/api/user", {
     method: "GET",
-    headers: { "Content-Type":"application/json" },
+    headers: { "Content-Type": "application/json" },
   });
 }
 

@@ -37,28 +37,14 @@ class MessageStatusController extends Controller
     public function markRead(ChatSession $sessionId, Request $request)
     {
         $user = auth()->user();
-        $request->validate(['message_id' => 'required|integer']);
+        $now = now();
         
-        $messageId = $request->message_id;
+        $sessionId->participants()->updateExistingPivot($user->id, [
+            'last_read_at' => $now,
+        ]);
+
+        broadcast(new MessageRead($sessionId->id, $user->id, $now))->toOthers();
         
-        // Mark all messages up to this ID as read
-        // Only mark messages not sent by the current user
-        $messages = ChatMessage::where('chat_session_id', $sessionId->id)
-            ->where('sender_id', '!=', $user->id)
-            ->where('id', '<=', $messageId)
-            ->where('is_read', false)
-            ->get();
-        
-        foreach ($messages as $message) {
-            $message->update([
-                'is_read' => true,
-                'updated_at' => now()
-            ]);
-            
-            // Broadcast read receipt to the sender
-            broadcast(new MessageRead($message))->toOthers();
-        }
-        
-        return response()->json(['success' => true, 'count' => $messages->count()]);
+        return response()->json(['success' => true]);
     }
 }

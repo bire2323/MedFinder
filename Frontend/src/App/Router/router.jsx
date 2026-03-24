@@ -31,6 +31,7 @@ import { apiGetFacilities, apiGetHospitals } from "../../api/hospital";
 import AdminDashboard from "../../pages/AdminPage/AdminDashboard";
 import HomeError from "../../component/HomeError";
 import UserDashboard from "../../pages/UserDashboard/UserDashboard";
+import ProtectedRoute from "../../auth/ProtectedRoute";
 
 // 404 Component
 function NotFound() {
@@ -126,7 +127,8 @@ export const router = createBrowserRouter([
   // Hospital Agent Dashboard
   {
     path: "/hospital-agent/dashboard",
-    element: <HospitalDashboard />,
+    element: <ProtectedRoute />,
+    children: [{ index: true, element: <HospitalDashboard /> }],
   },
   {
     path: "/user/dashboard",
@@ -134,7 +136,8 @@ export const router = createBrowserRouter([
   },
   {
     path: "/admin/dashboard",
-    element: <AdminDashboard />,
+    element: <ProtectedRoute />,
+    children: [{ index: true, element: <AdminDashboard /> }],
   },
 
   // ==================== FACILITY DETAIL PAGES (OtherLayout) ====================

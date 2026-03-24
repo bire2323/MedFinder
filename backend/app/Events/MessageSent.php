@@ -23,29 +23,53 @@ class MessageSent implements ShouldBroadcastNow
     }
 
    
-public function broadcastOn(): array
-{
-    $session = $this->message->session;
-    
-    // Explicitly identify the sender from the database record
-    $senderId = $this->message->sender_id;
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return array<int, \Illuminate\Broadcasting\Channel>
+     */
+    public function broadcastOn(): array
+    {
+        $message = $this->message;
+        $session = $message->session;
 
-    // Logic: If the sender is the patient, the recipient is the agent.
-    // Otherwise, the recipient is the patient.
-    $recipientId = ($senderId == $session->patient_id) 
-        ? $session->pharmacy_agent_id 
-        : $session->patient_id;
+        if (!$session) {
+            \Log::error("MessageSent event: Session not found for message {$message->id}");
+            return [];
+        }
 
-    $channels = [
-        new PresenceChannel('chat.session.' . $this->message->chat_session_id),
-    ];
-\Log::info("Broadcasting message {$this->message->id} to recipient: " . $recipientId);
-    if ($recipientId) {
-        $channels[] = new PrivateChannel('user.' . $recipientId);
+        $senderId = (int) $message->sender_id;
+        $recipientId = null;
+
+        // Logic:
+        // 1. If sender is the patient, recipient is the agent (pharmacy or hospital).
+        // 2. If sender is NOT the patient (must be an agent), recipient is the patient.
+        if ($senderId === (int) $session->patient_id) {
+            if ($session->pharmacy) {
+           // \Log::info("Broadcasting message {2} to recipient: ");
+                $recipientId = $session->pharmacy->pharmacy_agent_id;
+            } elseif ($session->hospital) {
+                
+                $recipientId = $session->hospital->hospital_agent_id;
+            }
+        } else {
+            \Log::info("Broadcasting message {$session->patient_id} to recipient: ");
+            $recipientId = $session->patient_id;
+        }
+
+        $channels = [
+            new PresenceChannel('chat.session.' . $message->chat_session_id),
+        ];
+
+        if ($recipientId) {
+            \Log::info("Broadcasting message {$message->id} to recipient: {$recipientId}");
+            $channels[] = new PrivateChannel('user.' . $recipientId);
+        } else {
+            \Log::warning("MessageSent event: Could not determine recipient for message {$message->id}. Sender: {$senderId}, Session: {$session->id}");
+        }
+
+        return $channels;
     }
-
-    return $channels;
-}
     
     public function broadcastAs(): string
     {
@@ -58,7 +82,7 @@ public function broadcastOn(): array
             'id' => $this->message->id,
             'chat_session_id' => $this->message->chat_session_id,
             'sender_id' => $this->message->sender_id,
-            'sender' => $this->message->sender,
+            'sender' => $this->message->load('sender:id,Name'),
             'message' => $this->message->message,
             'is_read' => $this->message->is_read,
             'created_at' => $this->message->created_at->toIso8601String(),

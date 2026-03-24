@@ -2,8 +2,8 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use App\Models\ChatMessage;
 
@@ -11,24 +11,33 @@ class MessageRead implements ShouldBroadcastNow
 {
     use InteractsWithSockets;
 
-    public $messageId;
     public $chatSessionId;
-    public $senderId;
+    public $userId;
+    public $lastReadAt;
 
-    public function __construct(ChatMessage $message)
+    public function __construct($chatSessionId, $userId, $lastReadAt)
     {
-        $this->messageId = $message->id;
-        $this->chatSessionId = $message->chat_session_id;
-        $this->senderId = $message->sender_id;
+        $this->chatSessionId = $chatSessionId;
+        $this->userId        = $userId;
+        $this->lastReadAt    = $lastReadAt;
     }
 
-    public function broadcastOn()
+    public function broadcastOn(): array
     {
-        return new Channel('chat.session.' . $this->chatSessionId);
+        return [new PresenceChannel('chat.session.' . $this->chatSessionId)];
     }
 
-    public function broadcastAs()
+    public function broadcastAs(): string
     {
         return 'message.read';
+    }
+
+    public function broadcastWith(): array
+    {
+        return [
+            'chatSessionId' => $this->chatSessionId,
+            'userId'        => $this->userId,
+            'lastReadAt'    => $this->lastReadAt,
+        ];
     }
 }

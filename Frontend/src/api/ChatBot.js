@@ -29,4 +29,14 @@ export const uploadPrescription = async (file) => {
   });
 };
 
+export async function apiSendMessage(sessionId, message) {
+  await ensureCsrfCookie();
+  // backend expects JSON: { message: string }
+  return apiFetch(`/api/chat/sessions/${sessionId}/message`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message }),
+  });
+}
+
 export { sendMessage };

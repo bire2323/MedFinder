@@ -6,9 +6,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import LanguageSwitcher from "../../component/LanguageSwitcher";
-import ChatWindow from "./ChatWindow";
 import useAuthStore from "../../store/UserAuthStore";
 import { useNotifications } from "../../hooks/UserNotification";
+import useChatNotificationStore from "../../store/useChatNotificationStore";
+import NotificationToast from "../../component/NotificationToast";
 import {
   Pill,
   FileText,
@@ -42,37 +43,42 @@ import ThemeToggle from "../../component/DarkLightTeam";
 
 import Inventory from "./Inventory";
 import { apiGetInventory } from "../../api/inventory";
+import { apiFetch } from "../../api/client";
+
+// Import Refactored Components
+import OverviewTab from "./components/OverviewTab";
+import SettingsTab from "./components/SettingsTab";
+import ChatsTab from "./components/ChatsTab";
 
 const PharmacyDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const [selectedSessionId, setSelectedSessionId] = useState(null);
-  const [chatSessions, setChatSessions] = useState([]); // will come from API
-  const [loadingChats, setLoadingChats] = useState(false);
-
-  const { token, user } = useAuthStore();
+  const { user } = useAuthStore();
   const currentUserId = user?.id;
-  //const x = useNotifications(currentUserId);
+  
+  const { handleIncomingMessage, targetSessionToOpen, getUnreadCount } = useChatNotificationStore();
+  const unreadCount = getUnreadCount();
+
+  useNotifications(currentUserId, (incoming) => {
+     handleIncomingMessage({
+            message: incoming.message,
+            senderName: incoming.sender.sender?.Name || `User ${incoming.sender_id}`,
+            sessionId: incoming.chat_session_id,
+            fullMessage: incoming
+        });
+  });
+
   useEffect(() => {
-    if (!currentUserId || !window.Echo) return;
-    console.log(`Subscribing to private channel: User.${currentUserId}`);
-    const channel = window.Echo.private(`User.${currentUserId}`)
-      .listen('.message.sent', (e) => {
-        const incoming = e.message || e;
-        console.log("Global Notification received:", incoming);
+      useChatNotificationStore.getState().loadSessions();
+  }, []);
 
-        // Logic to update your "Unread" state globally
-        // For example, if you use Zustand:
-        // useChatStore.getState().incrementUnread(incoming.chat_session_id);
-      });
-
-    return () => {
-      window.Echo.leave(`User.${currentUserId}`);
-    };
-  }, [currentUserId]);
-  //console.log("cdof", x);
+  useEffect(() => {
+    if (targetSessionToOpen) {
+      setActiveTab("chats");
+    }
+  }, [targetSessionToOpen]);
 
 
   // --- Profile State ---
@@ -90,32 +96,7 @@ const PharmacyDashboard = () => {
 
   // --- Inventory State ---
 
-  useEffect(() => {
-    if (activeTab === "chats") {
-      const fetchSessions = async () => {
-        setLoadingChats(true);
-        try {
-          const res = await fetch('/api/chat/sessions', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/json',
-            },
-          });
 
-          if (!res.ok) throw new Error('Failed to load chats');
-          const data = await res.json();
-          setChatSessions(data);
-        } catch (err) {
-          console.error('Error fetching chat sessions:', err);
-          // You can add toast notification here later
-        } finally {
-          setLoadingChats(false);
-        }
-      };
-
-      fetchSessions();
-    }
-  }, [activeTab]);
 
 
   // --- Recent Chats (mock data) ---
@@ -126,33 +107,34 @@ const PharmacyDashboard = () => {
   ]);
 
   const [pharmacyProfile, setPharmacyProfile] = useState(null);
+  const [inventory, setInventory] = useState([]);
 
 
 
   useEffect(() => {
-
-    try {
-      const response = apiGetInventory();
-      if (response.success && response.data) {
-        setPharmacyProfile(response.data);
-        setInventory(response.data.drugs || []);
-        console.log('fdsfsdfsd', response.data.drugs?.length);
+    const fetchInv = async () => {
+      try {
+        const response = await apiGetInventory();
+        if (response) {
+          const inventoryData = response.data || response;
+          setPharmacyProfile(inventoryData);
+          // setInventory(inventoryData.drugs || Array.isArray(inventoryData) ? inventoryData : []);
+          console.log('Inventory loaded:', inventoryData.drugs?.length || inventoryData?.length);
+        }
+      } catch (error) {
+        console.error("Error fetching inventory:", error);
       }
-    } catch (error) {
-      console.error("Error fetching inventory:", error);
-
-    } finally {
-      // setIsLoadingInventory(false);
-    }
+    };
+    fetchInv();
   }, []);
 
 
 
-  const [inventory, setInventory] = useState([]);
   return (
-
-    <div className="min-h-screen min-w-[320px] bg-slate-50 dark:bg-gray-900 flex text-slate-900 dark:text-gray-100 transition-colors duration-300">
-      {/* Mobile sidebar backdrop */}
+    <>
+      <NotificationToast />
+      <div className="min-h-screen min-w-[320px] bg-slate-50 dark:bg-gray-900 flex text-slate-900 dark:text-gray-100 transition-colors duration-300">
+        {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} aria-hidden="true" />
       )}
@@ -192,6 +174,7 @@ const PharmacyDashboard = () => {
             label="Chats"
             active={activeTab === "chats"}
             onClick={() => setActiveTab("chats")}
+            badge={unreadCount > 0 ? unreadCount : null}
           />
           <NavItem
             icon={<Settings size={20} />}
@@ -246,335 +229,51 @@ const PharmacyDashboard = () => {
           <AnimatePresence mode="wait">
             {/* OVERVIEW TAB */}
             {activeTab === "overview" && (
-              <motion.div
-                key="overview"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="space-y-8"
-              >
-                {/* Stats Cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                  <StatCard
-                    title="Total Drugs"
-                    value={inventory.length.toString()}
-                    trend="+12 this week"
-                    icon={<Pill />}
-                    color="emerald"
-                  />
-                  <StatCard
-                    title="Low Stock Items"
-                    value={inventory.filter((d) => d.stock < 20 && d.stock > 0).length.toString()}
-                    trend="Needs attention"
-                    icon={<Package />}
-                    color="orange"
-                  />
-                  <StatCard
-                    title="Out of Stock"
-                    value={inventory.filter((d) => d.stock === 0).length.toString()}
-                    trend="Critical"
-                    icon={<AlertCircle />}
-                    color="red"
-                  />
-                  <StatCard
-                    title="AI Inquiries"
-                    value="156"
-                    trend="85% solved"
-                    icon={<Activity />}
-                    color="purple"
-                  />
-                </div>
-
-                {/* Inventory Overview + Recent Chats */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  {/* Inventory Overview */}
-                  <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-gray-400 dark:border-gray-500 p-4 sm:p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="font-bold text-lg">Inventory Overview</h3>
-                      <button
-                        onClick={() => setActiveTab("inventory")}
-                        className="text-sm text-blue-500 hover:underline"
-                      >
-                        View All
-                      </button>
-                    </div>
-                    <div className="space-y-3">
-                      {inventory.slice(0, 5).map((drug) => (
-                        <div
-                          key={drug.id}
-                          className="flex items-center justify-between p-4 bg-slate-50 dark:bg-gray-700/30 rounded-2xl"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
-                              <Pill size={16} className="text-emerald-600" />
-                            </div>
-                            <div>
-                              <p className="font-bold text-sm">{drug.name}</p>
-                              <p className="text-[10px] text-slate-500">{drug.genericName}</p>
-                            </div>
-                          </div>
-                          <span
-                            className={`text-xs font-bold px-2 py-1 rounded-lg ${drug.stock === 0
-                              ? "bg-red-100 text-red-600"
-                              : drug.stock < 20
-                                ? "bg-orange-100 text-orange-600"
-                                : "bg-emerald-100 text-emerald-600"
-                              }`}
-                          >
-                            {drug.stock} units
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Recent Chats */}
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-gray-400 dark:border-gray-500 p-4 sm:p-6 shadow-sm">
-                    <h3 className="font-bold text-base sm:text-lg mb-4 sm:mb-6 flex items-center gap-2">
-                      <MessageSquare size={18} className="text-blue-500" />
-                      Recent Chats
-                    </h3>
-                    <div className="space-y-4">
-                      {recentChats.map((chat) => (
-                        <div
-                          key={chat.id}
-                          className={`p-4 rounded-2xl ${chat.status === "unread"
-                            ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800"
-                            : "bg-slate-50 dark:bg-gray-700/30"
-                            }`}
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="text-xs font-bold">{chat.user}</p>
-                            <span className="text-[10px] text-slate-400">{chat.time}</span>
-                          </div>
-                          <p className="text-sm text-slate-600 dark:text-gray-400 truncate">
-                            {chat.message}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+              <OverviewTab inventory={inventory} recentChats={recentChats} setActiveTab={setActiveTab} />
             )}
 
             {/* INVENTORY TAB */}
             {activeTab === "inventory" && (
               <Inventory activeTab={activeTab} setActiveTab={setActiveTab} />
+
             )}
 
             {/* SETTINGS TAB */}
             {activeTab === "settings" && (
-              <motion.div
-                key="settings"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0 }}
-                className="max-w-4xl space-y-8"
-              >
-                <div className="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-gray-400 dark:border-gray-500 p-4 sm:p-8">
-                  <div className="flex items-center gap-6 mb-8">
-                    <div className="w-20 h-20 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 border-2 border-dashed border-emerald-300">
-                      <Camera size={24} />
-                    </div>
-                    <h3 className="text-xl font-bold">Pharmacy Identity</h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <InputGroup
-                      label="Pharmacy Name"
-                      icon={<Store size={14} />}
-                      value={profile.name}
-                      onChange={(e) =>
-                        setProfile({ ...profile, name: e.target.value })
-                      }
-                    />
-                    <InputGroup
-                      label="Support Email"
-                      icon={<Globe size={14} />}
-                      value={profile.email}
-                      onChange={(e) =>
-                        setProfile({ ...profile, email: e.target.value })
-                      }
-                    />
-                    <InputGroup
-                      label="Phone"
-                      icon={<Phone size={14} />}
-                      value={profile.phone}
-                      onChange={(e) =>
-                        setProfile({ ...profile, phone: e.target.value })
-                      }
-                    />
-                    <InputGroup
-                      label="Working Hours"
-                      icon={<Clock size={14} />}
-                      value={profile.openHours}
-                      onChange={(e) =>
-                        setProfile({ ...profile, openHours: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end gap-4 items-center">
-                  <ThemeToggle />
-                  <button className="bg-emerald-600 text-white px-10 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-colors">
-                    <Save size={18} /> Update Settings
-                  </button>
-                </div>
-              </motion.div>
+              <SettingsTab profile={profile} setProfile={setProfile} />
             )}
+
+            {/* CHATS TAB */}
             {activeTab === "chats" && (
-              <motion.div
-                key="chats"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="space-y-6"
-              >
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold">Chat with Patients</h2>
-                  {chatSessions.length > 0 && (
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {chatSessions.length} active {chatSessions.length === 1 ? 'chat' : 'chats'}
-                    </span>
-                  )}
-                </div>
-
-                {loadingChats ? (
-                  <div className="flex justify-center items-center h-64">
-                    <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-                  </div>
-                ) : chatSessions.length === 0 ? (
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 text-center">
-                    <MessageSquare className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">
-                      No active chats
-                    </h3>
-                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                      When patients message you, conversations will appear here.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Chat list */}
-                    <div className="lg:col-span-1 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                        <h3 className="font-semibold">Conversations</h3>
-                      </div>
-                      <div className="max-h-[60vh] overflow-y-auto">
-                        {chatSessions.map((session) => (
-                          <button
-                            key={session.id}
-                            onClick={() => setSelectedSessionId(session.id)}
-                            className={`w-full p-4 text-left border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition ${selectedSessionId === session.id ? 'bg-emerald-50 dark:bg-emerald-900/20 border-l-4 border-emerald-500' : ''
-                              }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-600 font-medium">
-                                {session.patient?.name?.[0]?.toUpperCase() || '?'}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium truncate">
-                                  {session.patient?.name || 'Patient'}
-                                </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                                  {session.last_message || 'Start the conversation...'}
-                                </p>
-                              </div>
-                              {session.unread_count > 0 && (
-                                <span className="bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                                  {session.unread_count}
-                                </span>
-                              )}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Chat window */}
-                    <div className="lg:col-span-2">
-                      {selectedSessionId ? (
-                        <ChatWindow
-                          sessionId={selectedSessionId}
-                          currentUserId={currentUserId}
-                        />
-                      ) : (
-                        <div className="h-full flex items-center justify-center bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
-                          <div className="text-center p-8">
-                            <MessageSquare className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                              Select a conversation
-                            </h3>
-                            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                              Click on a patient chat from the list to start messaging
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </motion.div>
+              <ChatsTab currentUserId={currentUserId} />
             )}
           </AnimatePresence>
         </section>
       </main>
-
-
-    </div>
+      </div>
+    </>
   );
 };
-
-// --- Drug Modal Component ---
-
-
-
 
 // --- Subcomponents ---
-const StatCard = ({ title, value, trend, icon, color }) => {
-  const colorVariants = {
-    emerald: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600",
-    blue: "bg-blue-50 dark:bg-blue-900/20 text-blue-600",
-    purple: "bg-purple-50 dark:bg-purple-900/20 text-purple-600",
-    orange: "bg-orange-50 dark:bg-orange-900/20 text-orange-600",
-    red: "bg-red-50 dark:bg-red-900/20 text-red-600",
-  };
-  return (
-    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-400 dark:border-gray-500">
-      <div className={`p-3 w-fit rounded-xl mb-4 ${colorVariants[color]}`}>
-        {React.cloneElement(icon, { size: 20 })}
-      </div>
-      <h3 className="text-2xl font-black">{value}</h3>
-      <p className="text-xs font-bold text-slate-500 uppercase">{title}</p>
-      <p className="text-[10px] mt-1 text-emerald-500 font-bold">{trend}</p>
-    </div>
-  );
-};
-
-const NavItem = ({ icon, label, active, onClick }) => (
+const NavItem = ({ icon, label, active, onClick, badge }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all ${active
+    className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all ${active
       ? "bg-emerald-600 text-white shadow-lg"
       : "text-slate-500 hover:bg-slate-100 dark:hover:bg-gray-700"
       }`}
   >
-    {icon}
-    <span className="block font-bold text-sm">{label}</span>
+    <div className="flex items-center gap-4">
+      {icon}
+      <span className="block font-bold text-sm">{label}</span>
+    </div>
+    {badge && (
+      <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">
+        {badge}
+      </span>
+    )}
   </button>
-);
-
-const InputGroup = ({ label, icon, value, onChange }) => (
-  <div className="space-y-2">
-    <label className="text-[10px] uppercase font-black text-slate-400 flex items-center gap-2">
-      {icon} {label}
-    </label>
-    <input
-      value={value}
-      onChange={onChange}
-      className="w-full p-3 bg-slate-50 dark:bg-gray-700 border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"
-    />
-  </div>
 );
 
 export default PharmacyDashboard;

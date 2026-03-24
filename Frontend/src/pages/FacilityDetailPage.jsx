@@ -29,13 +29,15 @@ import {
 import { useLoaderData } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { localizeFacility } from '../hooks/Localizer';
-import ChatWindow from './pharmacyAgent/ChatWindow';
 import apiStartChatSession from '../api/RealtimeChat';
 import useAuthStore from '../store/UserAuthStore';
+import toast from 'react-hot-toast';
+
 
 const FacilityDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const { type, data } = useLoaderData();
   const { i18n } = useTranslation();
@@ -48,13 +50,12 @@ const FacilityDetailPage = () => {
   const [chatSession, setChatSession] = useState(null);
   const [chatLoading, setChatLoading] = useState(false);
   const [chatError, setChatError] = useState(null);
-  const [showChat, setShowChat] = useState(false);
 
 
 
 
   // Current user ID (adjust based on your auth system)
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, roles } = useAuthStore();
   const currentUserId = user?.id;
 
   // Load and localize facility
@@ -63,7 +64,7 @@ const FacilityDetailPage = () => {
     setFacility(result);
     setIsLoading(false);
   }, [data, type, i18n.language]);
-
+  //console.log("isauth", isAuthenticated);
   // Open in Google Maps
   const openInMaps = () => {
     if (facility?.coordinates) {
@@ -75,9 +76,11 @@ const FacilityDetailPage = () => {
 
   // Start or get chat session
   const handleStartChat = async () => {
-    if (!isAuthenticated || !currentUserId || !token) {
-      alert('Please log in to chat with the facility');
-      // Optional: navigate('/login');
+    if (!isAuthenticated || !currentUserId) {
+      toast.error(t('facility_detail_page.please_login_to_chat'));
+      setTimeout(() => {
+        navigate('/login');
+      }, 6000);
       return;
     }
 
@@ -96,10 +99,12 @@ const FacilityDetailPage = () => {
 
 
       const sessionData = await response;
-      setChatSession(sessionData);
-      setShowChat(true); // Open chat modal
+      console.log("resp", sessionData);
+
+      navigate(`/user/dashboard?session=${sessionData?.id ?? sessionData?.chat_session_id} `, { state: { openChatSessionId: sessionData?.id ?? sessionData?.chat_session_id } });
     } catch (err) {
       setChatError(err.message || 'Something went wrong. Please try again.');
+      toast.error(t("facility_detail_page.chatin_errors"));
       console.error('Chat initiation error:', err);
     } finally {
       setChatLoading(false);
@@ -437,7 +442,7 @@ const FacilityDetailPage = () => {
                   disabled={chatLoading || chatSession}
                   className={`w-full md:w-auto px-6 py-3 rounded-lg font-medium text-white flex items-center justify-center gap-2 transition ${chatLoading || chatSession
                     ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700'
+                    : 'bg-primary hover:bg-blue-700'
                     }`}
                 >
                   {chatLoading ? (
@@ -476,46 +481,7 @@ const FacilityDetailPage = () => {
       </main>
 
       {/* Chat Modal / Inline Window */}
-      <AnimatePresence>
-        {showChat && chatSession && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
-            onClick={() => setShowChat(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] overflow-hidden flex flex-col relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Modal Header */}
-              <div className="p-4 border-b dark:border-gray-700 flex items-center justify-between bg-slate-50 dark:bg-gray-800">
-                <h3 className="font-semibold text-lg">
-                  Chat with {facility.facility_name}
-                </h3>
-                <button
-                  onClick={() => setShowChat(false)}
-                  className="p-2 hover:bg-slate-200 dark:hover:bg-gray-700 rounded-full"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              {/* Chat Content */}
-              <div className="flex-1 overflow-hidden">
-                <ChatWindow
-                  sessionId={chatSession.id}
-                  currentUserId={currentUserId}
-                />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Chat modal removed: users are redirected to /user/dashboard to continue chat in the Messages panel */}
     </div>
   );
 };

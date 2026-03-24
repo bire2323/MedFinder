@@ -10,6 +10,9 @@ import MapView from "./components/MapView";
 import Profile from "./components/Profile";
 import Chat from "./components/Chat";
 import Header from "../../component/Header";
+import NotificationToast from "../../component/NotificationToast";
+import useChatNotificationStore from "../../store/useChatNotificationStore";
+import { useNotifications } from "../../hooks/UserNotification";
 
 const LS_FAVORITES_KEY = "medfinder_favorites_v1";
 const LS_RECENTS_KEY = "medfinder_recents_v1";
@@ -45,8 +48,31 @@ function normalizeFacilityForStorage(facility) {
 export default function UserDashboard() {
     const navigate = useNavigate();
     const { user, clearSession } = useAuthStore();
+    const currentUserId = user?.id;
+
+    const { handleIncomingMessage, targetSessionToOpen, getUnreadCount } = useChatNotificationStore();
+    const unreadCount = getUnreadCount();
 
     const [activeSection, setActiveSection] = useState("home"); // home | search | favorites | messages | profile
+
+    useNotifications(currentUserId, (incoming) => {
+        handleIncomingMessage({
+            message: incoming.message,
+            senderName: incoming.sender.sender?.Name || `User ${incoming.sender_id}`,
+            sessionId: incoming.chat_session_id,
+            fullMessage: incoming
+        });
+    });
+
+    useEffect(() => {
+        useChatNotificationStore.getState().loadSessions();
+    }, []);
+
+    useEffect(() => {
+        if (targetSessionToOpen) {
+            setActiveSection("messages");
+        }
+    }, [targetSessionToOpen]);
     const [favorites, setFavorites] = useState([]);
     const [recents, setRecents] = useState([]);
 
@@ -56,6 +82,13 @@ export default function UserDashboard() {
     useEffect(() => {
         setFavorites(safeParseJSON(localStorage.getItem(LS_FAVORITES_KEY), []));
         setRecents(safeParseJSON(localStorage.getItem(LS_RECENTS_KEY), []));
+
+        const params = new URLSearchParams(location.search);
+
+        const sessionId = location.state?.openChatSessionId || params.get("session");
+        if (sessionId) {
+            setActiveSection("messages")
+        }
     }, []);
 
     useEffect(() => {
@@ -126,6 +159,7 @@ export default function UserDashboard() {
     return (
         <>
             <Header />
+            <NotificationToast />
             <div className="min-h-screen bg-white text-slate-900 dark:bg-gray-900 dark:text-slate-100 transition-colors duration-300 flex ">
 
                 <Sidebar
@@ -133,6 +167,7 @@ export default function UserDashboard() {
                     setActiveSection={setActiveSection}
                     onLogout={handleLogout}
                     favoritesCount={favorites.length}
+                    unreadCount={unreadCount}
                 />
 
                 <main className="flex-1 min-w-0 xl:ml-14 flex flex-col overflow-hidden ">
@@ -382,6 +417,7 @@ export default function UserDashboard() {
                             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                                 <Chat
                                     key={chatTargetNonce}
+
                                     initialFacility={chatTargetFacility}
                                     onClearInitialFacility={() => setChatTargetFacility(null)}
                                 />

@@ -1,20 +1,21 @@
 import useAuthStore from "../store/UserAuthStore";
 import { apiMe } from "../api/auth";
 export const initializeAuth = async () => {
-   // console.log("initializeAuth called"); // 👈 ADD THIS
-  
-    const { setSession, clearSession, setLoading } = useAuthStore.getState();
-  
-    try {
-      setLoading(true);
-  
-      const res = await apiMe(); // 👈 this should trigger network
-  
-      //console.log("API response:", res);
-  
+  const { setSession, clearSession, setLoading } = useAuthStore.getState();
+
+  try {
+    setLoading(true);
+    const res = await apiMe();
+
+    if (res.success) {
       setSession(res.user, res.roles);
-    } catch (error) {
-    //  console.error("Auth error:", error);
+      return true;
+    } else {
       clearSession();
+      return false;
     }
-  };
+  } catch {
+    clearSession();
+    return false;
+  }
+};

@@ -46,7 +46,7 @@ function normalizeFacility(f) {
 }
 
 export async function apiFetchFacilities({ signal } = {}) {
-  const res = await fetch(`${API_BASE}/medical-facilities`, {
+  const res = await fetch(`${API_BASE}/api/medical-facilities`, {
     method: "GET",
     headers: { Accept: "application/json" },
     signal,

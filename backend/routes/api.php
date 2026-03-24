@@ -185,6 +185,7 @@ Route::prefix('ai')->middleware('auth:sanctum')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [AuthController::class, 'user']);
+    Route::post('user/heartbeat', \App\Http\Controllers\HeartbeatController::class);
 
     Route::get('chat/sessions', [ChatSessionController::class,'index']);
     Route::post('chat/sessions', [ChatSessionController::class, 'store']);
@@ -285,6 +286,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::fallback(function () {
         return response()->json(['message' => 'Not Found.'], 404);
         });
-     Route::middleware('auth:sanctum')->post('/broadcasting/auth', function (Request $request) {
-        return Broadcast::auth($request);
-        });
+     Route::post('/broadcasting/auth', function (Request $request) {
+    return Broadcast::auth($request);
+}); 
