@@ -462,6 +462,15 @@ import LanguageSwitcher from "../../component/LanguageSwitcher";
 
 import { useTranslation } from "react-i18next";
 
+import NotificationToast from "../../component/NotificationToast";
+import useChatNotificationStore from "../../store/useChatNotificationStore";
+import { useNotifications } from "../../hooks/UserNotification";
+import ChatsTab from "./components/ChatsTab";
+import OverviewTab from "./components/OverviewTab";
+import SettingsTab from "./components/SettingsTab";
+import DepartmentsTab from "./components/DepartmentsTab";
+import ServicesTab from "./components/ServicesTab";
+
 const HospitalDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
@@ -479,6 +488,29 @@ const HospitalDashboard = () => {
     providesEmergency: true,
     operates24Hours: true,
   });
+  
+  // --- Global Notifications State ---
+  const { handleIncomingMessage, getUnreadCount, targetSessionToOpen } = useChatNotificationStore();
+  const unreadCount = getUnreadCount();
+
+  useNotifications(profile.id, (incoming) => {
+     handleIncomingMessage({
+            message: incoming.message,
+            senderName: incoming.sender.sender?.Name || `User ${incoming.sender_id}`,
+            sessionId: incoming.chat_session_id,
+            fullMessage: incoming
+        });
+  });
+
+  useEffect(() => {
+      useChatNotificationStore.getState().loadSessions();
+  }, []);
+
+  useEffect(() => {
+    if (targetSessionToOpen) {
+      setActiveTab("chats");
+    }
+  }, [targetSessionToOpen]);
 
   // --- Departments State ---
   const [departments, setDepartments] = useState([]);
@@ -768,7 +800,9 @@ const HospitalDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen min-w-[320px] bg-slate-50 dark:bg-gray-900 flex text-slate-900 dark:text-gray-100 transition-colors duration-300">
+    <>
+      <NotificationToast />
+      <div className="min-h-screen min-w-[320px] bg-slate-50 dark:bg-gray-900 flex text-slate-900 dark:text-gray-100 transition-colors duration-300">
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} aria-hidden="true" />
       )}
@@ -805,6 +839,13 @@ const HospitalDashboard = () => {
             label="Services"
             active={activeTab === "services"}
             onClick={() => setActiveTab("services")}
+          />
+          <NavItem
+            icon={<MessageSquare size={20} />}
+            label="Chats"
+            active={activeTab === "chats"}
+            onClick={() => setActiveTab("chats")}
+            badge={unreadCount}
           />
           <NavItem
             icon={<Settings size={20} />}
@@ -868,380 +909,51 @@ const HospitalDashboard = () => {
           <AnimatePresence mode="wait">
             {/* OVERVIEW TAB */}
             {activeTab === "overview" && (
-              <motion.div
-                key="overview"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="space-y-8"
-              >
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <StatCard
-                    title="Departments"
-                    value={departments.length.toString()}
-                    trend={`${departments.filter((d) => d.isActive).length} active`}
-                    icon={<Layers />}
-                    color="blue"
-                  />
-                  <StatCard
-                    title="Services"
-                    value={services.length.toString()}
-                    trend={`${services.filter((s) => s.isAvailable).length} available`}
-                    icon={<Stethoscope />}
-                    color="emerald"
-                  />
-                  <StatCard
-                    title="AI Inquiries"
-                    value="234"
-                    trend="92% resolved"
-                    icon={<Activity />}
-                    color="purple"
-                  />
-                  <StatCard
-                    title="Patient Queries"
-                    value="89"
-                    trend="Today"
-                    icon={<Users />}
-                    color="orange"
-                  />
-                </div>
-
-                {/* Departments + Recent Chats */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  {/* Departments Overview */}
-                  <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-3xl border border-gray-400 dark:border-gray-500 p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="font-bold text-lg">Active Departments</h3>
-                      <button
-                        onClick={() => setActiveTab("departments")}
-                        className="text-sm text-blue-500 hover:underline"
-                      >
-                        View All
-                      </button>
-                    </div>
-                    <div className="space-y-3">
-                      {departments
-                        .filter((d) => d.isActive)
-                        .slice(0, 5)
-                        .map((dept) => (
-                          <div
-                            key={dept.id}
-                            className="flex items-center justify-between p-4 bg-slate-50 dark:bg-gray-700/30 rounded-2xl"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                                <Building2 size={16} className="text-blue-600" />
-                              </div>
-                              <div>
-                                <p className="font-bold text-sm">{dept.name}</p>
-                                <p className="text-[10px] text-slate-500">{dept.headDoctor}</p>
-                              </div>
-                            </div>
-                            <span className="text-xs font-bold text-slate-400">{dept.floor}</span>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-
-                  {/* Recent Chats */}
-                  <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-400 dark:border-gray-500 p-6 shadow-sm">
-                    <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
-                      <MessageSquare size={18} className="text-blue-500" />
-                      Recent Inquiries
-                    </h3>
-                    <div className="space-y-4">
-                      {recentChats.map((chat) => (
-                        <div
-                          key={chat.id}
-                          className={`p-4 rounded-2xl ${chat.status === "unread"
-                            ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800"
-                            : "bg-slate-50 dark:bg-gray-700/30"
-                            }`}
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="text-xs font-bold">{chat.user}</p>
-                            <span className="text-[10px] text-slate-400">{chat.time}</span>
-                          </div>
-                          <p className="text-sm text-slate-600 dark:text-gray-400 truncate">
-                            {chat.message}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+              <OverviewTab
+                departments={departments}
+                services={services}
+                recentChats={recentChats}
+                setActiveTab={setActiveTab}
+              />
             )}
 
             {/* DEPARTMENTS TAB */}
             {activeTab === "departments" && (
-              <motion.div
-                key="departments"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-              >
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                  <div className="relative w-full sm:w-72">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input
-                      type="text"
-                      placeholder="Search departments..."
-                      value={searchDeptQuery}
-                      onChange={(e) => setSearchDeptQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                    />
-                  </div>
-                  <button
-                    onClick={() => {
-                      resetDeptForm();
-                      setShowAddDeptModal(true);
-                    }}
-                    className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg"
-                  >
-                    <Plus size={18} />
-                    Add Department
-                  </button>
-                </div>
-
-                {isLoadingDepts ? (
-                  <div className="flex items-center justify-center py-20">
-                    <Loader2 size={32} className="animate-spin text-blue-500" />
-                  </div>
-                ) : (
-                  <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-400 dark:border-gray-500 overflow-hidden shadow-sm">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left">
-                        <thead className="bg-slate-50 dark:bg-gray-900/50">
-                          <tr className="text-[11px] uppercase text-slate-400 border-b dark:border-gray-700">
-                            <th className="px-6 py-4">ID</th>
-                            <th className="px-6 py-4">Department</th>
-                            <th className="px-6 py-4">Head Doctor</th>
-                            <th className="px-6 py-4">Location</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4 text-center">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y dark:divide-gray-700 text-sm">
-                          {filteredDepartments.length === 0 ? (
-                            <tr>
-                              <td colSpan="6" className="px-6 py-12 text-center text-slate-400">
-                                No departments found
-                              </td>
-                            </tr>
-                          ) : (
-                            filteredDepartments.map((dept) => (
-                              <tr key={dept.id} className="hover:bg-slate-50 dark:hover:bg-gray-700/50 transition-colors">
-                                <td className="px-6 py-4 font-mono text-xs text-slate-500">#{dept.id}</td>
-                                <td className="px-6 py-4">
-                                  <p className="font-bold">{dept.name}</p>
-                                  <p className="text-[10px] text-slate-400">{dept.description}</p>
-                                </td>
-                                <td className="px-6 py-4 text-slate-600 dark:text-gray-400">{dept.headDoctor || "N/A"}</td>
-                                <td className="px-6 py-4 text-xs text-slate-500">{dept.floor || "N/A"}</td>
-                                <td className="px-6 py-4">
-                                  <span
-                                    className={`px-2 py-1 rounded-lg text-xs font-bold ${dept.isActive
-                                      ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30"
-                                      : "bg-slate-100 text-slate-500 dark:bg-gray-700"
-                                      }`}
-                                  >
-                                    {dept.isActive ? "Active" : "Inactive"}
-                                  </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                  <div className="flex items-center justify-center gap-2">
-                                    <button
-                                      onClick={() => openEditDeptModal(dept)}
-                                      className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-                                      title="Edit"
-                                    >
-                                      <Edit2 size={16} />
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        setSelectedDept(dept);
-                                        setShowDeleteDeptModal(true);
-                                      }}
-                                      className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                                      title="Delete"
-                                    >
-                                      <Trash2 size={16} />
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-              </motion.div>
+              <DepartmentsTab
+                searchDeptQuery={searchDeptQuery}
+                setSearchDeptQuery={setSearchDeptQuery}
+                resetDeptForm={resetDeptForm}
+                setShowAddDeptModal={setShowAddDeptModal}
+                isLoadingDepts={isLoadingDepts}
+                filteredDepartments={filteredDepartments}
+                openEditDeptModal={openEditDeptModal}
+                setSelectedDept={setSelectedDept}
+                setShowDeleteDeptModal={setShowDeleteDeptModal}
+              />
             )}
 
             {/* SERVICES TAB */}
             {activeTab === "services" && (
-              <motion.div
-                key="services"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-              >
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                  <div className="relative w-full sm:w-72">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input
-                      type="text"
-                      placeholder="Search services..."
-                      value={searchServiceQuery}
-                      onChange={(e) => setSearchServiceQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                    />
-                  </div>
-                  <button
-                    onClick={() => {
-                      resetServiceForm();
-                      setShowAddServiceModal(true);
-                    }}
-                    className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg"
-                  >
-                    <Plus size={18} />
-                    Add Service
-                  </button>
-                </div>
-
-                {isLoadingServices ? (
-                  <div className="flex items-center justify-center py-20">
-                    <Loader2 size={32} className="animate-spin text-blue-500" />
-                  </div>
-                ) : (
-                  <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-400 dark:border-gray-500 overflow-hidden shadow-sm">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left">
-                        <thead className="bg-slate-50 dark:bg-gray-900/50">
-                          <tr className="text-[11px] uppercase text-slate-400 border-b dark:border-gray-700">
-                            <th className="px-6 py-4">ID</th>
-                            <th className="px-6 py-4">Service</th>
-                            <th className="px-6 py-4">Department</th>
-                            <th className="px-6 py-4">Price (ETB)</th>
-                            <th className="px-6 py-4">Duration</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4 text-center">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y dark:divide-gray-700 text-sm">
-                          {filteredServices.length === 0 ? (
-                            <tr>
-                              <td colSpan="7" className="px-6 py-12 text-center text-slate-400">
-                                No services found
-                              </td>
-                            </tr>
-                          ) : (
-                            filteredServices.map((service) => (
-                              <tr key={service.id} className="hover:bg-slate-50 dark:hover:bg-gray-700/50 transition-colors">
-                                <td className="px-6 py-4 font-mono text-xs text-slate-500">#{service.id}</td>
-                                <td className="px-6 py-4">
-                                  <p className="font-bold">{service.name}</p>
-                                  <p className="text-[10px] text-slate-400">{service.description}</p>
-                                </td>
-                                <td className="px-6 py-4 text-slate-600 dark:text-gray-400">{service.department || "General"}</td>
-                                <td className="px-6 py-4 font-bold text-emerald-600">{service.price || "N/A"}</td>
-                                <td className="px-6 py-4 text-xs text-slate-500">{service.duration || "N/A"}</td>
-                                <td className="px-6 py-4">
-                                  <span
-                                    className={`px-2 py-1 rounded-lg text-xs font-bold ${service.isAvailable
-                                      ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30"
-                                      : "bg-slate-100 text-slate-500 dark:bg-gray-700"
-                                      }`}
-                                  >
-                                    {service.isAvailable ? "Available" : "Unavailable"}
-                                  </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                  <div className="flex items-center justify-center gap-2">
-                                    <button
-                                      onClick={() => openEditServiceModal(service)}
-                                      className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-                                      title="Edit"
-                                    >
-                                      <Edit2 size={16} />
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        setSelectedService(service);
-                                        setShowDeleteServiceModal(true);
-                                      }}
-                                      className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                                      title="Delete"
-                                    >
-                                      <Trash2 size={16} />
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-              </motion.div>
+              <ServicesTab
+                searchServiceQuery={searchServiceQuery}
+                setSearchServiceQuery={setSearchServiceQuery}
+                resetServiceForm={resetServiceForm}
+                setShowAddServiceModal={setShowAddServiceModal}
+                isLoadingServices={isLoadingServices}
+                filteredServices={filteredServices}
+                openEditServiceModal={openEditServiceModal}
+                setSelectedService={setSelectedService}
+                setShowDeleteServiceModal={setShowDeleteServiceModal}
+              />
             )}
 
             {/* SETTINGS TAB */}
             {activeTab === "settings" && (
-              <motion.div
-                key="settings"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0 }}
-                className="max-w-4xl space-y-8"
-              >
-                <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-400 dark:border-gray-500 p-8">
-                  <div className="flex items-center gap-6 mb-8">
-                    <div className="w-20 h-20 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 border-2 border-dashed border-blue-300">
-                      <Camera size={24} />
-                    </div>
-                    <h3 className="text-xl font-bold">Hospital Identity</h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <InputGroup
-                      label="Hospital Name"
-                      icon={<Building2 size={14} />}
-                      value={profile.name}
-                      onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                    />
-                    <InputGroup
-                      label="Email"
-                      icon={<Globe size={14} />}
-                      value={profile.email}
-                      onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                    />
-                    <InputGroup
-                      label="Phone"
-                      icon={<Phone size={14} />}
-                      value={profile.phone}
-                      onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                    />
-                    <InputGroup
-                      label="Address"
-                      icon={<Building2 size={14} />}
-                      value={profile.address}
-                      onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end gap-4 items-center">
-                  <ThemeToggle />
-                  <button className="bg-blue-600 text-white px-10 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors">
-                    <Save size={18} /> Update Settings
-                  </button>
-                </div>
-              </motion.div>
+              <SettingsTab profile={profile} setProfile={setProfile} />
+            )}
+            {/* CHATS TAB */}
+            {activeTab === "chats" && (
+              <ChatsTab currentUserId={profile.id} />
             )}
           </AnimatePresence>
         </section>
@@ -1330,7 +1042,8 @@ const HospitalDashboard = () => {
           />
         )}
       </AnimatePresence>
-    </div>
+      </div>
+    </>
   );
 };
 
@@ -1659,27 +1372,8 @@ const DeleteConfirmModal = ({ itemName, itemType, onConfirm, onClose, isSubmitti
 );
 
 // --- Subcomponents ---
-const StatCard = ({ title, value, trend, icon, color }) => {
-  const colorVariants = {
-    emerald: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600",
-    blue: "bg-blue-50 dark:bg-blue-900/20 text-blue-600",
-    purple: "bg-purple-50 dark:bg-purple-900/20 text-purple-600",
-    orange: "bg-orange-50 dark:bg-orange-900/20 text-orange-600",
-    red: "bg-red-50 dark:bg-red-900/20 text-red-600",
-  };
-  return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-400 dark:border-gray-500">
-      <div className={`p-3 w-fit rounded-xl mb-4 ${colorVariants[color]}`}>
-        {React.cloneElement(icon, { size: 20 })}
-      </div>
-      <h3 className="text-2xl font-black">{value}</h3>
-      <p className="text-xs font-bold text-slate-500 uppercase">{title}</p>
-      <p className="text-[10px] mt-1 text-blue-500 font-bold">{trend}</p>
-    </div>
-  );
-};
 
-const NavItem = ({ icon, label, active, onClick }) => (
+const NavItem = ({ icon, label, active, onClick, badge }) => (
   <button
     onClick={onClick}
     className={`w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all ${active
@@ -1687,22 +1381,16 @@ const NavItem = ({ icon, label, active, onClick }) => (
       : "text-slate-500 hover:bg-slate-100 dark:hover:bg-gray-700"
       }`}
   >
-    {icon}
+    <div className="relative">
+      {icon}
+      {badge > 0 && (
+        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold shadow-sm border border-white dark:border-gray-800">
+          {badge}
+        </span>
+      )}
+    </div>
     <span className="hidden lg:block font-bold text-sm">{label}</span>
   </button>
-);
-
-const InputGroup = ({ label, icon, value, onChange }) => (
-  <div className="space-y-2">
-    <label className="text-[10px] uppercase font-black text-slate-400 flex items-center gap-2">
-      {icon} {label}
-    </label>
-    <input
-      value={value}
-      onChange={onChange}
-      className="w-full p-3 bg-slate-50 dark:bg-gray-700 border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500"
-    />
-  </div>
 );
 
 export default HospitalDashboard;

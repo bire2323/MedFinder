@@ -9,7 +9,7 @@ const navItems = [
   { key: "profile", label: "Profile", icon: User },
 ];
 
-export default function Sidebar({ activeSection, setActiveSection, onLogout, favoritesCount = 0 }) {
+export default function Sidebar({ activeSection, setActiveSection, onLogout, favoritesCount = 0, unreadCount = 0 }) {
   const [open, setOpen] = React.useState(false);
 
   const handleNav = (key) => {
@@ -74,7 +74,14 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = item.key === activeSection;
-            const badge = item.key === "favorites" ? favoritesCount : null;
+            let badge = null;
+            let isUnreadBadge = false;
+            
+            if (item.key === "favorites" && favoritesCount > 0) badge = favoritesCount;
+            if (item.key === "messages" && unreadCount > 0) {
+              badge = unreadCount;
+              isUnreadBadge = true;
+            }
 
             return (
               <button
@@ -101,11 +108,13 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
                   <span className="font-extrabold">{item.label}</span>
                 </span>
 
-                {typeof badge === "number" && (
+                {badge !== null && (
                   <span
                     className={[
                       "shrink-0 inline-flex items-center justify-center min-w-[28px] px-2 h-7 rounded-full text-xs font-extrabold",
-                      active ? "bg-blue-600/20 text-blue-700 dark:text-blue-300" : "bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-slate-200",
+                      isUnreadBadge 
+                        ? "bg-red-500 text-white" 
+                        : (active ? "bg-blue-600/20 text-blue-700 dark:text-blue-300" : "bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-slate-200")
                     ].join(" ")}
                   >
                     {badge}

@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import useAuthStore from '../../store/UserAuthStore';
-import { apiFetch, ensureCsrfCookie } from '../../api/client';
+import useRealtimeChat from '../../hooks/useRealtimeChat';
 
 export default function ChatWindow({ sessionId, currentUserId }) {
-    const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
-    const [isTyping, setIsTyping] = useState(false);
-    const [whoIsTyping, setWhoIsTyping] = useState(null);
+    const { user } = useAuthStore();
+
+    const { messages, fetchMessages, sendMessage, sendTyping, isTyping, whoIsTyping, markAsRead } = useRealtimeChat(sessionId, { currentUserId });
 
     const messagesEndRef = useRef(null);
     const typingTimeoutRef = useRef(null);
-    const { user } = useAuthStore();
+
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -22,118 +22,40 @@ export default function ChatWindow({ sessionId, currentUserId }) {
 
     // Load messages
     useEffect(() => {
-        const loadMessages = async () => {
+        let mounted = true;
+        const load = async () => {
+            if (!sessionId) return;
             try {
-                const data = await apiFetch(`/api/chat/sessions/${sessionId}/messages`, { method: "GET" });
-                // Ensure we always have an array
-                const messagesArray = Object.values(data || {});
-                setMessages(Array.isArray(messagesArray) ? messagesArray.reverse() : []);
+                await fetchMessages(sessionId);
             } catch (err) {
                 console.error('Error loading messages:', err);
-                setMessages([]); // Reset to empty array on error
             }
         };
+        load();
+        return () => {
+            mounted = false;
+        };
+    }, [sessionId, fetchMessages]);
 
-        loadMessages();
-    }, [sessionId]);
-
-    // Mark messages as read
-    const markMessagesAsRead = async () => {
+    // Mark messages as read when messages change
+    useEffect(() => {
         if (!Array.isArray(messages) || messages.length === 0) return;
-
         const lastMessageId = messages[messages.length - 1]?.id;
         if (!lastMessageId) return;
+        const t = setTimeout(() => {
+            markAsRead(sessionId, lastMessageId);
+        }, 800);
+        return () => clearTimeout(t);
+    }, [messages, sessionId, markAsRead]);
 
-        try {
-            await ensureCsrfCookie();
-            await apiFetch(`/api/chat/sessions/${sessionId}/mark-read`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ message_id: lastMessageId }),
-            });
-        } catch (error) {
-            console.error('Failed to mark as read:', error);
-        }
-    };
+    // Real-time subscription and typing handled in useRealtimeChat
 
-    // Mark as read when component mounts and when new messages arrive
-    useEffect(() => {
-        const timer = setTimeout(markMessagesAsRead, 1000);
-        return () => clearTimeout(timer);
-    }, [messages, sessionId]);
-
-    // Echo subscription
-    useEffect(() => {
-        if (!window.Echo) return;
-
-        const channel = window.Echo.join(`chat.session.${sessionId}`)
-            .here((users) => {
-                console.log('Online:', users);
-                // Just log online users for now
-            })
-            .joining((user) => {
-                console.log(user?.Name || 'User', 'joined');
-            })
-            .leaving((user) => console.log(user?.Name || 'User', 'left'))
-            .listen('.message.sent', (e) => {
-                setMessages((prev) => {
-                    // Ensure prev is an array
-                    const currentMessages = Array.isArray(prev) ? prev : [];
-
-                    // Check for duplicates
-                    if (currentMessages.some(m => m?.id === e?.id)) {
-                        return currentMessages;
-                    }
-
-                    // Add the new message
-                    return [...currentMessages, e];
-                });
-            })
-            .listen('.message.read', (e) => {
-                setMessages((prev) => {
-                    const currentMessages = Array.isArray(prev) ? prev : [];
-                    return currentMessages.map(msg => {
-                        if (msg?.id === e?.messageId && msg?.sender_id === currentUserId) {
-                            return { ...msg, is_read: true };
-                        }
-                        return msg;
-                    });
-                });
-            });
-
-        return () => {
-            window.Echo.leave(`chat.session.${sessionId}`);
-        };
-    }, [sessionId, currentUserId]);
-
-    const sendMessage = async () => {
+    const sendMessageHandler = async () => {
         if (!newMessage.trim()) return;
-
-        // Clear typing indicator
-        if (window.Echo) {
-            window.Echo.join(`chat.session.${sessionId}`).whisper('typing', {
-                name: user?.Name || 'Someone',
-                typing: false,
-            });
-        }
-
-        if (typingTimeoutRef.current) {
-            clearTimeout(typingTimeoutRef.current);
-            typingTimeoutRef.current = null;
-        }
-
+        // stop typing
+        sendTyping(sessionId, { typing: false, name: user?.Name || 'Someone' });
         try {
-            const response = await fetch(`/api/chat/sessions/${sessionId}/message`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({ message: newMessage }),
-            });
-
-            if (!response.ok) throw new Error('Failed to send message');
+            await sendMessage(sessionId, newMessage.trim());
             setNewMessage('');
         } catch (err) {
             console.error('Error sending message:', err);
@@ -143,44 +65,30 @@ export default function ChatWindow({ sessionId, currentUserId }) {
     const handleTyping = (e) => {
         const value = e.target.value;
         setNewMessage(value);
-
-        // Clear existing timeout
+        // Debounce: send typing started immediately, send typing stopped after 800ms inactivity
         if (typingTimeoutRef.current) {
             clearTimeout(typingTimeoutRef.current);
             typingTimeoutRef.current = null;
         }
 
-        // If input is empty, send typing stopped
         if (!value.trim()) {
-            if (window.Echo) {
-                window.Echo.join(`chat.session.${sessionId}`).whisper('typing', {
-                    name: user?.Name || 'Someone',
-                    typing: false,
-                });
-            }
+            sendTyping(sessionId, { typing: false, name: user?.Name || 'Someone' });
             return;
         }
 
-        // Debounce typing indicator
+        // notify typing started
+        sendTyping(sessionId, { typing: true, name: user?.Name || 'Someone' });
+
         typingTimeoutRef.current = setTimeout(() => {
-            if (window.Echo) {
-                window.Echo.join(`chat.session.${sessionId}`).whisper('typing', {
-                    name: user?.Name || 'Someone',
-                    typing: true,
-                });
-            }
-        }, 500);
+            sendTyping(sessionId, { typing: false, name: user?.Name || 'Someone' });
+        }, 800);
     };
 
     // Helper function to get status icon
     const getStatusIcon = (msg) => {
         if (msg.sender_id !== currentUserId) return null;
-
-        if (msg.is_read) {
-            return <span className="text-xs text-blue-600">✓✓</span>; // Read
-        } else {
-            return <span className="text-xs text-gray-500">✓</span>; // Sent
-        }
+        if (msg.is_read) return <span className="text-xs text-blue-600">✓✓</span>;
+        return <span className="text-xs text-gray-500">✓</span>;
     };
 
     return (
@@ -214,12 +122,12 @@ export default function ChatWindow({ sessionId, currentUserId }) {
                     type="text"
                     value={newMessage}
                     onChange={handleTyping}
-                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendMessage())}
+                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendMessageHandler())}
                     placeholder="Type a message..."
                     className="flex-1 px-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
-                    onClick={sendMessage}
+                    onClick={sendMessageHandler}
                     disabled={!newMessage.trim()}
                     className="px-5 py-2 bg-blue-600 text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                 >

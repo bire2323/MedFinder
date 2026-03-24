@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import ThemeToggle from "./DarkLightTeam";
 import LanguageSwitcher from "./LanguageSwitcher";
 import useAuthStore from "../store/UserAuthStore";
-import {navigateByRole} from "../utils/UserNavigation";
+import { navigateByRole } from "../utils/UserNavigation";
 import { apiLogout } from "../api/auth";
 
 export default function Header() {
@@ -33,29 +33,28 @@ export default function Header() {
   };
 
   // Helper for NavLink styles
-  const navLinkClass = ({ isActive }) => 
-    `text-sm font-bold transition-all duration-200 hover:text-blue-600 ${
-      isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-gray-300"
+  const navLinkClass = ({ isActive }) =>
+    `text-sm font-bold transition-all duration-200 hover:text-blue-600 ${isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-gray-300"
     }`;
 
   return (
     <header className="sticky top-0 z-[100] w-full bg-white/90 dark:bg-gray-950 backdrop-blur-md border-b border-slate-100 dark:border-gray-800 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          
+
           {/* 1. BRAND LOGO */}
           <div className="flex items-center">
-            <Link 
-              to='/' 
+            <Link
+              to='/'
               className="flex items-center gap-3 group"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
-              <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200 dark:shadow-none group-hover:scale-110 transition-transform">
+              <div className="bg-primary p-2.5 rounded-xl shadow-lg shadow-blue-200 dark:shadow-none group-hover:scale-110 transition-transform">
                 <FaHospitalSymbol className="text-white text-xl" />
               </div>
               <div className="flex flex-col">
                 <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
-                  Med<span className="text-blue-600">Finder</span>
+                  Med<span className="text-secondary">Finder</span>
                 </span>
                 <span className="text-[10px] text-slate-400 dark:text-gray-500 font-bold uppercase tracking-widest mt-1">
                   Healthcare Platform
@@ -69,9 +68,9 @@ export default function Header() {
             <NavLink to="/home" className={navLinkClass}>{t("headingNav.home")}</NavLink>
             <NavLink to="/hospitals" className={navLinkClass}>{t("headingNav.hospitals")}</NavLink>
             <NavLink to="/pharmacies" className={navLinkClass}>{t("headingNav.pharmacies")}</NavLink>
-            
-            <NavLink 
-              to="/map" 
+
+            <NavLink
+              to="/map"
               className="flex items-center gap-2 text-sm font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-4 py-2 rounded-xl border border-emerald-100 dark:border-emerald-800/50 hover:bg-emerald-100 transition-all"
             >
               <FaMapMarkedAlt />
@@ -81,7 +80,7 @@ export default function Header() {
 
           {/* 3. RIGHT ACTIONS */}
           <div className="hidden md:flex items-center gap-4">
-            
+
             <div className="flex items-center gap-2 mr-2">
               <LanguageSwitcher />
               <ThemeToggle />
@@ -93,13 +92,13 @@ export default function Header() {
                   onClick={() => navigate('/login', { state: { background: location } })}
                   className="text-sm font-bold text-slate-600 dark:text-gray-300 hover:text-blue-600 transition"
                 >
-                 {t("Register.Login")}
+                  {t("Register.Login")}
                 </button>
                 <button
                   onClick={() => navigate('/register', { state: { background: location } })}
                   className="bg-slate-900 dark:bg-blue-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-500 transition-all shadow-md active:scale-95"
                 >
-                 {t("Register.join_medFinder")} 
+                  {t("Register.join_medFinder")}
                 </button>
               </div>
             ) : (
@@ -118,7 +117,7 @@ export default function Header() {
                     onClick={() => setToggleProfileDropDown(!toggleProfileDropDown)}
                   >
                     <div className="w-9 h-9 bg-blue-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-blue-600">
-                       <FaUserCircle size={32} />
+                      <FaUserCircle size={32} />
                     </div>
                   </button>
 
@@ -130,11 +129,11 @@ export default function Header() {
                           <p className="text-xs font-bold text-slate-400 ">{t("headingNav.profile_dropdown.account")}</p>
                           <p className="text-sm font-bold truncate dark:text-white">{user?.email}</p>
                         </div>
-                        <NavLink to="#" onClick={()=>{
+                        <NavLink to="#" onClick={() => {
                           if (roles?.includes('patient')) {
                             navigate('/user/dashboard', { replace: true });
-                          }else{ 
-                            navigateByRole(roles,navigate);
+                          } else {
+                            navigateByRole(roles, navigate);
                           }
                         }} className="flex items-center cursor-pointer gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-xl transition-all">
                           <FaUser className="text-blue-500" /><span > {t("headingNav.profile_dropdown.my_dashboard")}</span>
@@ -152,7 +151,7 @@ export default function Header() {
 
           {/* MOBILE TOGGLE */}
           <div className="lg:hidden flex items-center gap-4">
-            <ThemeToggle />
+            <span className="md:hidden"><ThemeToggle /></span>
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-600 dark:text-white bg-slate-100 dark:bg-gray-800 rounded-xl">
               {isMenuOpen ? <IoMdClose size={24} /> : <HiMenuAlt3 size={24} />}
             </button>
@@ -172,7 +171,7 @@ export default function Header() {
             <FaMapMarkedAlt />{t("headingNav.open_live_map")}
           </Link>
           {!user && (
-             <button onClick={() => navigate('/login')} className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold">{t("Register.login")}</button>
+            <button onClick={() => navigate('/login')} className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold">{t("Register.login")}</button>
           )}
         </div>
       )}

@@ -1,13 +1,36 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  /* Primary (Medical Blue) */
+  --color-primary: #2CA3FA;
+  --color-primary-dark: #034C81;
+
+  /* Secondary (Healthcare Green) */
+  --color-secondary: #04E474;
+  --color-secondary-dark: #62BB07;
+
+  /* Accent */
+  --color-accent: #FF6B35;
+
+  /* Base */
+  --color-background: #FFFFFF;
+  --color-text: #373737;
+}
+
+@theme {
+  --background-image-primary-gradient: linear-gradient(to right, #2CA3FA, #5BA2F4);
+}
+
 body {
   overscroll-behavior-x: none;
 }
+
 /* Scrollbar */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;

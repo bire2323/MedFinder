@@ -21,8 +21,9 @@ protected $guard_name = 'sanctum';
      */
     protected $fillable = [
         'Name',
-         'Phone',
+        'Phone',
         'Password',
+        'last_seen_at',
     ];
 
     /**
@@ -57,8 +58,12 @@ protected $guard_name = 'sanctum';
     {
         return $this->hasOne(Pharmacy::class, 'pharmacy_agent_id');
     }
-    public function chatSession(){
-        return $this->hasMany(chatSession::class,'user_id');
+    public function chatSessions()
+    {
+        return $this->belongsToMany(ChatSession::class, 'chat_participants', 'user_id', 'chat_session_id')
+                    ->using(ChatParticipant::class)
+                    ->withPivot('last_read_at')
+                    ->withTimestamps();
     }
     
 }

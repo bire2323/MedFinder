@@ -40,6 +40,7 @@ export async function apiFetch(path, options = {}) {
   const needsCsrf = ["POST", "PUT", "PATCH", "DELETE"].includes(method);
   if (needsCsrf) {
     const xsrf = getXsrfToken();
+    // console.log("XSRF", xsrf);
     if (xsrf && !headers["X-XSRF-TOKEN"]) {
       headers["X-XSRF-TOKEN"] = xsrf;
     }
@@ -50,13 +51,13 @@ export async function apiFetch(path, options = {}) {
     ...options,
     headers,
   });
-
+  // console.log("res", res);
   if (res.status === 204) return null;
 
   const contentType = res.headers.get("content-type") || "";
   const isJson = contentType.includes("application/json");
   const body = isJson ? await res.json().catch(() => null) : await res.text().catch(() => "");
-  console.log('bodyresponse', body);
+  // console.log('bodyresponse', body);
   if (!res.ok) {
     const msg = (body && body.message) || (typeof body === "string" ? body : "") || `Request failed (${res.status})`;
     const err = new Error(msg);

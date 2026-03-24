@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\ChatSession;
 use App\Models\ChatMessage;
 use Illuminate\Support\Facades\Auth;
-
+use Spatia\Permission\Traites\HasRoles;
 
 
 class ChatSessionController extends Controller
@@ -77,6 +77,21 @@ class ChatSessionController extends Controller
         'language' => $validated['language'] ?? 'en',
     ]);
 
+    // Attach participants
+    $participants = [$patientId];
+    if (isset($validated['pharmacy_id'])) {
+        $pharmacy = Pharmacy::find($validated['pharmacy_id']);
+        if ($pharmacy && $pharmacy->pharmacy_agent_id) {
+            $participants[] = $pharmacy->pharmacy_agent_id;
+        }
+    } elseif (isset($validated['hospital_id'])) {
+        $hospital = Hospital::find($validated['hospital_id']);
+        if ($hospital && $hospital->hospital_agent_id) {
+            $participants[] = $hospital->hospital_agent_id;
+        }
+    }
+    $newSession->participants()->sync($participants);
+
     return response()->json($newSession, 201);
 }
 
@@ -85,21 +100,21 @@ class ChatSessionController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role === 'patient') {
-            return ChatSession::where('patient_id', $user->id)
-                ->with(['pharmacy', 'hospital'])
-                ->latest()
-                ->get();
-        }
-
-        // For agents: sessions linked to their facility
-        $sessions = ChatSession::where(function ($query) use ($user) {
-            $query->whereHas('pharmacy', fn($q) => $q->where('pharmacy_agent_id', $user->id))
-                  ->orWhereHas('hospital', fn($q) => $q->where('hospital_agent_id', $user->id));
+        // Get sessions where the user is a participant
+        $sessions = ChatSession::whereHas('participants', function($q) use ($user) {
+            $q->where('users.id', $user->id);
         })
-            ->with('patient')
-            ->latest()
-            ->get();
+        ->with(['patient', 'pharmacy', 'hospital', 'latestMessage', 'participants' => function($q) use ($user) {
+            $q->where('users.id', '!=', $user->id);
+        }])
+        ->withCount(['messages as unread_count' => function ($query) use ($user) {
+            $query->where('sender_id', '!=', $user->id)
+                  ->where(function ($q) use ($user) {
+                      $q->whereRaw('chat_messages.created_at > (SELECT COALESCE(last_read_at, "2000-01-01 00:00:00") FROM chat_participants WHERE chat_session_id = chat_messages.chat_session_id AND user_id = ?)', [$user->id]);
+                  });
+        }])
+        ->latest()
+        ->get();
 
         return $sessions;
     }
