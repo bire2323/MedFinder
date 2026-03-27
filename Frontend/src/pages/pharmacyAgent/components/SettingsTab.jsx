@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Camera, Store, Globe, Phone, Clock, Save } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import ThemeToggle from "../../../component/DarkLightTeam";
 
 export const InputGroup = ({ label, icon, value, onChange }) => (
@@ -17,6 +18,7 @@ export const InputGroup = ({ label, icon, value, onChange }) => (
 );
 
 export default function SettingsTab({ profile, setProfile }) {
+    const { t } = useTranslation();
     return (
         <motion.div
             key="settings"
@@ -30,29 +32,29 @@ export default function SettingsTab({ profile, setProfile }) {
                     <div className="w-20 h-20 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 border-2 border-dashed border-emerald-300">
                         <Camera size={24} />
                     </div>
-                    <h3 className="text-xl font-bold">Pharmacy Identity</h3>
+                    <h3 className="text-xl font-bold">{t("PharmacyDashboard.Identity")}</h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <InputGroup
-                        label="Pharmacy Name"
+                        label={t("Registration.PharmacyName")}
                         icon={<Store size={14} />}
                         value={profile.name}
                         onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                     />
                     <InputGroup
-                        label="Support Email"
+                        label={t("Common.SupportEmail")}
                         icon={<Globe size={14} />}
                         value={profile.email}
                         onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                     />
                     <InputGroup
-                        label="Phone"
+                        label={t("Profile.PhoneNumber")}
                         icon={<Phone size={14} />}
                         value={profile.phone}
                         onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                     />
                     <InputGroup
-                        label="Working Hours"
+                        label={t("Common.WorkingHours")}
                         icon={<Clock size={14} />}
                         value={profile.openHours}
                         onChange={(e) => setProfile({ ...profile, openHours: e.target.value })}
@@ -62,7 +64,7 @@ export default function SettingsTab({ profile, setProfile }) {
             <div className="flex justify-end gap-4 items-center">
                 <ThemeToggle />
                 <button className="bg-emerald-600 text-white px-10 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-colors">
-                    <Save size={18} /> Update Settings
+                    <Save size={18} /> {t("PharmacyDashboard.UpdateSettings")}
                 </button>
             </div>
         </motion.div>

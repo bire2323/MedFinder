@@ -227,4 +227,43 @@ public function verifyOtp(Request $request)
             'roles' => $user->getRoleNames(),
         ]);
     }
+
+    public function updateProfile(Request $request){
+
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(["success" => false, "message" => "Unauthenticated"]);
+        }
+        $validated = $request->validate([
+            'name' => 'required|string|min:4|max:20',
+            'phone' => 'unique:users,phone,'.$user->id,
+            'email' => 'email|unique:users,email,'.$user->id,
+        ]);
+        $data = [
+    'Name'  => $validated['name'],
+    'Phone' => $validated['phone'] ?? null,
+    'Email' => $validated['email'] ?? null,
+];
+
+$user->update(array_filter($data, fn($v) => !is_null($v)));
+      
+        return response()->json(["success" => true, "message" => "Profile updated successfully"]);
+    }
+
+    public function updatePassword(Request $request){
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(["success" => false, "message" => "Unauthenticated"]);
+        }
+        $validated = $request->validate([
+            'currentPassword' => 'required',
+            'newPassword' => 'required|min:6|confirmed',
+        ]);
+        if (!Hash::check($validated['currentPassword'], $user->Password)) {
+            return response()->json(["success" => false, "message" => "Invalid old password"]);
+        }
+        $user->Password = Hash::make($validated['newPassword']);
+        $user->save();
+        return response()->json(["success" => true, "message" => "Password updated successfully"]);
+    }
 }

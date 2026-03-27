@@ -9,6 +9,7 @@ import {
   Menu,
   X,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../../store/UserAuthStore';
 import { getNotifications } from '../../api/admin';
 import UserManagement from './UserManagement';
@@ -17,6 +18,7 @@ import AnalyticsDashboard from './AnalyticsDashboard';
 import NotificationCenter from './NotificationCenter';
 
 export default function AdminDashboard() {
+  const { t } = useTranslation();
   const { isAuthenticated } = useAuthStore();
   const [activeTab, setActiveTab] = useState('overview');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -41,6 +43,23 @@ export default function AdminDashboard() {
       console.error('Error loading notifications:', err);
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated && window.Echo) {
+      const { user } = useAuthStore.getState();
+      const channel = window.Echo.private(`notifications.${user.id}`);
+      
+      channel.listen('.notification.sent', (data) => {
+        setUnreadNotifications(prev => prev + 1);
+        // Optional: Trigger a toast or local refetch
+        import('react-hot-toast').then(m => m.default.success(`New Action Required: ${data.title}`));
+      });
+
+      return () => {
+        window.Echo.leave(`notifications.${user.id}`);
+      };
+    }
+  }, [isAuthenticated]);
 
   const loadStats = async () => {
     if (!isAuthenticated) return;
@@ -74,7 +93,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
+      <header className="bg-secondary dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -88,9 +107,9 @@ export default function AdminDashboard() {
               </button>
               <Shield className="size-8 text-indigo-600 dark:text-indigo-400 shrink-0" />
               <div>
-                <h1 className="text-xl lg:text-2xl font-semibold">Admin Dashboard</h1>
+                <h1 className="text-xl lg:text-2xl font-semibold">{t("Admin.AdminDashboard")}</h1>
                 <p className="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
-                  Platform Management & Oversight
+                  {t("Admin.PlatformManagement")}
                 </p>
               </div>
             </div>
@@ -126,11 +145,11 @@ export default function AdminDashboard() {
         {/* Desktop Tabs */}
         <div className="hidden lg:flex w-full justify-start bg-white dark:bg-gray-800 p-1 rounded-xl border border-gray-200 dark:border-gray-700 mb-6 gap-1">
           {[
-            { id: 'overview', label: 'Overview', icon: BarChart3 },
-            { id: 'users', label: 'User Management', icon: Users },
-            { id: 'approvals', label: 'Approvals', icon: CheckCircle },
-            { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-            { id: 'notifications', label: 'Notifications', icon: Bell, badge: unreadNotifications },
+            { id: 'overview', label: t("Admin.Overview"), icon: BarChart3 },
+            { id: 'users', label: t("Admin.UserManagement"), icon: Users },
+            { id: 'approvals', label: t("Admin.Approvals"), icon: CheckCircle },
+            { id: 'analytics', label: t("Admin.Analytics"), icon: BarChart3 },
+            { id: 'notifications', label: t("Admin.Notifications"), icon: Bell, badge: unreadNotifications },
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -138,11 +157,10 @@ export default function AdminDashboard() {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-indigo-600 text-white border-indigo-600 dark:bg-indigo-500 dark:border-indigo-500'
-                    : 'border-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
+                className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${activeTab === tab.id
+                  ? 'bg-indigo-600 text-white border-indigo-600 dark:bg-indigo-500 dark:border-indigo-500'
+                  : 'border-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
               >
                 <Icon className="size-4" />
                 {tab.label}
@@ -161,11 +179,11 @@ export default function AdminDashboard() {
           <div className="lg:hidden p-2 mb-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
             <div className="flex flex-col gap-1">
               {[
-                { id: 'overview', label: 'Overview', icon: BarChart3 },
-                { id: 'users', label: 'User Management', icon: Users },
-                { id: 'approvals', label: 'Approvals', icon: CheckCircle },
-                { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-                { id: 'notifications', label: 'Notifications', icon: Bell, badge: unreadNotifications },
+                { id: 'overview', label: t("Admin.Overview"), icon: BarChart3 },
+                { id: 'users', label: t("Admin.UserManagement"), icon: Users },
+                { id: 'approvals', label: t("Admin.Approvals"), icon: CheckCircle },
+                { id: 'analytics', label: t("Admin.Analytics"), icon: BarChart3 },
+                { id: 'notifications', label: t("Admin.Notifications"), icon: Bell, badge: unreadNotifications },
               ].map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -176,11 +194,10 @@ export default function AdminDashboard() {
                       setActiveTab(tab.id);
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-left w-full ${
-                      activeTab === tab.id
-                        ? 'bg-indigo-600 text-white'
-                        : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
+                    className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-left w-full ${activeTab === tab.id
+                      ? 'bg-indigo-600 text-white'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                      }`}
                   >
                     <Icon className="size-4" />
                     {tab.label}
@@ -201,44 +218,44 @@ export default function AdminDashboard() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm text-gray-500 dark:text-gray-400">Total Users</h3>
+                <h3 className="text-sm text-gray-500 dark:text-gray-400">{t("Admin.TotalUsers")}</h3>
                 <Users className="size-5 text-blue-600 dark:text-blue-400" />
               </div>
               <p className="text-3xl font-semibold">
                 {loading ? '—' : (stats?.totalUsers ?? 0).toLocaleString()}
               </p>
-              <p className="text-sm text-green-600 dark:text-green-400 mt-1">Platform users</p>
+              <p className="text-sm text-green-600 dark:text-green-400 mt-1">{t("Admin.PlatformUsers")}</p>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm text-gray-500 dark:text-gray-400">Active Hospitals</h3>
+                <h3 className="text-sm text-gray-500 dark:text-gray-400">{t("Admin.ActiveHospitals")}</h3>
                 <Shield className="size-5 text-indigo-600 dark:text-indigo-400" />
               </div>
               <p className="text-3xl font-semibold">
                 {loading ? '—' : (stats?.totalHospitals ?? 0).toLocaleString()}
               </p>
-              <p className="text-sm text-green-600 dark:text-green-400 mt-1">Registered</p>
+              <p className="text-sm text-green-600 dark:text-green-400 mt-1">{t("Admin.Registered")}</p>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm text-gray-500 dark:text-gray-400">Active Pharmacies</h3>
+                <h3 className="text-sm text-gray-500 dark:text-gray-400">{t("Admin.ActivePharmacies")}</h3>
                 <Shield className="size-5 text-green-600 dark:text-green-400" />
               </div>
               <p className="text-3xl font-semibold">
                 {loading ? '—' : (stats?.totalPharmacies ?? 0).toLocaleString()}
               </p>
-              <p className="text-sm text-green-600 dark:text-green-400 mt-1">With inventory</p>
+              <p className="text-sm text-green-600 dark:text-green-400 mt-1">{t("Admin.WithInventory")}</p>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm text-gray-500 dark:text-gray-400">Pending Approvals</h3>
+                <h3 className="text-sm text-gray-500 dark:text-gray-400">{t("Admin.PendingApprovals")}</h3>
                 <CheckCircle className="size-5 text-orange-600 dark:text-orange-400" />
               </div>
               <p className="text-3xl font-semibold">
                 {loading ? '—' : (stats?.pendingApprovals ?? 0)}
               </p>
               <p className="text-sm text-orange-600 dark:text-orange-400 mt-1">
-                Requires attention
+                {t("Admin.RequiresAttention")}
               </p>
             </div>
           </div>
@@ -248,7 +265,7 @@ export default function AdminDashboard() {
         {activeTab === 'approvals' && <ApprovalManagement />}
         {activeTab === 'analytics' && <AnalyticsDashboard />}
         {activeTab === 'notifications' && (
-          <NotificationCenter onNotificationRead={loadNotifications} token={token} />
+          <NotificationCenter onNotificationRead={loadNotifications} />
         )}
       </div>
     </div>

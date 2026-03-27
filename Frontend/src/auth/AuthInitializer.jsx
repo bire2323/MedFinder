@@ -14,14 +14,14 @@ export default function AuthInitializer() {
         if (!isAuthenticated) return;
 
         // Initial heartbeat
-        apiFetch("/api/user/heartbeat", { method: "POST" }).catch(() => {});
+        //apiFetch("/api/user/heartbeat", { method: "POST" }).catch(() => {});
 
         // Set up heartbeat interval (every 60 seconds)
-        const interval = setInterval(() => {
-            apiFetch("/api/user/heartbeat", { method: "POST" }).catch(() => {});
-        }, 60000);
+        // ;; const interval = setInterval(() => {
+        //   apiFetch("/api/user/heartbeat", { method: "POST" }).catch(() => { });
+        // }, 60000);
 
-        return () => clearInterval(interval);
+        //return () => clearInterval(interval);
     }, [isAuthenticated]);
 
     return null;

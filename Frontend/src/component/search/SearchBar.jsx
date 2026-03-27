@@ -1,5 +1,6 @@
 import React from "react";
 import { FaSearch } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 export default function SearchBar({
   value,
@@ -9,6 +10,8 @@ export default function SearchBar({
   onFacilityTypeChange,
   placeholder,
 }) {
+  const { t } = useTranslation();
+
   return (
     <form
       onSubmit={(e) => {
@@ -22,35 +25,32 @@ export default function SearchBar({
           <button
             type="button"
             onClick={() => onFacilityTypeChange?.("hospital")}
-            className={`flex-1 py-3 px-6 rounded-lg text-sm font-bold transition ${
-              facilityType === "hospital"
+            className={`flex-1 py-3 px-6 rounded-lg text-sm font-bold transition ${facilityType === "hospital"
                 ? "bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-white"
                 : "text-slate-500 dark:text-gray-200/80"
-            }`}
+              }`}
           >
-            Hospitals
+            {t("search.facilityTypes.hospital")}
           </button>
           <button
             type="button"
             onClick={() => onFacilityTypeChange?.("pharmacy")}
-            className={`flex-1 py-3 px-6 rounded-lg text-sm font-bold transition ${
-              facilityType === "pharmacy"
+            className={`flex-1 py-3 px-6 rounded-lg text-sm font-bold transition ${facilityType === "pharmacy"
                 ? "bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-white"
                 : "text-slate-500 dark:text-gray-200/80"
-            }`}
+              }`}
           >
-            Pharmacies
+            {t("search.facilityTypes.pharmacy")}
           </button>
           <button
             type="button"
             onClick={() => onFacilityTypeChange?.("all")}
-            className={`hidden lg:inline-flex flex-1 py-3 px-6 rounded-lg text-sm font-bold transition ${
-              facilityType === "all"
+            className={`hidden lg:inline-flex flex-1 py-3 px-6 rounded-lg text-sm font-bold transition ${facilityType === "all"
                 ? "bg-white dark:bg-gray-600 shadow-sm text-blue-600 dark:text-white"
                 : "text-slate-500 dark:text-gray-200/80"
-            }`}
+              }`}
           >
-            All
+            {t("search.facilityTypes.all")}
           </button>
         </div>
 
@@ -60,9 +60,9 @@ export default function SearchBar({
             value={value}
             onChange={(e) => onChange?.(e.target.value)}
             type="text"
-            placeholder={placeholder || "Search by name or location..."}
+            placeholder={placeholder || t("search.placeholder")}
             className="bg-transparent w-full py-4 outline-none text-slate-700 dark:text-white"
-            aria-label="Search"
+            aria-label={t("search.inputLabel")}
           />
         </div>
 
@@ -70,10 +70,9 @@ export default function SearchBar({
           type="submit"
           className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold transition-all active:scale-[0.99]"
         >
-          Search
+          {t("search.searchButton")}
         </button>
       </div>
     </form>
   );
 }
-

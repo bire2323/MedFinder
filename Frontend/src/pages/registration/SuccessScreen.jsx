@@ -15,7 +15,10 @@ import {
   Building2
 } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
+
 const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -43,7 +46,7 @@ const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
               transition={{ delay: 0.3 }}
               className="text-2xl font-bold text-white"
             >
-              Registration Submitted!
+              {t('Registration.SuccessTitle')}
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 10 }}
@@ -51,7 +54,7 @@ const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
               transition={{ delay: 0.4 }}
               className="text-white/80 mt-2"
             >
-              Your {registrationType} registration is under review
+              {t('Registration.SuccessSubtitleReview', { type: registrationType === 'pharmacy' ? t('Registration.Pharmacy') : t('Registration.Hospital') })}
             </motion.p>
           </div>
 
@@ -59,9 +62,9 @@ const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
           <div className="p-8">
             {/* Status badge */}
             <div className="flex items-center justify-center gap-2 mb-6">
-              <span className="flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-full text-sm font-semibold">
+              <span className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-full text-sm font-semibold">
                 <Clock size={16} className="animate-pulse" />
-                Pending Admin Approval
+                {t('Registration.PendingApproval')}
               </span>
             </div>
 
@@ -77,20 +80,20 @@ const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-800 dark:text-white mb-2">
-                    What happens next?
+                    {t('Registration.WhatNext')}
                   </h3>
                   <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                     <li className="flex items-start gap-2">
                       <span className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
-                      Our team will review your submitted documents
+                      {t('Registration.SuccessStepsReview.DocReview')}
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
-                      Verification usually takes 1-3 business days
+                      {t('Registration.SuccessStepsReview.Timeframe')}
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
-                      You'll be notified once approved
+                      {t('Registration.SuccessStepsReview.Notification')}
                     </li>
                   </ul>
                 </div>
@@ -104,8 +107,8 @@ const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
                   <Phone size={18} className="text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Via SMS</p>
-                  <p className="text-sm font-medium text-gray-800 dark:text-white">Phone notification</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('Registration.ViaSMS')}</p>
+                  <p className="text-sm font-medium text-gray-800 dark:text-white">{t('Registration.SMSNotification')}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
@@ -113,8 +116,8 @@ const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
                   <Mail size={18} className="text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Via Email</p>
-                  <p className="text-sm font-medium text-gray-800 dark:text-white">Email notification</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('Registration.ViaEmail')}</p>
+                  <p className="text-sm font-medium text-gray-800 dark:text-white">{t('Registration.EmailNotification')}</p>
                 </div>
               </div>
             </div>
@@ -132,7 +135,7 @@ const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
                 "
               >
                 <Home size={18} />
-                Return to Home
+                {t('Registration.ReturnHome')}
               </button>
               <button
                 onClick={() => navigate('/login')}
@@ -143,7 +146,7 @@ const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
                   transition-all duration-200
                 "
               >
-                Go to Login
+                {t('Auth.LoginForm.Submit')}
               </button>
             </div>
           </div>
@@ -151,7 +154,7 @@ const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
 
         {/* Footer note */}
         <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-6">
-          Need help? Contact support at support@medfinder.et
+          {t('Registration.NeedHelp')}
         </p>
       </motion.div>
     </div>

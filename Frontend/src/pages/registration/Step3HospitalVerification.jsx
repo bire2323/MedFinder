@@ -27,8 +27,19 @@ const OWNERSHIP_TYPES = [
   { value: 'faith_based', label: 'Faith-based' },
 ];
 
+import { useTranslation } from 'react-i18next';
+
 const Step3HospitalVerification = () => {
+  const { t } = useTranslation();
   const { formData, errors, updateFormData, syncFormDataFromLocal, nextStep, prevStep, validateStep3Hospital } = useRegistrationStore();
+
+  const OWNERSHIP_TYPES = [
+    { value: '', label: t('Registration.SelectType', { type: t('Registration.OwnershipType') }) },
+    { value: 'public', label: t('Registration.OwnershipTypes.Public') },
+    { value: 'private', label: t('Registration.OwnershipTypes.Private') },
+    { value: 'ngo', label: t('Registration.OwnershipTypes.Ngo') },
+    { value: 'faith_based', label: t('Registration.OwnershipTypes.FaithBased') },
+  ];
 
   const [localData, setLocalData] = useState({ licenseNumber: '', ownershipType: '', providesEmergency: false, operates24Hours: false });
   const licenseInputRef = useRef(null);
@@ -61,11 +72,11 @@ const Step3HospitalVerification = () => {
     if (file) {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
       if (!allowedTypes.includes(file.type)) {
-        alert('Please upload an image (JPG, PNG, GIF) or PDF file.');
+        alert(t('Registration.UploadErrorType'));
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB.');
+        alert(t('Registration.UploadErrorSize'));
         return;
       }
       updateFormData('licenseDocument', file);
@@ -79,11 +90,11 @@ const Step3HospitalVerification = () => {
     if (file) {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(file.type)) {
-        alert('Please upload an image file (JPG, PNG, GIF, WebP).');
+        alert(t('Registration.LogoErrorType'));
         return;
       }
       if (file.size > 2 * 1024 * 1024) {
-        alert('Logo file size must be less than 2MB.');
+        alert(t('Registration.LogoErrorSize'));
         return;
       }
       updateFormData('hospitalLogo', file);
@@ -128,7 +139,7 @@ const Step3HospitalVerification = () => {
         <input
           type="checkbox"
           id={id}
-          onKeyDOwn={handleKeyDown}
+          onKeyDown={handleKeyDown}
           checked={checked}
           onChange={onChange}
           className="sr-only peer"
@@ -148,13 +159,13 @@ const Step3HospitalVerification = () => {
             className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
           >
             <FileText size={16} className="text-blue-500" />
-            License Number
+            {t('Registration.LicenseNumber')}
             <span className="text-red-500">*</span>
           </label>
           <input
             id="licenseNumber"
             type="text"
-            onKeyDOwn={handleKeyDown}
+            onKeyDown={handleKeyDown}
             value={localData.licenseNumber}
             onChange={handleChange('licenseNumber')}
             placeholder="e.g., HO-1234-ETH"
@@ -178,7 +189,7 @@ const Step3HospitalVerification = () => {
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
             <Upload size={16} className="text-blue-500" />
-            License Document
+            {t('Registration.LicenseDoc')}
             <span className="text-red-500">*</span>
           </label>
 
@@ -220,17 +231,17 @@ const Step3HospitalVerification = () => {
             >
               <Upload size={32} className="mx-auto text-gray-400 mb-2" />
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Click to upload license document
+                {t('Registration.ClickUpload', { type: t('Registration.LicenseDoc') })}
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                Supports: JPG, PNG, GIF, PDF (max 5MB)
+                {t('Registration.UploadSupports')}
               </p>
             </div>
           )}
           <input
             ref={licenseInputRef}
             type="file"
-            onKeyDOwn={handleKeyDown}
+            onKeyDown={handleKeyDown}
             accept="image/*,.pdf"
             onChange={handleLicenseUpload}
             className="hidden"
@@ -247,7 +258,7 @@ const Step3HospitalVerification = () => {
             className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
           >
             <Building2 size={16} className="text-blue-500" />
-            Ownership Type
+            {t('Registration.OwnershipType')}
             <span className="text-red-500">*</span>
           </label>
           <select
@@ -279,14 +290,14 @@ const Step3HospitalVerification = () => {
         <div className="space-y-4">
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
             <Stethoscope size={16} className="text-blue-500" />
-            Service Options
+            {t('Registration.ServiceOptions')}
           </h3>
 
           <ToggleSwitch
             id="providesEmergency"
-            onKeyDOwn={handleKeyDown}
-            label="Emergency Services"
-            description="Hospital provides emergency medical services"
+            onKeyDown={handleKeyDown}
+            label={t('Registration.EmergencyServices')}
+            description={t('Registration.EmergencyDesc')}
             checked={localData.providesEmergency}
             onChange={handleChange('providesEmergency')}
             icon={AlertCircle}
@@ -294,8 +305,8 @@ const Step3HospitalVerification = () => {
 
           <ToggleSwitch
             id="operates24Hours"
-            label="24/7 Operation"
-            description="Hospital operates round the clock"
+            label={t('Registration.FullTimeDesc')}
+            description={t('Registration.FullTimeDesc')}
             checked={localData.operates24Hours}
             onChange={handleChange('operates24Hours')}
             icon={Clock}
@@ -306,7 +317,7 @@ const Step3HospitalVerification = () => {
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
             <Image size={16} className="text-blue-500" />
-            Hospital Logo
+            {t('Registration.Logo')}
           </label>
 
           {formData.hospitalLogoPreview ? (
@@ -319,7 +330,7 @@ const Step3HospitalVerification = () => {
               />
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-800 dark:text-white">
-                  Logo uploaded
+                  {t('Registration.LogoUploaded')}
                 </p>
                 <p className="text-xs text-gray-500">
                   {formData.hospitalLogo?.name}
@@ -341,17 +352,17 @@ const Step3HospitalVerification = () => {
             >
               <Image size={28} className="mx-auto text-gray-400 mb-2" />
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Click to upload logo
+                {t('Registration.ClickUpload', { type: t('Registration.Logo') })}
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                JPG, PNG, GIF, WebP (max 2MB)
+                {t('Registration.LogoSupports')}
               </p>
             </div>
           )}
           <input
             ref={logoInputRef}
             type="file"
-            onKeyDOwn={handleKeyDown}
+            onKeyDown={handleKeyDown}
             accept="image/*"
             onChange={handleLogoUpload}
             className="hidden"
@@ -373,7 +384,7 @@ const Step3HospitalVerification = () => {
           "
         >
           <ArrowLeft size={18} />
-          Back
+          {t('Registration.Back')}
         </button>
         <button
           type="submit"
@@ -385,7 +396,7 @@ const Step3HospitalVerification = () => {
             transition-all duration-200 shadow-lg hover:shadow-xl
           "
         >
-          Review & Submit
+          {t('Registration.ReviewSubmit')}
           <ArrowRight size={18} />
         </button>
       </div>

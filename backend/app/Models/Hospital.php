@@ -19,7 +19,10 @@ class Hospital extends Model
         "logo",
         "emergency_contact",
         "address_description_en",
-        "address_description_am"
+        "address_description_am",
+        "status",
+        "rejection_reason",
+        "approved_by"
     ];
 
 
@@ -32,6 +35,11 @@ class Hospital extends Model
     public function services()
     {
         return $this->morphMany(FacilityService::class, 'addressable');
+    }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 
     public function agent()

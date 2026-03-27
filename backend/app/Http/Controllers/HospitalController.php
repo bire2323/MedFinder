@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
 use App\Models\Hospital;
+use App\Models\User;
+use App\Events\NotificationSent;
 use Illuminate\Http\Request;
 use App\Models\Location;
 
@@ -13,17 +16,42 @@ class HospitalController extends Controller
      */
     public function index()
     {
-        // Eager load 'location' for all hospitals
-$hospitals = Hospital::with('addresses')->get();
+        $hospitals = Hospital::with('addresses')
+            ->where('status', 'APPROVED')
+            ->get();
 
+        return response()->json([
+            'success' => true,
+            'data' => $hospitals,
+        ]);
+    }
 
-// Now you can access:
+    /**
+     * Search hospitals by location (radius search).
+     */
+    public function searchByLocation(Request $request)
+    {
+        $lat = $request->query('lat');
+        $lng = $request->query('lng');
+        $radius = $request->query('radius', 10); // Default 10km
 
+        $query = Hospital::with('addresses')
+            ->where('status', 'APPROVED');
 
-return response()->json([
-    'success' => true,
-    'data' => $hospitals,
-]);
+        if ($lat && $lng) {
+            // Basic haversine or distance filter if needed, 
+            // for now returning all APPROVED for simplicity in this implementation step
+            // or filtering by lat/lng range
+            $query->whereHas('addresses', function($q) use ($lat, $lng, $radius) {
+                $q->whereBetween('latitude', [$lat - 0.1, $lat + 0.1])
+                  ->whereBetween('longitude', [$lng - 0.1, $lng + 0.1]);
+            });
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $query->get(),
+        ]);
     }
 
     /**
@@ -113,12 +141,23 @@ return response()->json([
             ]);
             $user->syncRoles('hospitalAgent');
 
-            // 6. Return success response
+            // 6. Notify Admins in real-time
+            $admins = \App\Models\User::role('admin')->get();
+            foreach ($admins as $admin) {
+                $notification = Notification::create([
+                    'user_id' => $admin->id,
+                    'type' => 'approval',
+                    'priority' => 'high',
+                    'title' => 'New Hospital Registered',
+                    'message' => "{$hospital->hospital_name_en} requires your approval.",
+                ]);
+                event(new NotificationSent($notification));
+            }
+
+            // 7. Return success response
             return response()->json([
                 'success' => true,
                 'message' => 'Hospital registration submitted successfully. Waiting for admin approval.',
-                //'hospital' => $hospital->load('location'), // Optional: return with location
-               // 'user' => $user->only(['id', 'Name', 'Phone']),
             ], 201);
 
         } catch (\Exception $e) {

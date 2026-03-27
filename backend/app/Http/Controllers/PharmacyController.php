@@ -3,26 +3,53 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pharmacy;
-use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Notification;
+use App\Events\NotificationSent;
 use App\Models\Location;
+use Illuminate\Http\Request;
 
 class PharmacyController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(){
+    public function index()
+    {
+        $pharmacies = Pharmacy::with('addresses')
+            ->where('status', 'APPROVED')
+            ->get();
 
-    $pharmacys= Pharmacy::with('addresses')->get();
+        return response()->json([
+            'success' => true,
+            'data' => $pharmacies,
+        ], 200);
+    }
 
+    /**
+     * Search pharmacies by location (radius search).
+     */
+    public function searchByLocation(Request $request)
+    {
+        $lat = $request->query('lat');
+        $lng = $request->query('lng');
+        $radius = $request->query('radius', 10); // Default 10km
 
-   
-    
-    return response()->json([
-        'success' => true,
-        'data' => $pharmacys,
-    ], 200);
+        $query = Pharmacy::with('addresses')
+            ->where('status', 'APPROVED');
+
+        if ($lat && $lng) {
+            $query->whereHas('addresses', function($q) use ($lat, $lng, $radius) {
+                $q->whereBetween('latitude', [$lat - 0.1, $lat + 0.1])
+                  ->whereBetween('longitude', [$lng - 0.1, $lng + 0.1]);
+            });
         }
+
+        return response()->json([
+            'success' => true,
+            'data' => $query->get(),
+        ]);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -109,7 +136,20 @@ class PharmacyController extends Controller
             ]);
             $user->syncRoles('pharmacyAgent');
 
-            // 6. Return success response
+            // 6. Notify Admins in real-time
+            $admins = \App\Models\User::role('admin')->get();
+            foreach ($admins as $admin) {
+                $notification = Notification::create([
+                    'user_id' => $admin->id,
+                    'type' => 'approval',
+                    'priority' => 'high',
+                    'title' => 'New Pharmacy Registered',
+                    'message' => "{$pharmacy->pharmacy_name_en} requires your approval.",
+                ]);
+                event(new NotificationSent($notification));
+            }
+
+            // 7. Return success response
             return response()->json([
                 'success' => true,
                 'message' => 'pharmacy registration submitted successfully. Waiting for admin approval.',

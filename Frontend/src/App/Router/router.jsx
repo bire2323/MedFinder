@@ -132,7 +132,8 @@ export const router = createBrowserRouter([
   },
   {
     path: "/user/dashboard",
-    element: <UserDashboard />,
+    element: <ProtectedRoute />,
+    children: [{ index: true, element: <UserDashboard /> }],
   },
   {
     path: "/admin/dashboard",

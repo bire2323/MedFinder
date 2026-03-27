@@ -18,7 +18,10 @@ class Pharmacy extends Model
         "working_hour",
         "logo",
         "address_description_en",
-        "address_description_am"
+        "address_description_am",
+        "status",
+        "rejection_reason",
+        "approved_by"
     ];
 
     public function addresses()
@@ -28,6 +31,11 @@ class Pharmacy extends Model
     public function services()
     {
         return $this->morphMany(FacilityService::class, 'addressable');
+    }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 
     public function agent()

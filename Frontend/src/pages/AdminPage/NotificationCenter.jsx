@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import { getNotifications, markNotificationRead } from '../../api/admin';
 import toast from 'react-hot-toast';
+import useAuthStore from '../../store/UserAuthStore';
+import { useTranslation } from 'react-i18next';
 
 function getNotificationIcon(type) {
   switch (type) {
@@ -37,25 +39,27 @@ function getPriorityBadgeClass(priority) {
   }
 }
 
-export default function NotificationCenter({ onNotificationRead, token }) {
+export default function NotificationCenter({ onNotificationRead }) {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const { user } = useAuthStore();
 
   useEffect(() => {
-    if (token) loadNotifications();
-  }, [token]);
+    if (user) loadNotifications();
+  }, [user]);
 
   const loadNotifications = async () => {
-    if (!token) return;
+    if (!user) return;
     setLoading(true);
     try {
-      const data = await getNotifications(token);
+      const data = await getNotifications(user);
       const list = Array.isArray(data) ? data : data?.data ?? [];
       setNotifications(list);
       if (typeof onNotificationRead === 'function') onNotificationRead();
     } catch (err) {
-      toast.error('Failed to load notifications');
+      toast.error(t("Admin.toast.failedLoadNotifications"));
       console.error(err);
       setNotifications([]);
     } finally {
@@ -64,14 +68,13 @@ export default function NotificationCenter({ onNotificationRead, token }) {
   };
 
   const handleMarkAsRead = async (notificationId) => {
-    if (!token) return;
     try {
-      await markNotificationRead(token, notificationId);
+      await markNotificationRead(user, notificationId);
       loadNotifications();
       if (typeof onNotificationRead === 'function') onNotificationRead();
     } catch (err) {
       console.error('Failed to mark as read:', err);
-      toast.error('Failed to mark as read');
+      toast.error(t("Admin.toast.failedMarkRead"));
     }
   };
 
@@ -85,7 +88,7 @@ export default function NotificationCenter({ onNotificationRead, token }) {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="size-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white">ss</div>
       </div>
     );
   }
@@ -94,9 +97,9 @@ export default function NotificationCenter({ onNotificationRead, token }) {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold">Notification Center</h2>
+          <h2 className="text-2xl font-semibold">{t("Admin.NotificationCenter")}</h2>
           <p className="text-gray-500 dark:text-gray-400">
-            Stay updated with system alerts and pending actions
+            {t("Admin.NotificationDesc")}
           </p>
         </div>
         <select
@@ -104,11 +107,11 @@ export default function NotificationCenter({ onNotificationRead, token }) {
           onChange={(e) => setFilter(e.target.value)}
           className="w-full sm:w-48 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
         >
-          <option value="all">All Notifications</option>
-          <option value="unread">Unread Only</option>
-          <option value="high">High Priority</option>
-          <option value="medium">Medium Priority</option>
-          <option value="low">Low Priority</option>
+          <option value="all">{t("Admin.AllNotifications")}</option>
+          <option value="unread">{t("Admin.UnreadOnly")}</option>
+          <option value="high">{t("Admin.HighPriority")}</option>
+          <option value="medium">{t("Admin.MediumPriority")}</option>
+          <option value="low">{t("Admin.LowPriority")}</option>
         </select>
       </div>
 
@@ -117,7 +120,7 @@ export default function NotificationCenter({ onNotificationRead, token }) {
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t("Common.Total")}</p>
               <p className="text-2xl font-semibold">{notifications.length}</p>
             </div>
             <Bell className="size-8 text-blue-600 dark:text-blue-400" />
@@ -126,7 +129,7 @@ export default function NotificationCenter({ onNotificationRead, token }) {
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Unread</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t("Admin.Unread")}</p>
               <p className="text-2xl font-semibold">{notifications.filter((n) => !isRead(n)).length}</p>
             </div>
             <AlertTriangle className="size-8 text-orange-600 dark:text-orange-400" />
@@ -135,7 +138,7 @@ export default function NotificationCenter({ onNotificationRead, token }) {
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">High Priority</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t("Admin.HighPriority")}</p>
               <p className="text-2xl font-semibold">
                 {notifications.filter((n) => (n.priority || '').toLowerCase() === 'high').length}
               </p>
@@ -149,11 +152,11 @@ export default function NotificationCenter({ onNotificationRead, token }) {
       {filteredNotifications.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 py-12 text-center">
           <Bell className="size-12 mx-auto mb-4 text-gray-400" />
-          <p className="text-xl font-medium mb-2">No notifications</p>
+          <p className="text-xl font-medium mb-2">{t("Admin.NoNotifications")}</p>
           <p className="text-gray-500 dark:text-gray-400">
             {filter === 'unread'
-              ? "You're all caught up!"
-              : 'No notifications match the selected filter'}
+              ? t("Admin.CaughtUp")
+              : t("Admin.NoMatchFilter")}
           </p>
         </div>
       ) : (
@@ -164,9 +167,8 @@ export default function NotificationCenter({ onNotificationRead, token }) {
             return (
               <div
                 key={notification.id}
-                className={`bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 overflow-hidden ${
-                  !read ? 'border-l-4 border-l-indigo-600 dark:border-l-indigo-400' : 'border-gray-200'
-                }`}
+                className={`bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 overflow-hidden ${!read ? 'border-l-4 border-l-indigo-600 dark:border-l-indigo-400' : 'border-gray-200'
+                  }`}
               >
                 <div className="p-6">
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -177,7 +179,7 @@ export default function NotificationCenter({ onNotificationRead, token }) {
                           <h3 className="text-lg font-semibold">{notification.title}</h3>
                           {!read && (
                             <span className="inline-flex px-2 py-0.5 rounded-md text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-200">
-                              New
+                              {t("Common.New")}
                             </span>
                           )}
                         </div>
@@ -195,10 +197,10 @@ export default function NotificationCenter({ onNotificationRead, token }) {
                       {notification.priority && (
                         <span
                           className={`inline-flex px-2 py-0.5 rounded-md text-xs font-medium ${getPriorityBadgeClass(
-                            notification.priority
+                              notification.priority
                           )}`}
                         >
-                          {notification.priority}
+                          {notification.priority === 'high' ? t("Admin.HighPriority") : notification.priority === 'medium' ? t("Admin.MediumPriority") : t("Admin.LowPriority")}
                         </span>
                       )}
                       {!read && (
@@ -207,7 +209,7 @@ export default function NotificationCenter({ onNotificationRead, token }) {
                           className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
                           onClick={() => handleMarkAsRead(notification.id)}
                         >
-                          Mark as Read
+                          {t("Admin.MarkAsRead")}
                         </button>
                       )}
                     </div>

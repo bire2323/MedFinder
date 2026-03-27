@@ -14,8 +14,19 @@ const PHARMACY_TYPES = [
   { value: 'import', label: 'Import Pharmacy' },
 ];
 
+import { useTranslation } from 'react-i18next';
+
 const Step3PharmacyVerification = () => {
+  const { t } = useTranslation();
   const { formData, errors, updateFormData, syncFormDataFromLocal, nextStep, prevStep, validateStep3Pharmacy } = useRegistrationStore();
+
+  const PHARMACY_TYPES = [
+    { value: '', label: t('Registration.SelectType', { type: t('Registration.PharmacyType') }) },
+    { value: 'community', label: t('Registration.PharmacyTypes.Community') },
+    { value: 'hospital_based', label: t('Registration.PharmacyTypes.HospitalBased') },
+    { value: 'wholesale', label: t('Registration.PharmacyTypes.Wholesale') },
+    { value: 'import', label: t('Registration.PharmacyTypes.Import') },
+  ];
 
   const [localData, setLocalData] = useState({ licenseNumber: '', pharmacyType: '', workingHour: '', confirmLicensed: false });
   const licenseInputRef = useRef(null);
@@ -55,12 +66,12 @@ const Step3PharmacyVerification = () => {
       // Validate file type
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
       if (!allowedTypes.includes(file.type)) {
-        alert('Please upload an image (JPG, PNG, GIF) or PDF file.');
+        alert(t('Registration.UploadErrorType'));
         return;
       }
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB.');
+        alert(t('Registration.UploadErrorSize'));
         return;
       }
       updateFormData('licenseDocument', file);
@@ -75,12 +86,12 @@ const Step3PharmacyVerification = () => {
       // Validate file type (images only for logo)
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(file.type)) {
-        alert('Please upload an image file (JPG, PNG, GIF, WebP).');
+        alert(t('Registration.LogoErrorType'));
         return;
       }
       // Validate file size (max 2MB)
       if (file.size > 2 * 1024 * 1024) {
-        alert('Logo file size must be less than 2MB.');
+        alert(t('Registration.LogoErrorSize'));
         return;
       }
       updateFormData('pharmacyLogo', file);
@@ -116,7 +127,7 @@ const Step3PharmacyVerification = () => {
             className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
           >
             <FileText size={16} className="text-blue-500" />
-            License Number
+            {t('Registration.LicenseNumber')}
             <span className="text-red-500">*</span>
           </label>
           <input
@@ -137,7 +148,7 @@ const Step3PharmacyVerification = () => {
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
             <Upload size={16} className="text-blue-500" />
-            License Document
+            {t('Registration.LicenseDoc')}
             <span className="text-red-500">*</span>
           </label>
 
@@ -176,10 +187,10 @@ const Step3PharmacyVerification = () => {
             >
               <Upload size={32} className="mx-auto text-gray-400 mb-2" />
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Click to upload license document
+                {t('Registration.ClickUpload', { type: t('Registration.LicenseDoc') })}
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                Supports: JPG, PNG, GIF, PDF (max 5MB)
+                {t('Registration.UploadSupports')}
               </p>
             </div>
           )}
@@ -203,7 +214,7 @@ const Step3PharmacyVerification = () => {
             className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
           >
             <Building2 size={16} className="text-blue-500" />
-            Pharmacy Type
+            {t('Registration.PharmacyType')}
             <span className="text-red-500">*</span>
           </label>
           <select
@@ -230,7 +241,7 @@ const Step3PharmacyVerification = () => {
             className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
           >
             <Clock size={16} className="text-blue-500" />
-            Working Hours
+            {t('Registration.WorkingHour')}
             <span className="text-red-500">*</span>
           </label>
           <input
@@ -251,7 +262,7 @@ const Step3PharmacyVerification = () => {
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
             <Image size={16} className="text-blue-500" />
-            Pharmacy Logo
+            {t('Registration.Logo')}
           </label>
 
           {formData.pharmacyLogoPreview ? (
@@ -263,7 +274,7 @@ const Step3PharmacyVerification = () => {
               />
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-800 dark:text-white">
-                  Logo uploaded
+                  {t('Registration.LogoUploaded')}
                 </p>
                 <p className="text-xs text-gray-500">
                   {formData.pharmacyLogo?.name}
@@ -285,10 +296,10 @@ const Step3PharmacyVerification = () => {
             >
               <Image size={28} className="mx-auto text-gray-400 mb-2" />
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Click to upload logo
+                {t('Registration.ClickUpload', { type: t('Registration.Logo') })}
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                JPG, PNG, GIF, WebP (max 2MB)
+                {t('Registration.LogoSupports')}
               </p>
             </div>
           )}
@@ -323,8 +334,7 @@ const Step3PharmacyVerification = () => {
               </div>
             </div>
             <span className="text-sm text-gray-700 dark:text-gray-300">
-              I confirm that this is a <strong>licensed pharmacy</strong> and all
-              information provided is accurate and verifiable.
+              {t('Registration.ConfirmLicensed', { type: t('Registration.PharmacyType') })}
               <span className="text-red-500"> *</span>
             </span>
           </label>
@@ -349,7 +359,7 @@ const Step3PharmacyVerification = () => {
           "
         >
           <ArrowLeft size={18} />
-          Back
+          {t('Registration.Back')}
         </button>
         <button
           type="submit"
@@ -361,7 +371,7 @@ const Step3PharmacyVerification = () => {
             transition-all duration-200 shadow-lg hover:shadow-xl
           "
         >
-          Review & Submit
+          {t('Registration.ReviewSubmit')}
           <ArrowRight size={18} />
         </button>
       </div>

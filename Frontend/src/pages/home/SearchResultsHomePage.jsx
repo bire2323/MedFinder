@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import Header from "../../component/Header";
 import SearchBar from "../../component/search/SearchBar";
@@ -37,6 +38,7 @@ function distanceBucketOk(distanceMeters, bucket) {
 }
 
 export default function SearchResultsHomePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
 
@@ -57,7 +59,7 @@ export default function SearchResultsHomePage() {
     department: "any",
   });
 
-  const [userLoc, setUserLoc] = useState(null); // {lat, lng}
+  const [userLoc, setUserLoc] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [allFacilities, setAllFacilities] = useState([]);
@@ -65,16 +67,13 @@ export default function SearchResultsHomePage() {
 
   const abortRef = useRef(null);
 
-  // Keep URL in sync (no reload)
   useEffect(() => {
     const next = new URLSearchParams(params);
     next.set("q", query || "");
     next.set("type", facilityType);
     setParams(next, { replace: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, facilityType]);
+  }, [query, facilityType, params, setParams]);
 
-  // Load user location (optional)
   useEffect(() => {
     if (!navigator.geolocation) return;
     const watchId = navigator.geolocation.watchPosition(
@@ -85,7 +84,6 @@ export default function SearchResultsHomePage() {
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
-  // Fetch facilities (cached per mount; abort on unmount)
   useEffect(() => {
     setLoading(true);
     setError("");
@@ -97,12 +95,12 @@ export default function SearchResultsHomePage() {
       .then((rows) => setAllFacilities(rows))
       .catch((e) => {
         if (e?.name === "AbortError") return;
-        setError(e?.message || "Failed to load results.");
+        setError(e?.message || t("search.errors.failedToLoad"));
       })
       .finally(() => setLoading(false));
 
     return () => ac.abort();
-  }, []);
+  }, [t]);
 
   const facilitiesWithDistance = useMemo(() => {
     if (!userLoc) return allFacilities.map((f) => ({ ...f, distanceMeters: NaN }));
@@ -157,9 +155,7 @@ export default function SearchResultsHomePage() {
       });
   }, [debouncedQuery, facilitiesWithDistance, facilityType, filters]);
 
-  const onSubmitSearch = () => {
-    // no-op; URL already updates as you type, but we keep this for UX parity
-  };
+  const onSubmitSearch = () => { };
 
   const onCardClick = (f) => {
     if (f.type === "hospital") navigate(`/hospital/${f.id}`);
@@ -181,12 +177,11 @@ export default function SearchResultsHomePage() {
                 setFacilityType(t);
                 setFilters((prev) => ({ ...prev, type: t }));
               }}
-              placeholder="Search hospitals or pharmacies by name or location..."
+              placeholder={t("search.placeholder")}
             />
           </div>
 
           <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Desktop sidebar */}
             <aside className="hidden lg:block lg:col-span-3">
               <div className="sticky top-20 rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
                 <FilterPanel
@@ -198,14 +193,13 @@ export default function SearchResultsHomePage() {
               </div>
             </aside>
 
-            {/* Mobile filter button + drawer */}
             <div className="lg:hidden">
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen(true)}
                 className="w-full rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm font-extrabold text-slate-800 dark:text-white"
               >
-                Filters
+                {t("search.filtersButton")}
               </button>
             </div>
 
@@ -218,13 +212,15 @@ export default function SearchResultsHomePage() {
                 />
                 <div className="absolute left-0 top-0 bottom-0 w-[88%] max-w-sm bg-white dark:bg-gray-900 p-5 overflow-y-auto">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">Filters</h2>
+                    <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">
+                      {t("search.filtersTitle")}
+                    </h2>
                     <button
                       type="button"
                       onClick={() => setMobileFiltersOpen(false)}
                       className="rounded-xl px-3 py-2 text-sm font-bold border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-200"
                     >
-                      Close
+                      {t("common.close")}
                     </button>
                   </div>
                   <div className="mt-5">
@@ -243,16 +239,18 @@ export default function SearchResultsHomePage() {
               <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-4">
                 <div>
                   <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
-                    Search Results
+                    {t("search.resultsTitle")}
                   </h1>
                   <p className="text-sm text-slate-600 dark:text-gray-300">
                     {userLoc
-                      ? "Sorted by distance (when available)."
-                      : "Enable location to see distances and better sorting."}
+                      ? t("search.sortedByDistance")
+                      : t("search.enableLocationHint")}
                   </p>
                 </div>
                 <div className="text-sm font-semibold text-slate-600 dark:text-gray-300">
-                  {loading ? "Loading…" : `${filtered.length} result${filtered.length === 1 ? "" : "s"}`}
+                  {loading
+                    ? t("common.loading")
+                    : t("search.resultCount", { count: filtered.length })}
                 </div>
               </div>
 
@@ -267,10 +265,10 @@ export default function SearchResultsHomePage() {
               {!error && !loading && filtered.length === 0 && (
                 <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 text-center">
                   <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
-                    No matches found
+                    {t("search.noMatchesTitle")}
                   </h3>
                   <p className="mt-2 text-sm text-slate-600 dark:text-gray-300">
-                    Try a different keyword, widen the distance filter, or switch facility type.
+                    {t("search.noMatchesMessage")}
                   </p>
                   <div className="mt-5 flex flex-col sm:flex-row gap-2 justify-center">
                     <button
@@ -282,14 +280,14 @@ export default function SearchResultsHomePage() {
                       }}
                       className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 text-sm font-extrabold"
                     >
-                      Clear search & filters
+                      {t("search.clearFiltersButton")}
                     </button>
                     <button
                       type="button"
                       onClick={() => navigate("/map")}
                       className="rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-3 text-sm font-extrabold text-slate-800 dark:text-white"
                     >
-                      Explore on map
+                      {t("search.exploreOnMap")}
                     </button>
                   </div>
                 </div>
@@ -309,4 +307,3 @@ export default function SearchResultsHomePage() {
     </>
   );
 }
-
