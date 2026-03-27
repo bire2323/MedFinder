@@ -103,7 +103,7 @@ const FacilityDetailPage = () => {
 
       navigate(`/user/dashboard?session=${sessionData?.id ?? sessionData?.chat_session_id} `, { state: { openChatSessionId: sessionData?.id ?? sessionData?.chat_session_id } });
     } catch (err) {
-      setChatError(err.message || 'Something went wrong. Please try again.');
+      setChatError(err.message || t('facility_detail_page.chat_initiation_error'));
       toast.error(t("facility_detail_page.chatin_errors"));
       console.error('Chat initiation error:', err);
     } finally {
@@ -124,12 +124,12 @@ const FacilityDetailPage = () => {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
         <Building2 size={64} className="text-slate-300 mb-4" />
-        <h2 className="text-xl font-bold text-slate-600 dark:text-gray-400">Facility not found</h2>
+        <h2 className="text-xl font-bold text-slate-600 dark:text-gray-400">{t("FacilityDetail.NotFound")}</h2>
         <button
           onClick={() => navigate(-1)}
           className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
         >
-          Go Back
+          {t("FacilityDetail.GoBack")}
         </button>
       </div>
     );
@@ -157,7 +157,7 @@ const FacilityDetailPage = () => {
           {data.status === 'APPROVED' && (
             <div className="flex items-center gap-1 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-full text-xs font-semibold">
               <Shield size={14} />
-              Verified
+              {t("FacilityDetail.Verified")}
             </div>
           )}
         </div>
@@ -218,7 +218,7 @@ const FacilityDetailPage = () => {
                   {type === 'hospital' && facility.emergency_contact && (
                     <span className="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-full text-xs font-semibold flex items-center gap-1">
                       <Heart size={12} />
-                      Emergency
+                      {t("FacilityDetail.Emergency")}
                     </span>
                   )}
                 </div>
@@ -250,14 +250,14 @@ const FacilityDetailPage = () => {
                     } text-white transition-colors`}
                 >
                   <Phone size={18} />
-                  Call
+                  {t("FacilityDetail.Call")}
                 </a>
                 <button
                   onClick={openInMaps}
                   className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-300 hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors"
                 >
                   <Navigation size={18} />
-                  Directions
+                  {t("FacilityDetail.Directions")}
                 </button>
               </div>
             </div>
@@ -277,7 +277,11 @@ const FacilityDetailPage = () => {
                 : 'bg-white dark:bg-gray-800 text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-700'
                 }`}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab === 'overview' && t("FacilityDetail.Tabs.Overview")}
+              {tab === 'inventory' && t("FacilityDetail.Tabs.Inventory")}
+              {tab === 'departments' && t("FacilityDetail.Tabs.Departments")}
+              {tab === 'services' && t("FacilityDetail.Tabs.Services")}
+              {tab === 'contact' && t("FacilityDetail.Tabs.Contact")}
             </button>
           ))}
         </div>
@@ -296,17 +300,17 @@ const FacilityDetailPage = () => {
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-200 dark:border-gray-700">
                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                   <Globe size={18} className={type === 'pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
-                  Quick Information
+                  {t("FacilityDetail.QuickInfo")}
                 </h3>
                 <div className="space-y-4">
-                  <InfoRow label="License" value={facility.license_number} />
-                  <InfoRow label="Region" value={facility.region} />
-                  {type === 'pharmacy' && <InfoRow label="Type" value={facility.facility_ownership_type} />}
-                  {type === 'hospital' && <InfoRow label="Ownership" value={facility.facility_ownership_type} />}
+                  <InfoRow label={t("FacilityDetail.License")} value={facility.license_number} />
+                  <InfoRow label={t("FacilityDetail.Region")} value={facility.region} />
+                  {type === 'pharmacy' && <InfoRow label={t("FacilityDetail.Type")} value={facility.facility_ownership_type} />}
+                  {type === 'hospital' && <InfoRow label={t("FacilityDetail.Ownership")} value={facility.facility_ownership_type} />}
                   {type === 'hospital' && (
                     <InfoRow
-                      label="24/7 Operation"
-                      value={facility.is_full_time_service ? 'Yes' : 'No'}
+                      label={t("FacilityDetail.FullTime")}
+                      value={facility.is_full_time_service ? t("FacilityDetail.Yes") : t("FacilityDetail.No")}
                     />
                   )}
                 </div>
@@ -316,7 +320,7 @@ const FacilityDetailPage = () => {
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-200 dark:border-gray-700">
                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                   <MapPin size={18} className={type === 'pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
-                  Location
+                  {t("FacilityDetail.Location")}
                 </h3>
                 <p className="text-slate-600 dark:text-gray-400 mb-4">{facility.address}</p>
                 <div className="bg-slate-100 dark:bg-gray-700 rounded-xl h-40 flex items-center justify-center mb-4">
@@ -327,7 +331,7 @@ const FacilityDetailPage = () => {
                   className="w-full flex items-center justify-center gap-2 py-3 border-2 border-slate-200 dark:border-gray-600 rounded-xl text-slate-600 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <ExternalLink size={16} />
-                  Open in Google Maps
+                  {t("FacilityDetail.OpenMaps")}
                 </button>
               </div>
             </div>
@@ -339,7 +343,7 @@ const FacilityDetailPage = () => {
               <div className="p-6 border-b dark:border-gray-700">
                 <h3 className="font-bold text-lg flex items-center gap-2">
                   <Package size={18} className="text-emerald-500" />
-                  Available Medications
+                  {t("FacilityDetail.AvailableMeds")}
                 </h3>
               </div>
               <div className="divide-y dark:divide-gray-700">
@@ -352,7 +356,7 @@ const FacilityDetailPage = () => {
                     <div className="text-right">
                       <p className="font-bold text-emerald-600">{item.price} ETB</p>
                       <span className={`text-xs ${item.available ? 'text-emerald-500' : 'text-red-500'}`}>
-                        {item.available ? 'In Stock' : 'Out of Stock'}
+                        {item.available ? t("FacilityDetail.InStock") : t("FacilityDetail.OutOfStock")}
                       </span>
                     </div>
                   </div>
@@ -367,7 +371,7 @@ const FacilityDetailPage = () => {
               <div className="p-6 border-b dark:border-gray-700">
                 <h3 className="font-bold text-lg flex items-center gap-2">
                   <Building2 size={18} className="text-blue-500" />
-                  Departments
+                  {t("FacilityDetail.Tabs.Departments")}
                 </h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
@@ -387,7 +391,7 @@ const FacilityDetailPage = () => {
               <div className="p-6 border-b dark:border-gray-700">
                 <h3 className="font-bold text-lg flex items-center gap-2">
                   <Stethoscope size={18} className={type === 'pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
-                  Services
+                  {t("FacilityDetail.Tabs.Services")}
                 </h3>
               </div>
               {type === 'hospital' ? (
@@ -405,7 +409,7 @@ const FacilityDetailPage = () => {
                   {facility.services?.map((service, index) => (
                     <div key={index} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-gray-700/50">
                       <p className="font-semibold">{service.name}</p>
-                      <p className="font-bold text-blue-600">{service.price} ETB</p>
+                      <p className="font-bold text-blue-600">{service.price} {t("Common.Currency")}</p>
                     </div>
                   ))}
                 </div>
@@ -418,17 +422,17 @@ const FacilityDetailPage = () => {
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-200 dark:border-gray-700">
               <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
                 <MessageSquare size={18} className={type === 'hospital' ? 'text-emerald-500' : 'text-blue-500'} />
-                Contact Information
+                {t("FacilityDetail.ContactInfo")}
               </h3>
 
               {/* Chat initiation section */}
               <div className="mb-8 p-6 bg-blue-50 dark:bg-blue-950/30 rounded-xl border border-blue-100 dark:border-blue-900">
                 <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
                   <MessageSquare size={20} className="text-blue-600" />
-                  Chat with {facility.facility_name}
+                  {t("FacilityDetail.ChatWith", { name: facility.facility_name })}
                 </h4>
                 <p className="text-sm text-slate-600 dark:text-gray-400 mb-4">
-                  Ask about availability, prices, directions, or anything else — get instant replies in real time.
+                  {t("FacilityDetail.ChatDesc")}
                 </p>
 
                 {chatError && (
@@ -448,14 +452,14 @@ const FacilityDetailPage = () => {
                   {chatLoading ? (
                     <>
                       <Loader2 className="h-5 w-5 animate-spin" />
-                      Starting chat...
+                      {t("FacilityDetail.StartingChat")}
                     </>
                   ) : chatSession ? (
-                    'Chat Opened'
+                    t("FacilityDetail.ChatOpened")
                   ) : (
                     <>
                       <MessageSquare size={18} />
-                      Start Chat Now
+                      {t("FacilityDetail.StartChatNow")}
                     </>
                   )}
                 </button>
@@ -463,17 +467,17 @@ const FacilityDetailPage = () => {
 
               {/* Contact details */}
               <div className="space-y-4">
-                <ContactItem icon={Phone} label="Phone" value={facility.phone} href={`tel:${facility.phone}`} />
+                <ContactItem icon={Phone} label={t("Login.Phone")} value={facility.phone} href={`tel:${facility.phone}`} />
                 {facility.alternatePhone && (
-                  <ContactItem icon={Phone} label="Alternate" value={facility.alternatePhone} href={`tel:${facility.alternatePhone}`} />
+                  <ContactItem icon={Phone} label={t("FacilityDetail.Alternate")} value={facility.alternatePhone} href={`tel:${facility.alternatePhone}`} />
                 )}
                 {facility.emergencyPhone && (
-                  <ContactItem icon={Heart} label="Emergency" value={facility.emergencyPhone} href={`tel:${facility.emergencyPhone}`} isEmergency />
+                  <ContactItem icon={Heart} label={t("FacilityDetail.Emergency")} value={facility.emergencyPhone} href={`tel:${facility.emergencyPhone}`} isEmergency />
                 )}
                 {facility.email && (
-                  <ContactItem icon={Mail} label="Email" value={facility.email} href={`mailto:${facility.email}`} />
+                  <ContactItem icon={Mail} label={t("FacilityDetail.Email")} value={facility.email} href={`mailto:${facility.email}`} />
                 )}
-                <ContactItem icon={MapPin} label="Address" value={facility.address} />
+                <ContactItem icon={MapPin} label={t("FacilityDetail.Address")} value={facility.address} />
               </div>
             </div>
           )}

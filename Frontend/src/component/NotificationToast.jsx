@@ -2,19 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X } from 'lucide-react';
 import useChatNotificationStore from '../store/useChatNotificationStore';
+import { useTranslation } from 'react-i18next';
 
 export default function NotificationToast() {
+  const { t } = useTranslation();
   const { latestMessage, clearLatestMessage, setTargetSessionToOpen } = useChatNotificationStore();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     if (latestMessage) {
-      // incrementUnread();
       setIsVisible(true);
 
       const timer = setTimeout(() => {
         setIsVisible(false);
-        // Clear it from global store slightly after the exit animation starts
         setTimeout(() => clearLatestMessage(), 300);
       }, 5000);
 
@@ -46,7 +46,7 @@ export default function NotificationToast() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">
-                {latestMessage.senderName || 'New Message'}
+                {latestMessage.senderName || t('notification.newMessage')}
               </p>
               <p className="text-xs text-slate-600 dark:text-gray-400 mt-1 line-clamp-2">
                 {latestMessage.message}

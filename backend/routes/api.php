@@ -53,26 +53,30 @@ Route::get('search/hospitals', [HospitalController::class, 'searchByLocation']);
 Route::get('search/pharmacies', [PharmacyController::class, 'searchByLocation']);
 
 Route::get('/medical-facilities', function () {
-    $hospitals = Hospital::with('addresses')->get()->map(function($item) {
+    $hospitals = Hospital::with('addresses')->where('status', 'APPROVED')->get()->map(function($item) {
         $item->type = 'hospital';
+        $item->global_id = 'h-' . $item->id; // Unique global ID to prevent frontend conflicts
         return $item;
     });
 
-    $pharmacies = Pharmacy::with('addresses')->get()->map(function($item) {
+    $pharmacies = Pharmacy::with('addresses')->where('status', 'APPROVED')->get()->map(function($item) {
         $item->type = 'pharmacy';
+        $item->global_id = 'p-' . $item->id; // Unique global ID to prevent frontend conflicts
         return $item;
     });
 
     return response()->json(['success'=>true,'data'=>$hospitals->concat($pharmacies)]);
 });
 Route::get('/top-medical-facilities', function () {
-    $hospitals = Hospital::with('addresses')->limit(3)->get()->map(function($item) {
+    $hospitals = Hospital::with('addresses')->where('status', 'APPROVED')->limit(3)->get()->map(function($item) {
         $item->type = 'hospital';
+        $item->global_id = 'h-' . $item->id;
         return $item;
     });
 
-    $pharmacies = Pharmacy::with('addresses')->limit(3)->get()->map(function($item) {
+    $pharmacies = Pharmacy::with('addresses')->where('status', 'APPROVED')->limit(3)->get()->map(function($item) {
         $item->type = 'pharmacy';
+        $item->global_id = 'p-' . $item->id;
         return $item;
     });
 
@@ -184,6 +188,8 @@ Route::prefix('ai')->middleware('auth:sanctum')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('profile/update', [AuthController::class, 'updateProfile']);
+    Route::post('profile/password-update', [AuthController::class, 'updatePassword']);
     Route::get('user', [AuthController::class, 'user']);
     Route::post('user/heartbeat', \App\Http\Controllers\HeartbeatController::class);
 
@@ -198,7 +204,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/sessions/{sessionId}/mark-delivered', [MessageStatusController::class, 'markDelivered']);
     Route::post('/chat/sessions/{sessionId}/mark-read', [MessageStatusController::class, 'markRead']);
 });
-
+  Route::get('admin/stats', [\App\Http\Controllers\AdminDashboardController::class, 'stats']);
 // Protected routes (require auth:sanctum)
 Route::middleware('auth:sanctum')->group(function () {
     // Full CRUD (explicit routes)
@@ -277,6 +283,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('hospitals/{hospital}/departments', [HospitalController::class, 'departments']);
     Route::get('pharmacies/{pharmacy}/drugs', [PharmacyController::class, 'drugs']);
     Route::post('detectIntent', [UserController::class, 'detectIntent']);
+
+    // Admin Approval & Management Routes
+    Route::prefix('admin')->group(function () {
+        // Approvals (Facilities)
+        Route::get('approvals', [\App\Http\Controllers\AdminApprovalController::class, 'index']);
+        Route::post('approvals/{id}', [\App\Http\Controllers\AdminApprovalController::class, 'decide']);
+        
+      
+        // Dashboard Stats & Management
+        Route::get('users', [\App\Http\Controllers\AdminDashboardController::class, 'users']);
+        Route::put('users/{user}', [\App\Http\Controllers\AdminDashboardController::class, 'updateUser']);
+        Route::get('notifications', [\App\Http\Controllers\AdminDashboardController::class, 'notifications']);
+        Route::post('notifications/{notification}/read', [\App\Http\Controllers\AdminDashboardController::class, 'markRead']);
+    });
 
     // Auth actions
     Route::post('logout', [AuthController::class, 'logout']);

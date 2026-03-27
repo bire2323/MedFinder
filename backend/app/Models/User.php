@@ -22,6 +22,7 @@ protected $guard_name = 'sanctum';
     protected $fillable = [
         'Name',
         'Phone',
+        "Email",
         'Password',
         'last_seen_at',
     ];

@@ -109,7 +109,7 @@ export default function RegisterationForm() {
         </div>
         <div className="flex flex-col leading-none">
           <span className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-            {t("Register.Wellcome")}
+            {t("Register.Welcome")}
           </span>
         </div>
       </div>

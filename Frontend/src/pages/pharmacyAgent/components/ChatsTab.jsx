@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Loader2, MessageSquare } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import SharedChatWindow from "../../../component/SharedChatWindow";
 import { apiFetch } from "../../../api/client";
 import useChatNotificationStore from "../../../store/useChatNotificationStore";
 
 export default function ChatsTab({ currentUserId }) {
+    const { t } = useTranslation();
     const { sessions: chatSessions, loadSessions, activeSessionId: selectedSessionId, setActiveSessionId: setSelectedSessionId, targetSessionToOpen, setTargetSessionToOpen } = useChatNotificationStore();
     const [loadingChats, setLoadingChats] = useState(false);
 
@@ -43,10 +45,10 @@ export default function ChatsTab({ currentUserId }) {
             className="space-y-2 flex flex-col h-full"
         >
             <div className="flex items-center justify-between shrink-0">
-                <h2 className="text-xl font-bold">Chat with Patients</h2>
+                <h2 className="text-xl font-bold">{t("PharmacyDashboard.ChatWithPatients")}</h2>
                 {chatSessions.length > 0 && (
                     <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {chatSessions.length} active {chatSessions.length === 1 ? 'chat' : 'chats'}
+                        {chatSessions.length === 1 ? t("Common.ActiveChat") : t("Common.ActiveChats", { count: chatSessions.length })}
                     </span>
                 )}
             </div>
@@ -59,10 +61,10 @@ export default function ChatsTab({ currentUserId }) {
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 text-center">
                     <MessageSquare className="mx-auto h-12 w-12 text-gray-400" />
                     <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">
-                        No active chats
+                        {t("PharmacyDashboard.NoActiveChats")}
                     </h3>
                     <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        When patients message you, conversations will appear here.
+                        {t("PharmacyDashboard.NoChatsDesc")}
                     </p>
                 </div>
             ) : (
@@ -70,7 +72,7 @@ export default function ChatsTab({ currentUserId }) {
                     {/* Chat list */}
                     <div className={`lg:col-span-1 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col ${selectedSessionId ? 'hidden lg:flex' : 'flex'}`}>
                         <div className="p-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
-                            <h3 className="font-semibold">Conversations</h3>
+                            <h3 className="font-semibold">{t("Common.Conversations")}</h3>
                         </div>
                         <div className="flex-1 overflow-y-auto max-h-[60vh]">
                             {chatSessions.map((session) => (
@@ -88,12 +90,12 @@ export default function ChatsTab({ currentUserId }) {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium truncate">
-                                                {session.patient?.Name || 'Patient'}
+                                                {session.patient?.Name || t("Common.Patient")}
                                             </p>
                                             <p className="text-[12px] text-gray-500 dark:text-gray-400 truncate">
 
 
-                                                {session.last_message?.message || session.last_message || 'Start the conversation...'}
+                                                {session.last_message?.message || session.last_message || t("Chat.no_messages")}
                                             </p>
                                         </div>
                                         {session.unread_count > 0 && (
@@ -114,7 +116,7 @@ export default function ChatsTab({ currentUserId }) {
                                 <SharedChatWindow
                                     sessionId={selectedSessionId}
                                     currentUserId={currentUserId}
-                                    otherParticipantName={chatSessions.find(s => s.id === selectedSessionId)?.patient?.Name || "Patient"}
+                                    otherParticipantName={chatSessions.find(s => s.id === selectedSessionId)?.patient?.Name || t("Common.Patient")}
                                     onBack={() => setSelectedSessionId(null)}
                                 />
                             </div>
@@ -123,10 +125,10 @@ export default function ChatsTab({ currentUserId }) {
                                 <div className="text-center p-8">
                                     <MessageSquare className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                                     <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                                        Select a conversation
+                                        {t("PharmacyDashboard.SelectAConversation")}
                                     </h3>
                                     <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                        Click on a patient chat from the list to start messaging
+                                        {t("PharmacyDashboard.ClickToStart")}
                                     </p>
                                 </div>
                             </div>

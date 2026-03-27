@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Pill, Package, AlertCircle, Activity, MessageSquare } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const StatCard = ({ title, value, trend, icon, color }) => {
     const colorVariants = {
@@ -23,6 +24,7 @@ export const StatCard = ({ title, value, trend, icon, color }) => {
 };
 
 export default function OverviewTab({ inventory, recentChats, setActiveTab }) {
+    const { t } = useTranslation();
     return (
         <motion.div
             key="overview"
@@ -33,28 +35,28 @@ export default function OverviewTab({ inventory, recentChats, setActiveTab }) {
         >
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                 <StatCard
-                    title="Total Drugs"
+                    title={t("PharmacyDashboard.TotalDrugs")}
                     value={inventory?.length?.toString() || "0"}
                     trend="+12 this week"
                     icon={<Pill />}
                     color="emerald"
                 />
                 <StatCard
-                    title="Low Stock Items"
+                    title={t("PharmacyDashboard.LowStock")}
                     value={inventory?.filter((d) => d.stock < 20 && d.stock > 0)?.length.toString() || "0"}
                     trend="Needs attention"
                     icon={<Package />}
                     color="orange"
                 />
                 <StatCard
-                    title="Out of Stock"
+                    title={t("PharmacyDashboard.OutOfStock")}
                     value={inventory?.filter((d) => d.stock === 0)?.length.toString() || "0"}
                     trend="Critical"
                     icon={<AlertCircle />}
                     color="red"
                 />
                 <StatCard
-                    title="AI Inquiries"
+                    title={t("PharmacyDashboard.AiInquiries")}
                     value="156"
                     trend="85% solved"
                     icon={<Activity />}
@@ -65,12 +67,12 @@ export default function OverviewTab({ inventory, recentChats, setActiveTab }) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-gray-400 dark:border-gray-500 p-4 sm:p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="font-bold text-lg">Inventory Overview</h3>
+                        <h3 className="font-bold text-lg">{t("PharmacyDashboard.InventoryOverview")}</h3>
                         <button
                             onClick={() => setActiveTab("inventory")}
                             className="text-sm text-blue-500 hover:underline"
                         >
-                            View All
+                            {t("PharmacyDashboard.ViewAll")}
                         </button>
                     </div>
                     <div className="space-y-3">
@@ -96,7 +98,7 @@ export default function OverviewTab({ inventory, recentChats, setActiveTab }) {
                                                 : "bg-emerald-100 text-emerald-600"
                                         }`}
                                 >
-                                    {drug.stock} units
+                                    {drug.stock} {t("PharmacyDashboard.Units")}
                                 </span>
                             </div>
                         ))}
@@ -106,7 +108,7 @@ export default function OverviewTab({ inventory, recentChats, setActiveTab }) {
                 <div className="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-gray-400 dark:border-gray-500 p-4 sm:p-6 shadow-sm">
                     <h3 className="font-bold text-base sm:text-lg mb-4 sm:mb-6 flex items-center gap-2">
                         <MessageSquare size={18} className="text-blue-500" />
-                        Recent Chats
+                        {t("PharmacyDashboard.RecentChats")}
                     </h3>
                     <div className="space-y-4">
                         {recentChats?.map((chat) => (

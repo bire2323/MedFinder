@@ -27,8 +27,12 @@ Broadcast::channel('chat.session.{sessionId}', function ($user, $sessionId) {
 // channel (so they receive a notification even when not in the session view).
 // Must match exactly: PrivateChannel('user.' . $recipientId) in MessageSent.
 Broadcast::channel('user.{id}', function ($user, $id) {
-    \Log::info("Event fired! {$id}");
-    \Log::info("User ID: {$user->id}");
+   // \Log::info("Event fired! {$id}");
+   // \Log::info("User ID: {$user->id}");
 
+    return (int) $user->id === (int) $id;
+}, ['guards' => ['sanctum']]);
+
+Broadcast::channel('notifications.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 }, ['guards' => ['sanctum']]);

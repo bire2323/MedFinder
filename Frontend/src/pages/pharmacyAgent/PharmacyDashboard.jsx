@@ -7,9 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import LanguageSwitcher from "../../component/LanguageSwitcher";
 import useAuthStore from "../../store/UserAuthStore";
-import { useNotifications } from "../../hooks/UserNotification";
+import { useNotifications, useSystemNotifications } from "../../hooks/UserNotification";
 import useChatNotificationStore from "../../store/useChatNotificationStore";
+import useSystemNotificationStore from "../../store/useSystemNotificationStore";
 import NotificationToast from "../../component/NotificationToast";
+import SystemNotificationToast from "../../component/SystemNotificationToast";
 import {
   Pill,
   FileText,
@@ -39,6 +41,7 @@ import {
   ChevronRight,
   MenuIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import ThemeToggle from "../../component/DarkLightTeam";
 
 import Inventory from "./Inventory";
@@ -49,29 +52,47 @@ import { apiFetch } from "../../api/client";
 import OverviewTab from "./components/OverviewTab";
 import SettingsTab from "./components/SettingsTab";
 import ChatsTab from "./components/ChatsTab";
+import StatusBanner from "../../component/StatusBanner";
 
 const PharmacyDashboard = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { user } = useAuthStore();
   const currentUserId = user?.id;
-  
+
   const { handleIncomingMessage, targetSessionToOpen, getUnreadCount } = useChatNotificationStore();
   const unreadCount = getUnreadCount();
 
+  const { addNotification } = useSystemNotificationStore();
+
   useNotifications(currentUserId, (incoming) => {
-     handleIncomingMessage({
-            message: incoming.message,
-            senderName: incoming.sender.sender?.Name || `User ${incoming.sender_id}`,
-            sessionId: incoming.chat_session_id,
-            fullMessage: incoming
-        });
+    handleIncomingMessage({
+      message: incoming.message,
+      senderName: incoming.sender.sender?.Name || `User ${incoming.sender_id}`,
+      sessionId: incoming.chat_session_id,
+      fullMessage: incoming
+    });
+  });
+
+  useSystemNotifications(currentUserId, (notification) => {
+    // Add to store
+    addNotification(notification);
+
+    // Update local profile status if the notification is about approval/rejection
+    if (notification.type === 'approved' || notification.type === 'rejected') {
+      setPharmacyProfile(prev => prev ? {
+        ...prev,
+        status: notification.type.toUpperCase(),
+        rejection_reason: notification.type === 'rejected' ? notification.message.split('Reason: ')[1] || null : null
+      } : prev);
+    }
   });
 
   useEffect(() => {
-      useChatNotificationStore.getState().loadSessions();
+    useChatNotificationStore.getState().loadSessions();
   }, []);
 
   useEffect(() => {
@@ -133,123 +154,119 @@ const PharmacyDashboard = () => {
   return (
     <>
       <NotificationToast />
+      <SystemNotificationToast />
       <div className="min-h-screen min-w-[320px] bg-slate-50 dark:bg-gray-900 flex text-slate-900 dark:text-gray-100 transition-colors duration-300">
         {/* Mobile sidebar backdrop */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} aria-hidden="true" />
-      )}
-      {/* SIDEBAR - responsive: collapsed on mobile, overlay when open */}
-      <nav className={`fixed sm:relative inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 border-gray-400 dark:border-gray-500 flex flex-col transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'}`}>
-        <div className="p-6 flex items-center gap-3">
-          <div className="bg-emerald-600 p-2 rounded-xl text-white shadow-lg">
-            <Pill size={24} />
-          </div>
-          <span className="block font-bold text-xl tracking-tight">
-            Pharma<span className="text-emerald-600">Sync</span>
-
-          </span>
-        </div>
-
-        <div className="flex-1 px-4 space-y-2 mt-4">
-          <NavItem
-            icon={<BarChart3 size={20} />}
-            label="Overview"
-            active={activeTab === "overview"}
-            onClick={() => setActiveTab("overview")}
-          />
-          <NavItem
-            icon={<Pill size={20} />}
-            label="Inventory"
-            active={activeTab === "inventory"}
-            onClick={() => setActiveTab("inventory")}
-          />
-          <NavItem
-            icon={<FileText size={20} />}
-            label="Prescriptions"
-            active={activeTab === "rx"}
-            onClick={() => setActiveTab("rx")}
-          />
-          <NavItem
-            icon={<MessageSquare size={20} />}
-            label="Chats"
-            active={activeTab === "chats"}
-            onClick={() => setActiveTab("chats")}
-            badge={unreadCount > 0 ? unreadCount : null}
-          />
-          <NavItem
-            icon={<Settings size={20} />}
-            label="Settings"
-            active={activeTab === "settings"}
-            onClick={() => setActiveTab("settings")}
-          />
-        </div>
-
-        <div className="p-4 border-t border-gray-400 dark:border-gray-500">
-          <div className="hidden lg:flex items-center gap-3 p-3 bg-slate-100 dark:bg-gray-700 rounded-xl">
-            <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-white text-xs">
-              AP
+        {sidebarOpen && (
+          <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} aria-hidden="true" />
+        )}
+        {/* SIDEBAR - responsive: collapsed on mobile, overlay when open */}
+        <nav className={`fixed sm:relative inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 border-gray-400 dark:border-gray-500 flex flex-col transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'}`}>
+          <div className="p-6 flex items-center gap-3">
+            <div className="bg-emerald-600 p-2 rounded-xl text-white shadow-lg">
+              <Pill size={24} />
             </div>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-xs font-bold truncate">Abebe Pharma</p>
-              <p className="text-[10px] text-slate-500 dark:text-gray-400">
-                Owner Account
-              </p>
+            <span className="block font-bold text-xl tracking-tight">
+              Pharma<span className="text-emerald-600">Sync</span>
+
+            </span>
+          </div>
+
+          <div className="flex-1 px-4 space-y-2 mt-4">
+            <NavItem
+              icon={<BarChart3 size={20} />}
+              label={t("PharmacyDashboard.Overview")}
+              active={activeTab === "overview"}
+              onClick={() => setActiveTab("overview")}
+            />
+            <NavItem
+              icon={<Pill size={20} />}
+              label={t("PharmacyDashboard.Inventory")}
+              active={activeTab === "inventory"}
+              onClick={() => setActiveTab("inventory")}
+            />
+            <NavItem
+              icon={<FileText size={20} />}
+              label={t("PharmacyDashboard.Prescriptions")}
+              active={activeTab === "rx"}
+              onClick={() => setActiveTab("rx")}
+            />
+            <NavItem
+              icon={<MessageSquare size={20} />}
+              label={t("PharmacyDashboard.Chats")}
+              active={activeTab === "chats"}
+              onClick={() => setActiveTab("chats")}
+              badge={unreadCount > 0 ? unreadCount : null}
+            />
+            <NavItem
+              icon={<Settings size={20} />}
+              label={t("PharmacyDashboard.Settings")}
+              active={activeTab === "settings"}
+              onClick={() => setActiveTab("settings")}
+            />
+          </div>
+
+          <div className="p-4 border-t border-gray-400 dark:border-gray-500">
+            <div className="hidden lg:flex items-center gap-3 p-3 bg-slate-100 dark:bg-gray-700 rounded-xl">
+              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-white text-xs">
+                AP
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <p className="text-xs font-bold truncate">{pharmacyProfile?.pharmacy_name_en || pharmacyProfile?.name || "Pharmacy Agent"}</p>
+                <p className="text-[10px] text-slate-500 dark:text-gray-400">
+                  {t("PharmacyDashboard.OwnerAccount")}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </nav>
+        </nav>
 
-      <main className="flex-1 flex flex-col overflow-hidden min-w-0">
-        {/* HEADER */}
-        <header className="h-14 sm:h-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-b-gray-200 border-gray-400 dark:border-gray-500 px-3 sm:px-6 lg:px-8 flex items-center justify-between z-10 shrink-0">
-          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 -ml-2 shrink-0" aria-label="Open menu">
-              <MenuIcon size={20} />
-            </button>
-            <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="p-1.5 sm:p-2 hover:bg-slate-100 dark:hover:bg-gray-700 rounded-lg transition-colors shrink-0" title="Back to Home">
-              <ChevronLeft size={20} />
-            </a>
-            <h2 className="text-base sm:text-xl font-bold capitalize truncate">{activeTab}</h2>
-          </div>
-          <div className="flex items-center gap-1 sm:gap-4 shrink-0">
-            <div className="hidden sm:flex items-center gap-2 px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold border border-gray-400 transition-colors">
-              <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${profile.isPublic ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}></span>
-              <span className="hidden sm:inline">{profile.isPublic ? "Live" : "Hidden"}</span>
+        <main className="flex-1 flex flex-col overflow-hidden min-w-0">
+          {/* HEADER */}
+          <header className="h-14 sm:h-20 bg-emerald-600 dark:bg-gray-800/80 backdrop-blur-md border-b border-b-gray-200 border-gray-400 dark:border-gray-500 px-3 sm:px-6 lg:px-8 flex items-center justify-between z-10 shrink-0">
+            <div className="flex items-center gap-1 sm:gap-4 shrink-0">
+              <div className="hidden sm:flex items-center gap-2 px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold border border-gray-400 transition-colors">
+                <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${pharmacyProfile?.status === 'APPROVED' ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}></span>
+                <span className="hidden sm:inline">{pharmacyProfile?.status === 'APPROVED' ? t("PharmacyDashboard.Live") : t("PharmacyDashboard.Hidden")}</span>
+              </div>
+              <LanguageSwitcher />
+              <ThemeToggle />
+              <button className="p-2 bg-slate-100 dark:bg-gray-700 rounded-xl text-slate-600 dark:text-gray-300">
+                <AlertCircle size={18} className="sm:w-5 sm:h-5" />
+              </button>
             </div>
-            <LanguageSwitcher />
-            <ThemeToggle />
-            <button className="p-2 bg-slate-100 dark:bg-gray-700 rounded-xl text-slate-600 dark:text-gray-300">
-              <AlertCircle size={18} className="sm:w-5 sm:h-5" />
-            </button>
-          </div>
-        </header>
+          </header>
 
-        {/* CONTENT */}
-        <section className="flex-1 overflow-y-auto p-8">
-          <AnimatePresence mode="wait">
-            {/* OVERVIEW TAB */}
-            {activeTab === "overview" && (
-              <OverviewTab inventory={inventory} recentChats={recentChats} setActiveTab={setActiveTab} />
-            )}
+          {/* CONTENT */}
+          <section className="flex-1 overflow-y-auto p-8">
+            <StatusBanner
+              status={pharmacyProfile?.status}
+              rejectionReason={pharmacyProfile?.rejection_reason}
+            />
+            <AnimatePresence mode="wait">
+              {/* OVERVIEW TAB */}
+              {activeTab === "overview" && (
+                <OverviewTab inventory={inventory} recentChats={recentChats} setActiveTab={setActiveTab} />
+              )}
 
-            {/* INVENTORY TAB */}
-            {activeTab === "inventory" && (
-              <Inventory activeTab={activeTab} setActiveTab={setActiveTab} />
+              {/* INVENTORY TAB */}
+              {activeTab === "inventory" && (
+                <Inventory activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            )}
+              )}
 
-            {/* SETTINGS TAB */}
-            {activeTab === "settings" && (
-              <SettingsTab profile={profile} setProfile={setProfile} />
-            )}
+              {/* SETTINGS TAB */}
+              {activeTab === "settings" && (
+                <SettingsTab profile={profile} setProfile={setProfile} />
+              )}
 
-            {/* CHATS TAB */}
-            {activeTab === "chats" && (
-              <ChatsTab currentUserId={currentUserId} />
-            )}
-          </AnimatePresence>
-        </section>
-      </main>
+              {/* CHATS TAB */}
+              {activeTab === "chats" && (
+                <ChatsTab currentUserId={currentUserId} />
+              )}
+            </AnimatePresence>
+          </section>
+        </main>
       </div>
     </>
   );

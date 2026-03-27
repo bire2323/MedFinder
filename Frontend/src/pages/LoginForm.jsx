@@ -8,7 +8,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import useAuthStore from "../store/UserAuthStore";
 import handleKeyDown from "../hooks/handleKeyDown";
-import {navigateByRole} from "../utils/UserNavigation";
+import { navigateByRole } from "../utils/UserNavigation";
 
 export default function LoginForm() {
   const { t } = useTranslation();
@@ -82,7 +82,7 @@ export default function LoginForm() {
         </div>
         <div className="flex flex-col leading-none">
           <span className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-            {t("Register.Wellcome")}
+            {t("Register.Welcome")}
           </span>
         </div>
       </div>
@@ -137,14 +137,14 @@ export default function LoginForm() {
             disabled={loading}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
           >
-            {loading ? 
-         (  <>
-         <div className="flex">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-            <span>{ t("Login.Signing_In")} </span>
-            </div>
-             </>)
-             : t("Login.Login")}
+            {loading ?
+              (<>
+                <div className="flex">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <span className="pl-1.5">{t("Login.Signing_In")} </span>
+                </div>
+              </>)
+              : t("Login.Login")}
           </button>
         </div>
       </form>
@@ -169,7 +169,7 @@ export default function LoginForm() {
       >
         <FcGoogle className="w-6 h-6" />
         <p className="dark:hover:text-white select-none">
-          {t("sign_in_with_google")}
+          {t("Login.sign_in_with_google")}
         </p>
       </div>
     </div>

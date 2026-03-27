@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ClipboardList, Heart, History, LogOut, MessageSquare, User, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { ClipboardList, Heart, History, LogOut, MessageSquare, User, Search, MoreVertical } from "lucide-react";
 
 import useAuthStore from "../../store/UserAuthStore";
 import { apiLogout } from "../../api/auth";
@@ -47,6 +48,8 @@ function normalizeFacilityForStorage(facility) {
 
 export default function UserDashboard() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
+
     const { user, clearSession } = useAuthStore();
     const currentUserId = user?.id;
 
@@ -78,6 +81,7 @@ export default function UserDashboard() {
 
     const [chatTargetFacility, setChatTargetFacility] = useState(null);
     const [chatTargetNonce, setChatTargetNonce] = useState(0);
+    const [toggleMenu, setToggleMenu] = useState(false);
 
     useEffect(() => {
         setFavorites(safeParseJSON(localStorage.getItem(LS_FAVORITES_KEY), []));
@@ -182,36 +186,43 @@ export default function UserDashboard() {
                             </div>
                             <div className="min-w-0">
                                 <h1 className="text-lg sm:text-xl font-extrabold truncate">
-                                    {activeSection === "home" && "Overview"}
-                                    {activeSection === "search" && "Search & Navigate"}
-                                    {activeSection === "favorites" && "Saved Places"}
-                                    {activeSection === "messages" && "Messages"}
-                                    {activeSection === "profile" && "Profile"}
+                                    {activeSection === "home" && t("UserDashboard.Overview")}
+                                    {activeSection === "search" && t("UserDashboard.SearchAndNavigate")}
+                                    {activeSection === "favorites" && t("UserDashboard.SavedPlaces")}
+                                    {activeSection === "messages" && t("UserDashboard.Messages")}
+                                    {activeSection === "profile" && t("UserDashboard.Profile")}
                                 </h1>
                                 <p className="text-xs text-slate-600 dark:text-gray-300">
-                                    {user?.Name ? `Hi, ${user.Name}` : "Your healthcare dashboard"}
+                                    {user?.Name ? `${t("UserDashboard.Hi")}, ${user.Name}` : t("UserDashboard.YourHealthcareDashboard")}
                                 </p>
                             </div>
                         </div>
 
-                        <div className="hidden md:flex items-center gap-2">
+                        <div className=" relative flex items-center gap-2">
                             {activeSection !== "profile" && (
                                 <button
                                     type="button"
                                     onClick={() => setActiveSection("profile")}
                                     className="px-3 py-2 rounded-xl border border-slate-200 dark:border-gray-700 bg-white/60 dark:bg-gray-800/60 hover:bg-white dark:hover:bg-gray-800 text-sm font-bold"
                                 >
-                                    Profile
+                                    {t("UserDashboard.Profile")}
                                 </button>
                             )}
                             <button
                                 type="button"
-                                onClick={handleLogout}
-                                className="px-3 py-2 rounded-xl bg-red-600/10 text-red-700 dark:text-red-300 dark:bg-red-500/10 hover:bg-red-600/15 text-sm font-bold flex items-center gap-2"
+                                onClick={() => setToggleMenu(!toggleMenu)}
+                                className="lg:hidden relative px-3 py-2 rounded-xl bg-secondary text-black dark:text-green dark:bg-gray-400 hover:bg-green text-sm font-bold flex items-center gap-2"
                             >
-                                <LogOut size={16} />
-                                Logout
+
+                                <MoreVertical className="w-4 h-4" />
                             </button>
+                            {toggleMenu && (
+                                <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg py-1">
+                                    <div>pp</div>
+                                    <div>pp</div>
+                                    <div>pp</div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -220,16 +231,16 @@ export default function UserDashboard() {
                             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
                                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                                     <div className="lg:col-span-7 bg-white dark:bg-gray-800/40 border border-slate-200 dark:border-gray-700 rounded-2xl p-5">
-                                        <h2 className="text-base font-extrabold mb-1">Recent Views</h2>
+                                        <h2 className="text-base font-extrabold mb-1">{t("UserDashboard.RecentViews")}</h2>
                                         <p className="text-sm text-slate-600 dark:text-gray-300 mb-4">
-                                            Tap any facility to re-open it and draw a route.
+                                            {t("UserDashboard.TapAnyFacility")}
                                         </p>
 
                                         {recents.length === 0 ? (
                                             <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-6 text-center bg-slate-50 dark:bg-gray-900/40">
-                                                <p className="font-extrabold text-slate-800 dark:text-slate-100">No recents yet</p>
+                                                <p className="font-extrabold text-slate-800 dark:text-slate-100">{t("UserDashboard.NoRecentsYet")}</p>
                                                 <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">
-                                                    Your last viewed hospitals and pharmacies will show here.
+                                                    {t("UserDashboard.YourLastViewed")}
                                                 </p>
                                                 <button
                                                     type="button"
@@ -237,7 +248,7 @@ export default function UserDashboard() {
                                                     className="mt-4 inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-blue-700"
                                                 >
                                                     <History size={16} />
-                                                    Explore nearest facilities
+                                                    {t("UserDashboard.ExploreNearest")}
                                                 </button>
                                             </div>
                                         ) : (
@@ -273,20 +284,20 @@ export default function UserDashboard() {
                                     </div>
 
                                     <div className="lg:col-span-5 bg-white dark:bg-gray-800/40 border border-slate-200 dark:border-gray-700 rounded-2xl p-5">
-                                        <h2 className="text-base font-extrabold mb-1">Saved Places</h2>
-                                        <p className="text-sm text-slate-600 dark:text-gray-300 mb-4">Quickly jump back to your favorites.</p>
+                                        <h2 className="text-base font-extrabold mb-1">{t("UserDashboard.SavedPlaces")}</h2>
+                                        <p className="text-sm text-slate-600 dark:text-gray-300 mb-4">{t("UserDashboard.QuicklyJumpBack")}</p>
 
                                         {favorites.length === 0 ? (
                                             <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-6 text-center bg-slate-50 dark:bg-gray-900/40">
-                                                <p className="font-extrabold text-slate-800 dark:text-slate-100">No favorites yet</p>
-                                                <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Bookmark pharmacies and hospitals as you browse.</p>
+                                                <p className="font-extrabold text-slate-800 dark:text-slate-100">{t("UserDashboard.NoFavoritesYet")}</p>
+                                                <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.BookmarkPharmacies")}</p>
                                                 <button
                                                     type="button"
                                                     onClick={() => setActiveSection("search")}
                                                     className="mt-4 inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-blue-700"
                                                 >
-                                                    <Heart size={16} />
-                                                    Find facilities
+                                                    <Search size={16} />
+                                                    {t("UserDashboard.FindFacilities")}
                                                 </button>
                                             </div>
                                         ) : (
@@ -322,24 +333,24 @@ export default function UserDashboard() {
                                         onClick={() => setActiveSection("search")}
                                         className="bg-white dark:bg-gray-800/40 shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
                                     >
-                                        <p className="font-extrabold">Facility Search</p>
-                                        <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Find nearest hospitals or pharmacies and draw routes.</p>
+                                        <p className="font-extrabold">{t("UserDashboard.FacilitySearch")}</p>
+                                        <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.FindNearestHospitals")}</p>
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setActiveSection("messages")}
                                         className="bg-white dark:bg-gray-800/40 shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
                                     >
-                                        <p className="font-extrabold">Real-time Chat</p>
-                                        <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Talk with pharmacy agents about availability and prices.</p>
+                                        <p className="font-extrabold">{t("UserDashboard.RealTimeChat")}</p>
+                                        <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.TalkWithPharmacy")}</p>
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setActiveSection("profile")}
                                         className="bg-white dark:bg-gray-800/40 shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
                                     >
-                                        <p className="font-extrabold">Profile & Security</p>
-                                        <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Update your info, change password, and manage your photo.</p>
+                                        <p className="font-extrabold">{t("UserDashboard.ProfileAndSecurity")}</p>
+                                        <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.UpdateYourInfo")}</p>
                                     </button>
                                 </div>
                             </div>
@@ -361,22 +372,22 @@ export default function UserDashboard() {
                             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                                 <div className="flex items-end justify-between gap-4 mb-4">
                                     <div>
-                                        <h2 className="text-xl sm:text-2xl font-extrabold">Saved Places</h2>
-                                        <p className="text-sm text-slate-600 dark:text-gray-300">Your bookmarked hospitals and pharmacies.</p>
+                                        <h2 className="text-xl sm:text-2xl font-extrabold">{t("UserDashboard.SavedPlaces")}</h2>
+                                        <p className="text-sm text-slate-600 dark:text-gray-300">{t("UserDashboard.YourBookmarked")}</p>
                                     </div>
                                 </div>
 
                                 {favorites.length === 0 ? (
                                     <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-8 text-center bg-slate-50 dark:bg-gray-900/40">
-                                        <p className="font-extrabold text-slate-800 dark:text-slate-100">No favorites yet</p>
-                                        <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Bookmark a facility from Search to see it here.</p>
+                                        <p className="font-extrabold text-slate-800 dark:text-slate-100">{t("UserDashboard.NoFavoritesYet")}</p>
+                                        <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.BookmarkAFacility")}</p>
                                         <button
                                             type="button"
                                             onClick={() => setActiveSection("search")}
                                             className="mt-4 inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl font-extrabold hover:bg-blue-700"
                                         >
-                                            <Search size={16} />
-                                            Search facilities
+                                            <MapPin size={16} />
+                                            {t("UserDashboard.OpenInSearch")}
                                         </button>
                                     </div>
                                 ) : (
@@ -393,8 +404,8 @@ export default function UserDashboard() {
                                                         type="button"
                                                         onClick={() => toggleFavorite(f)}
                                                         className="p-2 rounded-xl bg-blue-600/10 text-blue-700 dark:text-blue-300 hover:bg-blue-600/15 transition-colors"
-                                                        aria-label="Remove from favorites"
-                                                        title="Remove"
+                                                        aria-label={t("UserDashboard.Remove")}
+                                                        title={t("UserDashboard.Remove")}
                                                     >
                                                         <Heart size={16} className="fill-current" />
                                                     </button>

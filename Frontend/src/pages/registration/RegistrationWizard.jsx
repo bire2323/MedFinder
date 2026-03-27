@@ -40,10 +40,10 @@ const RegistrationWizard = ({ registrationType = 'pharmacy' }) => {
 
   // Step definitions
   const steps = [
-    { number: 1, title: t('Registration.Step1'), description: 'Account details' },
-    { number: 2, title: t('Registration.Step2'), description: 'Address & contact' },
-    { number: 3, title: t('Registration.Step3'), description: 'License & documents' },
-    { number: 4, title: t('Registration.Step4'), description: 'Confirm & submit' },
+    { number: 1, title: t('Registration.Step1'), description: t('Registration.AccountDetails') },
+    { number: 2, title: t('Registration.Step2'), description: t('Registration.AddressContact') },
+    { number: 3, title: t('Registration.Step3'), description: t('Registration.LicenseDocs') },
+    { number: 4, title: t('Registration.Step4'), description: t('Registration.ConfirmSubmit') },
   ];
 
   // Show success screen if submitted
@@ -149,7 +149,7 @@ const RegistrationWizard = ({ registrationType = 'pharmacy' }) => {
           {/* Mobile step indicator */}
           <div className="sm:hidden text-center mt-4">
             <p className="text-sm font-semibold text-gray-800 dark:text-white">
-              Step {currentStep}: {steps[currentStep - 1].title}
+              {t('Registration.StepIndicator', { step: currentStep })}: {steps[currentStep - 1].title}
             </p>
             <p className="text-xs text-gray-500">
               {steps[currentStep - 1].description}
@@ -179,9 +179,9 @@ const RegistrationWizard = ({ registrationType = 'pharmacy' }) => {
 
         {/* Footer info */}
         <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-6">
-          By registering, you agree to our Terms of Service and Privacy Policy.
+          {t('Registration.TermsAgree')}
           <br />
-          Your registration will be reviewed by our admin team.
+          {t('Registration.ReviewNote')}
         </p>
       </div>
     </div>

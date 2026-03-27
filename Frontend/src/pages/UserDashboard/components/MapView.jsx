@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useCallback, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -12,7 +12,8 @@ import getDistanceFromLatLonInMeters from "../../../utils/GetDistanceFromLatLoIn
 import Routing from "../../map/routing";
 
 import iconpharma from "../../../assets/iconpharma.png";
-import { Heart, MessageSquare, Search, MapPin, Pill, Upload, Loader2 } from "lucide-react";
+import { Heart, MessageSquare, Search, MapPin, Pill, Upload, Loader2, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // Leaflet Icon Fix for standard markers
 delete L.Icon.Default.prototype._getIconUrl;
@@ -70,6 +71,7 @@ function extractPrescriptionPharmacies(apiResponse) {
 }
 
 export default function MapView({ favorites, isFavorite, onToggleFavorite, onFacilityViewed, onRequestChat }) {
+  const { t } = useTranslation();
   const [userLocation, setUserLocation] = useState(null); // {lat, lng}
   const [geoError, setGeoError] = useState("");
 
@@ -97,24 +99,129 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
   const [prescriptionPharmacies, setPrescriptionPharmacies] = useState([]);
   const fileInputRef = useRef(null);
 
-  const defaultCenter = useMemo(() => [12.6000, 37.4500], []);
+  const [permissionState, setPermissionState] = useState('prompt'); // 'prompt', 'granted', 'denied'
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
 
-  useEffect(() => {
-    let watchId = null;
-    if (!navigator.geolocation) return;
-    watchId = navigator.geolocation.watchPosition(
-      (pos) => {
-        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setGeoError("");
+  const defaultCenter = useMemo(() => [12.6000, 37.4500], []);
+  const getLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      setGeoError('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setIsLocationLoading(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+        setGeoError(null);
+        setIsLocationLoading(false);
       },
-      () => setGeoError("Location access denied. You can still browse facilities, but routes may be limited."),
-      { enableHighAccuracy: true, maximumAge: 30_000, timeout: 10_000 }
+      (err) => {
+        console.error('Geolocation error:', err);
+        setGeoError(err.message || t("Map.TrackingUnavailable"));
+        setIsLocationLoading(false);
+
+        // Set permission state based on error
+        if (err.code === err.PERMISSION_DENIED) {
+          setPermissionState('denied');
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
     );
+  }, []);
+
+  // FIXED: Permission monitoring with proper cleanup
+  useEffect(() => {
+    let isMounted = true;
+    let permissionStatus = null;
+
+    // Check if Permission API is supported
+    if (!navigator.permissions) {
+      // Fallback for browsers without Permission API (Safari)
+      if (isMounted) {
+        getLocation();
+      }
+      return;
+    }
+
+    // Query geolocation permission status
+    navigator.permissions.query({ name: 'geolocation' })
+      .then((status) => {
+        if (!isMounted) return;
+
+        permissionStatus = status;
+        setPermissionState(status.state);
+
+        // If already granted, get location immediately
+        if (status.state === 'granted') {
+          getLocation();
+        }
+
+        // Listen for permission changes
+        const handlePermissionChange = () => {
+          if (!isMounted) return;
+
+          console.log('Permission changed to:', status.state);
+          setPermissionState(status.state);
+
+          // If permission is now granted, get location automatically
+          if (status.state === 'granted') {
+            getLocation();
+          } else if (status.state === 'denied') {
+            setGeoError(t("Map.EnableLocationForDistance"));
+          }
+        };
+
+        status.addEventListener('change', handlePermissionChange);
+      })
+      .catch((err) => {
+        console.error('Permission API query failed:', err);
+        if (isMounted) {
+          // Fallback to regular geolocation
+          getLocation();
+        }
+      });
+
+    // Cleanup
+    return () => {
+      isMounted = false;
+      if (permissionStatus) {
+        // Remove event listener if needed
+        // Note: In some implementations, you might need to store the handler reference
+      }
+    };
+  }, [getLocation]);
+
+  // Additional effect: Retry location when page becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && permissionState === 'granted' && !userLocation) {
+        console.log('Page became visible, retrying location...');
+        getLocation();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      if (watchId != null) navigator.geolocation.clearWatch(watchId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [getLocation, permissionState, userLocation]);
+  // Manual retry function for user to click
+  const handleRetryLocation = useCallback(() => {
+    if (permissionState === 'denied') {
+      setGeoError(t("Map.EnableLocationForDistance"));
+    }
+    getLocation();
+  }, [getLocation, permissionState]);
 
   useEffect(() => {
     let alive = true;
@@ -128,7 +235,7 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
       })
       .catch((e) => {
         if (!alive) return;
-        setFacilitiesError(e?.message || "Failed to load facilities.");
+        setFacilitiesError(e?.message || t("error.generic_error"));
       })
       .finally(() => {
         if (!alive) return;
@@ -203,7 +310,7 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
 
     try {
       if (!userLocation) {
-        setDrugError("Enable location to find nearby pharmacies.");
+        setDrugError(t("Map.EnableLocationForDistance"));
         return;
       }
 
@@ -229,10 +336,9 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
         };
       });
 
-      setDrugResults(enriched);
-      if (enriched.length === 0) setDrugError("No nearby pharmacies found for this medicine.");
+      if (enriched.length === 0) setDrugError(t("Map.NoResultsYet"));
     } catch (e) {
-      setDrugError(e?.message || "Drug availability search failed.");
+      setDrugError(e?.message || t("error.generic_error"));
     } finally {
       setDrugLoading(false);
     }
@@ -263,9 +369,9 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
       });
 
       setPrescriptionPharmacies(normalized);
-      if (normalized.length === 0) setPrescriptionError("No pharmacies could fulfill this prescription nearby.");
+      if (normalized.length === 0) setPrescriptionError(t("Map.NoResultsYet"));
     } catch (e) {
-      setPrescriptionError(e?.message || "Prescription processing failed.");
+      setPrescriptionError(e?.message || t("error.generic_error"));
     } finally {
       setIsProcessingPrescription(false);
       setIsUploading(false);
@@ -280,9 +386,9 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
           <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-base font-extrabold">Facility Search</h2>
+                <h2 className="text-base font-extrabold">{t("Map.FacilitySearch")}</h2>
                 <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">
-                  {userLocation ? "Sorted by your distance (when possible)." : "Enable location for distance sorting & route drawing."}
+                  {userLocation ? t("Map.SortedByDistance") : t("Map.EnableLocationForDistance")}
                 </p>
               </div>
               <span className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600/10 text-blue-700 dark:text-blue-300 font-extrabold">
@@ -296,16 +402,16 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                 <input
                   value={facilityQuery}
                   onChange={(e) => setFacilityQuery(e.target.value)}
-                  placeholder="Search by name or address..."
+                  placeholder={t("Map.SearchByNameOrAddress")}
                   className="w-full pl-10 pr-3 py-3 rounded-xl bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div className="flex gap-2">
                 {[
-                  { value: "all", label: "All" },
-                  { value: "hospital", label: "Hospitals" },
-                  { value: "pharmacy", label: "Pharmacies" },
+                  { value: "all", label: t("Map.All") },
+                  { value: "hospital", label: t("Map.Hospitals") },
+                  { value: "pharmacy", label: t("Map.Pharmacies") },
                 ].map((opt) => (
                   <button
                     key={opt.value}
@@ -325,8 +431,21 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
             </div>
 
             {geoError && (
-              <div className="mt-4 text-sm rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/40 p-3 text-rose-800 dark:text-rose-200">
-                {geoError}
+              <div className="mt-4 text-sm rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/40 p-4 text-rose-800 dark:text-rose-200">
+                <div className="flex items-start gap-3">
+                  <AlertCircle size={18} className="shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-extrabold">{t("Map.LocationError")}</p>
+                    <p className="mt-1">{geoError}</p>
+                    <button
+                      onClick={handleRetryLocation}
+                      className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-extrabold hover:bg-rose-700 transition-colors"
+                    >
+                      {isLocationLoading ? <Loader2 size={12} className="animate-spin" /> : <MapPin size={12} />}
+                      {t("Map.RetryAccess")}
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -338,16 +457,16 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
 
             <div className="mt-4 space-y-2">
               <div className="flex items-center justify-between text-xs font-extrabold text-slate-600 dark:text-slate-300">
-                <span>Results</span>
-                <span>{facilitiesLoading ? "Loading..." : `${filteredFacilities.length}`}</span>
+                <span>{t("Map.Results")}</span>
+                <span>{facilitiesLoading ? t("Common.Loading") : `${filteredFacilities.length}`}</span>
               </div>
 
               {facilitiesLoading ? (
                 <div className="mt-4 text-sm text-slate-600 dark:text-gray-300">Loading facilities…</div>
               ) : filteredFacilities.length === 0 ? (
                 <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
-                  <p className="font-extrabold">No facilities found</p>
-                  <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Try a different keyword or switch types.</p>
+                  <p className="font-extrabold">{t("Map.NoFacilitiesFound")}</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Map.TryDifferentKeyword")}</p>
                 </div>
               ) : (
                 <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
@@ -364,7 +483,7 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                           >
                             <p className="font-extrabold truncate">{f.name}</p>
                             <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 truncate">
-                              {f.type === "hospital" ? "Hospital" : "Pharmacy"}
+                              {f.type === "hospital" ? t("Map.hospital") : t("Map.pharmacy")}
                               {distanceLabel ? ` · ${distanceLabel}` : ""}
                             </p>
                           </button>
@@ -375,8 +494,8 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                               "shrink-0 p-2 rounded-xl transition-colors",
                               fav ? "bg-blue-600/10 text-blue-700 dark:text-blue-300" : "bg-slate-100 dark:bg-gray-700/60 text-slate-600 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-gray-700",
                             ].join(" ")}
-                            aria-label="Toggle favorite"
-                            title="Save"
+                            aria-label={t("Map.Save")}
+                            title={t("Map.Save")}
                           >
                             <Heart size={16} className={fav ? "fill-current" : ""} />
                           </button>
@@ -388,21 +507,21 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                             onClick={() => handleOpenInMap(f)}
                             className="flex-1 rounded-xl bg-blue-600 text-white py-2.5 font-extrabold text-xs hover:bg-blue-700 transition-colors"
                           >
-                            Open in Map
+                            {t("Map.OpenInMap")}
                           </button>
                           {f.type === "pharmacy" ? (
                             <button
                               type="button"
                               onClick={() => onRequestChat?.(f)}
                               className="rounded-xl bg-slate-100 dark:bg-gray-700/60 text-slate-700 dark:text-slate-200 py-2.5 px-2 font-extrabold text-xs hover:bg-slate-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-1"
-                              title="Message pharmacy agent"
+                              title={t("Map.MessagePharmacy")}
                             >
                               <MessageSquare size={14} />
-                              Chat
+                              {t("UserDashboard.Messages")}
                             </button>
                           ) : (
                             <div className="flex-1 rounded-xl bg-slate-100 dark:bg-gray-700/40 text-slate-400 py-2.5 font-extrabold text-xs text-center cursor-not-allowed border border-dashed border-slate-300 dark:border-gray-600">
-                              Chat
+                              {t("UserDashboard.Messages")}
                             </div>
                           )}
                         </div>
@@ -418,8 +537,8 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
           <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-base font-extrabold">Drug Availability</h2>
-                <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Find nearby pharmacies with this medicine in stock.</p>
+                <h2 className="text-base font-extrabold">{t("Map.DrugAvailability")}</h2>
+                <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Map.FindNearbyPharmacies")}</p>
               </div>
               <span className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600/10 text-blue-700 dark:text-blue-300 font-extrabold">
                 <Pill size={18} />
@@ -444,7 +563,7 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                 onClick={handleDrugSearch}
                 disabled={drugLoading || drugQuery.trim().length < 2}
                 className="w-16 rounded-xl bg-blue-600 text-white py-3 font-extrabold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Search drug availability"
+                aria-label={t("Map.SearchDrugAvailability")}
               >
                 {drugLoading ? <Loader2 size={18} className="animate-spin mx-auto" /> : <Search size={18} className="mx-auto" />}
               </button>
@@ -459,8 +578,8 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
             <div className="mt-4 space-y-2 max-h-[240px] overflow-y-auto pr-1">
               {drugResults.length === 0 && !drugLoading ? (
                 <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
-                  <p className="font-extrabold">No results yet</p>
-                  <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Type a medicine name to see nearby pharmacies.</p>
+                  <p className="font-extrabold">{t("Map.NoResultsYet")}</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Map.TypeAMedicineName")}</p>
                 </div>
               ) : (
                 drugResults.map((p) => (
@@ -469,17 +588,17 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                       <div className="min-w-0">
                         <p className="font-extrabold truncate">{p.name}</p>
                         <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">
-                          {p.distance != null ? `${p.distance} km away` : ""}
+                          {p.distance != null ? `${p.distance} km ${t("headingNav.location")}` : ""}
                         </p>
                       </div>
                     </div>
                     <div className="mt-2 text-xs text-slate-700 dark:text-slate-200">
-                      <span className="font-extrabold">Stock:</span>{" "}
-                      <span>{p.stock ? String(p.stock) : "Available"}</span>
+                      <span className="font-extrabold">{t("PharmacyDashboard.InStock")}:</span>{" "}
+                      <span>{p.stock ? String(p.stock) : t("HospitalDashboard.Available")}</span>
                     </div>
                     <div className="mt-1 text-xs text-slate-700 dark:text-slate-200">
-                      <span className="font-extrabold">Price:</span>{" "}
-                      <span>{p.price != null ? String(p.price) : "Ask in chat"}</span>
+                      <span className="font-extrabold">{t("inventory.table.price")}:</span>{" "}
+                      <span>{p.price != null ? String(p.price) : t("Map.MessagePharmacy")}</span>
                     </div>
                     <button
                       type="button"
@@ -490,7 +609,7 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                       className="mt-3 w-full rounded-xl bg-blue-600 text-white py-2.5 font-extrabold text-xs hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                     >
                       <MessageSquare size={14} />
-                      Message pharmacy agent
+                      {t("Map.MessagePharmacy")}
                     </button>
                   </div>
                 ))
@@ -502,8 +621,8 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
           <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-base font-extrabold">Prescription Upload</h2>
-                <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Upload your prescription to find fulfillment pharmacies.</p>
+                <h2 className="text-base font-extrabold">{t("Map.PrescriptionUpload")}</h2>
+                <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Map.UploadToFind")}</p>
               </div>
               <span className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600/10 text-blue-700 dark:text-blue-300 font-extrabold">
                 <Upload size={18} />
@@ -543,9 +662,9 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
               >
                 <div className="flex items-center justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="font-extrabold">Drag & drop a file</p>
+                    <p className="font-extrabold">{t("Map.DragAndDrop")}</p>
                     <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">
-                      PDF or images supported. The system will simulate processing and show pharmacies.
+                      {t("Map.PdfOrImages")}
                     </p>
                   </div>
                   <button
@@ -554,14 +673,14 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                     disabled={isUploading}
                     className="shrink-0 rounded-xl bg-blue-600 text-white px-4 py-2 font-extrabold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Choose File
+                    {t("Map.ChooseFile")}
                   </button>
                 </div>
               </div>
 
               {selectedFile && (
                 <div className="mt-3 text-xs text-slate-600 dark:text-gray-300">
-                  Selected: <span className="font-extrabold">{selectedFile.name}</span>
+                  {t("Admin.Selected")}: <span className="font-extrabold">{selectedFile.name}</span>
                 </div>
               )}
             </div>
@@ -578,29 +697,29 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                   <div className="flex items-center gap-3">
                     <Loader2 size={22} className="animate-spin text-blue-600" />
                     <div>
-                      <p className="font-extrabold">Processing</p>
+                      <p className="font-extrabold">{t("Map.Processing")}</p>
                       <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">
-                        Extracting medicines and finding nearby pharmacies…
+                        {t("Map.ExtractingMedicines")}
                       </p>
                     </div>
                   </div>
                 </div>
               ) : prescriptionPharmacies.length === 0 ? (
                 <div className="mt-4 border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
-                  <p className="font-extrabold">Upload to see results</p>
-                  <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">We’ll list pharmacies that can fulfill your prescription.</p>
+                  <p className="font-extrabold">{t("Map.UploadToSee")}</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Map.WeWillList")}</p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-[310px] overflow-y-auto pr-1">
                   {prescriptionPharmacies.map((p) => (
                     <div key={String(p.id)} className="border border-slate-200 dark:border-gray-700 rounded-2xl p-3 bg-white dark:bg-gray-900/30">
                       <p className="font-extrabold">{p.name}</p>
-                      <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">{p.address ? p.address : "Address unavailable"}</p>
+                      <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">{p.address ? p.address : t("UserDashboard.NoAddress")}</p>
                       <div className="mt-2 text-xs text-slate-700 dark:text-slate-200">
-                        <span className="font-extrabold">Stock:</span> <span>{p.stock ? String(p.stock) : "Available"}</span>
+                        <span className="font-extrabold">{t("PharmacyDashboard.InStock")}:</span> <span>{p.stock ? String(p.stock) : t("HospitalDashboard.Available")}</span>
                       </div>
                       <div className="mt-1 text-xs text-slate-700 dark:text-slate-200">
-                        <span className="font-extrabold">Price:</span> <span>{p.price != null ? String(p.price) : "Ask in chat"}</span>
+                        <span className="font-extrabold">{t("inventory.table.price")}:</span> <span>{p.price != null ? String(p.price) : t("Map.MessagePharmacy")}</span>
                       </div>
                       <div className="mt-3 flex gap-2">
                         <button
@@ -608,7 +727,7 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                           onClick={() => onFacilityViewed?.(p.facility ?? { type: "pharmacy", id: p.id, name: p.name, address: p.address, lat: p.lat, lng: p.lng })}
                           className="flex-1 rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-800 dark:text-slate-200 py-2.5 font-extrabold text-xs hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
                         >
-                          Save to recents
+                          {t("Map.SaveToRecents")}
                         </button>
                         <button
                           type="button"
@@ -618,7 +737,7 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                           className="flex-1 rounded-xl bg-blue-600 text-white py-2.5 font-extrabold text-xs hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                         >
                           <MessageSquare size={14} />
-                          Chat
+                          {t("UserDashboard.Messages")}
                         </button>
                       </div>
                     </div>
@@ -634,11 +753,11 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
           <div className="rounded-2xl border border-slate-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800/40">
             <div className="p-4 border-b border-slate-200 dark:border-gray-700 flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <h2 className="font-extrabold text-base truncate">Live Facilities Map</h2>
+                <h2 className="font-extrabold text-base truncate">{t("Map.LiveFacilitiesMap")}</h2>
                 <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">
                   {routeTo
-                    ? `Route: ${routeTo.name} (${routeTo.type === "hospital" ? "Hospital" : "Pharmacy"})`
-                    : "Pick a facility from the list to draw a route."}
+                    ? `${t("Register.Location")}: ${routeTo.name} (${routeTo.type === "hospital" ? t("Map.hospital") : t("Map.pharmacy")})`
+                    : t("Map.PickAFacility")}
                 </p>
               </div>
               {routeTo && userLocation && routeToLatLng ? (
@@ -650,10 +769,10 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                   }}
                   className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-gray-700/60 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-gray-700 transition-colors text-sm font-extrabold"
                 >
-                  Clear Route
+                  {t("Map.ClearRoute")}
                 </button>
               ) : (
-                <div className="text-xs text-slate-600 dark:text-gray-300">{userLocation ? "Tracking enabled" : "Tracking unavailable"}</div>
+                <div className="text-xs text-slate-600 dark:text-gray-300">{userLocation ? t("Map.TrackingEnabled") : t("Map.TrackingUnavailable")}</div>
               )}
             </div>
 

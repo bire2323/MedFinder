@@ -6,6 +6,7 @@ export async function getAllUsers(_token, params = {}) {
 }
 
 export async function updateUser(_token, userId, payload) {
+  console.log(payload);
   await ensureCsrfCookie();
   return apiFetch(`/api/admin/users/${userId}`, {
     method: "PUT",
@@ -14,38 +15,39 @@ export async function updateUser(_token, userId, payload) {
   });
 }
 
-export async function getPendingApprovals(_token) {
-  return apiFetch("/api/admin/approvals", { method: "GET" });
+export async function getPendingApprovals(user, status = 'PENDING') {
+  await ensureCsrfCookie();
+  return apiFetch(`/api/admin/approvals?status=${status}`, { method: "GET" });
 }
 
-export async function decideApproval(_token, approvalId, decision, reason) {
+export async function decideApproval(user, approvalId, decision, reason, type) {
   await ensureCsrfCookie();
   return apiFetch(`/api/admin/approvals/${approvalId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ decision, reason }),
+    body: JSON.stringify({ decision, reason, type }),
   });
 }
 
-export async function getSystemStats(_token) {
+export async function getSystemStats(user) {
   return apiFetch("/api/admin/stats", { method: "GET" });
 }
 
-export async function getActivityFeed(_token, params = {}) {
+export async function getActivityFeed(user, params = {}) {
   const query = new URLSearchParams(params).toString();
   return apiFetch(`/api/admin/activity${query ? `?${query}` : ""}`, { method: "GET" });
 }
 
-export async function getNotifications(_token) {
+export async function getNotifications(user) {
   return apiFetch("/api/admin/notifications", { method: "GET" });
 }
 
-export async function markNotificationRead(_token, notificationId) {
+export async function markNotificationRead(user, notificationId) {
   await ensureCsrfCookie();
   return apiFetch(`/api/admin/notifications/${notificationId}/read`, { method: "POST" });
 }
 
-export async function logAdminEvent(_token, payload) {
+export async function logAdminEvent(user, payload) {
   await ensureCsrfCookie();
   return apiFetch("/api/admin/logs", {
     method: "POST",

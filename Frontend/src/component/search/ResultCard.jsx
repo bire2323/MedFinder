@@ -1,11 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  FaStar, 
-  FaHospital, 
-  FaPills, 
-  FaClinicMedical, 
-  FaMapMarkedAlt 
+import { useTranslation } from "react-i18next";
+import {
+  FaStar,
+  FaHospital,
+  FaPills,
+  FaClinicMedical,
+  FaMapMarkedAlt
 } from "react-icons/fa";
 
 /**
@@ -35,7 +36,7 @@ function AvailabilityPill({ isOpen, isFullTime }) {
 
 export default function ResultCard({ facility, onClick }) {
   const navigate = useNavigate();
-
+  const { t } = useTranslation();
   const isHospital = facility.type === "hospital";
   const isPharmacy = facility.type === "pharmacy";
   const typeLabel = isHospital ? "Hospital" : isPharmacy ? "Pharmacy" : "Facility";
@@ -69,9 +70,9 @@ export default function ResultCard({ facility, onClick }) {
         <div className="shrink-0">
           <div className="w-20 h-20 rounded-full border-2 border-slate-100 dark:border-gray-700 overflow-hidden bg-slate-50 dark:bg-gray-900 flex items-center justify-center shadow-sm">
             {facility.logoUrl ? (
-              <img 
-                src={facility.logoUrl} 
-                alt={facility.name} 
+              <img
+                src={facility.logoUrl}
+                alt={facility.name}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -97,7 +98,7 @@ export default function ResultCard({ facility, onClick }) {
 
             {/* Map Navigation Icon */}
             <div className="flex gap-2">
-              <div 
+              <div
                 onClick={openInInternalMap}
                 className="p-2.5 rounded-xl bg-slate-50 dark:bg-gray-700 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 transition-all cursor-pointer"
                 title="View on Map"
@@ -131,8 +132,8 @@ export default function ResultCard({ facility, onClick }) {
       </div>
 
       <div className="mt-4 pt-4 border-t border-slate-50 dark:border-gray-700/50 flex justify-between items-center">
-        <span className="text-sm font-bold text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform inline-block">
-          View full details →
+        <span className="text-sm cursor-pointer font-bold text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform inline-block">
+          {t("search.viewDetails")}
         </span>
 
         {Number.isFinite(facility.distanceMeters) && (

@@ -3,13 +3,15 @@ import { BsChatRightFill, BsSendFill } from "react-icons/bs";
 import { IoClose } from "react-icons/io5";
 import { RiRobot2Line } from "react-icons/ri";
 import { sendMessage } from "../api/ChatBot";
+import { useTranslation } from "react-i18next";
 
 export default function FloatingChatButton() {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [globalModalOpen, setGlobalModalOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
-    { role: "bot", text: "Hello! I am MedFinder AI. How can I help you today?" },
+    { role: "bot", text: t("floatingChat.greeting") },
   ]);
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
@@ -44,7 +46,7 @@ export default function FloatingChatButton() {
     } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { role: "bot", text: "I'm having trouble connecting. Please check if the server is running." },
+        { role: "bot", text: t("floatingChat.connectionError") },
       ]);
     } finally {
       setLoading(false);
@@ -70,10 +72,10 @@ export default function FloatingChatButton() {
                 <RiRobot2Line className="text-2xl" />
               </div>
               <div>
-                <h3 className="text-sm font-black uppercase tracking-widest">MedFinder AI</h3>
+                <h3 className="text-sm font-black uppercase tracking-widest">{t("floatingChat.title")}</h3>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                  <span className="text-[10px] font-medium opacity-80">Online & Ready</span>
+                  <span className="text-[10px] font-medium opacity-80">{t("floatingChat.onlineReady")}</span>
                 </div>
               </div>
             </div>
@@ -111,7 +113,7 @@ export default function FloatingChatButton() {
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
                 </div>
-                <span className="text-[12px] font-medium">Assistant is thinking...</span>
+                <span className="text-[12px] font-medium">{t("floatingChat.thinking")}</span>
               </div>
             )}
           </div>
@@ -124,7 +126,7 @@ export default function FloatingChatButton() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Ask about symptoms, medicines..."
+                placeholder={t("floatingChat.placeholder")}
                 disabled={globalModalOpen}
                 className="flex-1 bg-transparent border-none px-4 py-3 text-sm outline-none dark:text-white placeholder:text-slate-400"
               />

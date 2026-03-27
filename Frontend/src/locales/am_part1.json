@@ -1,0 +1,21 @@
+{
+  "headingNav": {
+    "Find Care": "መግቢያ",
+    "home": "መነሻ",
+    "hospitals": "ሆስፒታሎች",
+    "pharmacies": "ፋርማሲዎች",
+    "map": "ካርታ",
+    "open_live_map": "ካርታ ላይ",
+    "location": "መገኛ",
+    "healthcare_platform": "የጤና አገልግሎት",
+    "addis_ababa": "አዲስ አበባ",
+    "profile_dropdown": {
+      "account": "ማህደር",
+      "my_dashboard": "የኔ አገልግሎት",
+      "logout": "ዘግተው ይውጡ!"
+    }
+  },
+  "heading": {
+    "hospital_and_pharmacy_finder": "ሆስፒታል እና ፋርማሲ ፈላጊ"
+  }
+}

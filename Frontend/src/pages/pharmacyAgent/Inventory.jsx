@@ -53,7 +53,7 @@ export default function Inventory({ activeTab, setActiveTab }) {
             }
         } catch (error) {
             console.error("Error fetching inventory:", error);
-            setInventoryError("Failed to load inventory");
+            setInventoryError(t("inventory.loadFailed"));
         } finally {
             setIsLoadingInventory(false);
         }
@@ -75,7 +75,7 @@ export default function Inventory({ activeTab, setActiveTab }) {
                 setShowAddModal(false);
                 resetDrugForm();
             } else {
-                alert(response.message || "Failed to add drug");
+                alert(response.message || t("error.failedAdd"));
             }
         } catch (error) {
             console.error("Error adding drug:", error);
@@ -98,7 +98,7 @@ export default function Inventory({ activeTab, setActiveTab }) {
                 setDrugName(null);
                 resetDrugForm();
             } else {
-                alert(response.message || "Failed to update drug");
+                alert(response.message || t("error.failedUpdate"));
             }
         } catch (error) {
             console.error("Error updating drug:", error);
@@ -133,7 +133,7 @@ export default function Inventory({ activeTab, setActiveTab }) {
                 setShowDeleteModal(false);
                 setSelectedDrug(null);
             } else {
-                console.log(response.message || "Failed to delete drug");
+                console.log(response.message || t("error.failedDelete"));
             }
         } catch (error) {
             console.error("Error deleting drug:", error);
@@ -296,16 +296,16 @@ export default function Inventory({ activeTab, setActiveTab }) {
                                                                 : "text-emerald-500"
                                                             }`}
                                                     >
-                                                        {drug.stock} units
+                                                        {drug.stock} {t("inventory.units")}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    {drug.inventory?.price} ETB
+                                                    {drug.inventory?.price} {t("Common.Currency")}
                                                 </td>
                                                 <td className="px-6 py-4 text-xs text-slate-500">
                                                     <div className="flex items-center gap-1">
                                                         <Calendar size={12} />
-                                                        {drug.created_at || "N/A"}
+                                                        {drug.created_at || t("Common.NoData")}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
@@ -332,14 +332,14 @@ export default function Inventory({ activeTab, setActiveTab }) {
                                                                 openEditModal(drug);
                                                             }}
                                                             className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-                                                            title="Edit"
+                                                            title={t("Common.Edit")}
                                                         >
                                                             <Edit2 size={16} />
                                                         </button>
                                                         <button
                                                             onClick={() => openDeleteModal(drug)}
                                                             className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                                                            title="Delete"
+                                                            title={t("Common.Delete")}
                                                         >
                                                             <Trash2 size={16} />
                                                         </button>
@@ -356,7 +356,7 @@ export default function Inventory({ activeTab, setActiveTab }) {
                         <AnimatePresence>
                             {showAddModal && (
                                 <DrugInventoryModal
-                                    title="Add New Drug"
+                                    title={t("modal.drugInventory.titleAdd")}
                                     drugForm={drugForm}
                                     setDrugForm={setDrugForm}
                                     onSubmit={handleAddDrug}
@@ -388,7 +388,7 @@ export default function Inventory({ activeTab, setActiveTab }) {
                         <AnimatePresence>
                             {showDeleteModal && selectedDrug && (
                                 <DeleteConfirmModal
-                                    drugName={selectedDrug.brand_name_en || selectedDrug.generic_name || "this drug"}
+                                    drugName={selectedDrug.brand_name_en || selectedDrug.generic_name || t("inventory.thisDrug")}
                                     onConfirm={handleDeleteDrug}
                                     onClose={() => {
                                         setShowDeleteModal(false);

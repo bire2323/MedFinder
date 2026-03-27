@@ -1,12 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FaStar, FaMapMarkerAlt } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
 // Reusable Card Component
 const FacilityCard = ({ facility, onViewDetails, onMapView }) => {
+  const { t } = useTranslation();
   const getFacilityName = () => {
-    return facility.type === 'hospital' 
-      ? facility.hospital_name_en 
+    return facility.type === 'hospital'
+      ? facility.hospital_name_en
       : facility.pharmacy_name_en;
   };
 
@@ -21,10 +23,10 @@ const FacilityCard = ({ facility, onViewDetails, onMapView }) => {
   };
 
   const facilityInfo = [
-    { label: 'Type', value: facility.type },
-    { label: 'Rating', value: facility.rating, icon: <FaStar className="text-yellow-400 inline mr-1" /> },
-    { label: 'Service', value: facility.is_full_time_service === 1 ? '24/7 Available' : 'Regular Hours' },
-    { label: 'Contact', value: facility.phone || '' },
+    { label: t('search.type'), value: facility.type },
+    { label: t('search.rating'), value: facility.rating, icon: <FaStar className="text-yellow-400 inline mr-1" /> },
+    { label: t('search.service'), value: facility.is_full_time_service === 1 ? t('search.available247') : t('search.regularHours') },
+    { label: t('search.contact'), value: facility.phone || '' },
   ];
 
   return (
@@ -42,7 +44,7 @@ const FacilityCard = ({ facility, onViewDetails, onMapView }) => {
                 src={facility?.logo || '/default-facility-image.png'}
                 alt={getFacilityName()}
                 className="w-full h-full object-cover"
-              
+
               />
             </div>
           </div>
@@ -94,16 +96,16 @@ const FacilityCard = ({ facility, onViewDetails, onMapView }) => {
       {/* Action Buttons */}
       <div className="flex border-t border-slate-100 dark:border-gray-700">
         <button
-          className="flex-1 py-3 bg-slate-50 dark:bg-gray-700 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-white font-bold transition-colors"
+          className="flex-1 cursor-pointer py-3 bg-slate-50 dark:bg-gray-700 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-white font-bold transition-colors"
           onClick={() => onViewDetails(facility)}
         >
-          View Details
+          {t('search.viewDetails')}
         </button>
         <button
-          className="flex-1 py-3 bg-slate-50 dark:bg-gray-700 hover:bg-green-600 hover:text-white text-slate-700 dark:text-white font-bold transition-colors border-l border-slate-200 dark:border-gray-600 flex items-center justify-center gap-2"
+          className="flex-1 cursor-pointer py-3 bg-slate-50 dark:bg-gray-700 hover:bg-green-600 hover:text-white text-slate-700 dark:text-white font-bold transition-colors border-l border-slate-200 dark:border-gray-600 flex items-center justify-center gap-2"
           onClick={() => onMapView(facility)}
         >
-          <FaMapMarkerAlt /> Map View
+          <FaMapMarkerAlt /> {t('search.mapView')}
         </button>
       </div>
     </motion.div>
@@ -135,11 +137,11 @@ const FacilityCardSkeleton = () => (
 );
 
 // Modified FacilityGrid to accept handlers as props
-const FacilityGrid = ({ 
-  facilities, 
+const FacilityGrid = ({
+  facilities,
   loading = false,
   onViewDetails,
-  onMapView 
+  onMapView
 }) => {
   if (loading) {
     return (
@@ -152,10 +154,11 @@ const FacilityGrid = ({
   }
 
   if (!facilities || facilities.length === 0) {
+    const { t } = useTranslation();
     return (
       <div className="text-center py-12">
         <p className="text-slate-500 dark:text-slate-400 text-lg">
-          Top health services are coming soon...
+          {t('search.comingSoon')}
         </p>
       </div>
     );

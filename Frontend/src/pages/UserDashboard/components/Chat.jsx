@@ -8,6 +8,7 @@ import {
   Sparkles,
   UserCircle2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { sendMessage } from "../../../api/ChatBot";
 import { apiFetch, ensureCsrfCookie } from "../../../api/client";
@@ -55,6 +56,7 @@ function formatTime(iso) {
 }
 
 export default function Chat({ initialFacility, onClearInitialFacility }) {
+  const { t } = useTranslation();
   const location = useLocation();
   const { user } = useAuthStore();
   const currentUserId = user?.id;
@@ -93,7 +95,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
   }, [targetSessionToOpen, setTargetSessionToOpen]);
 
   const [aiMessages, setAiMessages] = useState([
-    { role: "bot", text: "Hello! I am MedFinder AI. Ask about symptoms, medicines, or nearby facilities." },
+    { role: "bot", text: t("ai.welcome") },
   ]);
   const [aiLoading, setAiLoading] = useState(false);
 
@@ -134,7 +136,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
       .then((data) => {
         setSessions(Array.isArray(data) ? data : []);
       })
-      .catch((e) => setSessionsError(e?.message || "Failed to load chat sessions."))
+      .catch((e) => setSessionsError(e?.message || t("error.generic_error")))
       .finally(() => setSessionsLoading(false));
   }, []);
 
@@ -226,7 +228,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
 
     try {
       const data = await sendMessage(text);
-      const replyText = data?.reply ?? data?.response?.reply ?? data?.message ?? "No reply received.";
+      const replyText = data?.reply ?? data?.response?.reply ?? data?.message ?? t("error.generic_error");
       const botMsg = { role: "bot", text: replyText };
       const finalMessages = [...nextMessages, botMsg];
       setAiMessages(finalMessages);
@@ -243,7 +245,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
       localStorage.setItem(LS_AI_LOGS_KEY, JSON.stringify(merged));
       setAiLogs(merged);
     } catch {
-      const errMsg = { role: "bot", text: "I'm having trouble connecting. Please try again." };
+      const errMsg = { role: "bot", text: t("error.generic_error") };
       setAiMessages((prev) => [...prev, errMsg]);
     } finally {
       setAiLoading(false);
@@ -288,7 +290,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
       <div className={`lg:col-span-5 sticky top-14 self-start ${activeSessionId ? 'hidden lg:block' : 'block'}`}>
         <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 p-4">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-base font-extrabold">{mode === "agent" ? "Chats" : mode === "ai" ? "AI Assistant" : "Chat History"}</h2>
+            <h2 className="text-base font-extrabold">{mode === "agent" ? t("Chat.Chats") : mode === "ai" ? t("Chat.AiAssistant") : t("Chat.ChatHistory")}</h2>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -300,7 +302,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                     : "bg-white dark:bg-gray-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/50",
                 ].join(" ")}
               >
-                Agent
+                {t("Chat.Agent")}
               </button>
               <button
                 type="button"
@@ -312,7 +314,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                     : "bg-white dark:bg-gray-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/50",
                 ].join(" ")}
               >
-                AI
+                {t("Chat.Ai")}
               </button>
               <button
                 type="button"
@@ -324,7 +326,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                     : "bg-white dark:bg-gray-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/50",
                 ].join(" ")}
               >
-                Logs
+                {t("Chat.Logs")}
               </button>
             </div>
           </div>
@@ -332,13 +334,13 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
           {mode === "agent" && (
             <div className="mt-4">
               <div className="flex items-center justify-between gap-3 mb-3">
-                <div className="text-sm font-extrabold text-slate-800 dark:text-slate-100">Conversation list</div>
+                <div className="text-sm font-extrabold text-slate-800 dark:text-slate-100">{t("Chat.ConversationList")}</div>
                 <button
                   type="button"
                   onClick={() => setMode("history")}
                   className="text-xs font-extrabold text-blue-700 dark:text-blue-400 hover:underline"
                 >
-                  Search logs
+                  {t("Chat.SearchLogs")}
                 </button>
               </div>
 
@@ -351,12 +353,12 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
               {sessionsLoading ? (
                 <div className="mt-4 flex items-center gap-3 text-slate-600 dark:text-gray-300">
                   <Loader2 size={20} className="animate-spin" />
-                  Loading sessions…
+                  {t("Common.Loading")}
                 </div>
               ) : sessions.length === 0 ? (
                 <div className="mt-4 border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
-                  <p className="font-extrabold">No agent chats yet</p>
-                  <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Start a chat from Search → Pharmacy results.</p>
+                  <p className="font-extrabold">{t("Chat.NoAgentChatsYet")}</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Chat.StartChatFromSearch")}</p>
                 </div>
               ) : (
                 <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
@@ -406,10 +408,10 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
               <div className="border border-slate-200 dark:border-gray-700 rounded-2xl p-4 bg-slate-50 dark:bg-gray-900/30">
                 <div className="flex items-center gap-2">
                   <Sparkles size={18} className="text-blue-600" />
-                  <p className="font-extrabold">AI Chatbot</p>
+                  <p className="font-extrabold">{t("Chat.AiChatbot")}</p>
                 </div>
                 <p className="text-sm text-slate-600 dark:text-gray-300 mt-2">
-                  Use this chatbot to get help about symptoms, medicines, and nearby facilities. Logs are saved for History search.
+                  {t("Chat.AiChatbotDescription")}
                 </p>
               </div>
             </div>
@@ -422,7 +424,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                 <input
                   value={historyQuery}
                   onChange={(e) => setHistoryQuery(e.target.value)}
-                  placeholder="Search in AI + Agent conversations…"
+                  placeholder={t("Chat.SearchInAiAndAgent")}
                   className="w-full pl-10 pr-3 py-3 rounded-xl bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -434,7 +436,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                   className="text-xs font-extrabold text-blue-700 dark:text-blue-400 hover:underline"
                   disabled={historyLoading}
                 >
-                  {historyLoading ? "Loading..." : "Refresh agent logs"}
+                  {historyLoading ? t("Common.Loading") : t("Chat.RefreshAgentLogs")}
                 </button>
                 <button
                   type="button"
@@ -443,19 +445,19 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                     setAiLogs([]);
                   }}
                   className="text-xs font-extrabold text-rose-700 dark:text-rose-300 hover:underline"
-                  title="Clear AI logs"
+                  title={t("Chat.ClearAi")}
                 >
-                  Clear AI
+                  {t("Chat.ClearAi")}
                 </button>
               </div>
 
               <div className="mt-4 space-y-4 max-h-[420px] overflow-y-auto pr-1">
                 <div className="space-y-2">
-                  <p className="text-xs font-extrabold text-slate-600 dark:text-gray-300 uppercase tracking-widest">AI Chat Logs</p>
+                  <p className="text-xs font-extrabold text-slate-600 dark:text-gray-300 uppercase tracking-widest">{t("Chat.AiChatLogs")}</p>
                   {aiLogsFiltered.length === 0 ? (
                     <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
-                      <p className="font-extrabold">No AI logs yet</p>
-                      <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Ask something in the AI tab to generate logs.</p>
+                      <p className="font-extrabold">{t("Chat.NoAiLogsYet")}</p>
+                      <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Chat.AskSomethingInAiTab")}</p>
                     </div>
                   ) : (
                     aiLogsFiltered.slice(0, 10).map((c) => (
@@ -463,7 +465,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <p className="font-extrabold truncate">{c.query}</p>
-                            <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">Saved at {new Date(c.createdAt).toLocaleString()}</p>
+                            <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">{t("Admin.SavedAt")} {new Date(c.createdAt).toLocaleString()}</p>
                           </div>
                           <span className="shrink-0 w-9 h-9 rounded-xl bg-blue-600/10 text-blue-700 dark:text-blue-300 flex items-center justify-center">
                             <Sparkles size={16} />
@@ -475,16 +477,16 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-xs font-extrabold text-slate-600 dark:text-gray-300 uppercase tracking-widest">Agent Chat Logs</p>
+                  <p className="text-xs font-extrabold text-slate-600 dark:text-gray-300 uppercase tracking-widest">{t("Chat.AgentChatLogs")}</p>
                   {sessionsLoading ? (
                     <div className="flex items-center gap-3 text-slate-600 dark:text-gray-300">
                       <Loader2 size={18} className="animate-spin" />
-                      Loading sessions…
+                      {t("Common.Loading")}
                     </div>
                   ) : agentHistoryFiltered.length === 0 ? (
                     <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
-                      <p className="font-extrabold">No agent logs yet</p>
-                      <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Start a pharmacy chat to generate conversation history.</p>
+                      <p className="font-extrabold">{t("Chat.NoAgentLogsYet")}</p>
+                      <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Chat.StartPharmacyChat")}</p>
                     </div>
                   ) : (
                     agentHistoryFiltered.slice(0, 10).map((h) => (
@@ -500,7 +502,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <p className="font-extrabold truncate">{h.facilityLabel}</p>
-                            <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 truncate">{lastMessageText(h.messages) || "No messages."}</p>
+                            <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 truncate">{lastMessageText(h.messages) || t("chat.no_messages")}</p>
                           </div>
                           <span className="shrink-0 w-9 h-9 rounded-xl bg-slate-100 dark:bg-gray-700/60 flex items-center justify-center">
                             <MessageSquare size={16} className="text-slate-700 dark:text-slate-200" />
@@ -524,10 +526,10 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
               <div className="p-4 border-b border-slate-200 dark:border-gray-700 hidden lg:flex items-center justify-between gap-3 shrink-0">
                 <div className="min-w-0">
                   <p className="font-extrabold truncate">
-                    {activeSession ? getFacilityLabel(activeSession) : "Select a chat session"}
+                    {activeSession ? getFacilityLabel(activeSession) : t("Chat.SelectAChatSession")}
                   </p>
                   <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">
-                    Real-time messages with pharmacy agents (via Laravel Reverb).
+                    {t("Chat.RealTimeMessages")}
                   </p>
                 </div>
                 <button
@@ -535,7 +537,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                   onClick={() => setMode("history")}
                   className="text-xs font-extrabold text-blue-700 dark:text-blue-400 hover:underline hidden sm:inline-flex"
                 >
-                  View logs
+                  {t("Chat.ViewLogs")}
                 </button>
               </div>
 
@@ -544,14 +546,14 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                   <SharedChatWindow
                     sessionId={activeSessionId}
                     currentUserId={currentUserId}
-                    otherParticipantName={activeSession ? getFacilityLabel(activeSession) : "Agent"}
+                    otherParticipantName={activeSession ? getFacilityLabel(activeSession) : t("Chat.Agent")}
                     onBack={() => setActiveSessionId(null)}
                   />
                 </div>
               ) : (
                 <div className="flex-1  flex items-center justify-center">
                   <div className="text-sm text-slate-600 dark:text-gray-300 text-center p-5">
-                    Pick a session from the left, or start a chat from Search → Pharmacy results.
+                    {t("Chat.PickASession")}
                   </div>
                 </div>
               )}
@@ -563,7 +565,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
               <div className="p-4 border-b border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900/30">
                 <p className="font-extrabold flex items-center gap-2">
                   <Sparkles size={18} className="text-blue-600" />
-                  AI Assistant (logs saved for history)
+                  {t("Chat.AiAssistant")}
                 </p>
               </div>
 
@@ -585,7 +587,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                 {aiLoading && (
                   <div className="flex items-center gap-3 text-slate-600 dark:text-gray-300">
                     <Loader2 size={18} className="animate-spin" />
-                    Assistant is thinking…
+                    {t("Chat.AiThinking")}
                   </div>
                 )}
               </div>
@@ -602,7 +604,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                         startAiChat();
                       }
                     }}
-                    placeholder="Ask about medicines, symptoms, or nearby facilities…"
+                    placeholder={t("Chat.AskAboutMedicines")}
                     className="flex-1 rounded-2xl bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   />
                   <button
@@ -621,9 +623,9 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
           {mode === "history" && (
             <div className="flex-1 overflow-y-auto p-4">
               <div className="border border-slate-200 dark:border-gray-700 rounded-2xl bg-slate-50 dark:bg-gray-950/30 p-4">
-                <p className="font-extrabold">History is shown in the left panel</p>
+                <p className="font-extrabold">{t("Chat.ChatHistory")}</p>
                 <p className="text-sm text-slate-600 dark:text-gray-300 mt-2">
-                  Use the search box to filter AI chatbot logs and human agent conversations.
+                  {t("Chat.AiChatbotDescription")}
                 </p>
               </div>
             </div>

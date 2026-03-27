@@ -37,10 +37,37 @@ const ETHIOPIAN_REGIONS_AM = [
   { value: 'tigray', label: 'ትግራይ' },
 ];
 
+const CITY_SUGGESTIONS = {
+  addis_ababa: {
+    en: ['Bole', 'Kirkos', 'Arada', 'Gullele', 'Lideta', 'Yeka', 'Kolfe Keranio', 'Akaki Kality', 'Nifas Silk Lafto', 'Lemi Kura'],
+    am: ['ቦሌ', 'ቂርቆስ', 'አራዳ', 'ጉለሌ', 'ልደታ', 'የካ', 'ኮልፌ ቀራኒዮ', 'አቃቂ ቃሊቲ', 'ንፋስ ስልክ ላፍቶ', 'ለሚ ኩራ']
+  },
+  amhara: {
+    en: ['Bahir Dar', 'Gondar', 'Dessie', 'Debre Birhan', 'Debre Tabor', 'Woldia', 'Kobo', 'Kombolcha'],
+    am: ['ባህር ዳር', 'ጎንደር', 'ደሴ', 'ደብረ ብርሃን', 'ደብረ ታቦር', 'ወልድያ', 'ቆቦ', 'ኮምቦልቻ']
+  },
+  oromia: {
+    en: ['Adama', 'Jimma', 'Bishoftu', 'Shashemene', 'Nekemte', 'Asella', 'Burayu', 'Ambo', 'Dukem'],
+    am: ['አዳማ', 'ጅማ', 'ቢሾፍቱ', 'ሻሸመኔ', 'ነቀምቴ', 'አሰላ', 'ቡራዩ', 'አምቦ', 'ዱከም']
+  },
+  tigray: {
+    en: ['Mekelle', 'Adigrat', 'Shire', 'Axum', 'Adwa', 'Alamata', 'Humera'],
+    am: ['መቀሌ', 'አዲግራት', 'ሽሬ', 'አክሱም', 'አድዋ', 'አላማጣ', 'ሁመራ']
+  },
+  sidama: {
+    en: ['Hawassa', 'Yirgalem', 'Aleta Wendo'],
+    am: ['ሀዋሳ', 'ይርጋለም', 'አለታ ወንዶ']
+  },
+  dire_dawa: {
+    en: ['Dire Dawa'],
+    am: ['ድሬዳዋ']
+  }
+};
+
 // Memoized InputField – moved outside to prevent recreation on every render
 const InputField = memo(({
   id, label, icon: Icon, type = 'text', placeholder, required = false,
-  value, error, hint, dir = 'ltr', onChange
+  value, error, hint, dir = 'ltr', onChange, suggestions = []
 }) => (
   <div className="space-y-2">
     <label htmlFor={id} className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -48,24 +75,37 @@ const InputField = memo(({
       {label}
       {required && <span className="text-red-500">*</span>}
     </label>
-    <input
-      id={id}
-      type={type}
-      onKeyDown={handleKeyDown}
-      value={value ?? ''}
-      onChange={onChange}
-      placeholder={placeholder}
-      dir={dir}
-      className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${error ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'
-        }`}
-      aria-describedby={error ? `${id}-error` : undefined}
-    />
+    <div className="relative">
+      <input
+        id={id}
+        type={type}
+        list={suggestions.length > 0 ? `${id}-suggestions` : undefined}
+        onKeyDown={handleKeyDown}
+        value={value ?? ''}
+        onChange={onChange}
+        placeholder={placeholder}
+        dir={dir}
+        className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${error ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'
+          }`}
+        aria-describedby={error ? `${id}-error` : undefined}
+      />
+      {suggestions.length > 0 && (
+        <datalist id={`${id}-suggestions`}>
+          {suggestions.map((s, i) => (
+            <option key={i} value={s} />
+          ))}
+        </datalist>
+      )}
+    </div>
     {error && <p id={`${id}-error`} className="text-xs text-red-500">{error}</p>}
     {hint && !error && <p className="text-xs text-gray-400">{hint}</p>}
   </div>
 ));
 
+import { useTranslation } from 'react-i18next';
+
 const Step2Location = () => {
+  const { t } = useTranslation();
   const {
     formData: storeFormData,
     errors,
@@ -75,6 +115,52 @@ const Step2Location = () => {
     validateStep2,
     registrationType,
   } = useRegistrationStore();
+
+  const ETHIOPIAN_REGIONS_EN = [
+    { value: '', label: t('Registration.Regions.Select') },
+    { value: 'addis_ababa', label: t('Registration.Regions.AddisAbaba') },
+    { value: 'afar', label: t('Registration.Regions.Afar') },
+    { value: 'amhara', label: t('Registration.Regions.Amhara') },
+    { value: 'benishangul_gumuz', label: t('Registration.Regions.Benishangul') },
+    { value: 'dire_dawa', label: t('Registration.Regions.DireDawa') },
+    { value: 'gambela', label: t('Registration.Regions.Gambela') },
+    { value: 'harari', label: t('Registration.Regions.Harari') },
+    { value: 'oromia', label: t('Registration.Regions.Oromia') },
+    { value: 'sidama', label: t('Registration.Regions.Sidama') },
+    { value: 'snnpr', label: t('Registration.Regions.Snnpr') },
+    { value: 'somali', label: t('Registration.Regions.Somali') },
+    { value: 'south_west', label: t('Registration.Regions.SouthWest') },
+    { value: 'tigray', label: t('Registration.Regions.Tigray') },
+  ];
+
+  const ETHIOPIAN_REGIONS_AM = ETHIOPIAN_REGIONS_EN; // They use the same keys now
+
+  const CITY_SUGGESTIONS = {
+    addis_ababa: {
+      en: ['Bole', 'Kirkos', 'Arada', 'Gullele', 'Lideta', 'Yeka', 'Kolfe Keranio', 'Akaki Kality', 'Nifas Silk Lafto', 'Lemi Kura'],
+      am: ['ቦሌ', 'ቂርቆስ', 'አራዳ', 'ጉለሌ', 'ልደታ', 'የካ', 'ኮልፌ ቀራኒዮ', 'አቃቂ ቃሊቲ', 'ንፋስ ስልክ ላፍቶ', 'ለሚ ኩራ']
+    },
+    amhara: {
+      en: ['Bahir Dar', 'Gondar', 'Dessie', 'Debre Birhan', 'Debre Tabor', 'Woldia', 'Kobo', 'Kombolcha'],
+      am: ['ባህር ዳር', 'ጎንደር', 'ደሴ', 'ደብረ ብርሃን', 'ደብረ ታቦር', 'ወልድያ', 'ቆቦ', 'ኮምቦልቻ']
+    },
+    oromia: {
+      en: ['Adama', 'Jimma', 'Bishoftu', 'Shashemene', 'Nekemte', 'Asella', 'Burayu', 'Ambo', 'Dukem'],
+      am: ['አዳማ', 'ጅማ', 'ቢሾፍቱ', 'ሻሸመኔ', 'ነቀምቴ', 'አሰላ', 'ቡራዩ', 'አምቦ', 'ዱከም']
+    },
+    tigray: {
+      en: ['Mekelle', 'Adigrat', 'Shire', 'Axum', 'Adwa', 'Alamata', 'Humera'],
+      am: ['መቀሌ', 'አዲግራት', 'ሽሬ', 'አክሱም', 'አድዋ', 'አላማጣ', 'ሁመራ']
+    },
+    sidama: {
+      en: ['Hawassa', 'Yirgalem', 'Aleta Wendo'],
+      am: ['ሀዋሳ', 'ይርጋለም', 'አለታ ወንዶ']
+    },
+    dire_dawa: {
+      en: ['Dire Dawa'],
+      am: ['ድሬዳዋ']
+    }
+  };
 
   const [localData, setLocalData] = useState({
     region_en: '',
@@ -102,8 +188,8 @@ const Step2Location = () => {
       subCity_en: storeFormData.subCity_en || '',
       subCity_am: storeFormData.subCity_am || '',
       kebele: storeFormData.kebele || '',
-      detailedAddress: storeFormData.detailedAddress_en || '',
-      detailedAddress: storeFormData.detailedAddress_am || '',
+      detailedAddress_en: storeFormData.detailedAddress_en || '',
+      detailedAddress_am: storeFormData.detailedAddress_am || '',
       latitude: storeFormData.latitude || '',
       longitude: storeFormData.longitude || '',
       workingHour: storeFormData.workingHour || '',
@@ -133,10 +219,10 @@ const Step2Location = () => {
             latitude: position.coords.latitude.toFixed(6),
             longitude: position.coords.longitude.toFixed(6),
           })),
-        () => alert('Unable to get your location. Please enter coordinates manually.')
+        () => alert(t('Registration.LocError'))
       );
     } else {
-      alert('Geolocation is not supported by your browser.');
+      alert(t('Registration.GeoError'));
     }
   };
 
@@ -149,7 +235,7 @@ const Step2Location = () => {
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
               <Globe size={16} className="text-blue-500" />
-              Region (English) <span className="text-red-500">*</span>
+              {t('Registration.PharmacyNameEn').includes('Pharmacy') ? t('Registration.Regions.Select') + ' (English)' : t('Registration.Regions.Select')} <span className="text-red-500">*</span>
             </label>
             <select
               id="region_en"
@@ -169,7 +255,7 @@ const Step2Location = () => {
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
               <Globe size={16} className="text-green-500" />
-              ክልል (አማርኛ) <span className="text-red-500">*</span>
+              {t('Registration.Regions.Select')} (አማርኛ) <span className="text-red-500">*</span>
             </label>
             <select
               id="region_am"
@@ -193,19 +279,20 @@ const Step2Location = () => {
           <InputField
             id="zone_en"
             onKeyDown={handleKeyDown}
-            label="Zone / City (English)"
+            label={t('Registration.ZoneCity') + ' (English)'}
             icon={Building}
             placeholder="e.g., Addis Ababa, Bahir Dar"
             required
             value={localData.zone_en}
             error={errors.zone_en}
             onChange={handleInputChange}
+            suggestions={CITY_SUGGESTIONS[localData.region_en]?.en || []}
           />
 
           <InputField
             id="zone_am"
             onKeyDown={handleKeyDown}
-            label="ዞን / ከተማ (አማርኛ)"
+            label={t('Registration.ZoneCity') + ' (አማርኛ)'}
             icon={Building}
             placeholder="ለምሳሌ፡ አዲስ አበባ፣ ባህር ዳር"
             required
@@ -213,6 +300,7 @@ const Step2Location = () => {
             error={errors.zone_am}
             dir="rtl"
             onChange={handleInputChange}
+            suggestions={CITY_SUGGESTIONS[localData.region_am]?.am || []}
           />
         </div>
 
@@ -221,7 +309,7 @@ const Step2Location = () => {
           <InputField
             id="subCity_en"
             onKeyDown={handleKeyDown}
-            label="Sub-city / Woreda (English)"
+            label={t('Registration.SubCityWoreda') + ' (English)'}
             icon={MapPin}
             placeholder="e.g., Bole, Kirkos"
             required
@@ -233,7 +321,7 @@ const Step2Location = () => {
           <InputField
             id="subCity_am"
             onKeyDown={handleKeyDown}
-            label="ንዑስ ከተማ / ወረዳ (አማርኛ)"
+            label={t('Registration.SubCityWoreda') + ' (አማርኛ)'}
             icon={MapPin}
             placeholder="ለምሳሌ፡ ቦሌ፣ ቂርቆስ"
             required
@@ -248,7 +336,7 @@ const Step2Location = () => {
         <InputField
           id="kebele"
           onKeyDown={handleKeyDown}
-          label="Kebele"
+          label={t('Registration.Kebele')}
           icon={MapPin}
           placeholder="e.g., 03/05"
           value={localData.kebele}
@@ -259,7 +347,7 @@ const Step2Location = () => {
 
           <InputField
             id="detailedAddress_en"
-            label="Detailed Address / Landmark (english)"
+            label={t('Registration.DetailedAddress') + ' (English)'}
             icon={Map}
             onKeyDown={handleKeyDown}
             placeholder="e.g., Near Edna Mall"
@@ -270,7 +358,7 @@ const Step2Location = () => {
           <div>
             <InputField
               id="detailedAddress_am"
-              label="Detailed Address / Landmark (amharic)"
+              label={t('Registration.DetailedAddress') + ' (አማርኛ)'}
               icon={Map}
               onKeyDown={handleKeyDown}
               placeholder="ለምሳሌ፤, ማራኪ በርበር"
@@ -286,14 +374,14 @@ const Step2Location = () => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
               <Navigation size={16} className="text-blue-500" />
-              GPS Coordinates
+              {t('Registration.GpsCoords')}
             </h3>
             <button
               type="button"
               onClick={handleGetLocation}
               className="text-xs px-3 py-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-1"
             >
-              <Navigation size={12} /> Get My Location
+              <Navigation size={12} /> {t('Registration.GetMyLocation')}
             </button>
           </div>
 
@@ -301,27 +389,27 @@ const Step2Location = () => {
             <InputField
               id="latitude"
               onKeyDown={handleKeyDown}
-              label="Latitude"
+              label={t('Registration.Latitude')}
               icon={MapPin}
               type="number"
               placeholder="e.g., 9.0054"
               required
               value={localData.latitude}
               error={errors.latitude}
-              hint="Enter latitude (-90 to 90)"
+              hint={t('Registration.LatHint')}
               onChange={handleInputChange}
             />
             <InputField
               id="longitude"
               onKeyDown={handleKeyDown}
-              label="Longitude"
+              label={t('Registration.Longitude')}
               icon={MapPin}
               type="number"
               placeholder="e.g., 38.7636"
               required
               value={localData.longitude}
               error={errors.longitude}
-              hint="Enter longitude (-180 to 180)"
+              hint={t('Registration.LngHint')}
               onChange={handleInputChange}
             />
           </div>
@@ -335,7 +423,7 @@ const Step2Location = () => {
             <InputField
               id="workingHour"
               onKeyDown={handleKeyDown}
-              label="Working Hour"
+              label={t('Registration.WorkingHour')}
               icon={Timer}
               type="text"
               placeholder="e.g 2:00 - 12:00AM"
@@ -348,7 +436,7 @@ const Step2Location = () => {
 
           <InputField
             id="mainContactPhone"
-            label={registrationType === 'hospital' ? 'Emergency Phone' : 'Main contact Phone'}
+            label={registrationType === 'hospital' ? t('Registration.EmergencyPhone') : t('Registration.MainContact')}
             icon={Phone}
             type="tel"
             onKeyDown={handleKeyDown}
@@ -356,7 +444,7 @@ const Step2Location = () => {
             required={registrationType === 'hospital'}
             value={localData.mainContactPhone}
             error={errors.mainContactPhone}
-            hint={registrationType === 'hospital' ? 'Required for hospitals' : 'Main contact of pharmacy'}
+            hint={registrationType === 'hospital' ? t('Registration.EmergencyPhone') : t('Registration.MainContact')}
             onChange={handleInputChange}
           />
         </div>
@@ -368,14 +456,14 @@ const Step2Location = () => {
           onClick={prevStep}
           className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200"
         >
-          <ArrowLeft size={18} /> Back
+          <ArrowLeft size={18} /> {t('Registration.Back')}
         </button>
 
         <button
           type="submit"
           className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold bg-gradient-to-r from-blue-500 to-emerald-500 text-white hover:from-blue-600 hover:to-emerald-600 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg hover:shadow-xl"
         >
-          Next Step <ArrowRight size={18} />
+          {t('Registration.NextStep')} <ArrowRight size={18} />
         </button>
       </div>
     </form>

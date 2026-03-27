@@ -1,19 +1,21 @@
-import React from "react";
-import { Heart, Home, LogOut, MessageSquare, Search, User, Menu, X } from "lucide-react";
-
-const navItems = [
-  { key: "home", label: "Home", icon: Home },
-  { key: "search", label: "Search", icon: Search },
-  { key: "favorites", label: "Favorites", icon: Heart },
-  { key: "messages", label: "Messages", icon: MessageSquare },
-  { key: "profile", label: "Profile", icon: User },
-];
+import { Heart, Home, LogOut, MessageSquare, MapPin, User, Menu, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useState } from "react";
 
 export default function Sidebar({ activeSection, setActiveSection, onLogout, favoritesCount = 0, unreadCount = 0 }) {
-  const [open, setOpen] = React.useState(false);
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
 
-  const handleNav = (key) => {
-    setActiveSection(key);
+  const navItems = [
+    { icon: Home, label: t("UserDashboard.Overview"), id: "home" },
+    { icon: MapPin, label: t("UserDashboard.SearchAndNavigate"), id: "search" },
+    { icon: Heart, label: t("UserDashboard.SavedPlaces"), id: "favorites" },
+    { icon: MessageSquare, label: t("UserDashboard.Messages"), id: "messages" },
+    { icon: User, label: t("UserDashboard.Profile"), id: "profile" },
+  ];
+
+  const handleNav = (id) => {
+    setActiveSection(id);
     setOpen(false);
   };
 
@@ -24,7 +26,7 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
         type="button"
         onClick={() => setOpen(true)}
         className="lg:hidden fixed top-4 left-4 z-60 w-11 h-11 rounded-2xl bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 shadow-sm flex items-center justify-center"
-        aria-label="Open navigation menu"
+        aria-label={t("UserDashboard.OpenNavigation")}
       >
         <Menu size={20} className="text-slate-700 dark:text-slate-200" />
       </button>
@@ -56,7 +58,7 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
             <div className="leading-tight">
               <p className="text-sm font-extrabold">MedFinder</p>
               <p className="text-[10px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest">
-                Patient Dashboard
+                {t("UserDashboard.YourHealthcareDashboard")}
               </p>
             </div>
           </div>
@@ -64,7 +66,7 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
             type="button"
             onClick={() => setOpen(false)}
             className="lg:hidden p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-gray-700"
-            aria-label="Close navigation"
+            aria-label={t("Common.Cancel")}
           >
             <X size={18} className="text-slate-700 dark:text-slate-200" />
           </button>
@@ -73,21 +75,21 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
         <div className="px-3 py-4">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const active = item.key === activeSection;
+            const active = item.id === activeSection;
             let badge = null;
             let isUnreadBadge = false;
-            
-            if (item.key === "favorites" && favoritesCount > 0) badge = favoritesCount;
-            if (item.key === "messages" && unreadCount > 0) {
+
+            if (item.id === "favorites" && favoritesCount > 0) badge = favoritesCount;
+            if (item.id === "messages" && unreadCount > 0) {
               badge = unreadCount;
               isUnreadBadge = true;
             }
 
             return (
               <button
-                key={item.key}
+                key={item.id}
                 type="button"
-                onClick={() => handleNav(item.key)}
+                onClick={() => handleNav(item.id)}
                 className={[
                   "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl mb-2",
                   "transition-colors text-left",
@@ -112,8 +114,8 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
                   <span
                     className={[
                       "shrink-0 inline-flex items-center justify-center min-w-[28px] px-2 h-7 rounded-full text-xs font-extrabold",
-                      isUnreadBadge 
-                        ? "bg-red-500 text-white" 
+                      isUnreadBadge
+                        ? "bg-red-500 text-white"
                         : (active ? "bg-blue-600/20 text-blue-700 dark:text-blue-300" : "bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-slate-200")
                     ].join(" ")}
                   >
@@ -132,7 +134,7 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
             className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-red-600/10 text-red-700 dark:text-red-300 hover:bg-red-600/15 transition-colors font-extrabold"
           >
             <LogOut size={18} />
-            Logout
+            {t("headingNav.profile_dropdown.logout")}
           </button>
         </div>
       </nav>

@@ -1,13 +1,22 @@
 const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
         const form = e.target.form;
-        const index = Array.from(form.elements).indexOf(e.target);
+        if (!form) return;
 
-        // Move to next element if it exists
-        if (form.elements[index + 1]) {
+        const elements = Array.from(form.elements).filter(
+            (el) =>
+                el.tagName !== "FIELDSET" &&
+                !el.disabled &&
+                el.type !== "hidden"
+        );
+
+        const index = elements.indexOf(e.target);
+
+        if (index > -1 && index < elements.length - 1) {
             e.preventDefault();
-            form.elements[index + 1].focus();
+            elements[index + 1].focus();
         }
     }
 };
+
 export default handleKeyDown;

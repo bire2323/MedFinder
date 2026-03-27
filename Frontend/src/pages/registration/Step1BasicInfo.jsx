@@ -17,7 +17,10 @@ import {
   Globe
 } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
+
 const Step1BasicInfo = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     formData: storeFormData,
@@ -75,7 +78,7 @@ const Step1BasicInfo = () => {
           <div className="space-y-2  w-full">
             <label htmlFor="facilityName" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
               <Building2 size={16} className="text-blue-500" />
-              {registrationType === 'pharmacy' ? 'Pharmacy Name (English)' : 'Hospital Name (English)'}
+              {registrationType === 'pharmacy' ? t('Registration.PharmacyNameEn') : t('Registration.HospitalNameEn')}
               <span className="text-red-500">*</span>
             </label>
             <input
@@ -84,7 +87,7 @@ const Step1BasicInfo = () => {
               onKeyDown={handleKeyDown}
               value={localData.facilityNameEn}
               onChange={handleChange('facilityNameEn')}
-              placeholder={`Enter ${registrationType} name in English`}
+              placeholder={t('Registration.EnterNameEn', { type: registrationType === 'pharmacy' ? t('Registration.PharmacyName') : t('Registration.HospitalName') })}
               className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${errors.facilityName ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'}`}
               aria-describedby={errors.facilityNameEn ? 'facilityName-error' : undefined}
             />
@@ -99,16 +102,17 @@ const Step1BasicInfo = () => {
           <div className="space-y-2 w-full">
             <label htmlFor="facilityNameAm" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
               <Globe size={16} className="text-green-500" />
-              {registrationType === 'pharmacy' ? 'የመድሃኒት ቤቱ ስም (አማርኛ)' : 'የሆስፒታል ስም (አማርኛ)'}
+              {registrationType === 'pharmacy' ? t('Registration.PharmacyNameAm') : t('Registration.HospitalNameAm')}
               <span className="text-red-500">*</span>
             </label>
             <input
               id="facilityNameAm"
               type="text"
+
               onKeyDown={handleKeyDown}
               value={localData.facilityNameAm}
               onChange={handleChange('facilityNameAm')}
-              placeholder={`የ${registrationType === 'pharmacy' ? 'መድሃኒት ቤት' : 'ሆስፒታል'} ስም በአማርኛ ያስገቡ`}
+              placeholder={t('Registration.EnterNameAm', { type: registrationType === 'pharmacy' ? t('Registration.PharmacyName') : t('Registration.HospitalName') })}
               className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${errors.facilityNameAm ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-green-500'}`}
               dir="ltr" // Right-to-left writing direction for Amharic
               aria-describedby={errors.facilityNameAm ? 'facilityNameAm-error' : undefined}
@@ -126,7 +130,7 @@ const Step1BasicInfo = () => {
         <div className="space-y-2">
           <label htmlFor="email" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
             <Mail size={16} className="text-blue-500" />
-            Email Address<span className="text-xs text-gray-400 font-normal"></span>
+            {t('Registration.EmailAddress')}<span className="text-xs text-gray-400 font-normal"></span>
           </label>
           <input
             id="email"
@@ -152,7 +156,7 @@ const Step1BasicInfo = () => {
               </div>
             </div>
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              I agree to the <a href="/terms" className="text-blue-500 hover:underline">Terms of Service</a> and <a href="/privacy" className="text-blue-500 hover:underline">Privacy Policy</a>
+              {t('Registration.AgreeTerms')}
               <span className="text-red-500"> *</span>
             </span>
           </label>
@@ -166,10 +170,10 @@ const Step1BasicInfo = () => {
           onClick={() => { navigate(-1) }}
           className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200"
         >
-          <ArrowLeft size={18} /> Exit
+          <ArrowLeft size={18} /> {t('Registration.Exit')}
         </button>
         <button type="submit" className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold bg-gradient-to-r from-blue-500 to-emerald-500 text-white hover:from-blue-600 hover:to-emerald-600 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg hover:shadow-xl">
-          Next Step
+          {t('Registration.NextStep')}
           <ArrowRight size={18} />
         </button>
       </div>
