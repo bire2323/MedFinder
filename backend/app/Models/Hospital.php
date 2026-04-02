@@ -14,10 +14,12 @@ class Hospital extends Model
         "is_full_time_service",
         "hospital_ownership_type",
         "working_hour",
+
         "license_number",
         "official_license_upload",
         "logo",
-        "emergency_contact",
+        "contact_email",
+        "contact_phone",
         "address_description_en",
         "address_description_am",
         "status",
@@ -26,7 +28,15 @@ class Hospital extends Model
     ];
 
 
+public function getLogoUrlAttribute() {
+    return asset('storage/' . $this->logo);
+}
 
+public function getLicenseDocumentUrlAttribute() {
+    return asset('storage/' . $this->license_document);
+}
+
+protected $appends = ['logo_url', 'license_document_url'];
 
     public function addresses()
     {

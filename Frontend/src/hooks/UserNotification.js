@@ -1,5 +1,5 @@
 // src/hooks/UserNotification.js
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export const useNotifications = (currentUserId, onNewMessage) => {
     useEffect(() => {
@@ -36,6 +36,12 @@ export const useNotifications = (currentUserId, onNewMessage) => {
 };
 
 export const useSystemNotifications = (currentUserId, onNotificationReceived) => {
+    const callbackRef = useRef(onNotificationReceived);
+    
+    useEffect(() => {
+        callbackRef.current = onNotificationReceived;
+    }, [onNotificationReceived]);
+
     useEffect(() => {
         if (!currentUserId) return;
 
@@ -55,7 +61,7 @@ export const useSystemNotifications = (currentUserId, onNotificationReceived) =>
             channel = window.Echo.private(`notifications.${currentUserId}`)
                 .listen('.notification.sent', (e) => {
                     console.log('[useSystemNotifications] New notification:', e);
-                    onNotificationReceived?.(e);
+                    callbackRef.current?.(e);
                 });
         };
 

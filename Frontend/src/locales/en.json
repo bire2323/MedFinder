@@ -1,4 +1,106 @@
 {
+  "home": {
+    "topHospitals": "Top Rated Hospitals",
+    "topPharmacies": "Top Rated Pharmacies",
+    "viewAll": "View All"
+  },
+  "supportiveCTA": {
+    "header": "Are you a Healthcare Provider?",
+    "subheader": "Partner with MedFinder to grow your practice and improve patient access across the city.",
+    "hospital": {
+      "title": "For Hospitals",
+      "description": "Increase your reach and streamline patient intake with our digital management tools.",
+      "button": "Join as Hospital",
+      "benefits": [
+        "Digital patient intake",
+        "Increased hospital visibility",
+        "Streamlined department management",
+        "Verified provider status"
+      ]
+    },
+    "pharmacy": {
+      "title": "For Pharmacies",
+      "description": "Get discovered by thousands of local patients and manage your inventory with ease.",
+      "button": "Join as Pharmacy",
+      "benefits": [
+        "Real-time drug inventory",
+        "Discoverable by nearby patients",
+        "Prescription verification tools",
+        "Pharmacy performance analytics"
+      ]
+    }
+  },
+  "faqSection": {
+    "header": "Frequently Asked Questions",
+    "subheader": "Find quick answers to common questions about MedFinder's features and services.",
+    "searchPlaceholder": "Search for answers...",
+    "categories": {
+      "all": "All Questions",
+      "general": "General",
+      "patients": "For End Users",
+      "providers": "For Providers"
+    },
+    "noResults": "No matching questions found. Try the AI Chatbot!",
+    "items": [
+      {
+        "id": "q1",
+        "category": "general",
+        "question": "What is MedFinder?",
+        "answer": "MedFinder is an AI-powered healthcare platform that helps patients find hospitals and pharmacies, check drug availability, and navigate to medical facilities using real-time routing."
+      },
+      {
+        "id": "q2",
+        "category": "patients",
+        "question": "How do I find a specific drug?",
+        "answer": "Use the search bar on the home page or search results page. Filter by 'Pharmacy' and type the drug name to see which verified pharmacies have it in stock."
+      },
+      {
+        "id": "q3",
+        "category": "providers",
+        "question": "How do I register my hospital?",
+        "answer": "Click on the 'Join as Hospital' button in the provider section, fill out the registration form with your license details, and wait for admin verification."
+      },
+      {
+        "id": "q4",
+        "category": "patients",
+        "question": "Does the map show real-time traffic?",
+        "answer": "Yes, our navigation system uses real-time data to provide the fastest routes to your selected healthcare facility."
+      }
+    ]
+  },
+  "errors": {
+    "facilityNameEnRequired": "{{type}} name (English) is required",
+    "facilityNameEnMin": "{{type}} name (English) must be at least 3 characters",
+    "facilityNameAmRequired": "{{type}} name in Amharic is required",
+    "facilityNameAmMin": "{{type}} name in Amharic must be at least 3 characters",
+    "invalidEmail": "Enter a valid email address",
+    "mustAgree": "You must agree to the terms and privacy policy",
+
+    "regionEnRequired": "Region (English) is required",
+    "regionAmRequired": "Region (Amharic) is required",
+    "zoneEnRequired": "Zone / City (English) is required",
+    "zoneAmRequired": "Zone / City (Amharic) is required",
+    "subCityEnRequired": "Sub-city / Woreda (English) is required",
+    "subCityAmRequired": "Sub-city / Woreda (Amharic) is required",
+    "kebeleRequired": "Enter your kebele",
+    "addressAmRequired": "Enter address in Amharic",
+    "addressEnRequired": "Enter address properly",
+
+    "latitudeRequired": "Latitude is required",
+    "latitudeInvalid": "Enter a valid latitude (-90 to 90)",
+    "longitudeRequired": "Longitude is required",
+    "longitudeInvalid": "Enter a valid longitude (-180 to 180)",
+
+    "phoneRequired": "Main contact phone is required",
+    "phoneInvalid": "Enter valid Ethiopian phone",
+
+    "licenseRequired": "License number is required",
+    "licenseDocRequired": "License document is required",
+    "pharmacyTypeRequired": "Pharmacy type is required",
+    "workingHourRequired": "Working hours are required",
+    "confirmLicensed": "You must confirm this is a licensed pharmacy",
+    "ownershipRequired": "Ownership type is required"
+  },
   "headingNav": {
     "Find Care": "Find Care",
     "home": "HOME",
@@ -70,6 +172,7 @@
     "forget password": "Forget Password?",
     "click here": "Click Here!",
     "sign_in_with_google": "Sign in with Google",
+    "sign_up_with_google": "Sign Up with Google",
     "user not found!": "User not found!",
     "Invalid credentials": "Invalid credentials",
     "user_not_found": "User not found"
@@ -175,7 +278,17 @@
     "Patient": "Patient",
     "Conversations": "Conversations",
     "ActiveChats": "active {{count}} chats",
-    "ActiveChat": "active chat"
+    "ActiveChat": "active chat",
+     "SaveUpdated": "Save & Update Profile",
+    "Discard": "Discard Changes",
+    "WeeklySchedule": "Weekly Opening Hours",
+    "Mon": "Monday",
+    "Tue": "Tuesday",
+    "Wed": "Wednesday",
+    "Thu": "Thursday",
+    "Fri": "Friday",
+    "Sat": "Saturday",
+    "Sun": "Sunday"
   },
   "Registration": {
     "PharmacyRegistration": "Pharmacy Registration",
@@ -210,14 +323,15 @@
     "LicenseDocs": "License & documents",
     "ConfirmSubmit": "Confirm & submit",
     "StepIndicator": "Step {{step}}",
+    "PendingApproval": "Pending Approval!",
     "TermsAgree": "By registering, you agree to our Terms of Service and Privacy Policy.",
     "ReviewNote": "Your registration will be reviewed by our admin team.",
     "PharmacyNameEn": "Pharmacy Name (English)",
     "HospitalNameEn": "Hospital Name (English)",
     "PharmacyNameAm": "የመድሃኒት ቤቱ ስም (አማርኛ)",
     "HospitalNameAm": "የሆስፒታል ስም (አማርኛ)",
-    "EnterNameEn": "Enter {{type}} name in English",
-    "EnterNameAm": "የ{{type}} ስም በአማርኛ ያስገቡ",
+    "EnterNameEn": "Enter {{type}} in English",
+    "EnterNameAm": "የ{{type}} በአማርኛ ያስገቡ",
     "EmailAddress": "Email Address",
     "Exit": "Exit",
     "Regions": {
@@ -235,6 +349,9 @@
       "Somali": "Somali",
       "SouthWest": "South West Ethiopia",
       "Tigray": "Tigray"
+    },
+    "Auth": {
+      "login": "Login"
     },
     "ZoneCity": "Zone / City",
     "SubCityWoreda": "Sub-city / Woreda",
@@ -274,7 +391,7 @@
     "ReviewStep3": "You'll be notified once approved",
     "ViaSms": "Via SMS",
     "ViaEmail": "Via Email",
-    "PhoneNotif": "Phone notification",
+    "PhoneNotif": "SMS notification",
     "EmailNotif": "Email notification",
     "NeedHelp": "Need help? Contact support at support@medfinder.et",
     "UploadErrorType": "Please upload an image (JPG, PNG, GIF) or PDF file.",
@@ -327,7 +444,8 @@
     "NoActiveChats": "No active chats",
     "NoChatsDesc": "When patients message you, conversations will appear here.",
     "SelectAConversation": "Select a conversation",
-    "ClickToStart": "Click on a patient chat from the list to start messaging"
+    "ClickToStart": "Click on a patient chat from the list to start messaging",
+    "Notifications": "Notifications"
   },
   "HospitalDashboard": {
     "Overview": "Overview",
@@ -377,7 +495,8 @@
     "Service": "Service",
     "PriceETB": "Price (ETB)",
     "Duration": "Duration",
-    "General": "General"
+    "General": "General",
+    "Notifications": "Notifications"
   },
   "Map": {
     "hospital": "hospital",
@@ -418,74 +537,132 @@
     "TrackingUnavailable": "Tracking unavailable"
   },
   "inventory": {
-    "title": "Inventory",
-    "searchPlaceholder": "Search drugs...",
-    "addDrug": "Add Drug",
-    "editDrug": "Edit Drug",
-    "noDrugsFound": "No drugs found",
+    "title": "Inventory Management",
+    "searchPlaceholder": "Search by drug or generic name...",
+    "addDrug": "Add New Medicine",
+    "editDrug": "Edit Medicine",
+    "noDrugsFound": "No medicines found in your inventory",
+    "analytics": {
+      "totalItems": "Total Items",
+      "lowStock": "Low Stock",
+      "outOfStock": "Out of Stock",
+      "expiringSoon": "Expiring Soon",
+      "lastUpdated": "Last updated {{time}}",
+      "totalItemDesc": "Total number of items in your inventory",
+      "lowStockDesc": "Items running low on stock",
+      "outofStockDesc": "Items with zero stock",
+      "expiringSoonDesc": "Items expiring within 30 days"
+    },
+    "tabs": {
+      "active": "Active Inventory",
+      "history": "Stock History",
+      "trash": "Trash / Archived"
+    },
+    "filters": {
+      "allCategories": "All Categories",
+      "allStatus": "All Status",
+      "available": "Available",
+      "outOfStock": "Out of Stock",
+      "lowStock": "Low Stock Items",
+      "expiring": "Expiring Soon"
+    },
     "table": {
       "id": "ID",
-      "drugName": "Drug Name",
+      "drugName": "Brand Name",
       "genericName": "Generic Name",
+      "category": "Category",
+      "dosageForm": "Form",
       "stock": "Stock",
       "price": "Price",
-      "bookedDate": "Booked Date",
+      "costPrice": "Cost",
       "status": "Status",
+      "availability": "Availability",
       "actions": "Actions"
     },
-    "status": {
-      "outOfStock": "Out of Stock",
-      "lowStock": "Low Stock",
-      "inStock": "In Stock"
+    "history": {
+      "title": "Stock Movement Logs",
+      "description": "Every time stock levels change, a log entry will be created here for auditing purposes.",
+      "type": {
+        "manual": "Manual Update",
+        "sale": "Sale / Dispense",
+        "restock": "Restock",
+        "adjustment": "Adjustment"
+      },
+      "column": {
+        "date": "Date & Time",
+        "drug": "Medication",
+        "change": "Change",
+        "remaining": "Remaining",
+        "performedBy": "Staff",
+        "reason": "Note"
+      }
+    },
+    "trash": {
+      "title": "Archived Inventory",
+      "description":"Archive of deleted medicines. You can restore them back to active inventory at any time.",
+      "restore": "Restore Item",
+      "confirmRestore": "Are you sure you want to restore <strong>{{name}}</strong>?",
+      "empty": "No archived items found"
     },
     "toast": {
-      "drugAdded": "Drug added to the inventory",
-      "drugDeleted": "Drug deleted",
-      "failedAdd": "Failed to add drug. Please try again.",
-      "failedUpdate": "Failed to update drug. Please try again.",
-      "failedDelete": "Failed to delete drug",
+      "drugAdded": "Medicine added successfully",
+      "drugUpdated": "Inventory updated successfully",
+      "drugDeleted": "Item moved to trash",
+      "drugRestored": "Item restored to active inventory",
+      "failedAdd": "Failed to add medicine",
+      "failedUpdate": "Update failed",
+      "failedDelete": "Archive failed",
       "loadFailed": "Failed to load inventory",
-      "units": "units",
-      "thisDrug": "this drug"
+      "units": "units"
     }
   },
   "modal": {
     "delete": {
-      "title": "Delete Drug",
-      "confirmMessage": "Are you sure you want to delete <strong>{{name}}</strong>? This action cannot be undone.",
+      "title": "Archive Medicine",
+      "confirmMessage": "Are you sure you want to archive {{name}}? It will be moved to the Trash section.",
       "cancel": "Cancel",
-      "delete": "Delete",
-      "deleting": "Deleting..."
+      "delete": "Archive",
+      "deleting": "Archiving..."
     },
     "drugInventory": {
-      "titleAdd": "Add New Drug",
-      "titleEdit": "Edit Drug",
-      "drugNameEnglish": "Drug Name (English) *",
-      "drugNameAmharic": "Drug Name (አማርኛ) *",
-      "genericName": "Generic Name *",
-      "stock": "Stock *",
-      "price": "Price (ETB)",
-      "expiryDate": "Expiry Date *",
-      "aboutDrugEnglish": "About Drug (English) *",
-      "aboutDrugAmharic": "About Drug (አማርኛ)",
-      "prescriptionRequired": "Prescription Required",
+      "titleAdd": "Register New Medicine",
+      "titleEdit": "Update Inventory Details",
+      "basicInfo": "Basic Information",
+      "classification": "Classification",
+      "pricingInventory": "Pricing & Inventory",
+      "drugNameEnglish": "Brand Name (EN)",
+      "drugNameAmharic": "Brand Name (AM)",
+      "genericName": "Generic Name",
+      "manufacturer": "Manufacturer",
+      "batchNumber": "Batch Number",
+      "lowStockThreshold": "Low Stock Alert",
+      "costPrice": "Cost Price",
+      "sellingPrice": "Selling Price",
+      "dosageForm": "Dosage Form",
+      "category": "Category",
+      "stock": "Current Stock",
+      "price": "Selling Price (ETB)",
+      "expiryDate": "Expiry Date",
+      "aboutDrugEnglish": "Description (EN)",
+      "aboutDrugAmharic": "Description (AM)",
+      "prescriptionRequired": "Prescription Required (Rx)",
       "placeholder": {
         "drugNameEn": "e.g., Panadol",
         "drugNameAm": "ለምሳሌ፡- ማስታገሻ",
         "genericName": "e.g., Paracetamol",
         "stock": "0",
-        "price": "0",
-        "aboutEn": "e.g., manufactured in 2025",
-        "aboutAm": "ለምሳሌ፡- በ 2025 የተመረተ፣"
+        "price": "0.00",
+        "aboutEn": "Usage and dosage details...",
+        "aboutAm": "ስለ መድሃኒቱ አጠቃቀም ዝርዝር..."
       },
       "error": {
-        "required": "This field is required"
+        "required": "Required field"
       },
       "actions": {
         "cancel": "Cancel",
-        "processing": "Processing...",
-        "submitAdd": "Add Drug",
-        "submitEdit": "Update Drug"
+        "processing": "Saving...",
+        "submitAdd": "Save Medicine",
+        "submitEdit": "Update Item"
       }
     }
   },
@@ -497,6 +674,22 @@
   "features": {
     "header": "Smart Healthcare Features",
     "learn_more": "Learn More",
+    "smartSearch": {
+      "title": "Smart Search",
+      "desc": "Find hospitals, pharmacies, and medicines instantly with our intelligent search engine."
+    },
+    "navigation": {
+      "title": "Voice Navigation",
+      "desc": "Real-time, turn-by-turn voice guidance to your selected healthcare facility."
+    },
+    "multilingual": {
+      "title": "Bilingual Support",
+      "desc": "Access all features in both English and Amharic for a seamless experience."
+    },
+    "availability": {
+      "title": "Drug Availability",
+      "desc": "Real-time stock checks to ensure the medicine you need is ready for pickup."
+    },
     "ai_chat": {
       "title": "AI Chat Assistance",
       "desc": "Explain what you want to the AI and get real-time information!"
@@ -504,10 +697,6 @@
     "prescription": {
       "title": "Prescription Verifier",
       "desc": "Upload or type your prescription to check availability in nearby pharmacies."
-    },
-    "navigation": {
-      "title": "Real-time Navigation",
-      "desc": "Get turn-by-turn directions to the nearest healthcare facility with live traffic."
     }
   },
   "facilities": {
@@ -542,6 +731,7 @@
     "search_box": {
       "tab_hospitals": "Hospitals",
       "tab_pharmacies": "Pharmacies",
+      "tab_drugs": "Drugs",
       "placeholder": "Search by name, medicine or city...",
       "button_text": "Search"
     }
@@ -813,14 +1003,20 @@
     "clearSearchAndFilters": "Clear search & filters",
     "exploreOnMap": "Explore on map",
     "filters": "Filters",
-    "distance": "Distance",
+    "distance_label": "Distance",
     "anyDistance": "Any distance",
     "facilityType": "Facility type",
     "hospital": "Hospital",
     "pharmacy": "Pharmacy",
     "facility": "Facility",
-    "availability": "Availability",
     "openNow": "Open now",
+    "drug_placeholder": "Search medicines...",
+    "price": "Price",
+    "availability_label": "Availability",
+    "available": "Available",
+    "not_available": "Out of stock",
+    "distance": "{{distance}} km away",
+    "no_results": "No results found",
     "availabilityHint": "Uses 24/7 flag when available; otherwise hours may be unknown.",
     "departmentsServices": "Departments / Services",
     "departmentFilterHint": "Filter applies to hospitals only.",
@@ -859,7 +1055,8 @@
     "facilityTypes": {
       "all": "All",
       "hospital": "HOSPITAL",
-      "pharmacy": "PHARMACY"
+      "pharmacy": "PHARMACY",
+      "drug": "DRUG"
     }
   },
   "statusBanner": {
@@ -884,7 +1081,9 @@
   },
   "common": {
     "loading": "Loading…",
-    "close": "Close"
+    "close": "Close",
+    "previous": "Previous",
+    "next": "Next"
   },
   "filters": {
     "distance": {
@@ -912,5 +1111,40 @@
       "any": "Any"
     },
     "reset": "Reset filters"
+  },
+  "Settings": {
+    "GeneralInfo": "General Information",
+    "FacilityNameEN": "Facility Name (English)",
+    "FacilityNameAM": "Facility Name (Amharic)",
+    "OwnershipType": "Ownership Type",
+    "LicenseVerification": "License & Verification",
+    "LicenseNumber": "License Number",
+    "ReadOnly": "Read Only",
+    "RequestUpdate": "Request Update",
+    "UploadLicense": "Official License Document",
+    "ContactInfo": "Contact & Emergency",
+    "EmergencyContact": "Emergency Contact Number",
+    "PublicPhone": "Public Phone Number",
+    "LocationAddress": "Location & Address",
+    "RegionEN": "Region (English)",
+    "RegionAM": "Region (Amharic)",
+    "ZoneSubCity": "Zone / Sub-City",
+    "Kebele": "Kebele",
+    "Coordinates": "Geographic Coordinates",
+    "UseCurrentLocation": "Use Current Location",
+    "InteractiveMapActive": "Interactive Map Active",
+    "Latitude": "Latitude",
+    "Longitude": "Longitude",
+    "Availability": "Working Hours & Availability",
+    "FullTimeService": "24/7 Full-Time Service",
+    "Operates247": "Facility operates 24 hours a day, 7 days a week.",
+    "MediaIdentity": "Media & Brand Identity",
+    "FacilityLogo": "Facility Logo",
+    "LogoDescription": "This logo will be displayed on the public map and search results.",
+    "DangerZone": "Danger Zone",
+    "DeactivationWarning": "Deactivating your profile will hide it from all public search results. You can reactivate it anytime by contacting admin support.",
+    "DeactivateProfile": "Deactivate My Profile",
+    "UnsavedChanges": "You have unsaved changes",
+    "ProfileUpdateSuccess": "Profile updated successfully!"
   }
 }

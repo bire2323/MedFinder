@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ClipboardList, Heart, History, LogOut, MessageSquare, User, Search, MoreVertical } from "lucide-react";
+import { ClipboardList, Heart, History, LogOut, MessageSquare, User, Search } from "lucide-react";
 
 import useAuthStore from "../../store/UserAuthStore";
 import { apiLogout } from "../../api/auth";
@@ -50,8 +50,9 @@ export default function UserDashboard() {
     const navigate = useNavigate();
     const { t } = useTranslation();
 
-    const { user, clearSession } = useAuthStore();
+    const { user, clearSession, roles } = useAuthStore();
     const currentUserId = user?.id;
+    console.log(user);
 
     const { handleIncomingMessage, targetSessionToOpen, getUnreadCount } = useChatNotificationStore();
     const unreadCount = getUnreadCount();
@@ -68,8 +69,13 @@ export default function UserDashboard() {
     });
 
     useEffect(() => {
-        useChatNotificationStore.getState().loadSessions();
-    }, []);
+
+        if (roles.includes("patient") || roles.includes("admin")) {
+            useChatNotificationStore.getState().loadSessions();
+        } else {
+            navigate("/");
+        }
+    }, [user, roles]);
 
     useEffect(() => {
         if (targetSessionToOpen) {
@@ -81,7 +87,6 @@ export default function UserDashboard() {
 
     const [chatTargetFacility, setChatTargetFacility] = useState(null);
     const [chatTargetNonce, setChatTargetNonce] = useState(0);
-    const [toggleMenu, setToggleMenu] = useState(false);
 
     useEffect(() => {
         setFavorites(safeParseJSON(localStorage.getItem(LS_FAVORITES_KEY), []));
@@ -176,8 +181,21 @@ export default function UserDashboard() {
 
                 <main className="flex-1 min-w-0 xl:ml-14 flex flex-col overflow-hidden ">
                     <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 border-b border-slate-100 dark:border-gray-800">
+                        <div className=" relative flex items-center gap-2">
+                            {activeSection !== "profile" && (
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveSection("profile")}
+                                    className="pl-15 pr-3 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-white/60 dark:bg-gray-800/60 hover:bg-white dark:hover:bg-gray-800 text-sm font-bold"
+                                >
+                                    {t("UserDashboard.Profile")}
+                                </button>
+                            )}
+
+
+                        </div>
                         <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
+                            <div className="w-6 h-6 md:w-9 md:h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
                                 {activeSection === "home" ? <ClipboardList size={18} /> : null}
                                 {activeSection === "search" ? <Search size={18} /> : null}
                                 {activeSection === "favorites" ? <Heart size={18} /> : null}
@@ -185,7 +203,7 @@ export default function UserDashboard() {
                                 {activeSection === "profile" ? <User size={18} /> : null}
                             </div>
                             <div className="min-w-0">
-                                <h1 className="text-lg sm:text-xl font-extrabold truncate">
+                                <h1 className="text-sm md:text-lg sm:text-xl font-extrabold truncate">
                                     {activeSection === "home" && t("UserDashboard.Overview")}
                                     {activeSection === "search" && t("UserDashboard.SearchAndNavigate")}
                                     {activeSection === "favorites" && t("UserDashboard.SavedPlaces")}
@@ -198,32 +216,7 @@ export default function UserDashboard() {
                             </div>
                         </div>
 
-                        <div className=" relative flex items-center gap-2">
-                            {activeSection !== "profile" && (
-                                <button
-                                    type="button"
-                                    onClick={() => setActiveSection("profile")}
-                                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-gray-700 bg-white/60 dark:bg-gray-800/60 hover:bg-white dark:hover:bg-gray-800 text-sm font-bold"
-                                >
-                                    {t("UserDashboard.Profile")}
-                                </button>
-                            )}
-                            <button
-                                type="button"
-                                onClick={() => setToggleMenu(!toggleMenu)}
-                                className="lg:hidden relative px-3 py-2 rounded-xl bg-secondary text-black dark:text-green dark:bg-gray-400 hover:bg-green text-sm font-bold flex items-center gap-2"
-                            >
 
-                                <MoreVertical className="w-4 h-4" />
-                            </button>
-                            {toggleMenu && (
-                                <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg py-1">
-                                    <div>pp</div>
-                                    <div>pp</div>
-                                    <div>pp</div>
-                                </div>
-                            )}
-                        </div>
                     </div>
 
                     <section className="flex-1 overflow-y-auto">

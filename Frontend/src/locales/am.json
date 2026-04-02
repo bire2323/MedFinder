@@ -1,4 +1,108 @@
 {
+  "home": {
+    "topHospitals": "ከፍተኛ ደረጃ የተሰጣቸው ሆስፒታሎች",
+    "topPharmacies": "ከፍተኛ ደረጃ የተሰጣቸው ፋርማሲዎች",
+    "viewAll": "ሁሉንም ይመልከቱ"
+  },
+  "supportiveCTA": {
+    "header": "የጤና አገልግሎት አቅራቢ ነዎት?",
+    "subheader": "ሥራዎን ለማሳደግ እና በከተማው ውስጥ የታካሚዎችን ተደራሽነት ለማሻሻል ከ MedFinder ጋር አጋር ይሁኑ።",
+    "hospital": {
+      "title": "ለሆስፒታሎች",
+      "description": "በዲጂታል አስተዳደር መሣሪያዎቻችን ተደራሽነትዎን ይጨምሩ እና የታካሚዎችን ምዝገባ ያቀላጥፉ።",
+      "button": "እንደ ሆስፒታል ይቀላቀሉ",
+      "benefits": [
+        "ዲጂታል የታካሚ ምዝገባ",
+        "የሆስፒታል ታይነትን መጨመር",
+        "የተቀላጠፈ የዲፓርትመንት አስተዳደር",
+        "የተረጋገጠ የአቅራቢነት ደረጃ"
+      ]
+    },
+    "pharmacy": {
+      "title": "ለፋርማሲዎች",
+      "description": "በሺዎች በሚቆጠሩ የአገር ውስጥ ታካሚዎች ዘንድ ተለይተው ይታወቁ እና ክምችትዎን በቀላሉ ያስተዳድሩ።",
+      "button": "እንደ ፋርማሲ ይቀላቀሉ",
+      "benefits": [
+        "የእውነተኛ ጊዜ የመድኃኒት ክምችት",
+        "በአቅራቢያ ባሉ ታካሚዎች በቀላሉ መገኘት",
+        "የመድኃኒት ማዘዣ ማረጋገጫ መሣሪያዎች",
+        "የፋርማሲ አፈጻጸም ትንተና"
+      ]
+    }
+  },
+  "faqSection": {
+    "header": "ተደጋግመው የሚጠየቁ ጥያቄዎች",
+    "subheader": "ስለ MedFinder ገጽታዎች እና አገልግሎቶች ለተለመዱ ጥያቄዎች ፈጣን መልሶችን ያግኙ።",
+    "searchPlaceholder": "መልሶችን ይፈልጉ...",
+    "categories": {
+      "all": "ሁሉም ጥያቄዎች",
+      "general": "ጠቅላላ",
+      "patients": "ለማህበረሰቡ",
+      "providers": "ለአገልግሎት አቅራቢዎች"
+    },
+    "noResults": "ምንም ተዛማጅ ጥያቄ አልተገኘም። የ AI ቻትቦትን ይሞክሩ!",
+    "items": [
+      {
+        "id": "q1",
+        "category": "general",
+        "question": "MedFinder ምንድን ነው?",
+        "answer": "የ MedFinder መተግበሪያ ለማህበረሰቡ በአቅራቢያቸው የሚገኙ ሆስፒታሎችን እና ፋርማሲዎችን እንዲያገኙ፣ የመድኃኒቶችን መኖር እንዲያረጋግጡ እና እውን የሆኑ የመንገድ አቅጣጫዎች ወደ የሕክምና ተቋማት እንዲጓዙ የሚረዳ በ AI የሚደገፍ መተግበሪያ ነው።"
+      },
+      {
+        "id": "q2",
+        "category": "patients",
+        "question": "አንድን የተወሰነ መድሃኒት እንዴት ማግኘት እችላለሁ?",
+        "answer": "በመነሻ ገጹ ላይ ያለውን የፍለጋ ቦታ ይጠቀሙ። በ 'ፋርማሲ' ይለዩ እና የመድኃኒቱን ስም በመጻፍ የትኞቹ ፋርማሲዎች መድሃኒቱ እንዳላቸው ይመልከቱ።"
+      },
+      {
+        "id": "q3",
+        "category": "providers",
+        "question": "ሆስፒታሌን እንዴት ወደ መተግበሪያው መመዝገብ እችላለሁ?",
+        "answer": "በ መተግበሪያዉ መነሻ ገጽ አገልግሎት አቅራቢው ክፍል ውስጥ 'እንደ ሆስፒታል ይቀላቀሉ' የሚለውን ቁልፍ በመጫን፣ የምዝገባ ቅጹን ከፈቃድ ዝርዝሮችዎ ጋር ይሙሉ እና አስተዳዳሪ እስኪያረጋግጥ ድረስ ይጠብቁ። አንድ ግዜ በ መተግበሪያው አስተዳዳሪ ከጸደቀ በኋላ ለማህበረሰቡ ይታያል!"
+      },
+      {
+        "id": "q4",
+        "category": "patients",
+        "question": "ካርታው አሁናዊ የሆነ የትራፊክ ሁኔታን ያሳያል?",
+        "answer": "አዎ፣ የእኛ የአሰሳ ስርዓት ወደ መረጡት የጤና ተቋም ፈጣኑን መንገድ ለማቅረብ ትክክለኛ መረጃን ይጠቀማል።"
+      }
+    ]
+  },
+  "errors": {
+    "facilityNameEnRequired": "የ{{type}} ስም (እንግሊዝኛ) ያስፈልጋል",
+    "facilityNameEnMin": "የ{{type}} ስም (እንግሊዝኛ) ቢያንስ 3 ፊደል መሆን አለበት",
+    "facilityNameAmRequired": "የ{{type}} ስም (አማርኛ) ያስፈልጋል",
+    "facilityNameAmMin": "የ{{type}} ስም (አማርኛ) ቢያንስ 3 ፊደል መሆን አለበት",
+
+    "invalidEmail": "ትክክለኛ ኢሜይል ያስገቡ",
+    "mustAgree": "ውሎችን እና ፖሊሲን መስማማት አለብዎት",
+
+    "regionEnRequired": "ክልል (እንግሊዝኛ) ያስፈልጋል",
+    "regionAmRequired": "ክልል (አማርኛ) ያስፈልጋል",
+    "zoneEnRequired": "ዞን / ከተማ (እንግሊዝኛ) ያስፈልጋል",
+    "zoneAmRequired": "ዞን / ከተማ (አማርኛ) ያስፈልጋል",
+    "subCityEnRequired": "ንዑስ ከተማ / ወረዳ (እንግሊዝኛ) ያስፈልጋል",
+    "subCityAmRequired": "ንዑስ ከተማ / ወረዳ (አማርኛ) ያስፈልጋል",
+
+    "kebeleRequired": "ክበሌ ያስገቡ",
+    "addressAmRequired": "አድራሻ በአማርኛ ያስገቡ",
+    "addressEnRequired": "አድራሻን በትክክል ያስገቡ",
+
+    "latitudeRequired": "ላቲቱድ ያስፈልጋል",
+    "latitudeInvalid": "ትክክለኛ ላቲቱድ ያስገቡ (-90 እስከ 90)",
+    "longitudeRequired": "ሎንግቲቱድ ያስፈልጋል",
+    "longitudeInvalid": "ትክክለኛ ሎንግቲቱድ ያስገቡ (-180 እስከ 180)",
+
+    "phoneRequired": "ዋና የስልክ ቁጥር ያስፈልጋል",
+    "phoneInvalid": "ትክክለኛ የኢትዮጵያ ስልክ ቁጥር ያስገቡ",
+
+    "licenseRequired": "የፍቃድ ቁጥር ያስፈልጋል",
+    "licenseDocRequired": "የፍቃድ ሰነድ ያስፈልጋል",
+    "pharmacyTypeRequired": "የፋርማሲ አይነት ያስፈልጋል",
+    "workingHourRequired": "የስራ ሰዓት ያስፈልጋል",
+    "confirmLicensed": "ይህ ፋርማሲ ፈቃድ እንዳለው ማረጋገጥ አለብዎት",
+    "ownershipRequired": "የባለቤትነት አይነት ያስፈልጋል"
+  },
   "headingNav": {
     "Find Care": "መግቢያ",
     "home": "መነሻ",
@@ -19,7 +123,7 @@
     "hospital_and_pharmacy_finder": "ሆስፒታል እና ፋርማሲ ፈላጊ"
   },
   "Register": {
-    "Welcome": "እንኳን ወደ MedFinder በደህና መጣችሁ።",
+    "Welcome": "እንኳን ወደ MedFinder በደህና መጡ።",
     "Register": "ይመዝገቡ",
     "Name": "ስም",
     "Name Placeholder": "ለምሳሌ፡ አማኑኤል ደሴ",
@@ -36,7 +140,7 @@
     "Error Password Short": "ሚስጥር ቁጥር 8 አሀዝ በላይ መሆን አለበት",
     "Password Do Not Match": "ሚስጥር ቁጥርዎ አይመሳሰሉም",
     "Already Have Account": "አካዉንት አለዎት?",
-    "Login": "ግባ",
+    "Login": "መግቢያ",
     "join_medFinder": "ይመዝገቡ",
     "Registering": "መዝገብ...",
     "Error Name Min 4": "ስም ከ 4 አሀዝ መብለጥ አለበት",
@@ -61,15 +165,16 @@
     "Phone Placeholder": "ለምሳሌ፡ 0987654321 ወይም 0798654321",
     "Password": "ሚስጥር ቁጥር",
     "Password Placeholder": "ሚስጥር ቁጥር ያስገቡ",
-    "Login": "ግባ",
+    "Login": "መግቢያ",
     "Signing_In": "መግቢያ...",
     "Don't Have Account": "አካዉንት አለዎት?",
     "Register": "ይመዝገቡ",
-    "Error Phone And Password Required": "ስልክ ቁጥር እና ሚስጥር ቁጥር መግባት አለበት",
+    "Error Phone And Password Required": "ስልክ ቁጥር እና ሚስጥር ቁጥር በትክክል መግባት አለበት",
     "Login Failed": "ስልክ ቁጥርዎ ወይም ሚስጥር ቁጥር ተሳስቷል!",
     "forget password": "ሚስጥር ቁጥር እረስተዋል?",
     "click here": "ይጫኑ!",
     "sign_in_with_google": "በGoogle ይግቡ",
+    "sign_up_with_google": "በGoogle ይግቡ",
     "user not found!": "አልተገኘም",
     "Invalid credentials": "የተሳሳተ መረጃ",
     "user_not_found": "ተጠቃሚው አልተገኘም"
@@ -113,7 +218,7 @@
     "VerifyOtp": "ኮዱን አረጋግጥ"
   },
   "FacilityDetail": {
-    "NotFound": "ተቋሙ አልተገኘም",
+    "NotFound": "የ ጤና ተቋም አልተገኘም",
     "GoBack": "ተመለስ",
     "PharmacyDetails": "የፋርማሲ ዝርዝር መረጃ",
     "HospitalDetails": "የሆስፒታል ዝርዝር መረጃ",
@@ -127,7 +232,7 @@
       "Inventory": "ክምችት",
       "Departments": "ክፍሎች",
       "Services": "አገልግሎቶች",
-      "Contact": "እውቂያ"
+      "Contact": "ግንኙነት"
     },
     "QuickInfo": "አጭር መረጃ",
     "License": "ፈቃድ",
@@ -139,11 +244,11 @@
     "No": "አይ",
     "Location": "አድራሻ",
     "MapPreview": "የካርታ እይታ",
-    "OpenMaps": "በጎግል ካርታ ክፈት",
+    "OpenMaps": "ካርታ ክፈት",
     "AvailableMeds": "የሚገኙ መድሃኒቶች",
     "InStock": "በክምችት ላይ ያለ",
-    "OutofStock": "የለቀቀ",
-    "ContactInfo": "የእውቂያ መረጃ",
+    "OutofStock": "ክክምችት የለቀቀ",
+    "ContactInfo": "የግንኙነት መረጃ",
     "ChatWith": "ከ{{name}} ጋር ይወያዩ",
     "ChatDesc": "ስለ መድሃኒት መገኘት፣ ዋጋ፣ አቅጣጫ ወይም ሌላ ማንኛውንም ነገር ይጠይቁ - ፈጣን ምላሽ ያግኙ።",
     "StartingChat": "ውይይት በመጀመር ላይ...",
@@ -178,8 +283,8 @@
     "ActiveChat": "1 ንቁ ንግግር"
   },
   "Registration": {
-    "PharmacyRegistration": "ፋርማሲ ምዝገባ",
-    "HospitalRegistration": "ሆስፒታል ምዝገባ",
+    "PharmacyRegistration": "አዲስ ፋርማሲ ምዝገባ",
+    "HospitalRegistration": "አዲስ ሆስፒታል ምዝገባ",
     "RegisterFacility": "በMedFinder ዝርዝር ላይ ለመገኘት ተቋምዎን ይመዝገቡ",
     "Step1": "መሠረታዊ መረጃ",
     "Step2": "ቦታ",
@@ -188,18 +293,19 @@
     "NextStep": "ቀጣይ ደረጃ",
     "Back": "ተመለስ",
     "Submit": "ለአስተዳዳሪ ማረጋገጫ አስገባ",
+    "PendingApproval": "ለምላሽ ይጠብቁ!",
     "PharmacyName": "የፋርማሲ ስም",
     "HospitalName": "የሆስፒታል ስም",
     "EmailOptional": "(አማራጭ)",
-    "PhoneFormat": "የኢትዮጵያ ስልክ፡ 09 ወይም +2519 በመጀመር",
+    "PhoneFormat": "የኢትዮጵያ ስልክ፡ 09 ወይም +2519 በመጀመር ያስገቡ",
     "AgreeTerms": "በአገልግሎት ውሎች እና የግል መብት ደንቦች ተስማምቻለሁ",
     "SelectRegion": "ክልል ይምረጡ",
-    "GetMyLocation": "ቦታዬን አምጣ",
-    "MainContact": "ዋና የእውቂያ ስልክ",
-    "EmergencyPhone": "የአደጋ ጊዜ ስልክ",
-    "AlternatePhone": "አማራጭ ስልክ",
+    "GetMyLocation": "አሁን ያለሁበትን ቦታ አግኝ",
+    "MainContact": "ዋና ስልክ ቁጥር",
+    "EmergencyPhone": "የአደጋ ጊዜ ስልክ ቁጥር",
+    "AlternatePhone": "አማራጭ ስልክ ቁጥር",
     "ReviewInfo": "መረጃዎን ይገምግሙ",
-    "ReviewDesc": "ማስገባት በመጀመርዎ በፊት ሁሉንም ዝርዝሮች ይገምግሙ",
+    "ReviewDesc": "ማስገባት ከመጀመርዎ በፊት ሁሉንም ዝርዝሮች ይገምግሙ",
     "SuccessTitle": "ምዝገባ ቀርቧል!",
     "SuccessDesc": "ምዝገባዎ በተሳካ ሁኔታ ቀርቧል። በአስተዳዳሪ ማረጋገጫ ላይ ነው። በSMS/ኢሜይል ይገነዘባሉ።",
     "ReturnHome": "ወደ መነሻ ተመለስ",
@@ -234,6 +340,9 @@
       "Somali": "ሶማሌ",
       "SouthWest": "ደቡብ ምዕራብ ኢትዮጵያ",
       "Tigray": "ትግራይ"
+    },
+    "Auth": {
+      "login": "ወደ መግቢያው"
     },
     "ZoneCity": "ዞን / ከተማ",
     "SubCityWoreda": "ንዑስ ከተማ / ወረዳ",
@@ -320,14 +429,15 @@
     "Hidden": "የተደበቀ",
     "OwnerAccount": "የባለቤት አካውንት",
     "AiInquiries": "AI ጥያቄዎች",
-    "Units": "እቃዎች",
+    "Units": "ብዛት",
     "Identity": "የፋርማሲው መለያ",
     "UpdateSettings": "ቅንብሮችን አዘምን",
     "ChatWithPatients": "ከታካሚዎች ጋር ይነጋገሩ",
     "NoActiveChats": "ምንም ንቁ ንግግር የለም",
     "NoChatsDesc": "ታካሚዎች መልእክት ሲልኩልዎት፣ ንግግሮቹ እዚህ ይታያሉ።",
     "SelectAConversation": "ንግግር ይምረጡ",
-    "ClickToStart": "መልእክት ለመጀመር ከዝርዝሩ ውስጥ የታካሚ ንግግርን ይጫኑ"
+    "ClickToStart": "መልእክት ለመጀመር ከዝርዝሩ ውስጥ የታካሚ ንግግርን ይጫኑ",
+    "Notifications": "ማሳወቂያዎች"
   },
   "HospitalDashboard": {
     "Overview": "ማያያዝ",
@@ -372,18 +482,6 @@
     "NoDepartmentsFound": "ምንም ዳይሬክቶሬት አልተገኘም",
     "NoServicesFound": "ምንም አገልግሎት አልተገኘም",
     "ID": "ተ/ቁ",
-    "Department": "ዳይሬክቶሬት",
-    "Location": "ቦታ",
-    "Service": "አገልግሎት",
-    "PriceETB": "ዋጋ (ብር)",
-    "Duration": "ቆይታ",
-    "General": "አጠቃላይ"
-  },
-  "Map": {
-    "hospital": "ሆስፒታል",
-    "SearchByNameOrAddress": "በስም ወይም በአድራሻ ይፈልጉ...",
-    "SearchDrugAvailability": "የመድሃኒት ዝርዝር ፈልግ",
-    "Save": "ያስቀምጡ",
     "MessagePharmacy": "ለፋርማሲው መልእክት ይላኩ",
     "FacilitySearch": "የተቋም ፍለጋ",
     "SortedByDistance": "በቅርብ ርቀት መሰረት ተደርድሯል።",
@@ -418,74 +516,171 @@
     "TrackingUnavailable": "ክትትል አልተገኘም"
   },
   "inventory": {
-    "title": "እንቨንቶሪ",
-    "searchPlaceholder": "መድሃኒት ፈልግ...",
-    "addDrug": "መድሃኒት ጨምር",
-    "editDrug": "መድሃኒት አርትዕ",
-    "noDrugsFound": "ምንም መድሃኒት የለም",
+    "title": "የመድሃኒት ቤት አስተዳደር",
+    "searchPlaceholder": "በመድኃኒት ወይም በሳይንሳዊ ስም ይፈልጉ...",
+    "addDrug": "አዲስ መድኃኒት መዝግብ",
+    "editDrug": "መድኃኒት አርትዕ",
+    "noDrugsFound": "በመድሃኒት ቤትዎ ውስጥ ምንም መድኃኒት አልተገኘም",
+    "analytics": {
+      "totalItems": "ጠቅላላ መድሃኒቶች",
+      "lowStock": "ዝቅተኛ የመድሃኒት ብዛት",
+      "outOfStock": "ክክምችት የዎጣ",
+      "expiringSoon": "ጊዜያቸው የሚያበቃ",
+      "lastUpdated": "ለመጨረሻ ጊዜ የተሻሻለው {{time}}",
+      "totalItemDesc": "በመድሃኒት ቤትዎ ውስጥ ያሉ አጠቃላይ የመድኃኒት ብዛት",
+      "lowStockDesc": "የመድኃኒት ክምችት ዝቅተኛ ደረጃ ላይ ያሉ",
+      "outofStockDesc": "የመድኃኒት ክምችት የሌሉ ወይም 0 ብዛት",
+      "expiringSoonDesc": "በቅርቡ ጊዜያቸው የሚያበቃ መድሃኒቶች"
+    },
+    "tabs": {
+      "active": "መደበኛ ክምችት",
+      "history": "የክምችት ታሪክ",
+      "trash": "ማህደር / የተሰረዙ"
+    },
+    "filters": {
+      "allCategories": "ሁሉም ምድቦች",
+      "allStatus": "ሁሉም ሁኔታዎች",
+      "available": "የሚገኙ",
+      "outOfStock": "ክክምችት የዎጣ",
+      "lowStock": "ዝቅተኛ ክምችት",
+      "expiring": "ጊዜያቸው የሚያበቃ"
+    },
     "table": {
       "id": "ተ/ቁ",
-      "drugName": "የመዳኒቱ መጠሪያ",
+      "drugName": "የመድኃኒት ስም",
       "genericName": "ሳይንሳዊ ስም",
-      "stock": "እስቶክ",
-      "price": "ዋጋ",
-      "bookedDate": "የተመዘገበበት ቀን",
+      "category": "ምድብ",
+      "dosageForm": "አይነት",
+      "stock": "ክምችት",
+      "price": "መሸጫ ዋጋ",
+      "costPrice": "መግዣ ዋጋ",
       "status": "ሁኔታ",
+      "availability": "መገኘት",
       "actions": "ድርጊቶች"
     },
-    "status": {
-      "outOfStock": "የለም",
-      "lowStock": "አዲስ ግብኣት",
-      "inStock": "አለ"
+    "history": {
+      "title": "የክምችት ለውጥ ታሪክ",
+      "description": "የመድኃኒት ክምችት መጠን ሲቀየር፣ ለኦዲት ዓላማ እዚህ በመዝገብ ይሰነዳል።",
+      "type": {
+        "manual": "በእጅ የተደረገ ማሻሻያ",
+        "sale": "ሽያጭ / ስርጭት",
+        "restock": "ክምችት መጨመር",
+        "adjustment": "ማስተካከያ"
+      },
+      "column": {
+        "date": "ቀን እና ሰዓት",
+        "drug": "መድኃኒት",
+        "change": "ለውጥ",
+        "remaining": "ቀሪ",
+        "performedBy": "ባለሙያ",
+        "reason": "ማስታወሻ"
+      }
+    },
+    "trash": {
+      "title": "በማህደር ያሉ መድኃኒቶች",
+      "description": "የተሰረዙ መድኃኒቶች ማህደር። በማንኛውም ጊዜ ወደ መደበኛ ክምችት መመለስ ይችላሉ።",
+      "restore": "ወደ ነበረበት መልስ",
+      "confirmRestore": "እርግጠኛ ነዎት <strong>{{name}}</strong> ወደ መደበኛ ክምችት እንዲመለስ?",
+      "empty": "ባዶ ማህደር"
     },
     "toast": {
-      "drugAdded": "መድሃኒቱ ወደ መዝገብ ተጨምሯል",
-      "drugDeleted": "መድሃኒቱ ተሰርዟል",
-      "failedAdd": "መድሃኒቱን መጨመር አልተሳካም",
-      "failedUpdate": "የመድሃኒቱን መረጃ ማዘመን አልተቻለም። እባክዎ እንደገና ይሞክሩ።",
-      "failedDelete": "መድሃኒቱን መሰረዝ አልተቻለም",
-      "loadFailed": "የመድሃኒት ዝርዝር መከፈት አልቻለም",
-      "units": "እቃዎች",
-      "thisDrug": "ይህንን መድሃኒት"
+      "drugAdded": "መድኃኒቱ በተሳካ ሁኔታ ተመዝግቧል",
+      "drugUpdated": "መድኃኒቱ በትክክል ተስተካክሏል",
+      "drugDeleted": "መድኃኒቱ ወደተሰረዙ ማህደር ተዛውሯል",
+      "drugRestored": "መድኃኒቱ ወደ ነበረበት ተመልሷል",
+      "failedAdd": "መድኃኒቱን መመዝገብ አልተሳካም",
+      "failedUpdate": "ማስተካከያው አልተሳካም",
+      "failedDelete": "መድኃኒቱን ወደተሰረዙ ማህደር መውሰድ አልተሳካም",
+      "loadFailed": "የክምችት ዝርዝሩን መጫን አልተቻለም",
+      "units": "ብዛት"
     }
+  },
+  "Map": {
+    "hospital": "ሆስፒታል",
+    "SearchByNameOrAddress": "በ ሆስፒታል ስም ዎይም በ አድራሻ ይፈልጉ...",
+    "SearchDrugAvailability": "ልመዳኒቶችን መኖር ይፈልጉ",
+    "Save": "መዝግብ",
+    "SearchPlaceholder": "ይፈልጉ...",
+    "MessagePharmacy": "መለእክት ለመድሃኒት ቤት ዎኪል",
+    "FacilitySearch": "የጤና ተቋም ፍለጋ",
+    "SortedByDistance": "በቅርብ ርቀት መሰረት ተደርድሯል።",
+    "EnableLocationForDistance": "ያሉበትን ቦታ ክፍት ያድርጉ፣ በተሻለ መልኩ መረጃዎች ይደርስዎታል",
+    "All": "ሁሉም",
+    "Hospitals": "ሆስፒታሎች",
+    "Pharmacies": "መድሃኒት ቤቶች",
+    "LocationError": "አድራሻ ስህተት",
+    "RetryAccess": "እንደገና ይሞክሩ",
+    "Results": "ዉጤቶች",
+    "NoFacilitiesFound": "ምንም የጤና ተቋም የለም!",
+    "TryDifferentKeyword": "በተለየ አፈላለግ ይሞክሩ",
+    "OpenInMap": "ካርታ ላይ",
+    "DrugAvailability": "የመድሃኒት መኖር",
+    "FindNearbyPharmacies": "ይህን መድሃኒት ያላቸዉ በአቅራቢያ የሚገኙ መድሃኒት ቤቶችን ፈልግ",
+    "NoResultsYet": "እስካሁን ምንም ዉጤት አልተገኘም",
+    "TypeAMedicineName": "የመድሃኒት ስም ይጻፉ",
+    "PrescriptionUpload": "የመድሃኒት ማዘዣ ይጫኑ",
+    "UploadToFind": "የመድሃኒት ማዘዣ ይጫኑ በአቅራቢያዎ ያሉ መድሃኒት ቤቶችሂን ለመፈለግ ",
+    "DragAndDrop": "ፎቶዎችን ስበው ያስገቡ",
+    "PdfOrImages": "ፎቶዎችና pdf ይደገፋሉ",
+    "ChooseFile": "ሰነድ ምረጥ",
+    "Processing": "በሂደት ላይ",
+    "ExtractingMedicines": "የመድሃኒት ስም በመፈለግ ላይ ",
+    "UploadToSee": "ዉጤቶችን ለማየት ሰነዱን ዪጫኑ",
+    "WeWillList": "የእርስዎን መድሃኒት ማዘዣ የያዙ መድሃኒት ቤቶች በዝርዝሩ ይካተታሉ",
+    "SaveToRecents": "የቅርብ ፍለጋዎችሂን መዝግብ",
+    "LiveFacilitiesMap": "በካርታ እይታ",
+    "PickAFacility": "ከዝርዝሩ ይምረጡ፣ ካርታ ላይ ለመመልከት",
+    "ClearRoute": "አቅጣጫ ጠቋሚውን አጥፋ",
+    "TrackingEnabled": "አቅጣጫ ጠቋሚው በስራ ላይ",
+    "TrackingUnavailable": "አቅጣጫ ጠቋሚው አይሰራም"
   },
   "modal": {
     "delete": {
-      "title": "መድሃኒቱ አጥፋ",
-      "confirmMessage": "እርግጠኛ ነህ መድሃኒት <strong>{{name}}</strong> ከመዝገብ ለማጥፋት? ይህ ድርጊት አይመለስም፡",
-      "cancel": "ሰርዝ",
-      "delete": "አጥፋ",
-      "deleting": "በማጥፋት ላይ..."
+      "title": "መድኃኒቱን ወደ ማህደር ውሰድ",
+      "confirmMessage": "እርግጠኛ ነዎት {{name}} ወደተሰረዙ ማህደር እንዲዛወር? ይህ መድኃኒት በተሰረዙ ዝርዝር ውስጥ ይቀመጣል።",
+      "cancel": "ተመለስ",
+      "delete": "ወደተሰረዙ ማህደር ውሰድ",
+      "deleting": "በማዛወር ላይ..."
     },
     "drugInventory": {
-      "titleAdd": "አዲስ መድሃኒት አስገባ",
-      "titleEdit": "የመድሃኒቱ አስተካክል",
-      "drugNameEnglish": "Drug Name (English) *",
-      "drugNameAmharic": "የመድሃኒቱ ስም (አማርኛ) *",
-      "genericName": "የመድሃኒቱ ሳይንሳዊ ስም *",
-      "stock": "እስቶክ *",
-      "price": "ዋጋ (ብር)",
-      "expiryDate": "የሚያበቃበት ቀን *",
-      "aboutDrugEnglish": "About Drug (English) *",
+      "titleAdd": "አዲስ መድኃኒት ምዝገባ",
+      "titleEdit": "የክምችት ዝርዝር ማስተካከያ",
+      "basicInfo": "መሰረታዊ መረጃ",
+      "classification": "ምድብ እና አይነት",
+      "pricingInventory": "ዋጋ እና ክምችት",
+      "drugNameEnglish": "Brand Name (EN)",
+      "drugNameAmharic": "የመድኃኒቱ ስም (አማርኛ)",
+      "genericName": "ሳይንሳዊ ስም",
+      "manufacturer": "አምራች",
+      "batchNumber": "የባች ቁጥር",
+      "lowStockThreshold": "የእጥረት ማስጠንቀቂያ",
+      "costPrice": "መግዣ ዋጋ",
+      "sellingPrice": "መሸጫ ዋጋ",
+      "dosageForm": "የአወሳሰድ አይነት",
+      "category": "ምድብ",
+      "stock": "አሁን ያለው ክምችት",
+      "price": "መሸጫ ዋጋ (ብር)",
+      "expiryDate": "ጊዜው የሚያበቃበት ቀን",
+      "aboutDrugEnglish": "መግለጫ (EN)",
       "aboutDrugAmharic": "ስለ መድሃኒቱ (አማርኛ)",
-      "prescriptionRequired": "የሃኪም ማዘዣ ያስፈልጋልን?",
+      "prescriptionRequired": "የሃኪም ማዘዣ ያስፈልጋል (Rx)",
       "placeholder": {
         "drugNameEn": "e.g., Panadol",
         "drugNameAm": "ለምሳሌ፡- ማስታገሻ",
         "genericName": "e.g., Paracetamol",
         "stock": "0",
-        "price": "0",
-        "aboutEn": "e.g., manufactured in 2025",
-        "aboutAm": "ለምሳሌ፡- በ 2025 የተመረተ፣"
+        "price": "0.00",
+        "aboutEn": "Usage and dosage details...",
+        "aboutAm": "ስለ መድሃኒቱ አጠቃቀም ዝርዝር..."
       },
       "error": {
-        "required": "በትክክል ይሙሉ"
+        "required": "ይህ ቦታ መሞላት አለበት"
       },
       "actions": {
-        "cancel": "ሰርዝ",
-        "processing": "በሂደት ላይ...",
-        "submitAdd": "መድሃኒት ጨምር",
-        "submitEdit": "መድሃኒት አርትዕ"
+        "cancel": "ተመለስ",
+        "processing": "በማስቀመጥ ላይ...",
+        "submitAdd": "አስቀምጥ",
+        "submitEdit": "አዘምን"
       }
     }
   },
@@ -497,6 +692,22 @@
   "features": {
     "header": "የ MedFinder አገልግሎቶች",
     "learn_more": "ተጨማሪ",
+    "smartSearch": {
+      "title": "ብልህ ፍለጋ",
+      "desc": "ሆስፒታሎችን፣ ፋርማሲዎችን እና መድሃኒቶችን በእኛ ዘመናዊ የፍለጋ ሞተር ወዲያውኑ ያግኙ።"
+    },
+    "navigation": {
+      "title": "የድምፅ አሰሳ",
+      "desc": "ወደመረጡት የጤና ተቋም ቅጽበታዊ በሆነ የድምፅ መሪነት አቅጣጫዎችን ያግኙ።"
+    },
+    "multilingual": {
+      "title": "ሁለት ቋንቋ ድጋፍ",
+      "desc": "ምቹ ተሞክሮ እንዲኖርዎት ሁሉንም አገልግሎቶች በእንግሊዝኛ እና በአማርኛ ያግኙ።"
+    },
+    "availability": {
+      "title": "የመድኃኒት መገኘት",
+      "desc": "የሚፈልጉት መድሃኒት ዝግጁ መሆኑን ለማረጋገጥ ቅጽበታዊ የክምችት ማረጋገጫ።"
+    },
     "ai_chat": {
       "title": "የAI ውይይት ድጋፍ",
       "desc": "የሚፈልጉትን ለAI በማስረዳት ቅጽበታዊ መረጃ ያግኙ!"
@@ -504,10 +715,6 @@
     "prescription": {
       "title": "የመድኃኒት ማዘዣ አረጋጋጭ",
       "desc": "በአቅራቢያዎ ባሉ ፋርማሲዎች ውስጥ መኖሩን ለማረጋገጥ የታዘዘልዎትን መድሃኒት እዚህ ይጫኑ ወይም ይጻፉ።"
-    },
-    "navigation": {
-      "title": "ቅጽበታዊ አቅጣጫ ጠቋሚ",
-      "desc": "ወደ ቅርብ የጤና ተቋም የሚወስድዎትን ቀጥታ መንገድ በካርታ ያግኙ።"
     }
   },
   "facilities": {
@@ -542,6 +749,7 @@
     "search_box": {
       "tab_hospitals": "ሆስፒታሎች",
       "tab_pharmacies": "ፋርማሲዎች",
+      "tab_drugs": "መድሃኒቶች",
       "placeholder": "በስም፣ በመድኃኒት ወይም በከተማ ይፈልጉ...",
       "button_text": "ፈልግ"
     }
@@ -813,14 +1021,19 @@
     "clearSearchAndFilters": "ፍለጋ እና ማጣሪያዎችን ያጽዱ",
     "exploreOnMap": "ካርታ ላይ ያስሱ",
     "filters": "ማጣሪያዎች",
-    "distance": "ርቀት",
+    "distance_label": "ርቀት",
     "anyDistance": "ማንኛውም ርቀት",
     "facilityType": "የተቋም አይነት",
     "hospital": "ሆስፒታል",
     "pharmacy": "ፋርማሲ",
     "facility": "ተቋም",
-    "availability": "ዝግጁነት",
-    "openNow": "አሁን ክፍት",
+    "availability_label": "ዝግጁነት",
+    "drug_placeholder": "መድሃኒት ፈልግ...",
+    "price": "ዋጋ",
+    "availability": "ተገኝነት",
+    "available": "ይገኛል",
+    "not_available": "አይገኝም",
+    "distance": "{{distance}} ኪሜ ርቀት",
     "availabilityHint": "24/7 ዝግጁ ሲሆን ይጠቀማል፤ ካልሆነ ሰዓተቱ ላይታወቅ ይችላል።",
     "departmentsServices": "ዳይሬክቶሬቶች / አገልግሎቶች",
     "departmentFilterHint": "ማጣሪያው ለሆስፒታሎች ብቻ ይሠራል።",
@@ -830,6 +1043,7 @@
     "viewOnMap": "ካርታ ላይ ይመልከቱ",
     "addressNotAvailable": "አድራሻ ያልተገኘ",
     "open": "ክፍት",
+    "no_results": "ምንም ውጤት አልተገኘም",
     "closed": "ተዘግቷል",
     "hoursUnknown": "ሰዓቱ አልታወቀም",
     "fullTime247": "24/7",
@@ -859,7 +1073,8 @@
     "facilityTypes": {
       "all": "ሁሉም",
       "hospital": "ሆስፒታሎች",
-      "pharmacy": "ፋርማሲዎች"
+      "pharmacy": "ፋርማሲዎች",
+      "drug": "መድሃኒቶች"
     }
   },
   "statusBanner": {
@@ -884,7 +1099,9 @@
   },
   "common": {
     "loading": "በመጫን ላይ…",
-    "close": "ዝጋ"
+    "close": "ዝጋ",
+    "previous": "ቀዳሚ",
+    "next": "ቀጣይ"
   },
   "filters": {
     "distance": {

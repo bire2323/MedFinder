@@ -1,10 +1,16 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Modal from "../../component/Modal";
+import { useTranslation } from "react-i18next";
+import am_white from "../../assets/am_white.png";
+import en_white from "../../assets/en_white.png";
+import am_black from "../../assets/am_black.png";
+import en_black from "../../assets/en_black.png";
 
 export default function RegisterRoute() {
   const navigate = useNavigate();
   const location = useLocation();
-
+  const {t} = useTranslation();
+  const isAmharic = localStorage.getItem("i18nextLng") === "am";
   const handleClose = () => {
     if (location.pathname.startsWith("/register")) {
       navigate("/"); // go back to home when modal closes
@@ -31,39 +37,7 @@ export default function RegisterRoute() {
        <div className="hidden md:flex w-1/2 items-stretch">
             <div className="flex-1 flex items-center justify-center h-full bg-gradient-to-br from-pink-50 to-white dark:from-pink-900 dark:to-gray-800 p-6">
               <div className="w-full h-full flex items-center justify-center">
-                <svg
-                  width="180"
-                  height="180"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-pink-500"
-                >
-                  <rect
-                    x="2"
-                    y="7"
-                    width="14"
-                    height="10"
-                    rx="5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    fill="rgba(236,72,153,0.08)"
-                  />
-                  <path
-                    d="M16 8l5 5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M16 13l5-5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <img src={isAmharic ? am_white : en_white} alt={t("Register.Welcome")} className="object-contain" />
               </div>
             </div>
           </div>

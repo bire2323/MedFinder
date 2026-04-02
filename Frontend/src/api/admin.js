@@ -32,7 +32,9 @@ export async function decideApproval(user, approvalId, decision, reason, type) {
 export async function getSystemStats(user) {
   return apiFetch("/api/admin/stats", { method: "GET" });
 }
-
+export async function getSyStats(user) {
+  return apiFetch("/api/admin/stats", { method: "GET" });
+}
 export async function getActivityFeed(user, params = {}) {
   const query = new URLSearchParams(params).toString();
   return apiFetch(`/api/admin/activity${query ? `?${query}` : ""}`, { method: "GET" });

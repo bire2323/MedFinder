@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRegistrationStore } from '../../store/registrationStore';
 import handleKeyDown from '../../hooks/handleKeyDown';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Building2,
 
@@ -22,11 +22,11 @@ import { useTranslation } from 'react-i18next';
 const Step1BasicInfo = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { type } = useParams();
   const {
     formData: storeFormData,
     errors,
     syncFormDataFromLocal,
-    nextStep,
     validateStep1,
     registrationType
   } = useRegistrationStore();
@@ -60,8 +60,7 @@ const Step1BasicInfo = () => {
 
     syncFormDataFromLocal(localData);
     if (validateStep1()) {
-
-      nextStep();
+      navigate(`/register/${type}/location-info`);
     }
   };
 

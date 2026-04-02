@@ -8,8 +8,10 @@ import FilterPanel from "../../component/search/FilterPanel";
 import ResultCard from "../../component/search/ResultCard";
 import ResultsSkeleton from "../../component/search/ResultsSkeleton";
 
-import { apiFetchFacilities } from "../../api/search";
+import { apiFetchFacilities, apiFetchDrugResults } from "../../api/search";
+import { apiGetFacilities } from "../../api/hospital";
 import getDistanceFromLatLonInMeters from "../../utils/GetDistanceFromLatLoInMeters";
+import FeatureCarousel from "../../component/search/FeatureCarousel";
 
 function useDebouncedValue(value, delayMs = 250) {
   const [debounced, setDebounced] = useState(value);
@@ -65,6 +67,10 @@ export default function SearchResultsHomePage() {
   const [allFacilities, setAllFacilities] = useState([]);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
+  // Pagination State
+  const ITEMS_PER_PAGE = 9;
+  const [currentPage, setCurrentPage] = useState(1);
+
   const abortRef = useRef(null);
 
   useEffect(() => {
@@ -91,7 +97,11 @@ export default function SearchResultsHomePage() {
     const ac = new AbortController();
     abortRef.current = ac;
 
-    apiFetchFacilities({ signal: ac.signal })
+    const fetchAction = facilityType === "drug"
+      ? apiFetchDrugResults(debouncedQuery, { signal: ac.signal })
+      : apiFetchFacilities({ signal: ac.signal });
+
+    fetchAction
       .then((rows) => setAllFacilities(rows))
       .catch((e) => {
         if (e?.name === "AbortError") return;
@@ -100,7 +110,7 @@ export default function SearchResultsHomePage() {
       .finally(() => setLoading(false));
 
     return () => ac.abort();
-  }, [t]);
+  }, [t, facilityType, debouncedQuery]);
 
   const facilitiesWithDistance = useMemo(() => {
     if (!userLoc) return allFacilities.map((f) => ({ ...f, distanceMeters: NaN }));
@@ -131,7 +141,11 @@ export default function SearchResultsHomePage() {
     const q = (debouncedQuery || "").trim();
     return facilitiesWithDistance
       .filter((f) => matchesQuery(f, q))
-      .filter((f) => (effectiveType === "all" ? true : f.type === effectiveType))
+      .filter((f) => {
+        if (effectiveType === "all") return true;
+        if (effectiveType === "drug") return f.type === "pharmacy"; // Drug results are pharmacies
+        return f.type === effectiveType;
+      })
       .filter((f) => distanceBucketOk(f.distanceMeters, filters.distance))
       .filter((f) => (filters.openNow ? Boolean(f.isFullTime || f.isOpen === true) : true))
       .filter((f) => {
@@ -155,6 +169,15 @@ export default function SearchResultsHomePage() {
       });
   }, [debouncedQuery, facilitiesWithDistance, facilityType, filters]);
 
+  // Reset pagination on filter change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedQuery, filters]);
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedResults = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
   const onSubmitSearch = () => { };
 
   const onCardClick = (f) => {
@@ -165,9 +188,14 @@ export default function SearchResultsHomePage() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-slate-50 dark:bg-gray-900 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur p-4">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
+        <div className="max-w-[1780px] mx-auto px-6 lg:px-12 py-8 sm:py-12">
+
+          {/* 1. FEATURE CAROUSEL */}
+          <FeatureCarousel />
+
+          {/* 2. SEARCH BAR SECTION */}
+          <div className="rounded-2xl border border-slate-200 dark:border-blue-900/30 bg-white/80 dark:bg-slate-900/80 backdrop-blur p-4 shadow-xl">
             <SearchBar
               value={query}
               onChange={setQuery}
@@ -182,8 +210,9 @@ export default function SearchResultsHomePage() {
           </div>
 
           <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Sidebar Column */}
             <aside className="hidden lg:block lg:col-span-3">
-              <div className="sticky top-20 rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
+              <div className="sticky top-24 rounded-2xl border border-slate-200 dark:border-blue-900/30 bg-white dark:bg-slate-900 p-5 shadow-lg">
                 <FilterPanel
                   filters={filters}
                   onChange={setFilters}
@@ -197,7 +226,7 @@ export default function SearchResultsHomePage() {
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen(true)}
-                className="w-full rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm font-extrabold text-slate-800 dark:text-white"
+                className="w-full rounded-2xl border border-slate-200 dark:border-blue-900/30 bg-white dark:bg-slate-900 px-4 py-3 text-sm font-extrabold text-slate-800 dark:text-white"
               >
                 {t("search.filtersButton")}
               </button>
@@ -235,19 +264,20 @@ export default function SearchResultsHomePage() {
               </div>
             )}
 
+            {/* Main Content Column */}
             <main className="lg:col-span-9">
-              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
+                  <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                     {t("search.resultsTitle")}
                   </h1>
-                  <p className="text-sm text-slate-600 dark:text-gray-300">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                     {userLoc
                       ? t("search.sortedByDistance")
                       : t("search.enableLocationHint")}
                   </p>
                 </div>
-                <div className="text-sm font-semibold text-slate-600 dark:text-gray-300">
+                <div className="text-sm font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-3 py-1.5 rounded-xl border border-blue-100 dark:border-blue-900/30">
                   {loading
                     ? t("common.loading")
                     : t("search.resultCount", { count: filtered.length })}
@@ -255,7 +285,7 @@ export default function SearchResultsHomePage() {
               </div>
 
               {error && (
-                <div className="rounded-2xl border border-rose-200 dark:border-rose-900/40 bg-rose-50 dark:bg-rose-900/20 p-4 text-sm text-rose-800 dark:text-rose-200">
+                <div className="rounded-2xl border border-rose-200 dark:border-rose-900/40 bg-rose-50 dark:bg-rose-900/20 p-4 text-sm text-rose-800 dark:text-rose-200 mb-6">
                   {error}
                 </div>
               )}
@@ -278,13 +308,13 @@ export default function SearchResultsHomePage() {
                         setFilters({ distance: "any", type: "all", openNow: false, department: "any" });
                         setFacilityType("all");
                       }}
-                      className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 text-sm font-extrabold"
+                      className="rounded-xl bg-green-800 hover:bg-green-700 dark:bg-slate-500 dark:hover:bg-slate-400 text-white px-5 py-3 text-sm font-extrabold"
                     >
                       {t("search.clearFiltersButton")}
                     </button>
                     <button
                       type="button"
-                      onClick={() => navigate("/map")}
+                      onClick={() => navigate("/home/map")}
                       className="rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-3 text-sm font-extrabold text-slate-800 dark:text-white"
                     >
                       {t("search.exploreOnMap")}
@@ -294,11 +324,61 @@ export default function SearchResultsHomePage() {
               )}
 
               {!error && !loading && filtered.length > 0 && (
-                <div className="grid grid-cols-1 gap-4">
-                  {filtered.map((f) => (
-                    <ResultCard key={`${f.type}-${f.id}`} facility={f} onClick={() => onCardClick(f)} />
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {paginatedResults.map((f) => (
+                      <ResultCard key={`${f.type}-${f.id}`} facility={f} onClick={() => onCardClick(f)} />
+                    ))}
+                  </div>
+
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="mt-12 flex justify-center items-center gap-2">
+                      <button
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 rounded-xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-slate-900 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors"
+                      >
+                        {t("common.previous")}
+                      </button>
+
+                      <div className="flex gap-1">
+                        {[...Array(totalPages)].map((_, i) => {
+                          const pageNum = i + 1;
+                          // Basic pagination logic: show current, first, last, and neighbors
+                          const isNear = Math.abs(currentPage - pageNum) <= 1;
+                          const isEnd = pageNum === 1 || pageNum === totalPages;
+
+                          if (!isNear && !isEnd) {
+                            if (pageNum === 2 || pageNum === totalPages - 1) return <span key={pageNum} className="px-2 text-slate-400">...</span>;
+                            return null;
+                          }
+
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => setCurrentPage(pageNum)}
+                              className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${currentPage === pageNum
+                                ? "bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none"
+                                : "border border-slate-200 dark:border-gray-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800"
+                                }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <button
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 rounded-xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-slate-900 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors"
+                      >
+                        {t("common.next")}
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </main>
           </div>

@@ -74,6 +74,7 @@ class HospitalPharmacySeeder extends Seeder
                 'hospital_ownership_type' => 'Public',
                 'license_number' => 'HOSP-' . rand(1000, 9999),
                 'official_license_upload' => 'licenses/hosp.pdf',
+                'logo' => "logo/QpOI56wdNc5FbotAok8TeKaxv3yFcBunUFH0QYKU.png",
                 'working_hour' => '24/7',
                 'is_full_time_service' => true,
                 'emergency_contact' => $h['phone'],
@@ -113,6 +114,7 @@ class HospitalPharmacySeeder extends Seeder
                 'license_number' => 'PHAR-' . rand(1000, 9999),
                 'pharmacy_license_category' => 'Retail',
                 'pharmacy_license_upload' => 'licenses/pharm.pdf',
+                'logo' => 'logos/QpOI56wdNc5FbotAok8TeKaxv3yFcBunUFH0QYKU.png',
                 'working_hour' => '08:00 AM - 10:00 PM',
                 'status' => 'APPROVED',
             ])->addresses()->create([

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('region_am');
             $table->string('zone_en');
             $table->string('zone_am');
-           
+             
             $table->string('sub_city_en');
             $table->string('sub_city_am');
             $table->string('kebele');

@@ -83,7 +83,6 @@ const API_BASE_Local = "http://localhost:8000/api";
 export async function apiGetTopFacilities() {
   const res = await apiFetch("/api/top-medical-facilities", { method: "GET" });
   // keep backward-compat shape expected by router loader
-  console.log("api",res);
   return res;
 }
 export async function apiGetFacilities() {
@@ -98,6 +97,9 @@ export async function apiGetHospitals() {
 
 export async function apiGetPharmacies() {
   return apiFetch("/api/pharmacies", { method: "GET" });
+}
+export async function apiGetPharmacyProfile() {
+  return apiFetch("/api/pharmacy-agent/profile", { method: "GET" });
 }
 
 

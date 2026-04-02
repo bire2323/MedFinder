@@ -1,0 +1,73 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: medfinder-mysql
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    restart: unless-stopped
+
+  osrm:
+    image: osrm/osrm-backend
+    container_name: medfinder-osrm
+    ports:
+      - "${OSRM_PORT:-5000}:5000"
+    volumes:
+      - ./OSM-data:/data
+    command: osrm-routed --algorithm mld /data/ethiopia-260331.osrm
+    restart: unless-stopped
+
+  tileserver:
+    image: maptiler/tileserver-gl
+    container_name: medfinder-tileserver
+    ports:
+      - "${TILESERVER_PORT:-8081}:8080"
+    volumes:
+      - ./tiles:/data
+    command: --file /data/ethiopia-260331.mbtiles --port 8080
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ${BACKEND_DOCKERFILE:-Dockerfile}
+    container_name: medfinder-backend
+    ports:
+      - "${BACKEND_PORT:-8080}:80"
+    volumes:
+      - ./backend:/var/www/html
+    environment:
+      - APP_ENV=${APP_ENV}
+      - APP_DEBUG=${APP_DEBUG}
+      - APP_URL=${APP_URL}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REVERB_PORT=8080
+    depends_on:
+      - mysql
+      - osrm
+      - tileserver
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: medfinder-frontend
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    environment:
+      - VITE_API_BASE=${VITE_API_BASE}
+      - VITE_OSRM_URL=${VITE_OSRM_URL}
+      - VITE_TILESERVER_URL=${VITE_TILESERVER_URL}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  mysql-data:

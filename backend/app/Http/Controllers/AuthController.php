@@ -9,6 +9,10 @@ use App\Models\PendingUser;
 use App\Models\OtpVerification;
 use Illuminate\Support\Facades\Auth;
 use App\Models\AuditLog;
+use Laravel\Socialite\Facades\Socialite; 
+use Illuminate\Support\Str;
+
+use Illuminate\Support\Facades\Log;
 
 
 class AuthController extends Controller
@@ -16,26 +20,26 @@ class AuthController extends Controller
     // POST /api/login
     public function login(Request $request)
     {
-         $request->validate([
+        $request->validate([
             'phone' => 'required',
             'password' => 'required',
-        ],[
-              'phone.required' => 'phone_required',
-             'name.required' => 'name_required',
+        ], [
+            'phone.required' => 'phone_required',
+            'name.required' => 'name_required',
         ]);
         $user = User::where('Phone', $request->phone)->first();
-        if(!$user){
+        if (!$user) {
             return response()->json([
                 'success' => false,
                 'message' => 'User_not_found'
             ]);
         }
-        if(!Hash::check($request->password,$user->Password)){
-           return response()->json([
-            'ok' => false,
-            'success' => false,
-            "message"=>"Invalid_credentials",
-        ]);
+        if (!Hash::check($request->password, $user->Password)) {
+            return response()->json([
+                'ok' => false,
+                'success' => false,
+                "message" => "Invalid_credentials",
+            ]);
         }
         Auth::login($user);
         $request->session()->regenerate();
@@ -51,101 +55,99 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'user' => $user,
-             'roles'=>$user->getRoleNames(),
+            'roles' => $user->getRoleNames(),
         ]);
 
     }
 
     // POST /api/register
     public function register(Request $request)
-     {
+    {
         $validated = $request->validate([
             'name' => 'required|string|min:4|max:20',
             'phone' => 'required|unique:users,phone',
             'password' => 'required',
-        ],[
-              'phone.required' => 'phone_required',
-              'phone.unique' => 'phone_taken',
-             'name.required' => 'name_required',
-             'name.min' => 'name_min_4',
+        ], [
+            'phone.required' => 'phone_required',
+            'phone.unique' => 'phone_taken',
+            'name.required' => 'name_required',
+            'name.min' => 'name_min_4',
         ]);
 
 
-    $otp = random_int(1000, 9999);
-    $expiresAt = now()->addMinutes(5);
+        $otp = random_int(1000, 9999);
+        $expiresAt = now()->addMinutes(5);
 
-    // Save pending user
-    PendingUser::updateOrCreate(
+        // Save pending user
+        PendingUser::updateOrCreate(
         ['phone' => $validated['phone']],
         [
             'name' => $validated['name'],
             'password' => Hash::make($validated['password']),
             'expires_at' => $expiresAt,
         ]
-    );
+        );
 
-    // Save OTP
-    OtpVerification::updateOrCreate(
+        // Save OTP
+        OtpVerification::updateOrCreate(
         ['phone' => $validated['phone']],
         [
             'otp_hash' => Hash::make($otp),
             'expires_at' => $expiresAt,
             'attempts' => 0,
         ]
-    );
+        );
 
-    // TODO: Send OTP via SMS provider
-    // sendOtpSms($validated['phone'], $otp);
+        // TODO: Send OTP via SMS provider
+        // sendOtpSms($validated['phone'], $otp);
 
-    return response()->json([
-        'success' => true,
-        'message' => $otp." OTP sent to your phone".$request->phone,
-    ]);
-     
-    }
-public function verifyOtp(Request $request)
-{
-    $request->validate([
-        'phone' => 'required',
-        'otp' => 'required|digits:4',
-    ]);
+        return response()->json([
+            'success' => true,
+            'message' => $otp . " OTP sent to your phone" . $request->phone,
+        ]);
 
-    $otpRow = OtpVerification::where('phone', $request->phone)->first();
-    $pendingUser = PendingUser::where('phone', $request->phone)->first();
+    }    public function verifyOtp(Request $request)    {
+        $request->validate([
+            'phone' => 'required',
+            'otp' => 'required|digits:4',
+        ]);
 
-    if (!$otpRow || !$pendingUser) {
-        return response()->json(["success" => false, 'message' => 'OTP expired']);
-    }
+        $otpRow = OtpVerification::where('phone', $request->phone)->first();
+        $pendingUser = PendingUser::where('phone', $request->phone)->first();
 
-    if ($otpRow->expires_at < now()) {
-        return response()->json(['success' => false, 'message' => 'OTP expired']);
-    }
+        if (!$otpRow || !$pendingUser) {
+            return response()->json(["success" => false, 'message' => 'OTP expired']);
+        }
 
-    if ($otpRow->attempts >= 2) {
-        return response()->json(['success' => false,'message' => 'Too many attempts']);
-    }
+        if ($otpRow->expires_at < now()) {
+            return response()->json(['success' => false, 'message' => 'OTP expired']);
+        }
 
-   if (!Hash::check($request->otp, $otpRow->otp_hash)) {
+        if ($otpRow->attempts >= 2) {
+            return response()->json(['success' => false, 'message' => 'Too many attempts']);
+        }
 
-        $otpRow->increment('attempts');
-        return response()->json(['success' => false,'message' => 'Invalid OTP']);
-    }
+        if (!Hash::check($request->otp, $otpRow->otp_hash)) {
 
-    // Create real user
-    $user = User::create([
-        'Name' => $pendingUser->name,
-        'Phone' => $pendingUser->phone,
-        'Password' => $pendingUser->password,
-    ]);
+            $otpRow->increment('attempts');
+            return response()->json(['success' => false, 'message' => 'Invalid OTP']);
+        }
 
-    $user->assignRole('patient'); // or default role
-    Auth::login($user);
-    $request->session()->regenerate();
+        // Create real user
+        $user = User::create([
+            'Name' => $pendingUser->name,
+            'Phone' => $pendingUser->phone,
+            'Password' => $pendingUser->password,
+        ]);
 
-    // Cleanup
-    $otpRow->delete();
-    $pendingUser->delete();
-            AuditLog::create([
+        $user->assignRole('patient'); // or default role
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        // Cleanup
+        $otpRow->delete();
+        $pendingUser->delete();
+        AuditLog::create([
             'user_id' => $user->id,
             'category' => 'user',
             'event' => 'user Registration ',
@@ -155,69 +157,71 @@ public function verifyOtp(Request $request)
             'event_status' => 'success',
         ]);
 
-    return response()->json([
-        'success' => true,
-        'user' => $user,
-        'roles'=>$user->getRoleNames(),
-    ]);
-}
- public function resendOtp(Request $request)
-     {
-       $validated = $request->validate([
-        'phone' => 'required|exists:pending_users,phone', // better validation
-    ], [
-        'phone.required' => 'phone_required',
-        'phone.exists'   => 'no_pending_registration_found',
-    ]);
-    $otpRow = OtpVerification::where('phone', $request->phone)->first();
-    $pendingUser = PendingUser::where('phone', $request->phone)->first();
-    if ($otpRow->updated_at->diffInMinutes(now()) < 1) {
         return response()->json([
-            'success' => false,
-            'message' => 'Please wait 1 minute before requesting new OTP'
-        ], 429);
-    }
+            'success' => true,
+            'user' => $user,
+            'roles' => $user->getRoleNames(),
+        ]);    }
+    public function resendOtp(Request $request)
+    {
+        $validated = $request->validate([
+            'phone' => 'required|exists:pending_users,phone', // better validation
+        ], [
+            'phone.required' => 'phone_required',
+            'phone.exists' => 'no_pending_registration_found',
+        ]);
+        $otpRow = OtpVerification::where('phone', $request->phone)->first();
+        $pendingUser = PendingUser::where('phone', $request->phone)->first();
+        if ($otpRow->updated_at->diffInMinutes(now()) < 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please wait 1 minute before requesting new OTP'
+            ], 429);
+        }
 
-      $otp = random_int(1000, 9999);
-    $expiresAt = now()->addMinutes(5);
-    // Reset failed attempts when user asks for new code
-    $otpRow->update([
-        'attempts'    => 0,
-        'otp_hash'    => Hash::make($otp),
-        'expires_at'  => $expiresAt,
-    ]);
-
-  
+        $otp = random_int(1000, 9999);
+        $expiresAt = now()->addMinutes(5);
+        // Reset failed attempts when user asks for new code
+        $otpRow->update([
+            'attempts' => 0,
+            'otp_hash' => Hash::make($otp),
+            'expires_at' => $expiresAt,
+        ]);
 
 
-    // TODO: Send OTP via SMS provider
-    // sendOtpSms($validated['phone'], $otp);
 
-    return response()->json([
-        'success' => true,
-        'message' => $otp." OTP sent to your phone",
-    ]);
-     
+
+        // TODO: Send OTP via SMS provider
+        // sendOtpSms($validated['phone'], $otp);
+
+        return response()->json([
+            'success' => true,
+            'message' => $otp . " OTP sent to your phone",
+        ]);
+
     }
     // POST /api/logout (protected)
-     public function logout(Request $request)
-{
-    Auth::guard('web')->logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
+    public function logout(Request $request)    {
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Logged out successfully',
-    ], 200);
-}
+        return response()->json([
+            'success' => true,
+            'message' => 'Logged out successfully',
+        ], 200);    }
 
     // GET /api/user (protected)
     public function user(Request $request)
     {
+        Log::info('API USER SESSION', [
+    'session_id' => session()->getId(),
+    'auth_check' => Auth::check()
+]);
         /** @var \App\Models\User|null $user */
         $user = $request->user();
         if (!$user) {
+       
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -228,7 +232,8 @@ public function verifyOtp(Request $request)
         ]);
     }
 
-    public function updateProfile(Request $request){
+    public function updateProfile(Request $request)
+    {
 
         $user = $request->user();
         if (!$user) {
@@ -236,21 +241,20 @@ public function verifyOtp(Request $request)
         }
         $validated = $request->validate([
             'name' => 'required|string|min:4|max:20',
-            'phone' => 'unique:users,phone,'.$user->id,
-            'email' => 'email|unique:users,email,'.$user->id,
+            'phone' => 'unique:users,phone,' . $user->id,
+            'email' => 'email|unique:users,email,' . $user->id,
         ]);
         $data = [
-    'Name'  => $validated['name'],
-    'Phone' => $validated['phone'] ?? null,
-    'Email' => $validated['email'] ?? null,
-];
+            'Name' => $validated['name'],
+            'Phone' => $validated['phone'] ?? null,
+            'Email' => $validated['email'] ?? null,        ];
+        $user->update(array_filter($data, fn($v) => !is_null($v)));
 
-$user->update(array_filter($data, fn($v) => !is_null($v)));
-      
         return response()->json(["success" => true, "message" => "Profile updated successfully"]);
     }
 
-    public function updatePassword(Request $request){
+    public function updatePassword(Request $request)
+    {
         $user = $request->user();
         if (!$user) {
             return response()->json(["success" => false, "message" => "Unauthenticated"]);
@@ -266,4 +270,60 @@ $user->update(array_filter($data, fn($v) => !is_null($v)));
         $user->save();
         return response()->json(["success" => true, "message" => "Password updated successfully"]);
     }
+
+
+   public function redirectToGoogle()
+{
+    // Set the redirect URL dynamically for local development
+    $redirectUrl = env('GOOGLE_REDIRECT_URL');   // e.g. http://127.0.0.1:8000/auth/google/callback
+
+    return Socialite::driver('google')
+        ->redirectUrl($redirectUrl)   // ← This is the most important line
+        ->stateless()                 // Keep this if you're using API/SPA
+        ->redirect();
+}
+
+public function handleGoogleCallback()
+{
+    $redirectUrl = env('GOOGLE_REDIRECT_URL');
+
+    // Apply the same redirectUrl in callback too (very important!)
+    $googleUser = Socialite::driver('google')
+        ->redirectUrl($redirectUrl)
+        ->stateless()
+        ->user();
+
+    // Rest of your code remains the same...
+    $user = User::firstOrCreate(
+        ['Email' => $googleUser->getEmail()],
+        [
+            'Name'   => $googleUser->getName(),
+            'Password' => bcrypt(Str::random(16)),
+           
+        ]
+    );
+    $user->refresh();
+
+    if (!$user->hasAnyRole() && $user->roles()->count() === 0) {
+        Log::info("assign role");
+        $user->assignRole('patient');
+        // your audit log...
+    }else {
+    Log::info("User already has role(s)", [
+        'user_id' => $user->id,
+        'email'   => $user->Email,
+        'roles'   => $user->getRoleNames()->toArray()
+    ]);
+}
+// Important fixes for Socialite + Sanctum
+    Auth::guard('web')->login($user);     // Explicitly use web guard
+    session()->regenerate(true);
+  Log::info('Google login - session created', [
+        'user_id' => $user->id,
+        'email'   => $user->Email,
+        'session_id' => session()->getId()
+    ]);
+
+    return redirect(env('FRONTEND_URL') . '/auth/callback');
+}
 }

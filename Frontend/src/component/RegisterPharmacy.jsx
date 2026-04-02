@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/UserAuthStore";
-import { useTranslation } from "react-i18next"; 
+import { useTranslation } from "react-i18next";
 
 // ... (Other imports and variants)
 
@@ -26,7 +26,7 @@ const staggerContainer = {
 export default function RegisterPharmacy() {
 
   const navigate = useNavigate();
-  const {t}= useTranslation();
+  const { t } = useTranslation();
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   // ... existing code ...
@@ -36,7 +36,7 @@ export default function RegisterPharmacy() {
       if (!isAuthenticated) {
         navigate('/login');
       } else {
-        navigate('/register/pharmacy')
+        navigate('/pharmacy/registration/basic-info')
       }
     } else if (type === 'hospital') {
 
@@ -49,7 +49,7 @@ export default function RegisterPharmacy() {
     }
   }
 
- 
+
   const registrationCards = [
     {
       type: "hospital",
@@ -83,13 +83,13 @@ export default function RegisterPharmacy() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-         
+
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-             {t("registration.header")}
+              {t("registration.header")}
             </h2>
             <p className="text-slate-500 dark:text-gray-400 max-w-2xl mx-auto">
-             {t("registration.subheader")}
-              
+              {t("registration.subheader")}
+
             </p>
           </motion.div>
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, memo } from 'react';
 import { useRegistrationStore } from '../../store/registrationStore';
+import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, Phone, Navigation, ArrowLeft, ArrowRight, Globe, Building, Map, Timer } from 'lucide-react';
 import handleKeyDown from '../../hooks/handleKeyDown';
 
@@ -106,12 +107,12 @@ import { useTranslation } from 'react-i18next';
 
 const Step2Location = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { type } = useParams();
   const {
     formData: storeFormData,
     errors,
     syncFormDataFromLocal,
-    nextStep,
-    prevStep,
     validateStep2,
     registrationType,
   } = useRegistrationStore();
@@ -201,7 +202,9 @@ const Step2Location = () => {
   const handleNext = (e) => {
     e.preventDefault();
     syncFormDataFromLocal(localData);
-    if (validateStep2()) nextStep();
+    if (validateStep2()) {
+      navigate(`/register/${type}/verification-info`);
+    }
   };
 
   // Single stable handler for all inputs/selects
@@ -453,7 +456,7 @@ const Step2Location = () => {
       <div className="mt-8 flex justify-between">
         <button
           type="button"
-          onClick={prevStep}
+          onClick={() => navigate(-1)}
           className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200"
         >
           <ArrowLeft size={18} /> {t('Registration.Back')}

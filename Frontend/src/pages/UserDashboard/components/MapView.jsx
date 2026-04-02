@@ -9,7 +9,7 @@ import { uploadPrescription } from "../../../api/ChatBot";
 import { apiFetch, ensureCsrfCookie } from "../../../api/client";
 import getDistanceFromLatLonInMeters from "../../../utils/GetDistanceFromLatLoInMeters";
 
-import Routing from "../../map/routing";
+import Routing from "../../map/Routing";
 
 import iconpharma from "../../../assets/iconpharma.png";
 import { Heart, MessageSquare, Search, MapPin, Pill, Upload, Loader2, AlertCircle } from "lucide-react";

@@ -211,7 +211,7 @@ function ApprovalCard({ approval, onApprove, onReject, onViewDetails }) {
 
           {(approval.official_license_upload || approval.pharmacy_license_upload) && (
             <a
-              href={`/storage/${approval.official_license_upload || approval.pharmacy_license_upload}`}
+              href={approval.license_document_url}
               target="_blank"
               rel="noreferrer"
               className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors flex items-center gap-2 font-medium"

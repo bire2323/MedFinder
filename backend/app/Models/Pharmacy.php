@@ -16,6 +16,8 @@ class Pharmacy extends Model
         "pharmacy_license_category",
         "pharmacy_license_upload",
         "working_hour",
+        "contact_email",
+        "contact_phone",
         "logo",
         "address_description_en",
         "address_description_am",
@@ -23,6 +25,17 @@ class Pharmacy extends Model
         "rejection_reason",
         "approved_by"
     ];
+
+public function getLogoUrlAttribute() {
+    return asset('storage/' . $this->logo);
+}
+
+public function getLicenseDocumentUrlAttribute() {
+    return asset('storage/' . $this->license_document);
+}
+
+protected $appends = ['logo_url', 'license_document_url'];
+
 
     public function addresses()
     {

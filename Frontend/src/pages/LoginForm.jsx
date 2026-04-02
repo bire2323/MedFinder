@@ -10,6 +10,11 @@ import useAuthStore from "../store/UserAuthStore";
 import handleKeyDown from "../hooks/handleKeyDown";
 import { navigateByRole } from "../utils/UserNavigation";
 
+import am_white from "../assets/am_white.png";
+import en_white from "../assets/en_white.png";
+import am_black from "../assets/am_black.png";
+import en_black from "../assets/en_black.png";
+
 export default function LoginForm() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -72,24 +77,15 @@ export default function LoginForm() {
   function openRegisterRoute() {
     navigate("/register", { state: { background: location } });
   }
-
   return (
 
     <div className="w-full md:w-1/2 md:p-6 lg:p-10 xl:p-24">
-      <div className="flex items-center gap-3 mb-4 pb-10">
-        <div className="bg-blue-600 p-2 rounded-lg">
-          <FaHospitalSymbol className="text-white text-xl" />
-        </div>
-        <div className="flex flex-col leading-none">
-          <span className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-            {t("Register.Welcome")}
-          </span>
-        </div>
-      </div>
+    
 
-      <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white pb-10">
+      <h2 className="text-2xl sm:text-3xl font-bold  text-slate-900 dark:text-white">
         {t("Login.Login")}
       </h2>
+      <div className="w-12 h-1 mb-14 bg-emerald-500 rounded-full mt-2" />
 
       <form onSubmit={submit} className="space-y-4">
         <div>
@@ -102,7 +98,7 @@ export default function LoginForm() {
               value={phone}
               onKeyDown={handleKeyDown}
               onChange={(e) => setPhone(e.target.value)}
-              className="block w-full rounded-md border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-10 py-2"
+              className="block w-full rounded-md border-gray-300 border dark:text-white dark:border-gray-700 bg-white dark:bg-gray-900 px-10 py-2"
               placeholder={t("Login.Phone Placeholder")}
               required
             />
@@ -119,7 +115,7 @@ export default function LoginForm() {
               value={password}
               onKeyDown={handleKeyDown}
               onChange={(e) => setPassword(e.target.value)}
-              className="block w-full rounded-md border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2"
+              className="block w-full rounded-md border-gray-300 border dark:text-white dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2"
               placeholder={t("Login.Password Placeholder")}
               required
             />
@@ -135,7 +131,7 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+            className="bg-green-800 hover:bg-green-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
           >
             {loading ?
               (<>
@@ -159,6 +155,7 @@ export default function LoginForm() {
           {t("Login.Register")}
         </button>
       </div>
+
       <div
         className="flex justify-center items-center text-sm gap-1.5 border p-2 m-2 hover:bg-gray-50 hover:shadow-2xs dark:text-white
                   dark:hover:bg-gray-400 transform transition-all duration-500 shadow-black rounded-2xl cursor-pointer"

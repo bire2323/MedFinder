@@ -5,11 +5,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  CheckCircle, 
-  Clock, 
-  Mail, 
-  Phone, 
+import { useParams } from 'react-router-dom';
+import {
+  CheckCircle,
+  Clock,
+  Mail,
+  Phone,
   Home,
   Pill,
   Building2
@@ -17,9 +18,10 @@ import {
 
 import { useTranslation } from 'react-i18next';
 
-const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
+const SuccessScreen = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { type: registrationType } = useParams();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
@@ -54,7 +56,7 @@ const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
               transition={{ delay: 0.4 }}
               className="text-white/80 mt-2"
             >
-              {t('Registration.SuccessSubtitleReview', { type: registrationType === 'pharmacy' ? t('Registration.Pharmacy') : t('Registration.Hospital') })}
+              {t('Registration.ReviewNote', { type: registrationType === 'pharmacy' ? t('Registration.Pharmacy') : t('Registration.Hospital') })}
             </motion.p>
           </div>
 
@@ -80,35 +82,39 @@ const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-800 dark:text-white mb-2">
-                    {t('Registration.WhatNext')}
+                    {t('Registration.NextSteps')}
                   </h3>
-                  <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
-                      {t('Registration.SuccessStepsReview.DocReview')}
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
-                      {t('Registration.SuccessStepsReview.Timeframe')}
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
-                      {t('Registration.SuccessStepsReview.Notification')}
-                    </li>
-                  </ul>
+
                 </div>
               </div>
+              <div>
+                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                    {t('Registration.ReviewStep1')}
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                    {t('Registration.ReviewStep2')}
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                    {t('Registration.ReviewStep3')}
+                  </li>
+                </ul>
+              </div>
+
             </div>
 
             {/* Notification methods */}
-            <div className="grid grid-cols-2 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                 <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
                   <Phone size={18} className="text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{t('Registration.ViaSMS')}</p>
-                  <p className="text-sm font-medium text-gray-800 dark:text-white">{t('Registration.SMSNotification')}</p>
+                  <p className="text-sm font-medium text-gray-800 dark:text-white">{t('Registration.PhoneNotif')}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
@@ -117,7 +123,7 @@ const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{t('Registration.ViaEmail')}</p>
-                  <p className="text-sm font-medium text-gray-800 dark:text-white">{t('Registration.EmailNotification')}</p>
+                  <p className="text-sm font-medium text-gray-800 dark:text-white">{t('Registration.EmailNotif')}</p>
                 </div>
               </div>
             </div>
@@ -146,7 +152,7 @@ const SuccessScreen = ({ registrationType = 'pharmacy' }) => {
                   transition-all duration-200
                 "
               >
-                {t('Auth.LoginForm.Submit')}
+                {t('Registration.Auth.login')}
               </button>
             </div>
           </div>

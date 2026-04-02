@@ -23,7 +23,9 @@ protected $guard_name = 'sanctum';
         'Name',
         'Phone',
         "Email",
+        "google_id",
         'Password',
+        "status",
         'last_seen_at',
     ];
 
@@ -55,7 +57,7 @@ protected $guard_name = 'sanctum';
         return $this->hasOne(Hospital::class, 'hospital_agent_id');
     }
 
-    public function pharmacies()
+    public function pharmacy()
     {
         return $this->hasOne(Pharmacy::class, 'pharmacy_agent_id');
     }

@@ -81,6 +81,7 @@ class AdminApprovalController extends Controller
 
             // Notify Owner in real-time
             $ownerId = ($type === 'hospital') ? $facility->hospital_agent_id : $facility->pharmacy_agent_id;
+            \Log::info('Owner ID for facility approve notifing:', ['id' => $ownerId]);
             $statusMessage = $decision === 'APPROVED' ? 'approved' : 'rejected';
             $title = "Registration " . ucfirst(strtolower($decision));
             $message = "Your " . ucfirst($type) . " registration has been {$statusMessage}.";
@@ -96,7 +97,7 @@ class AdminApprovalController extends Controller
                 'message' => $message,
             ]);
 
-            event(new \App\Events\NotificationSent($notification));
+           broadcast(new \App\Events\NotificationSent($notification));
 
             DB::commit();
 

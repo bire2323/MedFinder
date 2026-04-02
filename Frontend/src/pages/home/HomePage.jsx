@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next"; // 1. Import hook
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import {
   FaHospital, FaPills, FaStethoscope, FaFilePrescription,
-  FaMapMarkedAlt, FaRobot
+  FaMapMarkedAlt, FaRobot, FaChevronLeft, FaChevronRight
 } from "react-icons/fa";
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
 
@@ -16,11 +16,13 @@ import Header from "../../component/Header";
 import BackToTop from "../../component/BackToTop";
 import FacilityGrid from "../../component/FacilityCard";
 import HeroSection from "./HomeHeroSection";
-import RegisterPharmacy from "../../component/RegisterPharmacy";
+import SupportiveCTA from "../../component/SupportiveCTA";
+import FAQSection from "../../component/FAQSection";
 import { apiGetTopFacilities } from "../../api/hospital";
 import { apiFetch } from "../../api/client";
+import ResultCard from "../../component/search/ResultCard";
 
-// Animation Variants (Keep these outside)
+// Animation Variants
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
@@ -31,81 +33,56 @@ const staggerContainer = {
   animate: { transition: { staggerChildren: 0.1 } },
 };
 
-
 export default function HomePage() {
-  const { t } = useTranslation(); // 2. Initialize translation
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [facilities, setFacilities] = useState([]);
+  const [hospitals, setHospitals] = useState([]);
+  const [pharmacies, setPharmacies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [counts, setCounts] = useState([]);
 
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-150px" });
-  // 3. Move arrays inside so they update when language changes
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const res = await apiFetch("/api/admin/stats");
-
-        //  console.log(res);
-
         const stats = [
-          {
-            label: "Hospitals",
-            value: res.total_hospitals,
-            icon: <FaHospital />,
-          },
-          {
-            label: "Pharmacies",
-            value: res.total_pharmacies,
-            icon: <FaPills />,
-          },
-
-          {
-            label: "Users",
-            value: res.total_users,
-            icon: <FaStethoscope />,
-          },
+          { label: "Hospitals", value: res.total_hospitals, icon: <FaHospital /> },
+          { label: "Pharmacies", value: res.total_pharmacies, icon: <FaPills /> },
+          { label: "Users", value: res.total_users, icon: <FaStethoscope /> },
         ];
-
         setStats(stats);
       } catch (error) {
         console.error("Error fetching stats:", error);
       }
     };
-
     fetchStats();
   }, []);
+
   useEffect(() => {
     if (!stats || !isInView) return;
-
     const duration = 1000;
     let startTime = null;
     let animationFrameId;
 
     const animate = (timestamp) => {
       if (!startTime) startTime = timestamp;
-
       const progress = timestamp - startTime;
       const linear = Math.min(progress / duration, 1);
       const easeOut = 1 - Math.pow(1 - linear, 3);
-
-      const newCounts = stats.map(stat =>
-        Math.floor(stat.value * easeOut)
-      );
-
+      const newCounts = stats.map(stat => Math.floor(stat.value * easeOut));
       setCounts(newCounts);
-
       if (progress < duration) {
         animationFrameId = requestAnimationFrame(animate);
       }
     };
-
     animationFrameId = requestAnimationFrame(animate);
-
     return () => cancelAnimationFrame(animationFrameId);
   }, [stats, isInView]);
+
   const offerings = [
     {
       title: t("features.ai_chat.title"),
@@ -130,7 +107,10 @@ export default function HomePage() {
       try {
         const res = await apiGetTopFacilities();
         if (res.success) {
-          setFacilities(res?.data || []);
+          const all = res?.data || [];
+
+          setHospitals(all.filter(f => f.type === 'hospital').slice(0, 12));
+          setPharmacies(all.filter(f => f.type === 'pharmacy').slice(0, 12));
         }
       } catch (error) {
         console.error("Error fetching facilities", error);
@@ -143,14 +123,11 @@ export default function HomePage() {
 
   const handleHeroSearch = (type, query) => {
     const q = (query || "").trim();
-    navigate(`/home?type=${encodeURIComponent(type)}&q=${encodeURIComponent(q)}`);
+    navigate(`/home/search?type=${encodeURIComponent(type)}&q=${encodeURIComponent(q)}`);
   };
-  const handleMapView = (facility) => {
-    navigate(`/map`);
-  }
-  const handleDetailView = (facility) => {
-    navigate(`/${facility.type}/${facility.id}`);
-  }
+  const handleMapView = () => navigate(`/home/map`);
+  const handleDetailView = (facility) => navigate(`/${facility.type}/${facility.id}`);
+
   return (
     <>
       <Header />
@@ -167,8 +144,8 @@ export default function HomePage() {
               viewport={{ once: true, margin: "-150px" }}
               className="grid grid-cols-1 md:grid-cols-3 gap-8"
             >
-              {stats == null ? <>
-                {Array.from({ length: 3 }).map((_, i) => (
+              {stats == null ? (
+                Array.from({ length: 3 }).map((_, i) => (
                   <div className="flex items-start gap-4" key={i}>
                     <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-gray-700" />
                     <div className="flex-1 space-y-3">
@@ -178,9 +155,9 @@ export default function HomePage() {
                       </div>
                     </div>
                   </div>
-                ))}
-              </>
-                : (stats.map((stat, i) => (
+                ))
+              ) : (
+                stats.map((stat, i) => (
                   <motion.div key={i} variants={fadeInUp} className="flex items-center justify-center gap-4 p-6">
                     <div className="text-4xl text-blue-600 bg-blue-50 dark:bg-gray-700 p-4 rounded-2xl">
                       {stat.icon}
@@ -190,7 +167,8 @@ export default function HomePage() {
                       <p className="text-slate-500 dark:text-gray-400 font-medium">{stat.label}</p>
                     </div>
                   </motion.div>
-                )))}
+                ))
+              )}
             </motion.div>
           </div>
         </section>
@@ -198,8 +176,8 @@ export default function HomePage() {
         {/* WHAT WE OFFER SECTION */}
         <section className="py-24 max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold dark:text-white mb-4">{t("features.header")}</h2>
-            <div className="w-20 h-1.5 bg-blue-600 mx-auto rounded-full" />
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-400 dark:text-white mb-4">{t("features.header")}</h2>
+            <div className="w-20 h-1.5 bg-slate-400 mx-auto rounded-full" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -219,23 +197,49 @@ export default function HomePage() {
         </section>
 
         {/* TOP FACILITIES SECTION */}
-        <section className="py-24 bg-slate-50 dark:bg-gray-900 transition-colors duration-300">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex justify-between items-end mb-12">
-              <div>
-                <h2 className="text-3xl font-bold dark:text-white">{t("facilities.title")}</h2>
-                <p className="text-slate-500 dark:text-gray-400">{t("facilities.subtitle")}</p>
+        <section className="py-24 bg-slate-50 dark:bg-gray-900 transition-colors duration-300 overflow-hidden">
+          <div className="max-w-[1780px] mx-auto px-6 lg:px-12">
+
+            {/* Hospitals Slider */}
+            <div className="mb-20">
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h2 className="text-base md:text-3xl font-black text-slate-600 dark:text-white tracking-tight">{t("home.topHospitals")}</h2>
+                  <div className="w-12 h-1 bg-blue-400 rounded-full mt-2" />
+                </div>
+                <button
+                  onClick={() => navigate('/home/search?type=hospital')}
+                  className="group flex text-sm md:text-base items-center gap-2 text-blue-600 font-bold hover:text-blue-700 transition-colors"
+                >
+                  {t("home.viewAll")}
+                  <HiOutlineArrowNarrowRight className="group-hover:translate-x-1 transition-transform" />
+                </button>
               </div>
-              <button className="hidden md:block text-blue-600 font-bold border-b-2 border-blue-600" onClick={() => navigate('/home')}>
-                {t("facilities.view_all")}
-              </button>
+              <FacilitySlider facilities={hospitals} loading={loading} onCardClick={handleDetailView} />
             </div>
-            <FacilityGrid facilities={facilities} loading={loading} onViewDetails={handleDetailView}
-              onMapView={handleMapView} />
+
+            {/* Pharmacies Slider */}
+            <div>
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h2 className="text-base md:text-3xl font-black text-slate-600 dark:text-white tracking-tight">{t("home.topPharmacies")}</h2>
+                  <div className="w-12 h-1 bg-emerald-500 rounded-full mt-2" />
+                </div>
+                <button
+                  onClick={() => navigate('/home/search?type=pharmacy')}
+                  className="group flex text-sm md:text-base items-center gap-2 text-emerald-600 font-bold hover:text-emerald-700 transition-colors"
+                >
+                  {t("home.viewAll")}
+                  <HiOutlineArrowNarrowRight className="group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+              <FacilitySlider facilities={pharmacies} loading={loading} onCardClick={handleDetailView} />
+            </div>
           </div>
         </section>
 
-        <RegisterPharmacy />
+        <SupportiveCTA />
+        <FAQSection />
 
         {/* FOOTER SECTION */}
         <footer className="bg-slat-50 dark:bg-gray-900 border-t border-slate-100 dark:border-gray-800 pt-16 pb-8">
@@ -276,7 +280,7 @@ export default function HomePage() {
                     <input type="text" placeholder={t("footer.feedback_placeholder")} className="bg-slate-100 dark:bg-gray-800 px-4 py-2 rounded-lg outline-none w-full dark:text-white" required />
                   </div>
                   <div className="flex justify-end">
-                    <button className="bg-blue-600 text-white px-4 py-2 w-fit  rounded-lg font-bold">{t("footer.feedback_submit_btn")}</button>
+                    <button className="bg-blue-600 text-white px-4 py-2 w-fit rounded-lg font-bold">{t("footer.feedback_submit_btn")}</button>
                   </div>
                 </form>
               </div>
@@ -290,5 +294,75 @@ export default function HomePage() {
       <FloatingChatButton />
       <BackToTop />
     </>
+  );
+}
+
+/**
+ * Reusable Facility Horizontal Slider
+ */
+function FacilitySlider({ facilities, loading, onCardClick }) {
+  const scrollRef = useRef(null);
+  //console.log(facilities);
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const scrollTo = direction === 'left' ? scrollLeft - (clientWidth * 0.8) : scrollLeft + (clientWidth * 0.8);
+      scrollRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className='flex gap-4 overflow-x-hidden py-4'>
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className='min-w-[300px] sm:min-w-[380px] h-[450px] bg-white dark:bg-gray-800 rounded-2xl animate-pulse border border-slate-100 dark:border-gray-700' />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className='relative group/slider'>
+      {/* Scroll Buttons */}
+      <button
+        type='button'
+        onClick={() => scroll('left')}
+        className='absolute left-[-20px] top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-gray-700 flex items-center justify-center text-slate-600 dark:text-gray-300 opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-blue-600 hover:text-white hidden lg:flex'
+      >
+        <FaChevronLeft size={14} />
+      </button>
+      <button
+        type='button'
+        onClick={() => scroll('right')}
+        className='absolute right-[-20px] top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-gray-700 flex items-center justify-center text-slate-600 dark:text-gray-300 opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-blue-600 hover:text-white hidden lg:flex'
+      >
+        <FaChevronRight size={14} />
+      </button>
+
+      {/* Slider Track */}
+      <div
+        ref={scrollRef}
+        className='flex gap-4 overflow-x-auto pb-8 pt-2 scroll-smooth no-scrollbar'
+        style={{ scrollSnapType: 'x mandatory' }}
+      >
+        {facilities.map((f) => (
+          <div key={`${f.type}-${f.id}`} className='min-w-[300px] sm:min-w-[380px] scroll-snap-align-start transition-transform duration-300 hover:scale-[1.02]'>
+            <ResultCard facility={f} onClick={() => onCardClick(f)} />
+          </div>
+        ))}
+        {/* Fillers for empty states */}
+        {facilities.length === 0 && (
+          <div className='w-full flex justify-center py-20 text-slate-400 font-medium'>
+            {t("search.no_results")}
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .scroll-snap-align-start { scroll-snap-align: start; }
+      `}</style>
+    </div>
   );
 }

@@ -3,6 +3,7 @@
  * Uses local state for text inputs to prevent focus loss
  */
 import React, { useRef, useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useRegistrationStore } from '../../store/registrationStore';
 import handleKeyDown from '../../hooks/handleKeyDown';
 import {
@@ -31,7 +32,9 @@ import { useTranslation } from 'react-i18next';
 
 const Step3HospitalVerification = () => {
   const { t } = useTranslation();
-  const { formData, errors, updateFormData, syncFormDataFromLocal, nextStep, prevStep, validateStep3Hospital } = useRegistrationStore();
+  const navigate = useNavigate();
+  const { type } = useParams();
+  const { formData, errors, updateFormData, syncFormDataFromLocal, validateStep3Hospital } = useRegistrationStore();
 
   const OWNERSHIP_TYPES = [
     { value: '', label: t('Registration.SelectType', { type: t('Registration.OwnershipType') }) },
@@ -58,7 +61,9 @@ const Step3HospitalVerification = () => {
   const handleNext = (e) => {
     e.preventDefault();
     syncFormDataFromLocal(localData);
-    if (validateStep3Hospital()) nextStep();
+    if (validateStep3Hospital()) {
+      navigate(`/register/${type}/review`);
+    }
   };
 
   const handleChange = (field) => (e) => {
@@ -375,7 +380,7 @@ const Step3HospitalVerification = () => {
       <div className="mt-8 flex justify-between">
         <button
           type="button"
-          onClick={prevStep}
+          onClick={() => navigate(-1)}
           className="
             flex items-center gap-2 px-6 py-3 rounded-xl font-semibold
             bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300

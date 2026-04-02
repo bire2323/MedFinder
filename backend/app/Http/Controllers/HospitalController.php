@@ -85,7 +85,7 @@ class HospitalController extends Controller
 
             // Hospital Verification
             'license_number' => 'required|string|max:100',
-            'ownership_type' => 'required|string|max:100',
+            'hospital_ownership_type' => 'required|string|max:100',
             'provides_emergency' => 'required|boolean',
             'operates_24_hours' => 'required|boolean',
 
@@ -113,7 +113,7 @@ class HospitalController extends Controller
                 'hospital_name_en' => $validated['facilityNameEn'],
                 'hospital_name_am' => $validated['facilityNameAm'],
                 'license_number' => $validated['license_number'],
-                'hospital_ownership_type' => $validated['ownership_type'],
+                'hospital_ownership_type' => $validated['hospital_ownership_type'],
                 'official_license_upload' => $licensePath,
                 'working_hour' => $validated["working_hour"], // Can be updated later
                 "address_description_en"=>$validated["detailed_address_en"],

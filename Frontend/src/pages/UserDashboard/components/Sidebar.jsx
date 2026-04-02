@@ -25,10 +25,10 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-60 w-11 h-11 rounded-2xl bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 shadow-sm flex items-center justify-center"
+        className="lg:hidden fixed top-24 left-4 z-60 w-11 h-11 rounded-2xl bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 shadow-sm flex items-center justify-center"
         aria-label={t("UserDashboard.OpenNavigation")}
       >
-        <Menu size={20} className="text-slate-700 dark:text-slate-200" />
+        <Menu size={20} className="text-slate-700 dark:text-slate-200 text-5xl" />
       </button>
 
       {/* Mobile backdrop */}
@@ -42,7 +42,7 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
 
       <nav
         className={[
-          "fixed top-0 left-0 z-56 lg:z-auto lg:sticky",
+          "fixed top-0 left-0 z-999 lg:z-auto lg:sticky",
           "h-screen w-64 lg:w-64",
           "bg-white dark:bg-gray-800 border-r border-slate-200 dark:border-gray-700",
           "transform transition-transform duration-200 ease-in-out",
@@ -56,8 +56,8 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
               <span className="text-lg font-extrabold">+</span>
             </div>
             <div className="leading-tight">
-              <p className="text-sm font-extrabold">MedFinder</p>
-              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest">
+              <p className="text-xl font-extrabold">MedFinder</p>
+              <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest">
                 {t("UserDashboard.YourHealthcareDashboard")}
               </p>
             </div>
@@ -91,7 +91,7 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
                 type="button"
                 onClick={() => handleNav(item.id)}
                 className={[
-                  "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl mb-2",
+                  "w-full flex items-center justify-between gap-1 md:gap-3 px-4 py-2 md:py-3 rounded-xl md:rounded-2xl mb-1 md:mb-2",
                   "transition-colors text-left",
                   active
                     ? "bg-blue-600/10 text-blue-700 dark:text-blue-300 border border-blue-600/20"

@@ -1,20 +1,10 @@
-/**
- * Zustand store for multi-step registration wizard
- * Manages form data and current step for both pharmacy and hospital registration
- */
 import { create } from 'zustand';
 
-// Initial form data structure
 const initialFormData = {
-  // Step 1: Basic Information
- facilityNameEn: '',
+  facilityNameEn: '',
   facilityNameAm: '',
- 
-  email: '',
- 
   agreedToTerms: false,
 
-  // Step 2: Location & Contact
   region_en: '',
   region_am: '',
   zone_en: '',
@@ -27,19 +17,17 @@ const initialFormData = {
   latitude: '',
   longitude: '',
   workingHour: '',
-  mainContactPhone: '',
+  contact_phone: '',
+  contact_email: '',
 
-  // Step 3: Verification (Pharmacy specific)
   licenseNumber: '',
   licenseDocument: null,
   licenseDocumentName: '',
   pharmacyType: '',
-  
   confirmLicensed: false,
   pharmacyLogo: null,
   pharmacyLogoPreview: '',
 
-  // Step 3: Verification (Hospital specific)
   ownershipType: '',
   providesEmergency: false,
   operates24Hours: false,
@@ -48,59 +36,29 @@ const initialFormData = {
 };
 
 export const useRegistrationStore = create((set, get) => ({
-  // Current step (1-4)
-  currentStep: 1,
-  
-  // Registration type: 'pharmacy' or 'hospital'
   registrationType: 'pharmacy',
-  
-  // Form data
   formData: { ...initialFormData },
-  
-  // Validation errors per step
   errors: {},
-  
-  // Loading state for submission
   isSubmitting: false,
-  
-  // Submission result
   submissionResult: null,
 
-  // Actions
   setRegistrationType: (type) => set({ registrationType: type }),
-  
-  setCurrentStep: (step) => set({ currentStep: step }),
-  
-  nextStep: () => set((state) => ({ 
-    currentStep: Math.min(state.currentStep + 1, 4) 
-  })),
-  
-  prevStep: () => set((state) => ({ 
-    currentStep: Math.max(state.currentStep - 1, 1) 
-  })),
-  
-  goToStep: (step) => set({ currentStep: step }),
-  
+
   updateFormData: (field, value) => set((state) => ({
     formData: { ...state.formData, [field]: value }
   })),
-  
-  // Sync entire form data (for step components using local state to prevent focus loss)
+
   syncFormDataFromLocal: (data) => set({ formData: { ...get().formData, ...data } }),
-  
+
   updateMultipleFields: (fields) => set((state) => ({
     formData: { ...state.formData, ...fields }
   })),
-  
+
   setErrors: (errors) => set({ errors }),
-  
   clearErrors: () => set({ errors: {} }),
-  
   setIsSubmitting: (isSubmitting) => set({ isSubmitting }),
-  
   setSubmissionResult: (result) => set({ submissionResult: result }),
-  
-  // Reset entire form
+
   resetForm: () => set({
     currentStep: 1,
     formData: { ...initialFormData },
@@ -109,40 +67,33 @@ export const useRegistrationStore = create((set, get) => ({
     submissionResult: null,
   }),
 
-  // Validation functions
   validateStep1: () => {
     const { formData ,registrationType} = get();
     const errors = {};
 
     const typeLabel = registrationType === 'pharmacy' ? 'Pharmacy' : 'Hospital';
 
- if (!formData.facilityNameEn?.trim()) {
-    errors.facilityNameEn = `${typeLabel} name (English) is required`;
-  } else if (formData.facilityNameEn.trim().length < 3) {
-    errors.facilityNameEn = `${typeLabel} name (English) must be at least 3 characters`;
-  }
+    if (!formData.facilityNameEn?.trim()) {
+      errors.facilityNameEn = t('errors.facilityNameEnRequired', { type: typeLabel });
+    } else if (formData.facilityNameEn.trim().length < 3) {
+      errors.facilityNameEn = t('errors.facilityNameEnMin', { type: typeLabel });
+    }
 
-  // Amharic name - REQUIRED
-  if (!formData.facilityNameAm?.trim()) {
-    errors.facilityNameAm = `${typeLabel} name in Amharic is required`;
-  } else if (formData.facilityNameAm.trim().length < 3) {
-    errors.facilityNameAm = `${typeLabel} name in Amharic must be at least 3 characters`;
-  }
+    if (!formData.facilityNameAm?.trim()) {
+      errors.facilityNameAm = t('errors.facilityNameAmRequired', { type: typeLabel });
+    } else if (formData.facilityNameAm.trim().length < 3) {
+      errors.facilityNameAm = t('errors.facilityNameAmMin', { type: typeLabel });
+    }
 
-   
-
-    // Email validation (optional but must be valid if provided)
     if (formData.email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email)) {
-        errors.email = 'Enter a valid email address';
+        errors.email = t('errors.invalidEmail');
       }
     }
 
-
-    // Terms agreement
     if (!formData.agreedToTerms) {
-      errors.agreedToTerms = 'You must agree to the terms and privacy policy';
+      errors.agreedToTerms = t('errors.mustAgree');
     }
 
     set({ errors });
@@ -150,104 +101,94 @@ export const useRegistrationStore = create((set, get) => ({
   },
 
   validateStep2: () => {
-    const { formData, registrationType } = get();
+    const { formData } = get();
     const errors = {};
 
-   if (!formData.region_en) {
-    errors.region_en = 'Region (English) is required';
-  }
-  if (!formData.region_am) {
-    errors.region_am = 'ክልል (አማርኛ) ያስፈልጋል';
-  }
-
-  // Zone
-  if (!formData.zone_en?.trim()) {
-    errors.zone_en = 'Zone / City (English) is required';
-  }
-  if (!formData.zone_am?.trim()) {
-    errors.zone_am = 'ዞን / ከተማ (አማርኛ) ያስፈልጋል';
-  }
-
-  // Sub-city
-  if (!formData.subCity_en?.trim()) {
-    errors.subCity_en = 'Sub-city / Woreda (English) is required';
-  }
-  if (!formData.subCity_am?.trim()) {
-    errors.subCity_am = 'ንዑስ ከተማ / ወረዳ (አማርኛ) ያስፈልጋል';
-  }
-  if (!formData.kebele?.trim()) {
-     errors.kebele= "enter your kebele";    
-  }
-  if (!formData.detailedAddress_am) {
-    errors.detailedAddress_am ='አድራሻ ያስገቡ'
+    if (!formData.region_en) {
+      errors.region_en = t('errors.regionEnRequired');
     }
+    if (!formData.region_am) {
+      errors.region_am = t('errors.regionAmRequired');
+    }
+
+    if (!formData.zone_en?.trim()) {
+      errors.zone_en = t('errors.zoneEnRequired');
+    }
+    if (!formData.zone_am?.trim()) {
+      errors.zone_am = t('errors.zoneAmRequired');
+    }
+
+    if (!formData.subCity_en?.trim()) {
+      errors.subCity_en = t('errors.subCityEnRequired');
+    }
+    if (!formData.subCity_am?.trim()) {
+      errors.subCity_am = t('errors.subCityAmRequired');
+    }
+
+    if (!formData.kebele?.trim()) {
+      errors.kebele = t('errors.kebeleRequired');
+    }
+
+    if (!formData.detailedAddress_am) {
+      errors.detailedAddress_am = t('errors.addressAmRequired');
+    }
+
     if (!formData.detailedAddress_en) {
-      errors.detailedAddress_en = "enter address litrally"
+      errors.detailedAddress_en = t('errors.addressEnRequired');
     }
-    // Latitude validation
+
     if (!formData.latitude) {
-      errors.latitude = 'Latitude is required';
+      errors.latitude = t('errors.latitudeRequired');
     } else {
       const lat = parseFloat(formData.latitude);
       if (isNaN(lat) || lat < -90 || lat > 90) {
-        errors.latitude = 'Enter a valid latitude (-90 to 90)';
+        errors.latitude = t('errors.latitudeInvalid');
       }
     }
 
-    // Longitude validation
     if (!formData.longitude) {
-      errors.longitude = 'Longitude is required';
+      errors.longitude = t('errors.longitudeRequired');
     } else {
       const lng = parseFloat(formData.longitude);
       if (isNaN(lng) || lng < -180 || lng > 180) {
-        errors.longitude = 'Enter a valid longitude (-180 to 180)';
+        errors.longitude = t('errors.longitudeInvalid');
       }
     }
-/// validation for working hour here///////////////////
 
-/////////////////////////////////////////
-    // Main contact phone validation
     const phoneRegex = /^(09\d{8}|\+2519\d{8})$/;
     const cleanMainPhone = formData.mainContactPhone.replace(/\s/g, '');
     if (!cleanMainPhone) {
-      errors.mainContactPhone = 'Main contact phone is required';
+      errors.mainContactPhone = t('errors.phoneRequired');
     } else if (!phoneRegex.test(cleanMainPhone)) {
-      errors.mainContactPhone = 'Enter valid Ethiopian phone';
+      errors.mainContactPhone = t('errors.phoneInvalid');
     }
 
-    
     set({ errors });
     return Object.keys(errors).length === 0;
   },
 
   validateStep3Pharmacy: () => {
-   
     const { formData } = get();
     const errors = {};
 
-    // License number validation
     if (!formData.licenseNumber.trim()) {
-      errors.licenseNumber = 'License number is required';
+      errors.licenseNumber = t('errors.licenseRequired');
     }
 
-    // License document validation
     if (!formData.licenseDocument) {
-      errors.licenseDocument = 'License document is required';
+      errors.licenseDocument = t('errors.licenseDocRequired');
     }
 
-    // Pharmacy type validation
     if (!formData.pharmacyType) {
-      errors.pharmacyType = 'Pharmacy type is required';
+      errors.pharmacyType = t('errors.pharmacyTypeRequired');
     }
 
-    // Working hours validation
     if (!formData.workingHour.trim()) {
-      errors.workingHour = 'Working hours are required';
+      errors.workingHour = t('errors.workingHourRequired');
     }
 
-    // License confirmation
     if (!formData.confirmLicensed) {
-      errors.confirmLicensed = 'You must confirm this is a licensed pharmacy';
+      errors.confirmLicensed = t('errors.confirmLicensed');
     }
 
     set({ errors });
@@ -258,19 +199,16 @@ export const useRegistrationStore = create((set, get) => ({
     const { formData } = get();
     const errors = {};
 
-    // License number validation
     if (!formData.licenseNumber.trim()) {
-      errors.licenseNumber = 'License number is required';
+      errors.licenseNumber = t('errors.licenseRequired');
     }
 
-    // License document validation
     if (!formData.licenseDocument) {
-      errors.licenseDocument = 'License document is required';
+      errors.licenseDocument = t('errors.licenseDocRequired');
     }
 
-    // Ownership type validation
     if (!formData.ownershipType) {
-      errors.ownershipType = 'Ownership type is required';
+      errors.ownershipType = t('errors.ownershipRequired');
     }
 
     set({ errors });

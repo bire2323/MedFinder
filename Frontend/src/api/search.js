@@ -46,7 +46,7 @@ function normalizeFacility(f) {
 }
 
 export async function apiFetchFacilities({ signal } = {}) {
-  const res = await fetch(`${API_BASE}/api/medical-facilities`, {
+  const res = await fetch(`${API_BASE}/medical-facilities`, {
     method: "GET",
     headers: { Accept: "application/json" },
     signal,
@@ -55,8 +55,23 @@ export async function apiFetchFacilities({ signal } = {}) {
     const txt = await res.text().catch(() => "");
     throw new Error(txt || `Failed to load facilities (${res.status})`);
   }
-  const json = await res.json();
-  const rows = Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : [];
-  return rows.map(normalizeFacility);
+  const data = await res.json();
+  return data.data?.map(normalizeFacility);
+}
+
+export async function apiFetchDrugResults(medicineName, { signal } = {}) {
+  // Mocking the drug search endpoint
+  // In a real app: const res = await fetch(`${API_BASE}/medicines/search?query=${medicineName}`, { ... });
+
+  // For now, let's fetch all pharmacies and simulate a drug result
+  const facilities = await apiFetchFacilities({ signal });
+  const pharmacies = facilities.filter(f => f.type === 'pharmacy');
+
+  // Randomly add drug info to some pharmacies for demonstration
+  return pharmacies.map(p => ({
+    ...p,
+    drugPrice: (Math.random() * 500 + 50).toFixed(2), // Random price
+    drugAvailability: Math.random() > 0.3 ? 'available' : 'not_available'
+  }));
 }
 

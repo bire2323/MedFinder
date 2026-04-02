@@ -23,7 +23,14 @@
 }
 
 body {
+  font-family: 'inconsolata', sans-serif;
   overscroll-behavior-x: none;
+}
+
+@layer components {
+  .form-input-premium {
+    @apply w-full px-4 py-2.5 bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-sm font-medium dark:text-gray-200;
+  }
 }
 
 /* Scrollbar */
@@ -34,8 +41,4 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-
-body {
-  font-family: 'inconsolata', sans-serif;
 }

@@ -44,14 +44,15 @@ import ThemeToggle from "../../component/DarkLightTeam";
 import OverviewTab from "./components/OverviewTab";
 import DepartmentsTab from "./components/DepartmentsTab";
 import ServicesTab from "./components/ServicesTab";
-import SettingsTab from "./components/SettingsTab";
+import ProfileSettingsLayout from "../shared/ProfileSettings";
 import ChatsTab from "./components/ChatsTab";
 import StatusBanner from "../../component/StatusBanner";
+import NotificationDropdown from "../../component/NotificationDropdown";
 
 // API
-import { 
-  getHospitalDetails, 
-  apiGetDepartments, 
+import {
+  getHospitalDetails,
+  apiGetDepartments,
   apiGetServices,
   apiAddDepartment,
   apiUpdateDepartment,
@@ -62,6 +63,7 @@ import {
 } from "../../api/hospital";
 
 import { useTranslation } from "react-i18next";
+import { initializeAuth } from "../../auth/initAuth";
 
 const HospitalDashboard = () => {
   const { t } = useTranslation();
@@ -71,7 +73,7 @@ const HospitalDashboard = () => {
 
   const { user } = useAuthStore();
   const currentUserId = user?.id;
-  
+
   const { handleIncomingMessage, targetSessionToOpen, getUnreadCount } = useChatNotificationStore();
   const unreadCount = getUnreadCount();
   const { addNotification } = useSystemNotificationStore();
@@ -85,28 +87,40 @@ const HospitalDashboard = () => {
   const [searchDeptQuery, setSearchDeptQuery] = useState("");
   const [searchServiceQuery, setSearchServiceQuery] = useState("");
 
+
+  useEffect(() => {
+    const init = async () => {
+      const isAuthentic = await initializeAuth();
+      //console.log(isAuthentic);
+      if (!isAuthentic) {
+        navigate("/");
+      }
+    };
+
+    init();
+  }, [])
   // Real-time Chat
   useNotifications(currentUserId, (incoming) => {
-     handleIncomingMessage({
-            message: incoming.message,
-            senderName: incoming.sender.sender?.Name || `User ${incoming.sender_id}`,
-            sessionId: incoming.chat_session_id,
-            fullMessage: incoming
-        });
+    handleIncomingMessage({
+      message: incoming.message,
+      senderName: incoming.sender.sender?.Name || `User ${incoming.sender_id}`,
+      sessionId: incoming.chat_session_id,
+      fullMessage: incoming
+    });
   });
 
-  // Real-time System Notifications (Registration Approval/Rejection)
-  useSystemNotifications(currentUserId, (notification) => {
-    addNotification(notification);
-    
-    if (notification.type === 'approved' || notification.type === 'rejected') {
+  // React to system notifications via the global store
+  const { latestNotification } = useSystemNotificationStore();
+
+  useEffect(() => {
+    if (latestNotification && (latestNotification.type === 'approved' || latestNotification.type === 'rejected')) {
       setHospitalProfile(prev => prev ? {
         ...prev,
-        status: notification.type.toUpperCase(),
-        rejection_reason: notification.type === 'rejected' ? notification.message.split('Reason: ')[1] || null : null
+        status: latestNotification.type.toUpperCase(),
+        rejection_reason: latestNotification.type === 'rejected' ? latestNotification.message.split('Reason: ')[1] || null : null
       } : prev);
     }
-  });
+  }, [latestNotification]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -117,7 +131,7 @@ const HospitalDashboard = () => {
           apiGetDepartments(),
           apiGetServices()
         ]);
-        
+
         setHospitalProfile(profileRes.data || profileRes);
         setDepartments(Array.isArray(deptsRes) ? deptsRes : (deptsRes.data || []));
         setServices(Array.isArray(servicesRes) ? servicesRes : (servicesRes.data || []));
@@ -149,7 +163,7 @@ const HospitalDashboard = () => {
       <NotificationToast />
       <SystemNotificationToast />
       <div className="min-h-screen min-w-[320px] bg-slate-50 dark:bg-gray-900 flex text-slate-900 dark:text-gray-100 transition-colors duration-300">
-        
+
         {/* Sidebar Backdrop */}
         {sidebarOpen && (
           <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} aria-hidden="true" />
@@ -223,6 +237,7 @@ const HospitalDashboard = () => {
               </div>
               <LanguageSwitcher />
               <ThemeToggle />
+              <NotificationDropdown />
               <button className="sm:hidden p-2" onClick={() => setSidebarOpen(true)}>
                 <MenuIcon size={24} />
               </button>
@@ -231,11 +246,11 @@ const HospitalDashboard = () => {
 
           {/* CONTENT */}
           <section className="flex-1 overflow-y-auto p-8">
-            <StatusBanner 
-              status={hospitalProfile?.status} 
-              rejectionReason={hospitalProfile?.rejection_reason} 
+            <StatusBanner
+              status={hospitalProfile?.status}
+              rejectionReason={hospitalProfile?.rejection_reason}
             />
-            
+
             {isLoading ? (
               <div className="flex items-center justify-center h-64">
                 <Loader2 size={40} className="animate-spin text-blue-500" />
@@ -243,52 +258,50 @@ const HospitalDashboard = () => {
             ) : (
               <AnimatePresence mode="wait">
                 {activeTab === "overview" && (
-                  <OverviewTab 
-                    departments={departments} 
-                    services={services} 
-                    recentChats={recentInquiries} 
-                    setActiveTab={setActiveTab} 
+                  <OverviewTab
+                    departments={departments}
+                    services={services}
+                    recentChats={recentInquiries}
+                    setActiveTab={setActiveTab}
                   />
                 )}
 
                 {activeTab === "departments" && (
-                  <DepartmentsTab 
+                  <DepartmentsTab
                     searchDeptQuery={searchDeptQuery}
                     setSearchDeptQuery={setSearchDeptQuery}
                     filteredDepartments={departments.filter(d => d.name.toLowerCase().includes(searchDeptQuery.toLowerCase()))}
                     // For now keeping actions simplified or using placeholders as modal logic depends on full implementation
-                    resetDeptForm={() => {}}
-                    setShowAddDeptModal={() => {}}
+                    resetDeptForm={() => { }}
+                    setShowAddDeptModal={() => { }}
                     isLoadingDepts={false}
-                    openEditDeptModal={() => {}}
-                    setSelectedDept={() => {}}
-                    setShowDeleteDeptModal={() => {}}
+                    openEditDeptModal={() => { }}
+                    setSelectedDept={() => { }}
+                    setShowDeleteDeptModal={() => { }}
                   />
                 )}
 
                 {activeTab === "services" && (
-                  <ServicesTab 
+                  <ServicesTab
                     searchServiceQuery={searchServiceQuery}
                     setSearchServiceQuery={setSearchServiceQuery}
                     filteredServices={services.filter(s => s.name.toLowerCase().includes(searchServiceQuery.toLowerCase()))}
-                    resetServiceForm={() => {}}
-                    setShowAddServiceModal={() => {}}
+                    resetServiceForm={() => { }}
+                    setShowAddServiceModal={() => { }}
                     isLoadingServices={false}
-                    openEditServiceModal={() => {}}
-                    setSelectedService={() => {}}
-                    setShowDeleteServiceModal={() => {}}
+                    openEditServiceModal={() => { }}
+                    setSelectedService={() => { }}
+                    setShowDeleteServiceModal={() => { }}
                   />
                 )}
 
                 {activeTab === "settings" && (
-                  <SettingsTab 
-                    profile={{
-                      name: hospitalProfile?.hospital_name_en || "",
-                      email: user?.email || "",
-                      phone: hospitalProfile?.phone || "",
-                      address: hospitalProfile?.address || ""
-                    }} 
-                    setProfile={() => {}} 
+                  <ProfileSettingsLayout
+                    initialData={hospitalProfile}
+                    type="hospital"
+                    onUpdateSuccess={() => {
+                        getHospitalDetails().then(res => setHospitalProfile(res.data || res));
+                    }}
                   />
                 )}
 

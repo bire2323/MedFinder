@@ -23,7 +23,7 @@ export default function VerifyOtp() {
   const [disableButton, setDisableButton] = useState(false);
 
   const { setSession } = useAuthStore();
-  console.log("session", setSession);
+  //console.log("session", setSession);
 
   const timerRef = useRef(null);
 
@@ -131,19 +131,19 @@ export default function VerifyOtp() {
       else {
 
         const res = await apiOtpVerify({ phone, otp: otpCode });
-      //  console.log(res.success);
+        //  console.log(res.success);
         if (res.success) {
           setSession(res.user, res.roles);
 
           console.log(res.user);
-          if(res.roles?.includes("pharmacyAgent")){
+          if (res.roles?.includes("pharmacyAgent")) {
             navigate("/pharmacy-agent/dashboard");
-          }else if (res.roles?.includes("hospitalAgent")) {
+          } else if (res.roles?.includes("hospitalAgent")) {
             navigate("/hospital-agent/dashboard");
-          }else if (res.roles?.includes("admin")) {
+          } else if (res.roles?.includes("admin")) {
             navigate("/admin/dashboard");
-          }else{
-          navigate("/");
+          } else {
+            navigate("/");
           }
         } else if (res.message === "OTP expired") {
           console.log(res.message);
@@ -244,13 +244,13 @@ export default function VerifyOtp() {
           className="w-full max-w-xs mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading
-            ? 
+            ?
             <>
-            <div className="flex gap-1  justify-center items-center">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              <span>{ t("VerifyOtp.Verifying")}</span>
-             </div>
-             </>
+              <div className="flex gap-1  justify-center items-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>{t("VerifyOtp.Verifying")}</span>
+              </div>
+            </>
             : t("VerifyOtp.VerifyOtp") || "Verify OTP"}
         </button>
       </form>

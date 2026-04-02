@@ -6,7 +6,8 @@ import {
   FaHospital,
   FaPills,
   FaClinicMedical,
-  FaMapMarkedAlt
+  FaMapMarkedAlt,
+  FaDirections
 } from "react-icons/fa";
 
 /**
@@ -21,8 +22,8 @@ function formatDistance(meters) {
 /**
  * Small component for showing Open/Closed/24/7 status
  */
-function AvailabilityPill({ isOpen, isFullTime }) {
-  const label = isFullTime ? "24/7" : isOpen === true ? "Open" : isOpen === false ? "Closed" : "Hours unknown";
+function AvailabilityPill({ isOpen, isFullTime, workingHours }) {
+  const label = isFullTime ? "24/7" : isOpen === true ? "Open" : workingHours ? workingHours : "Hours unknown";
   const tone = isFullTime
     ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200"
     : isOpen === true
@@ -36,109 +37,176 @@ function AvailabilityPill({ isOpen, isFullTime }) {
 
 export default function ResultCard({ facility, onClick }) {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAmharic = i18n.language === 'am';
+
   const isHospital = facility.type === "hospital";
   const isPharmacy = facility.type === "pharmacy";
-  const typeLabel = isHospital ? "Hospital" : isPharmacy ? "Pharmacy" : "Facility";
-  const typeTone = isHospital
-    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200"
-    : isPharmacy
-      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200"
-      : "bg-slate-100 text-slate-600 dark:bg-gray-700 dark:text-gray-200";
 
-  // Extracts departments for hospitals or returns empty for pharmacies
+  const localizedName = isHospital
+    ? (isAmharic ? facility.hospital_name_am : facility.hospital_name_en)
+    : (isAmharic ? facility.pharmacy_name_am : facility.pharmacy_name_en);
+  const name = localizedName || facility.name || "Unnamed Facility";
+
+  // 2. CONSTRUCT ADDRESS
+  const getAddress = () => {
+    if (isAmharic && facility.address_description_am) return facility.address_description_am;
+    if (!isAmharic && facility.address_description_en) return facility.address_description_en;
+
+    if (facility.addresses && facility.addresses.length > 0) {
+      const addr = facility.addresses[0];
+      if (isAmharic) {
+        return `${addr.sub_city_am || ""}, ${addr.zone_am || ""}, ${addr.region_am || ""}`.replace(/^, |, $/g, "").replace(/, , /g, ", ");
+      }
+      return `${addr.sub_city_en || ""}, ${addr.zone_en || ""}, ${addr.region_en || ""}`.replace(/^, |, $/g, "").replace(/, , /g, ", ");
+    }
+    return facility.address || t("search.addressNotAvailable");
+  };
+
+  // 3. WORKING HOURS
+  const workingHours = facility.working_hour || (facility.is_full_time_service ? "24/7" : null);
+
+  const typeLabel = isHospital ? t("search.hospital") : isPharmacy ? t("search.pharmacy") : t("search.facility");
+  const typeTone = isHospital
+    ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+    : isPharmacy
+      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+      : "bg-slate-500/10 text-slate-400 border-slate-500/20";
+
   const tags = isHospital
-    ? (facility.departments?.length ? facility.departments : facility.services)?.slice?.(0, 3) || []
+    ? (facility.departments?.length ? facility.departments : facility.services)?.slice?.(0, 2) || []
     : [];
 
-  /**
-   * Navigates to the map page and highlights this specific facility
-   */
   const openInInternalMap = (e) => {
-    e.stopPropagation(); // Prevents clicking the map from triggering the card's onClick
-    navigate("/map", { state: { selectedFacility: facility } });
+    e.stopPropagation();
+    navigate("/home/map", { state: { selectedFacility: facility } });
   };
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="text-left w-full group rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 hover:shadow-lg hover:border-slate-300 dark:hover:border-gray-600 transition"
+      className="flex flex-col h-full group relative overflow-hidden rounded-2xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-slate-900 hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_40px_rgba(37,99,235,0.1)] hover:-translate-y-1.5 transition-all duration-300 w-full"
     >
-      <div className="flex items-start gap-5">
-        {/* --- 1. LEFT SIDE: CIRCULAR LOGO --- */}
-        <div className="shrink-0">
-          <div className="w-20 h-20 rounded-full border-2 border-slate-100 dark:border-gray-700 overflow-hidden bg-slate-50 dark:bg-gray-900 flex items-center justify-center shadow-sm">
-            {facility.logoUrl ? (
-              <img
-                src={facility.logoUrl}
-                alt={facility.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className={`text-3xl ${isHospital ? 'text-blue-600' : 'text-emerald-600'}`}>
-                {isHospital ? <FaHospital /> : isPharmacy ? <FaPills /> : <FaClinicMedical />}
-              </div>
-            )}
-          </div>
+      {/* 1. TOP SECTION: ICON/LOGO PREVIEW */}
+      <div className="relative h-40 w-full overflow-hidden bg-slate-50 dark:bg-slate-950 flex items-center justify-center border-b border-slate-100 dark:border-gray-800">
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-500 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-emerald-500 rounded-full blur-3xl"></div>
         </div>
 
-        {/* --- 2. RIGHT SIDE: CONTENT --- */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className={`px-2.5 py-1 rounded-full text-xs font-black ${typeTone}`}>{typeLabel}</span>
-              <AvailabilityPill isOpen={facility.isOpen} isFullTime={facility.isFullTime} />
-              {Number.isFinite(facility.rating) && (
-                <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200 inline-flex items-center gap-1">
-                  <FaStar className="text-yellow-500" /> {facility.rating.toFixed(1)}
-                </span>
-              )}
+        <div className="relative z-10  rounded-2xl border-2 border-white dark:border-gray-800 overflow-hidden bg-white dark:bg-slate-900 shadow-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-500">
+          {facility.raw ? (
+            <img src={facility.raw?.logo_url} alt={name} className="w-full h-full object-cover dark:opacity-50" />
+          ) : (
+            <div className={`text-4xl ${isHospital ? 'text-blue-500' : 'text-emerald-500'}`}>
+              {isHospital ? <FaHospital /> : isPharmacy ? <FaPills /> : <FaClinicMedical />}
             </div>
+          )}
+        </div>
 
-            {/* Map Navigation Icon */}
-            <div className="flex gap-2">
-              <div
-                onClick={openInInternalMap}
-                className="p-2.5 rounded-xl bg-slate-50 dark:bg-gray-700 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 transition-all cursor-pointer"
-                title="View on Map"
-              >
-                <FaMapMarkedAlt className="text-xl" />
-              </div>
-            </div>
-          </div>
+        <div
+          onClick={openInInternalMap}
+          className="absolute top-3 right-3 p-2 rounded-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-600 dark:text-gray-300 hover:text-blue-500 shadow-sm border border-white/20 dark:border-gray-700 transition-colors z-20"
+          title={t("search.viewOnMap")}
+        >
+          <FaMapMarkedAlt size={18} />
+        </div>
+      </div>
 
-          <h3 className="mt-2 text-xl font-black text-slate-900 dark:text-white truncate group-hover:text-blue-600 transition-colors">
-            {facility.name}
-          </h3>
-          <p className="mt-1 text-sm text-slate-500 dark:text-gray-400 line-clamp-1 italic">
-            {facility.address || "Address not available"}
+      {/* 2. CONTENT SECTION */}
+      <div className="flex-1 p-5 flex flex-col items-start text-left w-full">
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black border uppercase tracking-wider ${typeTone}`}>
+            {typeLabel}
+          </span>
+          <AvailabilityPill
+            isOpen={facility.isOpen}
+            isFullTime={facility.raw?.is_full_time_service === 1 || facility.raw?.working_hour === "24/7" || facility.raw?.isFullTime}
+            whour={facility.raw?.working_hour}
+          />
+        </div>
+
+        <h3 className="text-lg font-black text-slate-900 dark:text-white leading-tight group-hover:text-blue-500 transition-colors line-clamp-2 min-h-[3.5rem] text-left">
+          {name}
+        </h3>
+
+        <div className="mt-2 space-y-1 w-full text-left">
+          <p className="text-xs text-slate-500 dark:text-gray-400 line-clamp-1 italic">
+            {getAddress()}
           </p>
 
-          {/* Tags Section */}
-          {tags?.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-1.5">
-              {tags.map((t, idx) => (
-                <span
-                  key={`${facility.id}-${idx}`}
-                  className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-slate-100 text-slate-600 dark:bg-gray-700 dark:text-gray-300 border border-slate-200 dark:border-gray-600"
-                >
-                  {typeof t === "string" ? t : t?.name || t?.department_name_en || t?.service_name_en || "Service"}
+          {/* Drug Info Overlay */}
+          {facility.drugPrice && (
+            <div className="mt-3 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/50 flex justify-between items-center w-full group-hover:bg-blue-100 dark:group-hover:bg-blue-900/20 transition-colors">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">{t("search.price")}</span>
+                <span className="text-lg font-black text-slate-900 dark:text-white">
+                  {facility.drugPrice} <span className="text-xs font-bold text-slate-400 uppercase">{t("Common.Currency")}</span>
                 </span>
-              ))}
+              </div>
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{t("search.availability")}</span>
+                <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black border ${facility.drugAvailability === 'available' || facility.drugAvailability === true
+                  ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                  : 'bg-rose-500/10 text-rose-600 border-rose-500/20'
+                  }`}>
+                  <div className={`w-1 h-1 rounded-full ${facility.drugAvailability === 'available' || facility.drugAvailability === true ? 'bg-emerald-500' : 'bg-rose-500'
+                    }`} />
+                  {facility.drugAvailability === 'available' || facility.drugAvailability === true
+                    ? t("search.available")
+                    : t("search.not_available")}
+                </div>
+              </div>
             </div>
+          )}
+
+          {workingHours && !facility.drugPrice && (
+            <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              {workingHours}
+            </p>
+          )}
+        </div>
+
+        {/* Tags */}
+        <div className="mt-auto pt-4 flex flex-wrap gap-1.5 w-full">
+          {tags.map((t, idx) => (
+            <span
+              key={idx}
+              className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
+            >
+              {typeof t === "string" ? t : t?.name || t?.department_name_en || t?.service_name_en || "Medical"}
+            </span>
+          ))}
+          {facility.rating > 0 && (
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20 flex items-center gap-1 ml-auto">
+              <FaStar size={10} /> {facility.rating.toFixed(1)}
+            </span>
           )}
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-slate-50 dark:border-gray-700/50 flex justify-between items-center">
-        <span className="text-sm cursor-pointer font-bold text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform inline-block">
-          {t("search.viewDetails")}
-        </span>
+      {/* 3. FOOTER */}
+      <div className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-gray-800 flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <span className="text-xs font-black text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform">
+            {t("search.viewDetails")}
+          </span>
+          {facility.drugPrice && (
+            <button
+              onClick={openInInternalMap}
+              className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-[10px] font-black uppercase tracking-tight flex items-center gap-1.5 hover:bg-blue-700 hover:scale-105 transition-all shadow-md active:scale-95"
+            >
+              <FaDirections size={12} />
+              {t("FacilityDetail.Directions")}
+            </button>
+          )}
+        </div>
 
         {Number.isFinite(facility.distanceMeters) && (
-          <div className="text-right">
-            <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mr-2">Distance</span>
+          <div className="flex flex-col items-end">
+            <span className="text-[9px] uppercase tracking-widest font-bold text-slate-400">{t("search.distance_label")}</span>
             <span className="text-sm font-black text-slate-900 dark:text-white">
               {formatDistance(facility.distanceMeters)}
             </span>

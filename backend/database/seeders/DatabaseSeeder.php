@@ -8,6 +8,7 @@ use Illuminate\Database\Seeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Database\Seeders\PharmacySeeder;
 use Database\Seeders\HospitalSeeder;
+use Database\Seeders\UserSeeder;
 
 
 class DatabaseSeeder extends Seeder
@@ -32,6 +33,7 @@ class DatabaseSeeder extends Seeder
     //PharmacySeeder::class,
     InventorySeeder::class,
     DrugSeeder::class,
+    UserSeeder::class
 
 
 ]);

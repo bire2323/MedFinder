@@ -12,10 +12,14 @@ import {
 import { useTranslation } from 'react-i18next';
 import useAuthStore from '../../store/UserAuthStore';
 import { getNotifications } from '../../api/admin';
+import { useNavigate } from 'react-router-dom';
 import UserManagement from './UserManagement';
 import ApprovalManagement from './ApprovalManagement';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import NotificationCenter from './NotificationCenter';
+import { useRef } from 'react';
+import useSystemNotificationStore from '../../store/useSystemNotificationStore';
+import { initializeAuth } from '../../auth/initAuth';
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
@@ -25,6 +29,8 @@ export default function AdminDashboard() {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -44,22 +50,28 @@ export default function AdminDashboard() {
     }
   };
 
-  useEffect(() => {
-    if (isAuthenticated && window.Echo) {
-      const { user } = useAuthStore.getState();
-      const channel = window.Echo.private(`notifications.${user.id}`);
-      
-      channel.listen('.notification.sent', (data) => {
-        setUnreadNotifications(prev => prev + 1);
-        // Optional: Trigger a toast or local refetch
-        import('react-hot-toast').then(m => m.default.success(`New Action Required: ${data.title}`));
-      });
 
-      return () => {
-        window.Echo.leave(`notifications.${user.id}`);
-      };
+  useEffect(() => {
+    // Rely on global RealTimeNotificationProvider to update the store
+    // Here we just pull from store to update local counters if needed
+  }, []);
+  useEffect(() => {
+    const init = async () => {
+      const isAuthentic = await initializeAuth();
+      //console.log(isAuthentic);
+      if (!isAuthentic) {
+        navigate("/");
+      }
+    };
+
+    init();
+  }, [isAuthenticated])
+  const { latestNotification } = useSystemNotificationStore();
+  useEffect(() => {
+    if (latestNotification && latestNotification.type === 'approval') {
+      setUnreadNotifications(prev => prev + 1);
     }
-  }, [isAuthenticated]);
+  }, [latestNotification]);
 
   const loadStats = async () => {
     if (!isAuthenticated) return;
@@ -93,7 +105,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-secondary dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
+      <header className="bg-green dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

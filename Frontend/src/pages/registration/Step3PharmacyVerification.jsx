@@ -3,6 +3,7 @@
  * Uses local state for text inputs to prevent focus loss
  */
 import React, { useRef, useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useRegistrationStore } from '../../store/registrationStore';
 import { FileText, Upload, Clock, ArrowLeft, ArrowRight, ShieldCheck, Building2, Image, X } from 'lucide-react';
 import handleKeyDown from '../../hooks/handleKeyDown';
@@ -18,7 +19,9 @@ import { useTranslation } from 'react-i18next';
 
 const Step3PharmacyVerification = () => {
   const { t } = useTranslation();
-  const { formData, errors, updateFormData, syncFormDataFromLocal, nextStep, prevStep, validateStep3Pharmacy } = useRegistrationStore();
+  const navigate = useNavigate();
+  const { type } = useParams();
+  const { formData, errors, updateFormData, syncFormDataFromLocal, validateStep3Pharmacy } = useRegistrationStore();
 
   const PHARMACY_TYPES = [
     { value: '', label: t('Registration.SelectType', { type: t('Registration.PharmacyType') }) },
@@ -46,11 +49,9 @@ const Step3PharmacyVerification = () => {
     e.preventDefault();
     syncFormDataFromLocal(localData);
     if (validateStep3Pharmacy()) {
-      console.log('hr');
-      nextStep();
+      navigate(`/register/${type}/review`);
     } else {
       console.log('hrno');
-
     }
   };
 
@@ -350,7 +351,7 @@ const Step3PharmacyVerification = () => {
       <div className="mt-8 flex justify-between">
         <button
           type="button"
-          onClick={prevStep}
+          onClick={() => navigate(-1)}
           className="
             flex items-center gap-2 px-6 py-3 rounded-xl font-semibold
             bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300

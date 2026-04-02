@@ -14,8 +14,10 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\MessageStatusController;
-
 use App\Http\Controllers\ChatMessageController;
+use App\Http\Controllers\MapController;
+use App\Http\Controllers\RouteController;
+use Illuminate\Support\Facades\Broadcast;
 
 use App\Models\Hospital;
 use App\Models\Pharmacy;
@@ -42,6 +44,9 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
 Route::post('resend-otp', [AuthController::class, 'resendOtp']);
 
+Route::get('/auth/google/redirect', [AuthController::class, 'redirectToGoogle']);
+Route::get("/auth/google/callback", [AuthController::class, "handleGoogleCallback"]);
+
 // Forgot password - request OTP
 Route::post('/forgot-password', [UserController::class, 'forgotPassword']);
 // Reset password - verify OTP + set new password
@@ -53,34 +58,49 @@ Route::get('search/hospitals', [HospitalController::class, 'searchByLocation']);
 Route::get('search/pharmacies', [PharmacyController::class, 'searchByLocation']);
 
 Route::get('/medical-facilities', function () {
-    $hospitals = Hospital::with('addresses')->where('status', 'APPROVED')->get()->map(function($item) {
-        $item->type = 'hospital';
-        $item->global_id = 'h-' . $item->id; // Unique global ID to prevent frontend conflicts
-        return $item;
-    });
 
-    $pharmacies = Pharmacy::with('addresses')->where('status', 'APPROVED')->get()->map(function($item) {
-        $item->type = 'pharmacy';
-        $item->global_id = 'p-' . $item->id; // Unique global ID to prevent frontend conflicts
-        return $item;
-    });
+    $hospitals = Hospital::with('addresses')
+        ->where('status', 'APPROVED')
+        ->get()
+        ->map(function ($item) {
+            $item->type = 'hospital';
+            $item->global_id = 'h-' . $item->id;
 
-    return response()->json(['success'=>true,'data'=>$hospitals->concat($pharmacies)]);
+            return $item->toArray();
+        });
+
+    $pharmacies = Pharmacy::with('addresses')
+        ->where('status', 'APPROVED')
+        ->get()
+        ->map(function ($item) {
+            $item->type = 'pharmacy';
+            $item->global_id = 'p-' . $item->id;
+
+            return $item->toArray();
+        });
+
+    return response()->json([
+        'success' => true,
+        'data' => $hospitals->concat($pharmacies)
+    ]);
 });
 Route::get('/top-medical-facilities', function () {
-    $hospitals = Hospital::with('addresses')->where('status', 'APPROVED')->limit(3)->get()->map(function($item) {
+    $hospitals = Hospital::with('addresses')->where('status', 'APPROVED')->limit(6)->get()->map(function ($item) {
         $item->type = 'hospital';
         $item->global_id = 'h-' . $item->id;
+
+
         return $item;
     });
 
-    $pharmacies = Pharmacy::with('addresses')->where('status', 'APPROVED')->limit(3)->get()->map(function($item) {
+    $pharmacies = Pharmacy::with('addresses')->where('status', 'APPROVED')->limit(6)->get()->map(function ($item) {
         $item->type = 'pharmacy';
         $item->global_id = 'p-' . $item->id;
+
         return $item;
     });
 
-    return response()->json(['success'=>true,'data'=>$hospitals->concat($pharmacies)]);
+    return response()->json(['success' => true, 'data' => $hospitals->concat($pharmacies)]);
 });
 
 // Public read-only resources
@@ -91,61 +111,15 @@ Route::get('pharmacies/{pharmacy}', [PharmacyController::class, 'show']);
 Route::get('drugs', [DrugController::class, 'index']);
 Route::get('drugs/{drug}', [DrugController::class, 'show']);
 
+Route::middleware("auth:sanctum")->group(function () {
+    Route::post('pharmacy/profile/{pharmacy}', [PharmacyController::class, 'updateProfile']);
+    Route::post('hospital/profile/{hospital}', [HospitalController::class, 'updateProfile']);
+});
 
-
-Route::post('/api/pharmacies/search', function (Request $request) {
-    $medicines = $request->input('medicines', []); // array of drug names
-    $lat       = $request->input('lat');
-    $lng       = $request->input('lng');
-    $radius_km = $request->input('radius_km', 10); // default 10km
-
-    if (empty($medicines)) {
-        return response()->json(['pharmacies' => [], 'message' => 'No medicines provided']);
-    }
-
-    // Find inventories that have at least one of the requested medicines
-    $drugIds = Drug::whereIn('generic-name', $medicines)
-                   ->pluck('id')
-                   ->toArray();
-
-    if (empty($drugIds)) {
-        return response()->json(['pharmacies' => [], 'message' => 'No matching drugs found']);
-    }
-
-    $query = Pharmacy::query()
-        ->join('inventory', 'pharmacies.id', '=', 'inventory.pharmacy_id')
-        ->whereIn('inventory.drug_id', $drugIds)
-        ->where('inventory.quantity', '>', 0)           // in stock
-        ->select('pharmacies.*')
-        ->distinct();
-
-    // Optional: distance filter (requires lat/lng + having location columns)
-    if ($lat && $lng) {
-        $query->whereRaw("
-            (6371 * acos(
-                cos(radians(?)) * cos(radians(pharmacies.latitude)) *
-                cos(radians(pharmacies.longitude) - radians(?)) +
-                sin(radians(?)) * sin(radians(pharmacies.latitude))
-            )) <= ?
-        ", [$lat, $lng, $lat, $radius_km]);
-    }
-
-    $pharmacies = $query->get()->map(function ($pharmacy) {
-        return [
-            'id'       => $pharmacy->id,
-            'name'     => $pharmacy->pharmacy_name,
-            'address'  => $pharmacy->addresses,
-            'distance' => $pharmacy->distance ?? 'N/A', // calculate if needed
-            'open'     => $pharmacy->is_open ?? true,
-            'stock'    => 'In stock' // can be more detailed
-        ];
-    });
-
-    return response()->json([
-        'pharmacies' => $pharmacies,
-        'count'      => $pharmacies->count()
-    ]);
-})->middleware('auth:sanctum'); // optional
+// Routing & Smart Pharmacy Search
+Route::get('route', [RouteController::class, 'getRoute']);
+Route::get('/map/route', [MapController::class, 'getRoute']);
+Route::get('smart-pharmacy', [RouteController::class, 'smartPharmacy']);
 Route::prefix('ai')->middleware('auth:sanctum')->group(function () {
 
     // Triage
@@ -171,7 +145,9 @@ Route::prefix('ai')->middleware('auth:sanctum')->group(function () {
         $file = $request->file('file');
 
         $response = Http::attach(
-            'file', file_get_contents($file->path()), $file->getClientOriginalName()
+            'file',
+            file_get_contents($file->path()),
+            $file->getClientOriginalName()
         )->post('http://localhost:8000/prescription');
 
         return $response->json();
@@ -188,12 +164,13 @@ Route::prefix('ai')->middleware('auth:sanctum')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('pharmacy-agent/profile', [PharmacyController::class, 'getPharmaProfile']);
     Route::post('profile/update', [AuthController::class, 'updateProfile']);
     Route::post('profile/password-update', [AuthController::class, 'updatePassword']);
     Route::get('user', [AuthController::class, 'user']);
     Route::post('user/heartbeat', \App\Http\Controllers\HeartbeatController::class);
 
-    Route::get('chat/sessions', [ChatSessionController::class,'index']);
+    Route::get('chat/sessions', [ChatSessionController::class, 'index']);
     Route::post('chat/sessions', [ChatSessionController::class, 'store']);
     Route::get('chat/sessions/{session}/messages', [ChatMessageController::class, 'index']);
     Route::post('chat/sessions/{session}/message', [ChatMessageController::class, 'store']);
@@ -204,7 +181,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/sessions/{sessionId}/mark-delivered', [MessageStatusController::class, 'markDelivered']);
     Route::post('/chat/sessions/{sessionId}/mark-read', [MessageStatusController::class, 'markRead']);
 });
-  Route::get('admin/stats', [\App\Http\Controllers\AdminDashboardController::class, 'stats']);
+Route::get('admin/stats', [\App\Http\Controllers\AdminDashboardController::class, 'stats']);
 // Protected routes (require auth:sanctum)
 Route::middleware('auth:sanctum')->group(function () {
     // Full CRUD (explicit routes)
@@ -222,23 +199,32 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('pharmacies/{pharmacy}', [PharmacyController::class, 'update']);
     Route::delete('pharmacies/{pharmacy}', [PharmacyController::class, 'destroy']);
 
-       Route::get('/auditlogs', [UserController::class, 'auditLogs']);
+    Route::get('/auditlogs', [UserController::class, 'auditLogs']);
 
     // Drugs
     Route::post('drugs', [DrugController::class, 'store']);
     Route::put('drugs/{drug}', [DrugController::class, 'update']);
     Route::patch('drugs/{drug}', [DrugController::class, 'update']);
     Route::delete('drugs/{drug}', [DrugController::class, 'destroy']);
-    Route::get('pharmacy/inventory/{drug}', [DrugController::class, 'show']);
+
+    Route::prefix('pharmacy/inventory')->group(function () {
+
+        Route::get('/', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getInventory']);
+        Route::get('analytics', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getAnalytics']);
+        Route::get('trash', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getTrash']);
+        Route::get('history', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getStockHistory']);
+        Route::get('{drug}', [DrugController::class, 'show']);
+        Route::post('/', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'addDrug']);
+        Route::put('{inventory}', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'update']);
+        Route::delete('{inventory}', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'deleteDrug']);
+        Route::post('{inventory}/restore', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'restoreDrug']);
+        Route::Patch('{inventory}/toggle-availability', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'toggleAvailability']);
+    });
+
+
 
     // Inventories (uses PharmacyDrugInventoryController)
-    Route::get('pharmacy/inventory', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getInventory']);
-    Route::post('pharmacy/inventory', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'addDrug']);
-    Route::get('inventories/{inventory}', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'show']);
-    Route::put('pharmacy/inventory/{inventory}', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'update']);
-    Route::delete('pharmacy/inventory/{inventory}', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'deleteDrug']);
-    Route::patch('inventories/{inventory}', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'update']);
-    Route::delete('inventories/{inventory}', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'destroy']);
+
 
     // Alerts (uses LowStockExpirationAlertController)
     Route::get('alerts', [\App\Http\Controllers\LowStockExpirationAlertController::class, 'index']);
@@ -289,8 +275,8 @@ Route::middleware('auth:sanctum')->group(function () {
         // Approvals (Facilities)
         Route::get('approvals', [\App\Http\Controllers\AdminApprovalController::class, 'index']);
         Route::post('approvals/{id}', [\App\Http\Controllers\AdminApprovalController::class, 'decide']);
-        
-      
+
+
         // Dashboard Stats & Management
         Route::get('users', [\App\Http\Controllers\AdminDashboardController::class, 'users']);
         Route::put('users/{user}', [\App\Http\Controllers\AdminDashboardController::class, 'updateUser']);
@@ -300,12 +286,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Auth actions
     Route::post('logout', [AuthController::class, 'logout']);
-    });
-    
-    // Fallback route for API
-    Route::fallback(function () {
-        return response()->json(['message' => 'Not Found.'], 404);
-        });
-     Route::post('/broadcasting/auth', function (Request $request) {
+});
+
+// Fallback route for API
+Route::fallback(function () {
+    return response()->json(['message' => 'Not Found.'], 404);
+});
+Route::post('/broadcasting/auth', function (Request $request) {
     return Broadcast::auth($request);
-}); 
+});

@@ -3,11 +3,12 @@
  * Shows all entered data for review with edit options
  */
 import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useRegistrationStore } from '../../store/registrationStore';
 import { apiRegisterPharmacy, apiRegisterHospital } from '../../api/registration';
-import { 
-  Building2, 
-  MapPin, 
+import {
+  Building2,
+  MapPin,
   Phone,
   Mail,
   FileText,
@@ -55,11 +56,11 @@ const OWNERSHIP_TYPE_LABELS = {
 };
 
 const Step4ReviewAndSubmit = () => {
-  const { 
-    formData, 
+  const { type } = useParams();
+  const navigate = useNavigate();
+  const {
+    formData,
     registrationType,
-    goToStep,
-    prevStep,
     isSubmitting,
     setIsSubmitting,
     setSubmissionResult
@@ -73,24 +74,23 @@ const Step4ReviewAndSubmit = () => {
     setSubmitError(null);
 
     try {
-      const apiCall = registrationType === 'pharmacy' 
-        ? apiRegisterPharmacy 
+      const apiCall = registrationType === 'pharmacy'
+        ? apiRegisterPharmacy
         : apiRegisterHospital;
-     // console.log(formData);
+      // console.log(formData);
       const response = await apiCall(formData);
-      
-      
-  
-      if (response.success ) {
-        
-        console.log(response);
-       setSubmissionResult({ success: true, data: response });
+
+
+
+      if (response.success) {
+        setSubmissionResult({ success: true, data: response });
+        navigate(`/register/${type}/success`);
       } else {
         setSubmitError(response.message || 'Registration failed. Please try again.');
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setSubmitError('Network error. Please check your connection and try again.');
+      setSubmitError('try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -106,7 +106,20 @@ const Step4ReviewAndSubmit = () => {
         </h3>
         <button
           type="button"
-          onClick={() => goToStep(step)}
+          onClick={() => {
+            console.log(step);
+            if (step == 1) {
+              navigate(`/register/${type}/basic-info`);
+            } else if (step == 2) {
+              navigate(`/register/${type}/location-info`);
+            } else if (step == 3) {
+              navigate(`/register/${type}/verification-info`);
+            } else if (step == 4) {
+              navigate(`/register/${type}/review`);
+            } else {
+              navigate(`/register/${type}/success`);
+            }
+          }}
           className="
             flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg
             text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30
@@ -155,31 +168,31 @@ const Step4ReviewAndSubmit = () => {
       <div className="space-y-4">
         {/* Basic Information */}
         <ReviewSection title="Basic Information" icon={Building2} step={1}>
-          <InfoItem 
-            label={registrationType === 'pharmacy' ? 'Pharmacy Name' : 'Hospital Name'} 
-            value={formData.facilityNameEn} 
+          <InfoItem
+            label={registrationType === 'pharmacy' ? 'Pharmacy Name' : 'Hospital Name'}
+            value={formData.facilityNameEn}
             icon={Building2}
           />
-          <InfoItem 
-            label={registrationType === 'pharmacy' ? 'Pharmacy Name (በ አማርኛ)' : 'Hospital Name (በ አማርኛ)'} 
-            value={formData.facilityNameAm} 
+          <InfoItem
+            label={registrationType === 'pharmacy' ? 'Pharmacy Name (በ አማርኛ)' : 'Hospital Name (በ አማርኛ)'}
+            value={formData.facilityNameAm}
             icon={Building2}
           />
           <InfoItem label="Email" value={formData.email} icon={Mail} />
-          
+
         </ReviewSection>
 
         {/* Location & Contact */}
         <ReviewSection title="Location & Contact" icon={MapPin} step={2}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <InfoItem 
-              label="Region" 
-              value={REGION_LABELS[formData.region_en] || formData.region} 
+            <InfoItem
+              label="Region"
+              value={REGION_LABELS[formData.region_en] || formData.region}
               icon={Globe}
             />
-              <InfoItem 
-              label="Region (በ አማርኛ)" 
-              value={REGION_LABELS[formData.region_am] || formData.region} 
+            <InfoItem
+              label="Region (በ አማርኛ)"
+              value={REGION_LABELS[formData.region_am] || formData.region}
               icon={Globe}
             />
             <InfoItem label="Zone/City" value={formData.zone_en} icon={MapPin} />
@@ -188,9 +201,9 @@ const Step4ReviewAndSubmit = () => {
             <InfoItem label="Sub-city/Woreda (በ አማርኛ)" value={formData.subCity_am} icon={MapPin} />
             <InfoItem label="Kebele" value={formData.kebele} icon={MapPin} />
           </div>
-          <InfoItem 
-            label="Detailed Address" 
-            value={formData.detailedAddress} 
+          <InfoItem
+            label="Detailed Address"
+            value={formData.detailedAddress}
             icon={MapPin}
           />
           <div className="grid grid-cols-2 gap-3 pt-2">
@@ -198,14 +211,14 @@ const Step4ReviewAndSubmit = () => {
             <InfoItem label="Longitude" value={formData.longitude} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-            <InfoItem 
-              label="Working Hour" 
-              value={formData.workingHour} 
+            <InfoItem
+              label="Working Hour"
+              value={formData.workingHour}
               icon={TimerIcon}
             />
-            <InfoItem 
-              label={registrationType === 'hospital' ? 'Emergency Phone' : 'Alternate Phone'} 
-              value={formData.mainContactPhone} 
+            <InfoItem
+              label={registrationType === 'hospital' ? 'Emergency Phone' : 'Alternate Phone'}
+              value={formData.mainContactPhone}
               icon={Phone}
             />
           </div>
@@ -213,34 +226,34 @@ const Step4ReviewAndSubmit = () => {
 
         {/* Verification Info */}
         <ReviewSection title="Verification & License" icon={FileText} step={3}>
-          <InfoItem 
-            label="License Number" 
-            value={formData.licenseNumber} 
+          <InfoItem
+            label="License Number"
+            value={formData.licenseNumber}
             icon={FileText}
           />
-          <InfoItem 
-            label="License Document" 
-            value={formData.licenseDocumentName} 
+          <InfoItem
+            label="License Document"
+            value={formData.licenseDocumentName}
             icon={FileText}
           />
-          
+
           {registrationType === 'pharmacy' ? (
             <>
-              <InfoItem 
-                label="Pharmacy Type" 
-                value={PHARMACY_TYPE_LABELS[formData.pharmacyType] || formData.pharmacyType} 
+              <InfoItem
+                label="Pharmacy Type"
+                value={PHARMACY_TYPE_LABELS[formData.pharmacyType] || formData.pharmacyType}
                 icon={Building2}
               />
-              <InfoItem 
-                label="Working Hours" 
-                value={formData.workingHour} 
+              <InfoItem
+                label="Working Hours"
+                value={formData.workingHour}
                 icon={Clock}
               />
               {formData.pharmacyLogoPreview && (
                 <div className="flex items-center gap-3 pt-2">
-                  <img 
-                    src={formData.pharmacyLogoPreview} 
-                    alt="Pharmacy Logo" 
+                  <img
+                    src={formData.pharmacyLogoPreview}
+                    alt="Pharmacy Logo"
                     className="w-12 h-12 object-cover rounded-lg"
                   />
                   <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -251,9 +264,9 @@ const Step4ReviewAndSubmit = () => {
             </>
           ) : (
             <>
-              <InfoItem 
-                label="Ownership Type" 
-                value={OWNERSHIP_TYPE_LABELS[formData.ownershipType] || formData.ownershipType} 
+              <InfoItem
+                label="Ownership Type"
+                value={OWNERSHIP_TYPE_LABELS[formData.ownershipType] || formData.ownershipType}
                 icon={Building2}
               />
               <div className="grid grid-cols-2 gap-3 pt-2">
@@ -272,9 +285,9 @@ const Step4ReviewAndSubmit = () => {
               </div>
               {formData.hospitalLogoPreview && (
                 <div className="flex items-center gap-3 pt-2">
-                  <img 
-                    src={formData.hospitalLogoPreview} 
-                    alt="Hospital Logo" 
+                  <img
+                    src={formData.hospitalLogoPreview}
+                    alt="Hospital Logo"
                     className="w-12 h-12 object-cover rounded-lg"
                   />
                   <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -306,7 +319,7 @@ const Step4ReviewAndSubmit = () => {
       <div className="mt-8 flex flex-col sm:flex-row justify-between gap-4">
         <button
           type="button"
-          onClick={prevStep}
+          onClick={() => navigate(-1)}
           disabled={isSubmitting}
           className="
             flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold

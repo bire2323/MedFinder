@@ -6,7 +6,14 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 //import VerifyOtp from "./verifyOtp";
 import handleKeyDown from "../hooks/handleKeyDown";
+import { FcGoogle } from "react-icons/fc";
 
+import am_white from "../assets/am_white.png";
+import en_white from "../assets/en_white.png";
+import am_black from "../assets/am_black.png";
+import en_black from "../assets/en_black.png";
+import en_logo from "../assets/en_logo.png";
+import am_logo from "../assets/አም_logo.png";
 export default function RegisterationForm() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -98,25 +105,17 @@ export default function RegisterationForm() {
   }
 
 
-
+const isAmharic = localStorage.getItem("i18nextLng") === "am";
   return (
 
 
-    <div className="w-full h-fit md:w-1/2 py-16 md:px-4 lg:px-16">
-      <div className="flex items-center gap-3 mb-4 pb-10">
-        <div className="bg-blue-600 p-2 rounded-lg">
-          <FaHospitalSymbol className="text-white text-xl" />
-        </div>
-        <div className="flex flex-col leading-none">
-          <span className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-            {t("Register.Welcome")}
-          </span>
-        </div>
-      </div>
-
-      <h2 className="text-2xl pb-8 font-bold mb-2 text-slate-900 dark:text-white">
+    <div className="w-full h-fit md:w-1/2 py-10 md:px-4 lg:px-16">
+     
+      <h2 className="text-2xl  font-bold mb-2 text-slate-900 dark:text-white">
         {t("Register.Register")}
       </h2>
+      <div className="w-12 h-1 mb-8 bg-emerald-500 rounded-full mt-2" />
+
 
       <form onSubmit={submit} className="space-y-4">
         <div>
@@ -127,7 +126,7 @@ export default function RegisterationForm() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="block w-full rounded-md border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-10 py-2"
+            className="block w-full rounded-md border-gray-200 dark:text-white dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-10 py-2"
             placeholder={t("Register.Name Placeholder")}
             required
           />
@@ -141,7 +140,7 @@ export default function RegisterationForm() {
             value={phone}
             onKeyDown={handleKeyDown}
             onChange={(e) => setPhone(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2"
+            className="mt-1 block w-full rounded-md border-gray-200 dark:text-white dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2"
             placeholder={t("Register.Phone Placeholder")}
             required
             maxLength="10"
@@ -157,7 +156,7 @@ export default function RegisterationForm() {
             value={password}
             onKeyDown={handleKeyDown}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2"
+            className="mt-1 block w-full rounded-md border-gray-200 dark:text-white dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2"
             placeholder={t("Register.Password Placeholder")}
             required
           />
@@ -172,7 +171,7 @@ export default function RegisterationForm() {
             value={confirmPassword}
             onKeyDown={handleKeyDown}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2"
+            className="mt-1 block w-full rounded-md border-gray-200 dark:text-white dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2"
             placeholder={t("Register.Confirm Password Placeholder")}
             required
           />
@@ -184,15 +183,15 @@ export default function RegisterationForm() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+            className="bg-green-800 hover:bg-green-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
           >
-            {loading ?  
-            <> 
-            <div className="flex gap-1">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-           <span>{ t("Register.Registering") } </span>
-            </div>
-            </> : t("Register.Register")}
+            {loading ?
+              <>
+                <div className="flex gap-1">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <span>{t("Register.Registering")} </span>
+                </div>
+              </> : t("Register.Register")}
           </button>
         </div>
       </form>
@@ -206,6 +205,19 @@ export default function RegisterationForm() {
         >
           {t("Register.Login")}
         </button>
+      </div>
+      <div
+        className="flex justify-center items-center text-sm gap-1.5 border p-2 mb-2 hover:bg-gray-50 hover:shadow-2xs transform dark:text-white
+                dark:hover:bg-gray-400 transition-all duration-500 shadow-black rounded-2xl cursor-pointer"
+        onClick={() =>
+        (window.location.href =
+          "http://localhost:8000/api/auth/google/redirect")
+        }
+      >
+        <FcGoogle className="w-6 h-6" />
+        <p className="dark:hover:text-white select-none">
+          {t("Login.sign_up_with_google")}
+        </p>
       </div>
     </div>
 

@@ -64,6 +64,7 @@ export async function apiLogout() {
 }
 
 export async function apiMe() {
+  await ensureCsrfCookie();
   return apiFetch("/api/user", {
     method: "GET",
     headers: { "Content-Type": "application/json" },

@@ -26,12 +26,23 @@ import ResettingPassword from "../../pages/ResettingPassword";
 import ResetForm from "../../pages/ResetForm";
 
 // Registration Wizard
-import { RegistrationWizard } from "../../pages/registration";
+import {
+  RegistrationWizard,
+  Step1BasicInfo,
+  Step2Location,
+  Step3PharmacyVerification,
+  Step3HospitalVerification,
+  Step4ReviewAndSubmit,
+  SuccessScreen
+} from "../../pages/registration";
 import { apiGetFacilities, apiGetHospitals } from "../../api/hospital";
 import AdminDashboard from "../../pages/AdminPage/AdminDashboard";
 import HomeError from "../../component/HomeError";
 import UserDashboard from "../../pages/UserDashboard/UserDashboard";
 import ProtectedRoute from "../../auth/ProtectedRoute";
+import AuthCallback from "../../auth/AuthCallBack";
+import ScrollToTop from "../../component/ScrollToTop";
+import Step3Selector from "../../pages/registration/Step3Selector";
 
 // 404 Component
 function NotFound() {
@@ -52,7 +63,10 @@ function NotFound() {
 export const router = createBrowserRouter([
   // ==================== PUBLIC ROUTES (MainLayout) ====================
   {
-    element: <MainLayout />,
+    element: <>
+      <ScrollToTop />
+      <MainLayout />
+    </>,
 
     children: [
       // Home page
@@ -77,14 +91,19 @@ export const router = createBrowserRouter([
       },
       // Search results home page (after landing search)
       {
-        path: "/home",
+        path: "/home/search",
         element: <SearchResultsHomePage />,
       },
       // Map page
       {
-        path: "/map",
+        path: "/home/map",
         element: <MapPage />,
       },
+      {
+        path: "/auth/callback",
+        element: <AuthCallback />
+      },
+
       // Login routes
       {
         path: "login",
@@ -108,14 +127,23 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // ==================== FACILITY REGISTRATION (Standalone Pages) ====================
+  // ==================== FACILITY REGISTRATION (Nested Route-Based) ====================
   {
-    path: "/register/pharmacy",
-    element: <RegistrationWizard registrationType="pharmacy" />,
-  },
-  {
-    path: "/register/hospital",
-    element: <RegistrationWizard registrationType="hospital" />,
+    path: "/register/:type",
+    element: (
+      <>
+        <ScrollToTop />
+        <RegistrationWizard />
+      </>
+    ),
+    children: [
+      { index: true, element: <Step1BasicInfo /> },
+      { path: "basic-info", element: <Step1BasicInfo /> },
+      { path: "location-info", element: <Step2Location /> },
+      { path: "verification-info", element: <Step3Selector /> }, // Will handle logic in wizard/outlet
+      { path: "review", element: <Step4ReviewAndSubmit /> },
+      { path: "success", element: <SuccessScreen /> },
+    ]
   },
 
   // ==================== AGENT DASHBOARDS (Standalone Pages) ====================
@@ -143,7 +171,12 @@ export const router = createBrowserRouter([
 
   // ==================== FACILITY DETAIL PAGES (OtherLayout) ====================
   {
-    element: <OtherLayout />,
+    element: (
+      <>
+        <ScrollToTop />
+        <OtherLayout />
+      </>
+    ),
     children: [
       // Pharmacy detail page
       {
