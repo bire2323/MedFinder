@@ -60,18 +60,18 @@ docker-compose.override.yml
 mod/
 
 models/
+rasa_env/
 
-*.tar.gz
 
-__pycache__/
-*.pyc
 
-cache/
-tmp/
-.rasa_cache/
+
 /rasa_ready_drugs.txt
-/vendor
-
+vendor/
+/RasaFM/rasa_env/
+.env/
+.envs/
+.venv/
+env/
 /certs
 .DS_Store
 Thumbs.db

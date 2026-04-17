@@ -37,6 +37,7 @@ import {
   ChevronLeft,
   ChevronRight,
   MenuIcon,
+  Menu,
 } from "lucide-react";
 import ThemeToggle from "../../component/DarkLightTeam";
 
@@ -64,6 +65,9 @@ import {
 
 import { useTranslation } from "react-i18next";
 import { initializeAuth } from "../../auth/initAuth";
+import { LuLogOut } from "react-icons/lu";
+import { FaUser, FaUserCircle } from "react-icons/fa";
+import { navigateByRole } from "../../utils/UserNavigation";
 
 const HospitalDashboard = () => {
   const { t } = useTranslation();
@@ -229,6 +233,80 @@ const HospitalDashboard = () => {
 
         <main className="flex-1 flex flex-col overflow-hidden min-w-0">
           {/* HEADER */}
+          <header className="h-14 sm:h-20 bg-blue-600 dark:bg-gray-800/80 backdrop-blur-md border-b border-b-gray-200 border-gray-400 dark:border-gray-500 px-3 sm:px-6 lg:px-8 flex items-center justify-between z-10 shrink-0">
+            <div>
+              <div>
+                <ChevronLeft className="text-white hidden md:block text-xl" onClick={() => navigate("/")} />
+              </div>
+              {/* Mobile toggle button */}
+              <button
+                type="button"
+                //onClick={() => setSidebarOpen(true)}
+                className="sm:hidden z-60 w-11 h-11 rounded-xl bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 shadow-sm flex items-center justify-center"
+                aria-label={t("UserDashboard.OpenNavigation")}
+              >
+                <Menu size={20} className="text-slate-700 dark:text-slate-200 text-5xl" />
+              </button>
+            </div>
+            <div className="flex items-center gap-1 sm:gap-4 shrink-0">
+              <div className="hidden sm:flex items-center gap-2 px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold border border-gray-400 transition-colors">
+                <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${pharmacyProfile?.status === 'APPROVED' ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}></span>
+                <span className="hidden sm:inline">{pharmacyProfile?.status === 'APPROVED' ? t("PharmacyDashboard.Live") : t("PharmacyDashboard.Hidden")}</span>
+              </div>
+              <LanguageSwitcher />
+              <ThemeToggle />
+              <NotificationDropdown />
+              <div className="relative">
+                <button
+                  className="flex items-center gap-2 p-1 hover:bg-slate-100 dark:hover:bg-gray-800 rounded-full transition-all"
+                  onClick={() => setToggleProfileDropDown(!toggleProfileDropDown)}
+                >
+                  <div className="w-9 h-9 bg-blue-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-blue-600">
+                    <FaUserCircle size={32} />
+                  </div>
+                </button>
+
+                {toggleProfileDropDown && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setToggleProfileDropDown(false)}
+                    />
+                    <div className="absolute right-0 mt-3 w-64 z-20 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-gray-800 p-2 overflow-hidden animate-in fade-in zoom-in duration-200">
+                      <div className="px-4 py-3 border-b border-slate-50 dark:border-gray-800 mb-2">
+                        <p className="text-xs font-bold text-slate-400">
+                          {t("headingNav.profile_dropdown.account")}
+                        </p>
+                        <p className="text-sm font-bold truncate dark:text-white">
+                          {user?.Email}
+                        </p>
+                      </div>
+                      <NavLink
+                        to="#"
+                        onClick={() => {
+                          if (roles?.includes("patient")) {
+                            navigate("/user/dashboard", { replace: true });
+                          } else {
+                            navigateByRole(roles, navigate);
+                          }
+                        }}
+                        className="flex items-center cursor-pointer gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-xl transition-all"
+                      >
+                        <FaUser className="text-blue-500" />
+                        <span>{t("headingNav.profile_dropdown.my_dashboard")}</span>
+                      </NavLink>
+                      <button
+                        // onClick={handleLogout}
+                        className="w-full flex items-center cursor-pointer gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
+                      >
+                        <LuLogOut /> {t("headingNav.profile_dropdown.logout")}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </header>
           <header className="h-14 sm:h-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-400 dark:border-gray-500 px-3 sm:px-6 lg:px-8 flex items-center justify-between z-10 shrink-0">
             <div className="flex items-center gap-1 sm:gap-4 shrink-0">
               <div className="hidden sm:flex items-center gap-2 px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold border border-gray-400 transition-colors">
@@ -300,7 +378,7 @@ const HospitalDashboard = () => {
                     initialData={hospitalProfile}
                     type="hospital"
                     onUpdateSuccess={() => {
-                        getHospitalDetails().then(res => setHospitalProfile(res.data || res));
+                      getHospitalDetails().then(res => setHospitalProfile(res.data || res));
                     }}
                   />
                 )}

@@ -204,12 +204,12 @@ export default function HomePage() {
             <div className="mb-20">
               <div className="flex justify-between items-center mb-8">
                 <div>
-                  <h2 className="text-base md:text-3xl font-black text-slate-600 dark:text-white tracking-tight">{t("home.topHospitals")}</h2>
+                  <h2 className="text-[14px] md:text-2xl lg:text-3xl font-black text-slate-600 dark:text-white tracking-tight">{t("home.topHospitals")}</h2>
                   <div className="w-12 h-1 bg-blue-400 rounded-full mt-2" />
                 </div>
                 <button
                   onClick={() => navigate('/home/search?type=hospital')}
-                  className="group flex text-sm md:text-base items-center gap-2 text-blue-600 font-bold hover:text-blue-700 transition-colors"
+                  className="group flex text-[13px] md:text-base items-center gap-2 text-blue-600 font-bold hover:text-blue-700 transition-colors"
                 >
                   {t("home.viewAll")}
                   <HiOutlineArrowNarrowRight className="group-hover:translate-x-1 transition-transform" />
@@ -222,12 +222,12 @@ export default function HomePage() {
             <div>
               <div className="flex justify-between items-center mb-8">
                 <div>
-                  <h2 className="text-base md:text-3xl font-black text-slate-600 dark:text-white tracking-tight">{t("home.topPharmacies")}</h2>
+                  <h2 className="text-[14px] md:text-2xl lg:text-3xl font-black text-slate-600 dark:text-white tracking-tight">{t("home.topPharmacies")}</h2>
                   <div className="w-12 h-1 bg-emerald-500 rounded-full mt-2" />
                 </div>
                 <button
                   onClick={() => navigate('/home/search?type=pharmacy')}
-                  className="group flex text-sm md:text-base items-center gap-2 text-emerald-600 font-bold hover:text-emerald-700 transition-colors"
+                  className="group flex text-[13px] md:text-base items-center gap-2 text-emerald-600 font-bold hover:text-emerald-700 transition-colors"
                 >
                   {t("home.viewAll")}
                   <HiOutlineArrowNarrowRight className="group-hover:translate-x-1 transition-transform" />
