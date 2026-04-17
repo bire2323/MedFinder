@@ -1,0 +1,17 @@
+/rasa_env
+rasa_env/
+.env/
+.envs/
+.venv/
+env/
+/Include/
+Lib
+RasaFM/rasa_env/
+*.tar.gz
+
+__pycache__/
+*.pyc
+
+cache/
+tmp/
+.rasa_cache/
