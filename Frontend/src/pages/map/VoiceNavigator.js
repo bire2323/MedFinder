@@ -11,7 +11,7 @@ export class VoiceNavigator {
         this.proximityThreshold = options.proximityThreshold || 50; // meters
         this.nowThreshold = options.nowThreshold || 15; // meters
         this.isSupported = 'speechSynthesis' in window;
-        
+
         // Track if we've already announced the upcoming turn
         this._lastSpokenStepIndex = -1;
         this._lastAnnouncedDistance = null;
@@ -23,7 +23,7 @@ export class VoiceNavigator {
             lang: options.lang || 'en-US'
         };
     }
-    
+
     /**
      * Start a new navigation session
      * @param {Array} steps - Enhanced route steps with fullInstruction property
@@ -33,12 +33,14 @@ export class VoiceNavigator {
             console.error("Voice Navigator: Web Speech API not supported.");
             return;
         }
-        
+
         if (!steps || steps.length === 0) {
             console.error("Voice Navigator: No steps provided.");
             return;
         }
-        
+
+        console.log("VoiceNavigator starting with", steps.length, "steps");
+
         this.currentSteps = steps;
         this.currentStepIndex = 0;
         this._lastSpokenStepIndex = -1;
@@ -47,6 +49,7 @@ export class VoiceNavigator {
         // Announce the first instruction
         const firstStep = steps[0];
         if (firstStep) {
+            console.log("First step instruction:", firstStep.fullInstruction || firstStep.instruction);
             this.speak(firstStep, 'start');
         }
     }
@@ -64,18 +67,15 @@ export class VoiceNavigator {
 
         // Check if we've reached the end
         if (this.currentStepIndex === this.currentSteps.length - 1) {
-            // Already at last step (arrive)
             if (this.currentSteps[this.currentStepIndex]?.type === 'arrive') {
                 this.speak(this.currentSteps[this.currentStepIndex], 'now');
-                this.currentStepIndex++; // Mark as completed
+                this.currentStepIndex++;
             }
             return;
         }
 
-        const currentStep = this.currentSteps[this.currentStepIndex];
         const nextStep = this.currentSteps[this.currentStepIndex + 1];
 
-        // Skip if no next step (shouldn't happen)
         if (!nextStep) return;
 
         // Calculate distance to the next maneuver
@@ -94,10 +94,8 @@ export class VoiceNavigator {
 
         // Proximity trigger (prepare user for upcoming maneuver)
         if (distanceToTurn <= this.proximityThreshold && distanceToTurn > this.nowThreshold) {
-            // Check if we haven't already announced this step
             if (this._lastSpokenStepIndex !== this.currentStepIndex) {
-                // Only announce if distance has changed significantly (avoid repeated announcements)
-                if (!this._lastAnnouncedDistance || 
+                if (!this._lastAnnouncedDistance ||
                     Math.abs(this._lastAnnouncedDistance - distanceToTurn) > 10) {
                     this.speak(nextStep, 'near', distanceToTurn);
                     this._lastSpokenStepIndex = this.currentStepIndex;
@@ -108,7 +106,6 @@ export class VoiceNavigator {
 
         // Now trigger (immediate action required)
         if (distanceToTurn <= this.nowThreshold) {
-            // Move to next step only if we haven't already
             if (this._lastSpokenStepIndex !== this.currentStepIndex + 1) {
                 this.speak(nextStep, 'now');
                 this.currentStepIndex++;
@@ -129,38 +126,38 @@ export class VoiceNavigator {
 
         // Use enhanced instruction if available
         let instruction = step.fullInstruction || step.instruction;
-        
+
         // If no instruction available, generate a fallback
         if (!instruction || instruction === "") {
             instruction = this._generateFallbackInstruction(step, type, distance);
         }
-console.log("instr", instruction);
+
+        console.log("Speaking:", instruction, "Type:", type);
+
         // Check if instruction contains Amharic characters
         const isAmharic = /[\u1200-\u137F]/.test(instruction);
-        console.log("isAmharic", isAmharic);
         let message = "";
-        
+
         switch (type) {
             case 'start':
-                message = isAmharic 
+                message = isAmharic
                     ? `ጉዞ ተጀምሯል። ${instruction}`
                     : `Navigation started. ${instruction}`;
                 break;
-                
+
             case 'near':
-                // If distance is provided, use it; otherwise use proximityThreshold
                 const announceDistance = distance !== null ? Math.round(distance) : Math.round(this.proximityThreshold);
                 message = isAmharic
                     ? `${announceDistance} ሜትር ውስጥ፣ ${instruction}`
                     : `In ${announceDistance} meters, ${instruction}`;
                 break;
-                
+
             case 'now':
-                message = isAmharic 
+                message = isAmharic
                     ? `${instruction} አሁን።`
                     : `${instruction} now.`;
                 break;
-                
+
             default:
                 message = instruction;
         }
@@ -174,37 +171,31 @@ console.log("instr", instruction);
      * @private
      */
     _generateFallbackInstruction(step, type, distance) {
-         const isAmharic = localStorage.getItem("i18nextLng") === "am";
-         console.log(isAmharic);
+        const isAmharic = localStorage.getItem("i18nextLng") === "am";
+
         if (step.type === 'depart') {
-            return `${isAmharic ? "ጉዞ ተጀምሯል።" : 'Start your journey'}`;
+            return isAmharic ? "ጉዞ ተጀምሯል" : "Start your journey";
         }
-        
+
         if (step.type === 'arrive') {
-            return `${isAmharic ? "ጉዞ ተጠናቀቁ።" : 'You have arrived at your destination'}`;
+            return isAmharic ? "መድረሻ ላይ ደርሰዋል" : "You have arrived at your destination";
         }
-        
+
         if (step.type === 'turn') {
             const direction = step.turnDirection || "straight";
-            const distanceText = distance ? `${Math.round(distance)} meters` : "";
-            
             if (type === 'now') {
                 return `${direction.charAt(0).toUpperCase() + direction.slice(1)} now`;
             }
-            
             return `Turn ${direction}`;
         }
-        
-        if (step.type === 'end of road') {
-            const direction = step.turnDirection || "left or right";
-            return `${isAmharic ? "መንገዱን አጠናቀቁ።" : 'At the end of the road, turn ${direction}'}`;
-        }
-        
+
         if (step.distance) {
-            return `${isAmharic ? "በ ${Math.round(step.distance)} ሜትሮች ወደ ፊት ይጓዙ" : 'Continue for ${Math.round(step.distance)} meters'}`;
+            return isAmharic
+                ? `በ ${Math.round(step.distance)} ሜትሮች ቀጥ ብለው ይቀጥሉ`
+                : `Continue for ${Math.round(step.distance)} meters`;
         }
-        
-        return `${isAmharic ? "ወደ ፊት" : 'Continue straight'}`;
+
+        return isAmharic ? "ቀጥ ብለው ይቀጥሉ" : "Continue straight";
     }
 
     /**
@@ -215,28 +206,28 @@ console.log("instr", instruction);
         // Cancel any ongoing speech
         speechSynthesis.cancel();
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = this.config.rate;
-        utterance.pitch = this.config.pitch;
-        utterance.lang = lang || this.config.lang;
+        // Small delay helps on mobile Safari
+        setTimeout(() => {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = this.config.rate;
+            utterance.pitch = this.config.pitch;
+            utterance.lang = lang || this.config.lang;
 
-        // Try to find a natural voice if possible
-        const voices = speechSynthesis.getVoices();
-        
-        // Priority: Google voices > Premium voices > Native voices
-        const preferred = voices.find(v => 
-            v.lang === utterance.lang && 
-            (v.name.includes('Google') || v.name.includes('Premium') || v.name.includes('Natural'))
-        ) || voices.find(v => v.lang === utterance.lang);
-        
-        if (preferred) utterance.voice = preferred;
+            // Try to find a natural voice if possible
+            const voices = speechSynthesis.getVoices();
+            const preferred = voices.find(v =>
+                v.lang === utterance.lang &&
+                (v.name.includes('Google') || v.name.includes('Premium') || v.name.includes('Natural'))
+            ) || voices.find(v => v.lang === utterance.lang);
 
-        // Add error handling
-        utterance.onerror = (event) => {
-            console.error('Speech synthesis error:', event);
-        };
+            if (preferred) utterance.voice = preferred;
 
-        speechSynthesis.speak(utterance);
+            utterance.onerror = (event) => {
+                console.error('Speech synthesis error:', event);
+            };
+
+            speechSynthesis.speak(utterance);
+        }, 50);
     }
 
     /**
@@ -244,7 +235,7 @@ console.log("instr", instruction);
      * @private
      */
     calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371e3; // Earth's radius in meters
+        const R = 6371e3;
         const φ1 = lat1 * Math.PI / 180;
         const φ2 = lat2 * Math.PI / 180;
         const Δφ = (lat2 - lat1) * Math.PI / 180;
@@ -255,7 +246,7 @@ console.log("instr", instruction);
             Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-        return R * c; // in meters
+        return R * c;
     }
 
     /**
@@ -275,15 +266,13 @@ console.log("instr", instruction);
      */
     toggleMute() {
         this.isMuted = !this.isMuted;
-        
-        // If unmuting, don't automatically speak - wait for next trigger
+
         if (!this.isMuted) {
             console.log("Voice navigation unmuted");
         } else {
-            // Cancel any ongoing speech when muting
             speechSynthesis.cancel();
         }
-        
+
         return this.isMuted;
     }
 
@@ -302,7 +291,7 @@ console.log("instr", instruction);
         if (this.currentStepIndex >= 0 && this.currentStepIndex < this.currentSteps.length) {
             const currentStep = this.currentSteps[this.currentStepIndex];
             if (currentStep) {
-                this.speak(currentStep, 'repeat');
+                this.speak(currentStep, 'near', this.proximityThreshold);
             }
         }
     }

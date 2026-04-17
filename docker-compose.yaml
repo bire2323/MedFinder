@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   mysql:
@@ -14,12 +14,68 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ${BACKEND_DOCKERFILE:-Dockerfile}
+    container_name: medfinder-backend
+    # no ports exposed publicly
+    volumes:
+      - ./backend:/var/www/html
+      - /var/www/html/vendor
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_DEBUG: ${APP_DEBUG}
+      APP_URL: ${APP_URL}
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      BROADCAST_CONNECTION: reverb
+      REVERB_APP_ID: ${REVERB_APP_ID}
+      REVERB_APP_KEY: ${REVERB_APP_KEY}
+      REVERB_APP_SECRET: ${REVERB_APP_SECRET}
+      REVERB_HOST: reverb
+      REVERB_PORT: 6001
+      REVERB_SCHEME: http
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  reverb:
+    build:
+      context: ./backend
+      dockerfile: ${BACKEND_DOCKERFILE:-Dockerfile}
+    container_name: medfinder-reverb
+    command: php artisan reverb:start --host=0.0.0.0 --port=6001
+    # no ports exposed publicly
+    volumes:
+      - ./backend:/var/www/html
+    environment:
+      REVERB_APP_ID: ${REVERB_APP_ID}
+      REVERB_APP_KEY: ${REVERB_APP_KEY}
+      REVERB_APP_SECRET: ${REVERB_APP_SECRET}
+      REVERB_HOST: 0.0.0.0
+      REVERB_PORT: 6001
+      REVERB_SCHEME: http
+    depends_on:
+      - backend
+    restart: unless-stopped
 
   osrm:
     image: osrm/osrm-backend
     container_name: medfinder-osrm
-    ports:
-      - "${OSRM_PORT:-5000}:5000"
+    # internal only, no ports exposed
     volumes:
       - ./OSM-data:/data
     command: osrm-routed --algorithm mld /data/ethiopia-260331.osrm
@@ -28,46 +84,58 @@ services:
   tileserver:
     image: maptiler/tileserver-gl
     container_name: medfinder-tileserver
-    ports:
-      - "${TILESERVER_PORT:-8081}:8080"
+    # internal only, no ports exposed
     volumes:
       - ./tiles:/data
     command: --file /data/ethiopia-260331.mbtiles --port 8080
     restart: unless-stopped
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: ${BACKEND_DOCKERFILE:-Dockerfile}
-    container_name: medfinder-backend
-    ports:
-      - "${BACKEND_PORT:-8080}:80"
+  rasa:
+    image: rasa/rasa:3.6.20
+    container_name: medfinder-rasa
+    # internal only, no ports exposed
     volumes:
-      - ./backend:/var/www/html
-    environment:
-      - APP_ENV=${APP_ENV}
-      - APP_DEBUG=${APP_DEBUG}
-      - APP_URL=${APP_URL}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - REVERB_PORT=8080
-    depends_on:
-      - mysql
-      - osrm
-      - tileserver
+      - ./RasaFM:/app
+    command: run --enable-api --cors "*" --port 5005
     restart: unless-stopped
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
     container_name: medfinder-frontend
-    ports:
-      - "${FRONTEND_PORT:-5173}:5173"
+    # internal only, proxied by Nginx
+    volumes:
+      - ./Frontend:/app
+      - /app/node_modules
     environment:
-      - VITE_API_BASE=${VITE_API_BASE}
-      - VITE_OSRM_URL=${VITE_OSRM_URL}
-      - VITE_TILESERVER_URL=${VITE_TILESERVER_URL}
+      VITE_API_BASE: "https://medfinder.com"
+      VITE_OSRM_URL: "http://medfinder-osrm:5000"
+      VITE_TILESERVER_URL: "http://medfinder-tileserver:8080"
+      VITE_REVERB_APP_KEY: ${VITE_REVERB_APP_KEY}
+      VITE_REVERB_HOST: "medfinder.com"
+      VITE_REVERB_PORT: "443"
+      VITE_REVERB_SCHEME: "wss"
     depends_on:
       - backend
+      - reverb
     restart: unless-stopped
 
+  nginx:
+    image: nginx:latest
+    container_name: medfinder-nginx
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - frontend
+      - backend
+      - reverb
+      - rasa
+      - tileserver
+    restart: unless-stopped
 volumes:
   mysql-data:

@@ -43,6 +43,7 @@ import ProtectedRoute from "../../auth/ProtectedRoute";
 import AuthCallback from "../../auth/AuthCallBack";
 import ScrollToTop from "../../component/ScrollToTop";
 import Step3Selector from "../../pages/registration/Step3Selector";
+import TermsConditions from "../../component/Terms&Conditions";
 
 // 404 Component
 function NotFound() {
@@ -73,21 +74,6 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: <HomePage />,
-        loader: async () => {
-          try {
-            const res = await apiGetFacilities();
-
-            if (!res.ok) {
-              throw new Response("Failed to load hospitals", { status: res.status });
-            }
-
-            return res.json();
-
-          } catch (error) {
-            throw new Response("Server not reachable", { status: 500 });
-          }
-        },
-        errorElement: <HomeError />
       },
       // Search results home page (after landing search)
       {
@@ -168,7 +154,10 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [{ index: true, element: <AdminDashboard /> }],
   },
-
+  {
+    path: "/terms-and-conditions",
+    element: <TermsConditions />,
+  },
   // ==================== FACILITY DETAIL PAGES (OtherLayout) ====================
   {
     element: (
@@ -184,7 +173,7 @@ export const router = createBrowserRouter([
         element: <FacilityDetailPage />,
         loader: async ({ params }) => {
           const res = await fetch(
-            `http://localhost:8000/api/pharmacies/${params.id}`
+            `https://medfinder.com/api/pharmacies/${params.id}`
           );
 
           if (!res.ok) {
@@ -204,7 +193,7 @@ export const router = createBrowserRouter([
         element: <FacilityDetailPage />,
         loader: async ({ params }) => {
           const res = await fetch(
-            `http://localhost:8000/api/hospitals/${params.id}`
+            `https://medfinder.com/api/hospitals/${params.id}`
           );
 
           if (!res.ok) {
@@ -232,7 +221,7 @@ export const router = createBrowserRouter([
         element: <FacilityDetailPage />,
         loader: async ({ params }) => {
           const res = await fetch(
-            `http://localhost:8000/api/hospitals/${params.id}`
+            `https://medfinder.com/api/hospitals/${params.id}`
           );
 
           if (!res.ok) {

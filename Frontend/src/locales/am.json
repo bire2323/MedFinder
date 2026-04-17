@@ -73,29 +73,23 @@
     "facilityNameEnMin": "የ{{type}} ስም (እንግሊዝኛ) ቢያንስ 3 ፊደል መሆን አለበት",
     "facilityNameAmRequired": "የ{{type}} ስም (አማርኛ) ያስፈልጋል",
     "facilityNameAmMin": "የ{{type}} ስም (አማርኛ) ቢያንስ 3 ፊደል መሆን አለበት",
-
     "invalidEmail": "ትክክለኛ ኢሜይል ያስገቡ",
     "mustAgree": "ውሎችን እና ፖሊሲን መስማማት አለብዎት",
-
     "regionEnRequired": "ክልል (እንግሊዝኛ) ያስፈልጋል",
     "regionAmRequired": "ክልል (አማርኛ) ያስፈልጋል",
     "zoneEnRequired": "ዞን / ከተማ (እንግሊዝኛ) ያስፈልጋል",
     "zoneAmRequired": "ዞን / ከተማ (አማርኛ) ያስፈልጋል",
     "subCityEnRequired": "ንዑስ ከተማ / ወረዳ (እንግሊዝኛ) ያስፈልጋል",
     "subCityAmRequired": "ንዑስ ከተማ / ወረዳ (አማርኛ) ያስፈልጋል",
-
     "kebeleRequired": "ክበሌ ያስገቡ",
     "addressAmRequired": "አድራሻ በአማርኛ ያስገቡ",
     "addressEnRequired": "አድራሻን በትክክል ያስገቡ",
-
     "latitudeRequired": "ላቲቱድ ያስፈልጋል",
     "latitudeInvalid": "ትክክለኛ ላቲቱድ ያስገቡ (-90 እስከ 90)",
     "longitudeRequired": "ሎንግቲቱድ ያስፈልጋል",
     "longitudeInvalid": "ትክክለኛ ሎንግቲቱድ ያስገቡ (-180 እስከ 180)",
-
     "phoneRequired": "ዋና የስልክ ቁጥር ያስፈልጋል",
     "phoneInvalid": "ትክክለኛ የኢትዮጵያ ስልክ ቁጥር ያስገቡ",
-
     "licenseRequired": "የፍቃድ ቁጥር ያስፈልጋል",
     "licenseDocRequired": "የፍቃድ ሰነድ ያስፈልጋል",
     "pharmacyTypeRequired": "የፋርማሲ አይነት ያስፈልጋል",
@@ -299,6 +293,7 @@
     "EmailOptional": "(አማራጭ)",
     "PhoneFormat": "የኢትዮጵያ ስልክ፡ 09 ወይም +2519 በመጀመር ያስገቡ",
     "AgreeTerms": "በአገልግሎት ውሎች እና የግል መብት ደንቦች ተስማምቻለሁ",
+    "TermsAndConditions": "ደንብ ና መመሪአዎች!",
     "SelectRegion": "ክልል ይምረጡ",
     "GetMyLocation": "አሁን ያለሁበትን ቦታ አግኝ",
     "MainContact": "ዋና ስልክ ቁጥር",
@@ -380,7 +375,7 @@
     "ReviewStep1": "ቡድናችን ያቀረቡትን ሰነዶች ይገመግማል",
     "ReviewStep2": "ማረጋገጫ አብዛኛውን ጊዜ ከ1-3 የስራ ቀናት ይወስዳል",
     "ReviewStep3": "ሲጸድቅ ማሳወቂያ ይደርስዎታል",
-    "ViaSms": "በኤስኤምኤስ",
+    "ViaSMS": "በኤስኤምኤስ",
     "ViaEmail": "በኢሜይል",
     "PhoneNotif": "የስልክ ማሳወቂያ",
     "EmailNotif": "የኢሜይል ማሳወቂያ",
@@ -402,6 +397,131 @@
       "Ngo": "መንግስታዊ ያልሆነ ድርጅት (NGO)",
       "FaithBased": "በእምነት ተቋም የሚመራ"
     }
+  },
+  "review": {
+    "title": "መረጃዎን ይገምግሙ",
+    "subtitle": "ከማስገባትዎ በፊት እባክዎን ሁሉንም ዝርዝሮች ይገምግሙ",
+    "basicInfo": {
+      "title": "መሰረታዊ መረጃ",
+      "pharmacyName": "የፋርማሲ ስም",
+      "hospitalName": "የሆስፒታል ስም",
+      "pharmacyNameAm": "የፋርማሲ ስም (በ አማርኛ)",
+      "hospitalNameAm": "የሆስፒታል ስም (በ አማርኛ)",
+      "email": "ኢሜይል"
+    },
+    "location": {
+      "title": "መገኛ እና ስልክ ቁጥር",
+      "region": "ክልል",
+      "regionAm": "ክልል (በ አማርኛ)",
+      "zoneCity": "ዞን/ከተማ",
+      "zoneCityAm": "ዞን/ከተማ (በ አማርኛ)",
+      "subCity": "ንዑስ ከተማ/ወረዳ",
+      "subCityAm": "ንዑስ ከተማ/ወረዳ (በ አማርኛ)",
+      "kebele": "ቀበሌ",
+      "detailedAddress": "ዝርዝር አድራሻ",
+      "latitude": "ኬክሮስ",
+      "longitude": "ኬንትሮስ",
+      "workingHour": "የስራ ሰዓት",
+      "emergencyPhone": "የአደጋ ጊዜ ስልክ",
+      "alternatePhone": "አማራጭ ስልክ"
+    },
+    "verification": {
+      "title": "ማረጋገጫ እና ፈቃድ",
+      "licenseNumber": "የፈቃድ ቁጥር",
+      "licenseDocument": "የፈቃድ ሰነድ",
+      "pharmacyType": "የፋርማሲ አይነት",
+      "workingHours": "የስራ ሰዓት",
+      "ownershipType": "የባለቤትነት አይነት",
+      "emergencyServices": "የአስቸኳይ አገልግሎት",
+      "operates247": "24/7 አገልግሎት",
+      "logoUploaded": "መለያ/logo ተጭኗል",
+      "yes": "አዎ",
+      "no": "አይ"
+    },
+    "buttons": {
+      "edit": "አርትዕ",
+      "back": "ተመለስ",
+      "submitting": "በማስገባት ላይ...",
+      "submit": "ለአስተዳዳሪ ማጽደቅ አስገባ"
+    },
+    "messages": {
+      "notProvided": "አልቀረበም",
+      "submissionFailed": "ማስገባት አልተቻለም",
+      "tryAgain": "እባክዎ እንደገና ይሞክሩ",
+      "alreadyRegisteredAgent": "እርስዎ ቀድሞውኑ የተመዘገቡ ተቋም ወኪል ነዎት!"
+    },
+    "pharmacyTypes": {
+      "community": "ማህበረሰብ ፋርማሲ",
+      "hospital_based": "በሆስፒታል ላይ የተመሰረተ ፋርማሲ",
+      "wholesale": "በጅምላ የሚሸጥ ፋርማሲ",
+      "import": "ከውጭ የሚመጣ ፋርማሲ"
+    },
+    "ownershipTypes": {
+      "public": "ህዝብ / መንግስት",
+      "private": "የግል",
+      "ngo": "መንግስታዊ ያልሆነ ድርጅት",
+      "faith_based": "በሃይማኖት ላይ የተመሰረተ"
+    },
+    "regions": {
+      "addis_ababa": "አዲስ አበባ",
+      "afar": "አፋር",
+      "amhara": "አማራ",
+      "benishangul_gumuz": "ቤንሻንጉል ጉሙዝ",
+      "dire_dawa": "ድሬዳዋ",
+      "gambela": "ጋምቤላ",
+      "harari": "ሐረሪ",
+      "oromia": "ኦሮሚያ",
+      "sidama": "ሲዳማ",
+      "snnpr": "ደቡብ ብሔራዊ ህዝቦች",
+      "somali": "ሶማሌ",
+      "south_west": "ደቡብ ምዕራብ ኢትዮጵያ",
+      "tigray": "ትግራይ"
+    }
+  },
+  "terms": {
+    "title": "የአጠቃቀም ደንቦች እና መመሪያዎች",
+    "introduction": "እንኳን ወደ MedFinder በደህና መጡ። ይህ ፕላትፎርም ሆስፒታሎችን እና ፋርማሲዎችን ለመፈለግ እና መድሀኒቶችን በአቅራቢያችን መገኘትን ለማረጋገጥ ይረዳል።",
+    "acceptance": {
+      "title": "1. የደንቦች ተቀባይነት",
+      "content": "ይህን ስርዓት በመጠቀም እነዚህን ደንቦች መቀበልዎን ያረጋግጣሉ። እባክዎ በ ደንብና መመሪያዎች ካልተስማማችሁ ፕላትፎርሙን መጠቀማችሂሁን አቁሙ።"
+    },
+    "use": {
+      "title": "2. ፕላትፎርሙ የሚሰጣችሁ አገልግሎት",
+      "content": "ስርዓቱ ለህክምና መረጃ ፍለጋ እና ግንኙነት ይጠቅማል። በህጋዊ መንገድ ብቻ መጠቀም አለበት።"
+    },
+    "accounts": {
+      "title": "3. የተጠቃሚ መለያ",
+      "content": "ተጠቃሚዎች ትክክለኛ መረጃ ማስገባት አለባቸው። አገልግሎቶች በሚሰጡት ሚና መሰረት ይለያያሉ።"
+    },
+    "data": {
+      "title": "4. የመረጃ ግላዊነት",
+      "content": "የተጠቃሚ መረጃ በደህና ይጠበቃል እና ያለ ፈቃድ አይጋራም።"
+    },
+    "chatbot": {
+      "title": "5. የቻትቦት አጠቃቀም",
+      "content": "ቻትቦቱ አጠቃላይ መረጃ ይሰጣል እና የሕክምና ምክር አይሰጥም።"
+    },
+    "inventory": {
+      "title": "6. የፋርማሲ ኃላፊነት",
+      "content": "ፋርማሲዎች የመድሀኒት መረጃን ትክክለኛ ማድረግ አለባቸው።"
+    },
+    "liability": {
+      "title": "7. ኃላፊነት ገደብ",
+      "content": "ስርዓቱ ትክክል ያልሆነ መረጃ ላይ ኃላፊነት አይወስድም።"
+    },
+    "security": {
+      "title": "8. ደህንነት",
+      "content": "የመረጃ ጥበቃ ቴክኖሎጂዎች ተጠቃሚ መረጃን ይጠብቃሉ።"
+    },
+    "termination": {
+      "title": "9. መለያ መዝጋት",
+      "content": "ህግ የሚጣሱ ተጠቃሚዎች መለያቸው ሊዘጋ ይችላል።"
+    },
+    "changes": {
+      "title": "10. ውሎች ለውጥ",
+      "content": "ውሎቹ ሊቀየሩ ይችላሉ። መጠቀም መቀጠል ማለት መቀበል ነው።"
+    },
+    "footer": "© MedFinder - የሆስፒታል እና ፋርማሲ ፈላጊ ስርዓት"
   },
   "PharmacyDashboard": {
     "Overview": "አጠቃላይ እይታ",
@@ -632,7 +752,10 @@
     "PickAFacility": "ከዝርዝሩ ይምረጡ፣ ካርታ ላይ ለመመልከት",
     "ClearRoute": "አቅጣጫ ጠቋሚውን አጥፋ",
     "TrackingEnabled": "አቅጣጫ ጠቋሚው በስራ ላይ",
-    "TrackingUnavailable": "አቅጣጫ ጠቋሚው አይሰራም"
+    "TrackingUnavailable": "አቅጣጫ ጠቋሚው አይሰራም",
+    "Navigate": "አቅጣጫ አሳይ",
+    "ViewOnMap": "ካርታ ላይ ይመልከት",
+    "EstimatedTime": "ለመድረስ የተገምተው ጊዜ"
   },
   "modal": {
     "delete": {

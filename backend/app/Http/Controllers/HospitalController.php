@@ -1,13 +1,12 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
 use App\Models\Hospital;
-use App\Models\User;
 use App\Events\NotificationSent;
 use Illuminate\Http\Request;
 use App\Models\Location;
+use Illuminate\Validation\ValidationException;
 
 class HospitalController extends Controller
 {
@@ -60,12 +59,13 @@ class HospitalController extends Controller
     public function store(Request $request)
     {
         // 1. Validate all incoming data
+      try{
         $validated = $request->validate([
             // Basic Info
             'facilityNameEn' => 'required|string|min:3|max:255',
             'facilityNameAm' => 'required|string|min:3|max:255',
          
-            'email' => 'nullable|email|unique:users,email',
+            'contact_email' => 'nullable|email|unique:users,email',
           
             
             // Location Info
@@ -81,7 +81,7 @@ class HospitalController extends Controller
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
             'working_hour' => 'required|string',
-            'emergency_contact' => 'nullable|string',
+            'contact_phone' => 'nullable|string',
 
             // Hospital Verification
             'license_number' => 'required|string|max:100',
@@ -92,13 +92,67 @@ class HospitalController extends Controller
             // Files
             'license_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
             'logo' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // 2MB max
+        ],[
+             'facilityNameEn' => 'FACILITY_NAME_REQ',
+            'facilityNameAm' => 'FACILITY_NAME_AM_REQ',
+         
+            'contact_email' => 'CONTACT_EMAIL_REQ',
+          
+            
+            // Location Info
+            'region_en' => 'REGION_EN_REQ',
+            'region_am' => 'REGION_AM_REQ',
+            'zone_en' => 'ZONE_EN_REQ',
+            'zone_am' => 'ZONE_AM_REQ',
+            'sub_city_en' => 'SUB_CITY_EN_REQ',
+            'sub_city_am' => 'SUB_CITY_AM_REQ',
+            'kebele' => 'KEBELE_REQ',
+            'detailed_address_en' => 'DETAILED_ADDRESS_EN_REQ',
+            'detailed_address_am' => 'DETAILED_ADDRESS_AM_REQ',
+            'latitude' => 'LATITUDE_REQ',
+            'longitude' => 'LONGITUDE_REQ',
+            'working_hour' => 'WORKING_HOUR_REQ',
+            'contact_phone' => 'CONTACT_PHONE_REQ',
+             
+            'license_number' => 'LICENCE_REQ',
+            'hospital_ownership_type' => 'OWNERSHIP_TYPE_REQ',
+            'provides_emergency' => 'PROVIDES_EMERGENCY_REQ',
+            'operates_24_hours' => 'OPERATES_24_HOURS_REQ',
+
+            // Files
+            'license_document' => 'LICENCE_DOC_REQ',
+            'logo' => 'LOGO_REQ', 
         ]);
+        } catch (ValidationException $e) {
+    return response()->json([
+        'success' => false,
+        'code' => 'VALIDATION_FAILED',
+        'message' => 'Validation failed',
+        'errors' => $e->errors(),
+    ], 422);
+}
+
+        // 2. Check if user is already a hospital agent
+        $user = auth('sanctum')->user();
+        if (!$user) {
+            return response()->json(['success'=>false,"message"=>"unauthorized"]);
+        }else if($user->hasAnyRole(["hospitalAgent","pharmacyAgent"])){
+            return response()->json([
+                'success' => false,
+                'code' => 'ALREADY_REGISTERED_AGENT',], 200); // now frontend always sees 200
+}
 
         try {
            $user =auth('sanctum')->user();
          //  Log::info('User logged in', ['user_id' => auth('sanctum')->id(), 'ip' => request()->ip()]);
            if (!$user) {
             return response()->json(['success'=>false,"message"=>"unauthorized"]);
+           }else if($user->hasAnyRole(["hospitalAgent","pharmacyAgent"])){
+                  return response()->json([
+                    'success' => false,
+                    'code' => 'ALREADY_REGISTERED_AGENT',
+                    'message' => 'This agent is already registered.'
+                ], 200);
            }
 
             // 3. Store License Document
@@ -120,7 +174,8 @@ class HospitalController extends Controller
                 "address_description_am"=>$validated["detailed_address_am"],
                 'logo' => $logoPath,
                 'is_full_time_service' => $validated['operates_24_hours'],
-                'emergency_contact' => $validated['alternate_phone'] ?? $validated['emergency_contact'],
+                'contact_email' => $validated['contact_email'],
+                'emergency_contact' => $validated['contact_phone'],
                 'status' => 'PENDING', // Admin will approve later
             ]);
             
@@ -187,11 +242,45 @@ class HospitalController extends Controller
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Hospital $hospital)
-    {
-        //
+   public function botIndex(Request $request)
+{
+    $query = Hospital::with(['addresses'])
+        ->where('status', 'APPROVED');
+
+    // ✅ FIXED name filter
+    if ($request->name) {
+        $query->where(function ($q) use ($request) {
+            $q->where('hospital_name_en', 'LIKE', "%{$request->name}%")
+              ->orWhere('hospital_name_am', 'LIKE', "%{$request->name}%");
+        });
     }
+
+    // ✅ Location filter
+    if ($request->location) {
+        $query->whereHas('addresses', function ($q) use ($request) {
+            $q->where('region_en', 'LIKE', "%{$request->location}%")
+              ->orWhere('zone_en', 'LIKE', "%{$request->location}%")
+              ->orWhere('sub_city_en', 'LIKE', "%{$request->location}%");
+        });
+    }
+
+    $hospitals = $query->limit(5)->get();
+
+    $result = $hospitals->map(function ($h) {
+
+        $address = $h->addresses->first();
+
+        return [
+            "name" => $h->hospital_name_en, // ✅ FIXED
+            "location" => $address
+                ? "{$address->region_en}, {$address->zone_en}, {$address->sub_city_en}"
+                : "Unknown",
+            "phone" => $h->contact_phone,
+            "latitude" => $address->latitude ?? null,
+            "longitude" => $address->longitude ?? null,
+        ];
+    });
+
+    return response()->json($result);
+}
 }

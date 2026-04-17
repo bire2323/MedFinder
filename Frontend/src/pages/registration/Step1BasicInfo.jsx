@@ -36,7 +36,7 @@ const Step1BasicInfo = () => {
     facilityNameEn: '',
     facilityNameAm: '',
 
-    email: '',
+    contact_email: '',
 
     agreedToTerms: false,
   });
@@ -48,7 +48,7 @@ const Step1BasicInfo = () => {
       facilityNameEn: storeFormData.facilityNameEn || '',
       facilityNameAm: storeFormData.facilityNameAm || '',
 
-      email: storeFormData.email || '',
+      contact_email: storeFormData.contact_email || '',
 
       agreedToTerms: storeFormData.agreedToTerms || false,
     });
@@ -57,10 +57,12 @@ const Step1BasicInfo = () => {
 
   const handleNext = (e) => {
     e.preventDefault();
-
+console.log(localData);
     syncFormDataFromLocal(localData);
     if (validateStep1()) {
       navigate(`/register/${type}/location-info`);
+    }else{
+      console.log("not valid");
     }
   };
 
@@ -127,21 +129,21 @@ const Step1BasicInfo = () => {
 
 
         <div className="space-y-2">
-          <label htmlFor="email" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+          <label htmlFor="contact_email" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
             <Mail size={16} className="text-blue-500" />
             {t('Registration.EmailAddress')}<span className="text-xs text-gray-400 font-normal"></span>
           </label>
           <input
-            id="email"
+            id="contact_email"
             type="email"
             onKeyDown={handleKeyDown}
-            value={localData.email}
-            onChange={handleChange('email')}
+            value={localData.contact_email}
+            onChange={handleChange('contact_email')}
             placeholder="contact@example.com"
-            className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${errors.email ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'}`}
-            aria-describedby={errors.email ? 'email-error' : undefined}
+            className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${errors.contact_email ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'}`}
+            aria-describedby={errors.contact_email ? 'email-error' : undefined}
           />
-          {errors.email && <p id="email-error" className="text-xs text-red-500 mt-1">{errors.email}</p>}
+          {errors.contact_email && <p id="email-error" className="text-xs text-red-500 mt-1">{errors.contact_email}</p>}
         </div>
 
 
@@ -154,8 +156,8 @@ const Step1BasicInfo = () => {
                 {localData.agreedToTerms && <FileCheck size={14} className="text-white" />}
               </div>
             </div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {t('Registration.AgreeTerms')}
+            <span className="text-sm text-gray-600 dark:text-gray-400" >
+              {t('Registration.AgreeTerms')} <a href="/terms-and-conditions" className="text-blue-500 hover:underline">{t('Registration.TermsAndConditions')}</a>
               <span className="text-red-500"> *</span>
             </span>
           </label>

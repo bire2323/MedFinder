@@ -79,15 +79,15 @@ export default function LoginForm() {
   }
   return (
 
-    <div className="w-full md:w-1/2 md:p-6 lg:p-10 xl:p-24">
-    
+    <div className="w-full md:w-1/2 md:p-6 lg:p-10 xl:p-24 overflow-y-auto max-h-[80vh]">
+
 
       <h2 className="text-2xl sm:text-3xl font-bold  text-slate-900 dark:text-white">
         {t("Login.Login")}
       </h2>
       <div className="w-12 h-1 mb-14 bg-emerald-500 rounded-full mt-2" />
 
-      <form onSubmit={submit} className="space-y-4">
+      <form onSubmit={submit} className="space-y-4 ">
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-gray-200">
             {t("Login.Phone")}
@@ -161,7 +161,7 @@ export default function LoginForm() {
                   dark:hover:bg-gray-400 transform transition-all duration-500 shadow-black rounded-2xl cursor-pointer"
         onClick={() =>
         (window.location.href =
-          "http://localhost:8000/api/auth/google/redirect")
+          "https://medfinder.com/api/auth/google/redirect")
         }
       >
         <FcGoogle className="w-6 h-6" />

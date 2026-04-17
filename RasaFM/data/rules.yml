@@ -1,0 +1,63 @@
+version: "3.1"
+
+rules:
+
+  # ==================== LANGUAGE ====================
+  - rule: Set language from React frontend
+    steps:
+      - intent: set_language
+      - action: action_set_language
+
+  # ==================== GREETINGS & SMALL TALK ====================
+  - rule: Say goodbye
+    steps:
+      - intent: goodbye
+      - action: utter_goodbye
+
+  - rule: Bot challenge
+    steps:
+      - intent: bot_challenge
+      - action: utter_iamabot
+
+  # ==================== INFORMATIONAL ====================
+  - rule: App usage
+    steps:
+      - intent: ask_app_usage
+      - action: utter_app_usage
+
+  - rule: Features
+    steps:
+      - intent: ask_features
+      - action: utter_features
+
+  - rule: Developer info
+    steps:
+      - intent: ask_developer_info
+      - action: utter_developer_info
+
+  - rule: Help
+    steps:
+      - intent: ask_help
+      - action: utter_help
+
+  - rule: About app
+    steps:
+      - intent: ask_about_app
+      - action: utter_about_app
+
+  # ==================== SEARCH TASKS (Only Custom Actions) ====================
+
+  - rule: Search drug
+    steps:
+      - intent: search_drug
+      - action: action_search_drugs
+
+  - rule: Search pharmacy
+    steps:
+      - intent: search_pharmacy
+      - action: action_search_pharmacy
+
+  - rule: Search hospital
+    steps:
+      - intent: search_hospital
+      - action: action_search_hospital

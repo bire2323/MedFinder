@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { LayoutGrid, List } from "lucide-react";
 
 import Header from "../../component/Header";
 import SearchBar from "../../component/search/SearchBar";
@@ -24,7 +25,7 @@ function useDebouncedValue(value, delayMs = 250) {
 
 function matchesQuery(facility, q) {
   if (!q) return true;
-  const hay = `${facility.name || ""} ${facility.address || ""}`.toLowerCase();
+  const hay = `${facility.name || ""} ${facility.address || ""} ${facility.drugName || ""}`.toLowerCase();
   return hay.includes(q.toLowerCase());
 }
 
@@ -66,6 +67,7 @@ export default function SearchResultsHomePage() {
   const [error, setError] = useState("");
   const [allFacilities, setAllFacilities] = useState([]);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [viewMode, setViewMode] = useState("grid"); // "grid" or "list"
 
   // Pagination State
   const ITEMS_PER_PAGE = 9;
@@ -97,9 +99,14 @@ export default function SearchResultsHomePage() {
     const ac = new AbortController();
     abortRef.current = ac;
 
-    const fetchAction = facilityType === "drug"
-      ? apiFetchDrugResults(debouncedQuery, { signal: ac.signal })
-      : apiFetchFacilities({ signal: ac.signal });
+    let fetchAction;
+    if (facilityType === "drug") {
+      fetchAction = !debouncedQuery.trim() 
+        ? Promise.resolve([]) 
+        : apiFetchDrugResults(debouncedQuery, { signal: ac.signal });
+    } else {
+      fetchAction = apiFetchFacilities({ signal: ac.signal });
+    }
 
     fetchAction
       .then((rows) => setAllFacilities(rows))
@@ -110,7 +117,7 @@ export default function SearchResultsHomePage() {
       .finally(() => setLoading(false));
 
     return () => ac.abort();
-  }, [t, facilityType, debouncedQuery]);
+  }, [t, debouncedQuery, facilityType]);
 
   const facilitiesWithDistance = useMemo(() => {
     if (!userLoc) return allFacilities.map((f) => ({ ...f, distanceMeters: NaN }));
@@ -139,7 +146,36 @@ export default function SearchResultsHomePage() {
   const filtered = useMemo(() => {
     const effectiveType = filters.type || facilityType;
     const q = (debouncedQuery || "").trim();
-    return facilitiesWithDistance
+    if(filters.type === "drug"){
+      return facilitiesWithDistance
+      .filter((f) => {
+        if (effectiveType === "all") return true;
+        if (effectiveType === "drug") return f.type === "pharmacy"; 
+        return f.type === effectiveType;
+      })
+      .filter((f) => distanceBucketOk(f.distanceMeters, filters.distance))
+      .filter((f) => (filters.openNow ? Boolean(f.isFullTime || f.isOpen === true) : true))
+      .filter((f) => {
+        if (filters.department === "any") return true;
+        if (f.type !== "hospital") return true;
+        const list = (f.departments?.length ? f.departments : f.services) || [];
+        return list.some((d) => {
+          const name = typeof d === "string" ? d : d?.name || d?.department_name_en || d?.service_name_en;
+          return name === filters.department;
+        });
+      })
+      .sort((a, b) => {
+        const da = a.distanceMeters;
+        const db = b.distanceMeters;
+        const aOk = Number.isFinite(da);
+        const bOk = Number.isFinite(db);
+        if (aOk && bOk) return da - db;
+        if (aOk) return -1;
+        if (bOk) return 1;
+        return (a.name || "").localeCompare(b.name || "");
+      });
+    }else{
+       return facilitiesWithDistance
       .filter((f) => matchesQuery(f, q))
       .filter((f) => {
         if (effectiveType === "all") return true;
@@ -167,6 +203,7 @@ export default function SearchResultsHomePage() {
         if (bOk) return 1;
         return (a.name || "").localeCompare(b.name || "");
       });
+    }
   }, [debouncedQuery, facilitiesWithDistance, facilityType, filters]);
 
   // Reset pagination on filter change
@@ -178,7 +215,26 @@ export default function SearchResultsHomePage() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedResults = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const onSubmitSearch = () => { };
+  const onSubmitSearch = () => { 
+
+    if(facilityType === "drug"){
+       setLoading(true);
+    setError("");
+    if (abortRef.current) abortRef.current.abort();
+    const ac = new AbortController();
+    abortRef.current = ac;
+apiFetchDrugResults(debouncedQuery,{signal:ac.signal})
+  .then((rows) => setAllFacilities(rows))
+  .then((rows) => console.log(rows))  
+      .catch((e) => {
+        if (e?.name === "AbortError") return;
+        setError(e?.message || t("search.errors.failedToLoad"));
+      })
+      .finally(() => setLoading(false));
+
+    return () => ac.abort();
+    }
+  };
 
   const onCardClick = (f) => {
     if (f.type === "hospital") navigate(`/hospital/${f.id}`);
@@ -277,10 +333,32 @@ export default function SearchResultsHomePage() {
                       : t("search.enableLocationHint")}
                   </p>
                 </div>
-                <div className="text-sm font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-3 py-1.5 rounded-xl border border-blue-100 dark:border-blue-900/30">
-                  {loading
-                    ? t("common.loading")
-                    : t("search.resultCount", { count: filtered.length })}
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="text-sm font-black text-slate-800 dark:text-white bg-slate-50 dark:bg-slate-950/40 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-900/30">
+                    {loading
+                      ? t("common.loading")
+                      : t("search.resultCount", { count: filtered.length })}
+                  </div>
+                  
+                  {/* View Mode Toggler */}
+                  <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-gray-800 rounded-xl p-1 shadow-sm">
+                     <button
+                       type="button"
+                       onClick={() => setViewMode("grid")}
+                       className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${viewMode === "grid" ? "bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"}`}
+                       title="Grid View"
+                     >
+                       <LayoutGrid size={18} />
+                     </button>
+                     <button
+                       type="button"
+                       onClick={() => setViewMode("list")}
+                       className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${viewMode === "list" ? "bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"}`}
+                       title="List View"
+                     >
+                       <List size={18} />
+                     </button>
+                  </div>
                 </div>
               </div>
 
@@ -325,9 +403,9 @@ export default function SearchResultsHomePage() {
 
               {!error && !loading && filtered.length > 0 && (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" : "flex flex-col gap-4"}>
                     {paginatedResults.map((f) => (
-                      <ResultCard key={`${f.type}-${f.id}`} facility={f} onClick={() => onCardClick(f)} />
+                      <ResultCard key={`${f.type}-${f.id}`} facility={f} onClick={() => onCardClick(f)} viewMode={viewMode} />
                     ))}
                   </div>
 

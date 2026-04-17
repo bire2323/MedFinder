@@ -17,7 +17,7 @@ export const useNotifications = (currentUserId, onNewMessage) => {
                 else { console.warn('[useNotifications] Echo unavailable. Notifications disabled.'); }
                 return;
             }
-
+            console.log(currentUserId);
             channel = window.Echo.private(`user.${currentUserId}`)
                 .listen('.message.sent', (e) => {
                     onNewMessage?.(e);
@@ -37,7 +37,7 @@ export const useNotifications = (currentUserId, onNewMessage) => {
 
 export const useSystemNotifications = (currentUserId, onNotificationReceived) => {
     const callbackRef = useRef(onNotificationReceived);
-    
+
     useEffect(() => {
         callbackRef.current = onNotificationReceived;
     }, [onNotificationReceived]);

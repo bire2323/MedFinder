@@ -238,7 +238,7 @@ const Step3PharmacyVerification = () => {
         {/* Working Hours */}
         <div className="space-y-2">
           <label
-            htmlFor="workingHours"
+            htmlFor="working_hour"
             className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
           >
             <Clock size={16} className="text-blue-500" />
@@ -246,16 +246,16 @@ const Step3PharmacyVerification = () => {
             <span className="text-red-500">*</span>
           </label>
           <input
-            id="workingHour"
+            id="working_hour"
             type="text"
             onKeyDown={handleKeyDown}
-            value={localData.workingHour}
-            onChange={handleChange('workingHour')}
+            value={localData.working_hour}
+            onChange={handleChange('working_hour')}
             placeholder="e.g., 08:00 - 20:00 or 24/7"
             className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${errors.workingHours ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'}`}
           />
-          {errors.workingHours && (
-            <p className="text-xs text-red-500">{errors.workingHour}</p>
+          {errors.working_hour && (
+            <p className="text-xs text-red-500">{errors.working_hour}</p>
           )}
         </div>
 
@@ -311,7 +311,7 @@ const Step3PharmacyVerification = () => {
             onChange={handleLogoUpload}
             className="opacity-0 absolute pointer-events-none"
             name='file'
-            required
+            
           />
         </div>
 

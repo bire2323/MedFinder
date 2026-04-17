@@ -1,12 +1,27 @@
+import { detectLanguage } from "../hooks/DetectLanguage";
 import { apiFetch, ensureCsrfCookie } from "./client";
 
 async function sendMessage(text) {
-  await ensureCsrfCookie();
-  return apiFetch("/api/detectIntent", {
+  // await ensureCsrfCookie();
+  //  return apiFetch("/api/detectIntent", {
+  //    method: "POST",
+  //   headers: { "Content-Type": "application/json" },
+  // body: JSON.stringify({ question: text }),
+  // });
+  const res = await fetch('https://medfinder.com/webhooks/rest/webhook', {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question: text }),
-  });
+    body: JSON.stringify({
+      sender: "patient_001", message: text, entities: [
+        {
+          entity: "language",
+          value: detectLanguage(text)
+        }
+      ]
+    }),
+  })
+  return res.json();
+
 }
 
 export const getTriage = async (symptoms) => {

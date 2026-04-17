@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
 function safeFloat(v) {
   const n = typeof v === "string" ? parseFloat(v) : typeof v === "number" ? v : NaN;
@@ -46,7 +46,7 @@ function normalizeFacility(f) {
 }
 
 export async function apiFetchFacilities({ signal } = {}) {
-  const res = await fetch(`${API_BASE}/medical-facilities`, {
+  const res = await fetch(`${API_BASE}/api/medical-facilities`, {
     method: "GET",
     headers: { Accept: "application/json" },
     signal,
@@ -60,18 +60,29 @@ export async function apiFetchFacilities({ signal } = {}) {
 }
 
 export async function apiFetchDrugResults(medicineName, { signal } = {}) {
-  // Mocking the drug search endpoint
-  // In a real app: const res = await fetch(`${API_BASE}/medicines/search?query=${medicineName}`, { ... });
+  const res = await fetch(`${API_BASE}/api/pharmacy/inventory/medicines/search?query=${medicineName}`, {
+    method: "GET",
+    headers: { Accept: "application/json" },
+    signal,
+  });
 
-  // For now, let's fetch all pharmacies and simulate a drug result
-  const facilities = await apiFetchFacilities({ signal });
-  const pharmacies = facilities.filter(f => f.type === 'pharmacy');
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(txt || `Failed to load drug results (${res.status})`);
+  }
 
-  // Randomly add drug info to some pharmacies for demonstration
-  return pharmacies.map(p => ({
-    ...p,
-    drugPrice: (Math.random() * 500 + 50).toFixed(2), // Random price
-    drugAvailability: Math.random() > 0.3 ? 'available' : 'not_available'
-  }));
+  const data = await res.json();
+  return data.map(item => {
+    // Normalize the pharmacy facility object so that lat, lng, name, address, etc. exist
+    const normalized = normalizeFacility(item);
+
+    return {
+      ...normalized,
+      drugPrice: item.drugPrice,
+      expire_date: item.expire_date,
+      drugAvailability: item.drugAvailability,
+      drugName: item.drugName
+    };
+  });
 }
 

@@ -1,0 +1,1370 @@
+version: "3.1"
+
+nlu:
+  - intent: greet
+    examples: |
+      - hey
+      - hello
+      - hi
+      - hello there
+      - good morning
+      - good evening
+      - moin
+      - hey there
+      - let's go
+      - hey dude
+      - goodmorning
+      - goodevening
+      - good afternoon
+
+  - intent: goodbye
+    examples: |
+      - cu
+      - good by
+      - cee you later
+      - good night
+      - bye
+      - goodbye
+      - have a nice day
+      - see you around
+      - bye bye
+      - see you later
+
+  - intent: affirm
+    examples: |
+      - yes
+      - y
+      - indeed
+      - of course
+      - that sounds good
+      - correct
+
+  - intent: deny
+    examples: |
+      - no
+      - n
+      - never
+      - I don't think so
+      - don't like that
+      - no way
+      - not really
+
+  - intent: mood_great
+    examples: |
+      - perfect
+      - great
+      - amazing
+      - feeling like a king
+      - wonderful
+      - I am feeling very good
+      - I am great
+      - I am amazing
+      - I am going to save the world
+      - super stoked
+      - extremely good
+      - so so perfect
+      - so good
+      - so perfect
+
+  - intent: mood_unhappy
+    examples: |
+      - my day was horrible
+      - I am sad
+      - I don't feel very well
+      - I am disappointed
+      - super sad
+      - I'm so sad
+      - sad
+      - very sad
+      - unhappy
+      - not good
+      - not very good
+      - extremly sad
+      - so saad
+      - so sad
+
+  - intent: bot_challenge
+    examples: |
+      - are you a bot?
+      - are you a human?
+      - am I talking to a bot?
+      - am I talking to a human?
+      - are you a human or a bot?
+      - are you a bot or a human?
+      - are you a human or a machine?
+      - are you a machine or a human?
+      - are you a machine or a bot?
+      - are you a bot or a machine?
+      - are you a machine?
+      - are you a bot?
+  - intent: search_hospital
+    examples: |
+      - find a hospital with [cardiology](medical_service)
+      - do you know any hospitals offering [ICU](medical_service) services?
+      - hospital near me with [maternity ward](medical_service)
+      - I need a [pediatric](medical_service) hospital in [Addis Ababa](location)
+      - where is the nearest [emergency](medical_service) room?
+      - list hospitals that have [surgery](medical_service) facilities
+      - is there a [laboratory](medical_service) at [Black Lion Hospital](hospital_name)?
+      - I'm looking for [St. Paul's Hospital](hospital_name)
+      - search for [cardiology](medical_service) clinics in [Bole](location)
+      - show me hospitals with [intensive care](medical_service) units
+      - find [maternity](medical_service) services near [Arada](location)
+      - which hospital has a good [orthopedics](medical_service) department?
+      - I need an [ER](medical_service) near [Kazanchis](location)
+      - locate [Zewditu Hospital](hospital_name)
+      - are there any [dialysis](medical_service) centers in [Gondar](location)?
+      - I need a [neurologist](medical_service) at [Hayat Hospital](hospital_name)
+      - find a [dentist](medical_service) in [Hawassa](location)
+      - where can I find [radiology](medical_service) services?
+      - looking for [Landmark Hospital](hospital_name) in [Addis](location)
+      - find me an [oncology](medical_service) specialist
+      - is there an [ICU](medical_service) at [Bethel Hospital](hospital_name)?
+      - search for [internal medicine](medical_service) in [Mekelle](location)
+      - show hospitals with [physiotherapy](medical_service)
+      - I need a [pediatrician](medical_service) near [Lideta](location)
+      - where is the [ENT](medical_service) department in [Nordic Medical Center](hospital_name)?
+      - find a hospital with [cardiology](medical_service)
+      - do you know any hospitals offering [ICU](medical_service) services?
+      - hospital near me with [maternity ward](medical_service)
+      - I need a [pediatric](medical_service) hospital in [Addis Ababa](location)
+      - search for [cardiology](medical_service) clinics in [Bole](location)
+      - show me hospitals with [intensive care](medical_service) units
+      - find [maternity](medical_service) services near [Arada](location)
+      - which hospital has a good [orthopedics](medical_service) department?
+      - I need an [ER](medical_service) near [Kazanchis](location)
+      - locate [Zewditu Hospital](hospital_name)
+      - [የልብ ህክምና](medical_service) ያለው ሆስፒታል ፈልግልኝ
+      - [ICU](medical_service) አገልግሎት የሚሰጡ ሆስፒታሎችን ታውቃለህ?
+      - [የእናቶች መውለጃ](medical_service) ያለው ሆስፒታል እፈልጋለሁ
+      - [አዲስ አበባ](location) ውስጥ [የህፃናት](medical_service) ሆስፒታል እፈልጋለሁ
+      - [ቀዶ ጥገና](medical_service) ያላቸው ሆስፒታሎችን ዘርዝር
+      - [ጥቁር አንበሳ ሆስፒታል](hospital_name) ውስጥ [ላቦራቶሪ](medical_service) አለ?
+      - [ቅዱስ ጳውሎስ ሆስፒታል](hospital_name) የት ነው የሚገኘው?
+      - [ቦሌ](location) አካባቢ [የልብ](medical_service) ክሊኒክ ፈልግ
+      - [ካዛንቺስ](location) አካባቢ [ER](medical_service) እፈልጋለሁ
+      - [ዘውዲቱ ሆስፒታል](hospital_name) የት ነው?
+      - find a [dentist](medical_service) in [Hawassa](location)
+      - where is the [ENT](medical_service) department in [Nordic](hospital_name)?
+      - is there a [maternity](medical_service) ward at [Landmark](hospital_name)?
+      - [ሀያት ሆስፒታል](hospital_name) ውስጥ [የነርቭ](medical_service) ሀኪም እፈልጋለሁ
+      - [ጋንዲ](hospital_name) ሆስፒታል [መውለጃ](medical_service) አለው?
+      - list [oncology](medical_service) services at [St. Paul](hospital_name)
+      - [የራጅ](medical_service) አገልግሎት [ጥቁር አንበሳ](hospital_name) አለ?
+      - locate [Tibebe Ghion](hospital_name) in [Bahir Dar](location)
+      - show hospitals with [physiotherapy](medical_service) in [Adama](location)
+      - I need to find [Red Cross](hospital_name)
+      - [የአጥንት](medical_service) ህክምና [አሚን ሆስፒታል](hospital_name) ይገኛል?
+  - intent: search_pharmacy
+    examples: |
+      - find pharmacy in [Gondar](location)
+      - pharmacy in [Addis Ababa](location)
+      - pharmacies around [Arada](location)
+      - where is the nearest pharmacy in [Bole](location)?
+      - look for a drugstore in [Bahir Dar](location)
+      - I need a chemist near [Mekelle](location)
+      - are there any pharmacies in [Adama](location)?
+      - search for pharmacies in [Hawassa](location)
+      - find me a medical store in [Dire Dawa](location)
+      - show me pharmacies near [Piassa](location)
+      - is there a pharmacy around [Kazanchis](location)?
+      - I'm looking for a pharmacy in [Jimma](location)
+      - list pharmacies in [Dessie](location)
+      - locate a drugstore near [Jigo](location)
+      - find a 24 hour pharmacy in [Kirkos](location)
+      - nearby pharmacies in [Lideta](location)
+      - medicine shop in [Akaki Kality](location)
+      - I need to buy medicine in [Nifas Silk](location)
+      - show pharmacies in [Shashemene](location)
+      - drugstore search for [Hoseana](location)
+      - where can I get drugs in [Debre Markos](location)?
+      - help me find a pharmacy in [Wolaita Sodo](location)
+  - intent: search_drug
+    examples: |
+      - Where can I find [aluminium ntricum](drug_name)?
+      - is [tizanidne](drug_name) in stock?
+      - Price of [synthroid](drug_name)
+      - Who has [microzide](drug_name)?
+      - Who has [tranexamic acid](drug_name)?
+      - Is there anywhere selling [trametinib](drug_name)?
+      - I'm searching for [aspirin](drug_name)
+      - I want to buy [nitrous oxide](drug_name)
+      - [ampicillin](drug_name)
+      - [sacubitril](drug_name)
+      - is [ambrosia artemisiaefolia](drug_name) in stock?
+      - I want to buy [hepar suis](drug_name)
+      - Can I get [amphetamine](drug_name) here?
+      - need to buy [prednisolone](drug_name)
+      - Looking for [oxybenzone](drug_name)
+      - [lactulose](drug_name)
+      - is [simvastatin](drug_name) in stock?
+      - Do you sell [hypericum perfomatum](drug_name)?
+      - Is [diclofenac](drug_name) available?
+      - [zithromax](drug_name)
+      - is [chloride](drug_name) in stock?
+      - Check availability for [tramadol](drug_name)
+      - Find me [selenium](drug_name)
+      - Where can I find [polymyxin b](drug_name)?
+      - Can you find [entresto](drug_name) for me?
+      - Looking for [fucus vesiculosus](drug_name)
+      - [inderal](drug_name)
+      - Check availability for [chlor trimeton](drug_name)
+      - Price of [veradex-e](drug_name)
+      - I want to buy [olanzapine](drug_name)
+      - [clonazepam](drug_name)
+      - [atropine](drug_name)
+      - Find me [baptisia tinctoria](drug_name)
+      - Can you find [methylprednislone](drug_name) for me?
+      - Is there anywhere selling [dicyclomine](drug_name)?
+      - Is there anywhere selling [tricor](drug_name)?
+      - [sudafed](drug_name)
+      - [nitricum acidum](drug_name)
+      - [hypophysis suis](drug_name)
+      - is [methotrexate](drug_name) in stock?
+      - Price of [aleve](drug_name)
+      - [dimenhydrinate](drug_name) near me
+      - I want to buy [iclevia](drug_name)
+      - Who has [eucalyptus oil](drug_name)?
+      - Price of [nityr](drug_name)
+      - I am looking for [wyethia helenioides](drug_name)
+      - I want to buy [carduus marianus](drug_name)
+      - Is [wyethia helenioides](drug_name) available?
+      - is [codeine](drug_name) in stock?
+      - Find me [ultram](drug_name)
+      - I am looking for [jardiance](drug_name)
+      - Can you find [ammoniu bromatum](drug_name) for me?
+      - Do you sell [zestril](drug_name)?
+      - Can you find [cozaar](drug_name) for me?
+      - is [mesalamine](drug_name) in stock?
+      - Do any pharmacies have [euphrasia officinalis](drug_name) in stock?
+      - Who has [sildenafil](drug_name)?
+      - I need [ziprasidone](drug_name)
+      - Can you find [ornithogalum umbellatum](drug_name) for me?
+      - need to buy [capecitabine](drug_name)
+      - Is there anywhere selling [octisalate](drug_name)?
+      - [panadol](drug_name)
+      - need to buy [ativan](drug_name)
+      - I want to buy [methyl salicylate](drug_name)
+      - Check availability for [leflunomide](drug_name)
+      - Search for [flomax](drug_name)
+      - Find me [levaquin](drug_name)
+      - Can you find [farxiga](drug_name) for me?
+      - Search for [benzalkonium chloride](drug_name)
+      - Price of [celebrex](drug_name)
+      - I am looking for [ambrosia artemisiaefolia](drug_name)
+      - Where can I find [valtrex](drug_name)?
+      - Find me [diltiazem](drug_name)
+      - Find me [tetracycline](drug_name)
+      - Is there anywhere selling [inderal](drug_name)?
+      - Looking for [trimethoprim](drug_name)
+      - Is there anywhere selling [eliquis](drug_name)?
+      - [avobenzoneoctisalateoctocrylene](drug_name) price
+      - Do any pharmacies have [natrum sulphuricum](drug_name) in stock?
+      - I'd like to purchase [zolft](drug_name)
+      - Where can I find [decadron](drug_name)?
+      - Check availability for [chlorthalidone](drug_name)
+      - [coumadin](drug_name)
+      - [trimethoprim](drug_name) price
+      - [lopressor](drug_name) price
+      - Can I get [spiriva](drug_name) here?
+      - Do you sell [aldactone](drug_name)?
+      - Is [naphazoline](drug_name) available?
+      - Is [dextromethorphan hbr](drug_name) available?
+      - [niacinamide](drug_name)
+      - Who has [sulphur](drug_name)?
+      - Who has [rapidol aspirin](drug_name)?
+      - [clopidogrel bi](drug_name)
+      - [magnesium hydroxide](drug_name)
+      - Is [apixaban](drug_name) available?
+      - [wyethia helenioides](drug_name) price
+      - Do you have [phosphoric acid](drug_name) nearby?
+      - Can you find [bacitracin zinc](drug_name) for me?
+      - Search for [zovirax](drug_name)
+      - is [synthroid](drug_name) in stock?
+      - Do you have [levothyroxine](drug_name) nearby?
+      - [ciprofloxacin](drug_name)
+      - Do you sell [celebrex](drug_name)?
+      - I'm searching for [tetrahydrozoline](drug_name)
+      - Search for [cipro](drug_name)
+      - Looking for [januvia](drug_name)
+      - [sulbactam](drug_name)
+      - Price of [olanzapine](drug_name)
+      - I'm searching for [cortef](drug_name)
+      - Do you have [dexamethasone](drug_name) nearby?
+      - Price of [sulfamylon](drug_name)
+      - Do you sell [amaryl](drug_name)?
+      - need to buy [atropine](drug_name)
+      - Where can I find [colcrys](drug_name)?
+      - Where can I find [chlor trimeton](drug_name)?
+      - Price of [dexamethasone](drug_name)
+      - Who has [zoledronic acid](drug_name)?
+      - [silicea](drug_name) near me
+      - Search for [zyloprim](drug_name)
+      - Is there anywhere selling [witch hazel](drug_name)?
+      - Do any pharmacies have [sinapis nigra](drug_name) in stock?
+      - I need [palonosetron](drug_name)
+      - Is [pepcid](drug_name) available?
+      - I need [cephalosporin](drug_name)
+      - need to buy [benzedrex](drug_name)
+      - [silicea](drug_name)
+      - Search for [ustilago maydis](drug_name)
+      - I'm searching for [zantac](drug_name)
+      - [ambrosia artemisiaefolia](drug_name)
+      - Price of [valsartan](drug_name)
+      - I'd like to purchase [singulair](drug_name)
+      - [fluoride](drug_name)
+      - [oxygen](drug_name)
+      - Find me [etodolac](drug_name)
+      - Check availability for [amphetamine aspartate](drug_name)
+      - [cephaosporin](drug_name) near me
+      - I want to buy [etodolac](drug_name)
+      - I need [aluminium fluoratum](drug_name)
+      - Can I get [clonidine](drug_name) here?
+      - [amitriptyline](drug_name) price
+      - need to buy [cefazolin](drug_name)
+      - I need [caffeine](drug_name)
+      - Is there anywhere selling [zocor](drug_name)?
+      - [glucotrol](drug_name)
+      - is [argentum metalicum](drug_name) in stock?
+      - is [pulmicort](drug_name) in stock?
+      - [silver sulfadiazine](drug_name)
+      - Find me [omeprazole](drug_name)
+      - Do any pharmacies have [benzoyl peroxide](drug_name) in stock?
+      - [penicillin](drug_name)
+      - I'm searching for [nitrous oxide](drug_name)
+      - need to buy [azacitidine for](drug_name)
+      - Price of [dextromethorphan hbr](drug_name)
+      - I'm searching for [naproxen](drug_name)
+      - Price of [neomycin](drug_name)
+      - Is [tricor](drug_name) available?
+      - [xanax](drug_name)
+      - Price of [calcium](drug_name)
+      - [decitabine](drug_name)
+      - Is there anywhere selling [merol](drug_name)?
+      - Do you have [trimethoprim](drug_name) nearby?
+      - [phenazopyridine](drug_name)
+      - I want to buy [amaryl](drug_name)
+      - Find me [trametinib](drug_name)
+      - Search for [azithromycin](drug_name)
+      - Do any pharmacies have [lacosamide](drug_name) in stock?
+      - I'm searching for [benzocaine](drug_name)
+      - Do you have [tessalon](drug_name) nearby?
+      - I am looking for [celexa](drug_name)
+      - [potassium chloride](drug_name) near me
+      - [isopropyl alcohol](drug_name)
+      - Looking for [garlic](drug_name)
+      - Who has [cefzolin](drug_name)?
+      - Looking for [ziprasidone](drug_name)
+      - need to buy [atenolol](drug_name)
+      - [lorlatinib](drug_name)
+      - [apis mellifica](drug_name)
+      - Can I get [maxalt-mlt](drug_name) here?
+      - [lubiprostone](drug_name)
+      - [fluconazole](drug_name) price
+      - I want to buy [nitisinone](drug_name)
+      - Find me [eszopiclone](drug_name)
+      - Can I get [medrol](drug_name) here?
+      - I want to buy [histastat pollen](drug_name)
+      - is [doxylamine uccinate](drug_name) in stock?
+      - [codeine](drug_name)
+      - [zestril](drug_name) near me
+      - Can you find [valtrex](drug_name) for me?
+      - Do you have [fluoxetine](drug_name) nearby?
+      - Find me [tetrahydrozoline](drug_name)
+      - Where can I find [avobenzoneoctisalateoctocrylene](drug_name)?
+      - Do you sell [mesalamine](drug_name)?
+      - Do you have [cistus canadensis](drug_name) nearby?
+      - Who has [prednisone](drug_name)?
+      - Can you find [mirabegron](drug_name) for me?
+      - Where can I find [prilosec](drug_name)?
+      - Can I get [pheneran](drug_name) here?
+      - I want to buy [plumbum metallicum](drug_name)
+      - Do any pharmacies have [ranolazine](drug_name) in stock?
+      - Where can I find [allium cepa](drug_name)?
+      - Is there anywhere selling [atropine](drug_name)?
+      - I want to buy [indomethacin](drug_name)
+      - Price of [tetrahydrozoline](drug_name)
+      - I want to buy [lexapro](drug_name)
+      - Who has [thuja occidentalis](drug_name)?
+      - Do you have [nicotine polacrilex](drug_name) nearby?
+      - Looking for [prednisolone](drug_name)
+      - Do any pharmacies have [alprazolam](drug_name) in stock?
+      - Can you find [carvedilol](drug_name) for me?
+      - Search for [rosuvastatin](drug_name)
+      - Can you find [benadryl](drug_name) for me?
+      - I'd like to purchase [benzocaine](drug_name)
+      - Search for [pred forte](drug_name)
+      - I want to buy [synthroid](drug_name)
+      - [leflunomide](drug_name)
+      - [spironolactone](drug_name)
+      - need to buy [etodolac](drug_name)
+      - Is [tetrahydrozoline](drug_name) available?
+      - is [pepcid](drug_name) in stock?
+      - Can you find [leuprlide](drug_name) for me?
+      - Is [lacosamide](drug_name) available?
+      - Is [pulsatilla pratensis](drug_name) available?
+      - need to buy [sudafed](drug_name)
+      - Do you sell [lexapro](drug_name)?
+      - I want to buy [phenaopyridine](drug_name)
+      - I'm searching for [zyloprim](drug_name)
+      - Looking for [plavix](drug_name)
+      - Find me [neomycin](drug_name)
+      - I'm searching for [cistus canadensis](drug_name)
+      - Do you have [voltaren](drug_name) nearby?
+      - Where can I find [diltiazem](drug_name)?
+      - I'd like to purchase [simethicone](drug_name)
+      - Looking for [cephalosporin](drug_name)
+      - [flomax](drug_name)
+      - Can you find [thallium](drug_name) for me?
+      - Where can I find [trexall](drug_name)?
+      - [medrol](drug_name)
+      - Do you sell [caffeine](drug_name)?
+      - Price of [gastrocrom](drug_name)
+      - I am looking for [bupropin](drug_name)
+      - Price of [octocrylene](drug_name)
+      - I am looking for [varenicline](drug_name)
+      - I'm searching for [metoprolol tartrate](drug_name)
+      - Do any pharmacies have [hypophysis suis](drug_name) in stock?
+      - Is there anywhere selling [ketorolac tromethamine](drug_name)?
+      - Looking for [petrolatum](drug_name)
+      - Is [niacinamide](drug_name) available?
+      - Who has [lupron depot](drug_name)?
+      - is [prednisolone](drug_name) in stock?
+      - Check availability for [synhroid](drug_name)
+      - I'd like to purchase [mirvetuximab soravtansine](drug_name)
+      - I'd like to purchase [dch scar](drug_name)
+      - Can I get [mercurius vivus](drug_name) here?
+      - Do you have [xanax](drug_name) nearby?
+      - I'm searching for [zofran](drug_name)
+      - Is there anywhere selling [petrolatum](drug_name)?
+      - Do any pharmacies have [oxygen](drug_name) in stock?
+      - [reglan](drug_name)
+      - need to buy [desyrel](drug_name)
+      - Can you find [tylenol](drug_name) for me?
+      - is [decadron](drug_name) in stock?
+      - Do you have [niacinamide](drug_name) nearby?
+      - Is [panadol](drug_name) available?
+      - Looking for [kali phosphoricum](drug_name)
+      - need to buy [levothyroxine](drug_name)
+      - I want to buy [bacitracin](drug_name)
+      - Where can I find [zinc oxide](drug_name)?
+      - Can I get [aluminum chlorohydrate](drug_name) here?
+      - is [witch hazel](drug_name) in stock?
+      - need to buy [lamivudine](drug_name)
+      - Search for [flagyl](drug_name)
+      - Can you find [cialis](drug_name) for me?
+      - Check availability for [caffeine](drug_name)
+      - I'd like to purchase [deltasone](drug_name)
+      - Can you find [flonase](drug_name) for me?
+      - Where can I find [tarentula hispana](drug_name)?
+      - Do you have [singulair](drug_name) nearby?
+      - Search for [promethazine](drug_name)
+      - I want to buy [symphytum officinale](drug_name)
+      - Who has [cholestyramine light](drug_name)?
+      - Do you sell [echinacea angustifolia](drug_name)?
+      - Can you find [trandolapril](drug_name) for me?
+      - Price of [ondnsetron](drug_name)
+      - Is [celexa](drug_name) available?
+      - Looking for [doxycycline hyclate](drug_name)
+      - [prevacid](drug_name) price
+      - Do you sell [neurontin](drug_name)?
+      - I'd like to purchase [aleve](drug_name)
+      - I am looking for [titanium dioxide](drug_name)
+      - [white petrolatum](drug_name)
+      - I want to buy [coumadin](drug_name)
+      - Search for [cisplatin](drug_name)
+      - I am looking for [neomycin](drug_name)
+      - Who has [benzoyl peroxide](drug_name)?
+  
+  - intent: ask_app_usage
+    examples: |
+      - how do I use this app
+      - how does this system work
+      - guide me
+
+  - intent: ask_developer_info
+    examples: |
+      - who developed this app
+      - who created this system
+      - developer info
+
+  - intent: ask_help
+    examples: |
+      - help me
+      - what can I ask
+      - what can you do
+  - intent: ask_about_app
+    examples: |
+      - tell me about this app
+      - what is this app about
+      - what is this system for 
+      - what is this system about
+      - what is this app does
+      - importance of this app
+      - why should I use this app
+
+  - lookup: drug_name
+    examples: |
+      - acetaminophen
+      - aconitum napellus
+      - acyclovir
+      - adenosine
+      - adrenalinum
+      - advil
+      - agaricus muscarius
+      - albuterol
+      - aldactone
+      - aleve
+      - allegra
+      - allium cepa
+      - allopurinol
+      - alprazolam
+      - aluminium fluoratum
+      - aluminium nitricum
+      - aluminium phosphoricum
+      - aluminium sulphuricum
+      - aluminum chlorohydrate
+      - aluminum sesquichlorohydrate
+      - amanita pantherina
+      - amaryl
+      - ambrosia artemisiaefolia
+      - amitriptyline
+      - amlodipine
+      - ammonium bromatum
+      - ammonium carbonicum
+      - ammonium causticum
+      - ammonium muriaticum
+      - ammonium phosphoricum
+      - amoxicillin
+      - amoxil
+      - amphetamine
+      - amphetamine aspartate
+      - ampicillin
+      - anestenka
+      - apis mellifica
+      - apixaban
+      - argentum metalicum
+      - arsenicum album
+      - ascorbic acid
+      - aspirin
+      - atenolol
+      - ativan
+      - atorvastatin
+      - atropine
+      - avagard d
+      - avobenzone
+      - avobenzoneoctisalateoctocrylene
+      - azacitidine
+      - azacitidine for
+      - azithromycin
+      - azstarys
+      - bacitracin
+      - bacitracin zinc
+      - baclofen
+      - baclofen injection
+      - bactrim
+      - baptisia tinctoria
+      - bellis perennis
+      - benadryl
+      - bentyl
+      - benzalkonium chloride
+      - benzedrex
+      - benzocaine
+      - benzonatate
+      - benzoyl peroxide
+      - betadine
+      - betamethasone dipropionate
+      - biofreeze
+      - biofreeze professional
+      - bkemv
+      - borax
+      - brompheniramine
+      - brufen
+      - bryonia root
+      - budesonide
+      - bupropion
+      - bupropion  xl
+      - cadmium
+      - cadmium sulphuratum
+      - caffeine
+      - calcium
+      - calcium carbonate
+      - calcium cation
+      - camphor
+      - camphor synthetic
+      - capecitabine
+      - capsaicin
+      - carbamide peroxide
+      - carduus marianus
+      - carvedilol
+      - castor oil
+      - cefazolin
+      - celebrex
+      - celecoxib
+      - celexa
+      - cephalexin
+      - cephalosporin
+      - cetirizine
+      - chlor trimeton
+      - chlor-trimeton
+      - chloride
+      - chloroxylenol
+      - chlorpheniramine
+      - chlorthalidone
+      - cholestyramine light
+      - cialis
+      - cipro
+      - ciprofloxacin
+      - cisplatin
+      - cistus canadensis
+      - citalopram
+      - claritin
+      - cleocin
+      - clindamycin
+      - clonazepam
+      - clonidine
+      - clopidogrel
+      - clopidogrel bi
+      - clotrimazole
+      - codeine
+      - coffea cruda
+      - colchicine
+      - colcrys
+      - coreg
+      - cortef
+      - cortifoam
+      - coumadin
+      - cozaar
+      - crestor
+      - cromolyn
+      - cuprum met
+      - cuprum metallicum
+      - cyclobenzaprine
+      - cymbalta
+      - dapagliflozin
+      - dch hemorrhoidal
+      - dch scar
+      - decadron
+      - decitabine
+      - delsym
+      - deltasone
+      - desyrel
+      - dexamethasone
+      - dexmethylphenidate
+      - dextroamphetamine
+      - dextroamphetamine saccharate
+      - dextromethorphan
+      - dextromethorphan hbr
+      - diclofenac
+      - dicyclomine
+      - diflucan
+      - diltiazem
+      - dimenhydrinate
+      - dimethicone
+      - diphenhydramine
+      - dipyridamole
+      - divalproex
+      - docetaxel
+      - doxepin
+      - doxorubicin
+      - doxycycline
+      - doxycycline hyclate
+      - doxylamine succinate
+      - duloxetine
+      - duloxetine delayed-release
+      - echinacea angustifolia
+      - eculizumab-aeeb
+      - effexor
+      - elahere
+      - eliquis
+      - empagliflozin
+      - entecavir
+      - entresto
+      - enulose
+      - eptifibatide
+      - erythromycin
+      - escitalopram
+      - esomeprazole
+      - esomeprazole magnesium
+      - eszopiclone
+      - ethyl alcohol
+      - etodolac
+      - eucalyptus oil
+      - euphrasia officinalis
+      - ezetimibe
+      - famotidine
+      - farxiga
+      - fenofibrate
+      - ferrum metallicum
+      - fexofenadine
+      - finasteride
+      - flagyl
+      - flexeril
+      - flomax
+      - flonase
+      - fluconazole
+      - fludrocortisone
+      - fluoride
+      - fluoxetine
+      - fluticasone
+      - fluticasone propionate
+      - fucus vesiculosus
+      - furosemide
+      - gabapentin
+      - gablofen
+      - gadobutrol
+      - galium aparine
+      - garlic
+      - gastrocrom
+      - gaunfacine
+      - glimepiride
+      - glipizide
+      - glucophage
+      - glucotrol
+      - glycerin
+      - graphite
+      - guaifenesin
+      - guanfacine
+      - haloperidol
+      - hepar suis
+      - histaminum hydrochloricum
+      - histastat pollen
+      - homosalate
+      - humalog
+      - hydrochlorothiazide
+      - hydrocortisone
+      - hydroxychloroquine
+      - hypericum perfomatum
+      - hypericum perforatum
+      - hypophysis
+      - hypophysis suis
+      - ibuprofen
+      - iclevia
+      - inderal
+      - indomethacin
+      - insulin
+      - insulin aspart
+      - insulin glargine
+      - insulin lispro
+      - isopropyl alcohol
+      - januvia
+      - jardiance
+      - kali phosphoricum
+      - keflex
+      - ketoconazole
+      - ketorolac tromethamine
+      - klonopin
+      - lacosamide
+      - lactulose
+      - lamivudine
+      - lamotrigine
+      - lanolin
+      - lansoprazole
+      - lantus
+      - lasix
+      - leflunomide
+      - leuprolide
+      - levaquin
+      - levofloxacin
+      - levothyroxine
+      - lexapro
+      - lidocaine
+      - lipitor
+      - lisinopril
+      - lopressor
+      - loratadine
+      - lorazepam
+      - lorbrena
+      - lorlatinib
+      - losartan
+      - lubiprostone
+      - lupron depot
+      - macrobid
+      - mafenide
+      - magnesia phosphorica
+      - magnesium hydroxide
+      - manganum metallicum
+      - maxalt
+      - maxalt-mlt
+      - medrol
+      - mekinist
+      - meloxicam
+      - menthol
+      - mercurius vivus
+      - mesalamine
+      - metformin
+      - methocarbamol
+      - methotrexate
+      - methyl salicylate
+      - methylprednisolone
+      - metoclopramide
+      - metoprolol
+      - metoprolol tartrate
+      - metronidazole
+      - microzide
+      - minoxidil
+      - mirabegron
+      - mirvetuximab soravtansine
+      - mobic
+      - monofluoro
+      - montelukast
+      - motrin
+      - mucinex
+      - naltrexone
+      - naphazoline
+      - naproxen
+      - natrum muriaticum
+      - natrum sulphuricum
+      - neomycin
+      - neurontin
+      - nexium
+      - niacinamide
+      - nicotine polacrilex
+      - nitisinone
+      - nitricum acidum
+      - nitrofurantoin
+      - nitrous oxide
+      - nityr
+      - norvasc
+      - novolog
+      - nux vomica
+      - oat
+      - octinoxate
+      - octisalate
+      - octocrylene
+      - olanzapine
+      - omeprazole
+      - ondansetron
+      - orfadin
+      - ornithogalum umbellatum
+      - oseltamivir
+      - oxybenzone
+      - oxygen
+      - palonosetron
+      - panadol
+      - pantoprazole
+      - paracetamol
+      - penicillin
+      - pepcid
+      - perphenazine
+      - petrolatum
+      - phenazopyridine
+      - phenergan
+      - phenylephrine
+      - phosphoric acid
+      - phosphorus
+      - phytolacca decandra
+      - plaquenil
+      - plavix
+      - plumbum metallicum
+      - polymyxin b
+      - potassium chloride
+      - povidone-iodine
+      - pramipexole di
+      - pravachol
+      - pravastatin
+      - pred forte
+      - prednisolone
+      - prednisone
+      - pregabalin
+      - prevacid
+      - prilosec
+      - prinivil
+      - promethazine
+      - propranolol
+      - propylene glycol
+      - propylhexedrine
+      - proscar
+      - protonix
+      - proventil
+      - prozac
+      - pseudoephedrine
+      - pulmicort
+      - pulsatilla pratensis
+      - pyrithione zinc
+      - ranitidine
+      - ranolazine
+      - rapidol aspirin
+      - reglan
+      - resorcinol
+      - rhus tox
+      - rivaroxaban
+      - rivastigmine tartrate
+      - rizatriptan benzoate
+      - ropinirole
+      - rosuvastatin
+      - sabadilla
+      - sacubitril
+      - salicylic acid
+      - selenium
+      - septra
+      - serdexmethylphenidate
+      - sertraline
+      - sevelamer carbonate
+      - sildenafil
+      - silicea
+      - silicon dioxide
+      - silver sulfadiazine
+      - simethicone
+      - simvastatin
+      - sinapis nigra
+      - singulair
+      - sitagliptin
+      - solidago virgaurea
+      - spiriva
+      - spironolactone
+      - sudafed
+      - sulbactam
+      - sulfamethoxazole
+      - sulfamylon
+      - sulphur
+      - symphytum officinale
+      - synthroid
+      - tadalafil
+      - tamsulosin
+      - tarentula hispana
+      - tenormin
+      - tessalon
+      - tetracycline
+      - tetrahydrozoline
+      - thallium
+      - thuja occidentalis
+      - thymus suis
+      - tin
+      - tiotropium
+      - titanium dioxide
+      - tizanidne
+      - tocilizumab
+      - tofidence
+      - tramadol
+      - trametinib
+      - trandolapril
+      - tranexamic acid
+      - trazodone
+      - trexall
+      - tricor
+      - trimethobenzamide
+      - trimethoprim
+      - triple antibiotic
+      - tropicamide
+      - tylenol
+      - ultram
+      - ursodiol
+      - ustilago maydis
+      - vabrinty
+      - valacyclovir
+      - valsartan
+      - valtrex
+      - vancomycin
+      - varenicline
+      - venlafaxine
+      - ventolin
+      - veradex-e
+      - verapamil
+      - viagra
+      - vibramycin
+      - voltaren
+      - warfarin
+      - white petrolatum
+      - witch hazel
+      - wyethia helenioides
+      - xanax
+      - xarelto
+      - ytterbium oxide
+      - zantac
+      - zestril
+      - zetia
+      - zidovudine
+      - zinc oxide
+      - ziprasidone
+      - zithromax
+      - zituvimet
+      - zocor
+      - zofran
+      - zoledronic acid
+      - zoloft
+      - zovirax
+      - zyloprim
+      - zyrtec
+
+  - synonym: paracetamol
+    examples: |
+      - acetaminophen
+      - panadol
+      - tylenol
+
+  - synonym: ibuprofen
+    examples: |
+      - advil
+      - motrin
+      - brufen
+
+  - synonym: amoxicillin
+    examples: |
+      - amoxil
+
+  - synonym: azithromycin
+    examples: |
+      - zithromax
+
+  - synonym: ciprofloxacin
+    examples: |
+      - cipro
+
+  - synonym: omeprazole
+    examples: |
+      - prilosec
+
+  - synonym: metformin
+    examples: |
+      - glucophage
+
+  - synonym: losartan
+    examples: |
+      - cozaar
+
+  - synonym: amlodipine
+    examples: |
+      - norvasc
+
+  - synonym: atorvastatin
+    examples: |
+      - lipitor
+
+  - synonym: levothyroxine
+    examples: |
+      - synthroid
+
+  - synonym: lisinopril
+    examples: |
+      - prinivil
+      - zestril
+
+  - synonym: albuterol
+    examples: |
+      - ventolin
+      - proventil
+
+  - synonym: gabapentin
+    examples: |
+      - neurontin
+
+  - synonym: sertraline
+    examples: |
+      - zoloft
+
+  - synonym: fluoxetine
+    examples: |
+      - prozac
+
+  - synonym: citalopram
+    examples: |
+      - celexa
+
+  - synonym: pantoprazole
+    examples: |
+      - protonix
+
+  - synonym: tramadol
+    examples: |
+      - ultram
+
+  - synonym: clonazepam
+    examples: |
+      - klonopin
+
+  - synonym: lorazepam
+    examples: |
+      - ativan
+
+  - synonym: alprazolam
+    examples: |
+      - xanax
+
+  - synonym: cyclobenzaprine
+    examples: |
+      - flexeril
+
+  - synonym: trazodone
+    examples: |
+      - desyrel
+
+  - synonym: duloxetine
+    examples: |
+      - cymbalta
+
+  - synonym: venlafaxine
+    examples: |
+      - effexor
+
+  - synonym: escitalopram
+    examples: |
+      - lexapro
+
+  - synonym: ranitidine
+    examples: |
+      - zantac
+
+  - synonym: famotidine
+    examples: |
+      - pepcid
+
+  - synonym: cetirizine
+    examples: |
+      - zyrtec
+
+  - synonym: loratadine
+    examples: |
+      - claritin
+
+  - synonym: fexofenadine
+    examples: |
+      - allegra
+
+  - synonym: diphenhydramine
+    examples: |
+      - benadryl
+
+  - synonym: diclofenac
+    examples: |
+      - voltaren
+
+  - synonym: naproxen
+    examples: |
+      - aleve
+
+  - synonym: meloxicam
+    examples: |
+      - mobic
+
+  - synonym: celecoxib
+    examples: |
+      - celebrex
+
+  - synonym: hydrochlorothiazide
+    examples: |
+      - microzide
+
+  - synonym: furosemide
+    examples: |
+      - lasix
+
+  - synonym: spironolactone
+    examples: |
+      - aldactone
+
+  - synonym: carvedilol
+    examples: |
+      - coreg
+
+  - synonym: metoprolol
+    examples: |
+      - lopressor
+
+  - synonym: atenolol
+    examples: |
+      - tenormin
+
+  - synonym: propranolol
+    examples: |
+      - inderal
+
+  - synonym: clopidogrel
+    examples: |
+      - plavix
+
+  - synonym: warfarin
+    examples: |
+      - coumadin
+
+  - synonym: apixaban
+    examples: |
+      - eliquis
+
+  - synonym: rivaroxaban
+    examples: |
+      - xarelto
+
+  - synonym: rosuvastatin
+    examples: |
+      - crestor
+
+  - synonym: simvastatin
+    examples: |
+      - zocor
+
+  - synonym: pravastatin
+    examples: |
+      - pravachol
+
+  - synonym: ezetimibe
+    examples: |
+      - zetia
+
+  - synonym: fenofibrate
+    examples: |
+      - tricor
+
+  - synonym: glipizide
+    examples: |
+      - glucotrol
+
+  - synonym: glimepiride
+    examples: |
+      - amaryl
+
+  - synonym: sitagliptin
+    examples: |
+      - januvia
+
+  - synonym: empagliflozin
+    examples: |
+      - jardiance
+
+  - synonym: dapagliflozin
+    examples: |
+      - farxiga
+
+  - synonym: levofloxacin
+    examples: |
+      - levaquin
+
+  - synonym: doxycycline
+    examples: |
+      - vibramycin
+
+  - synonym: cephalexin
+    examples: |
+      - keflex
+
+  - synonym: clindamycin
+    examples: |
+      - cleocin
+
+  - synonym: nitrofurantoin
+    examples: |
+      - macrobid
+
+  - synonym: metronidazole
+    examples: |
+      - flagyl
+
+  - synonym: fluconazole
+    examples: |
+      - diflucan
+
+  - synonym: valacyclovir
+    examples: |
+      - valtrex
+
+  - synonym: acyclovir
+    examples: |
+      - zovirax
+
+  - synonym: montelukast
+    examples: |
+      - singulair
+
+  - synonym: fluticasone
+    examples: |
+      - flonase
+
+  - synonym: budesonide
+    examples: |
+      - pulmicort
+
+  - synonym: tiotropium
+    examples: |
+      - spiriva
+
+  - synonym: ondansetron
+    examples: |
+      - zofran
+
+  - synonym: promethazine
+    examples: |
+      - phenergan
+
+  - synonym: metoclopramide
+    examples: |
+      - reglan
+
+  - synonym: lansoprazole
+    examples: |
+      - prevacid
+
+  - synonym: esomeprazole
+    examples: |
+      - nexium
+
+  - synonym: dicyclomine
+    examples: |
+      - bentyl
+
+  - synonym: tamsulosin
+    examples: |
+      - flomax
+
+  - synonym: finasteride
+    examples: |
+      - proscar
+
+  - synonym: sildenafil
+    examples: |
+      - viagra
+
+  - synonym: tadalafil
+    examples: |
+      - cialis
+
+  - synonym: allopurinol
+    examples: |
+      - zyloprim
+
+  - synonym: colchicine
+    examples: |
+      - colcrys
+
+  - synonym: methotrexate
+    examples: |
+      - trexall
+
+  - synonym: hydroxychloroquine
+    examples: |
+      - plaquenil
+
+  - synonym: prednisone
+    examples: |
+      - deltasone
+
+  - synonym: methylprednisolone
+    examples: |
+      - medrol
+
+  - synonym: dexamethasone
+    examples: |
+      - decadron
+
+  - synonym: hydrocortisone
+    examples: |
+      - cortef
+
+  - synonym: chlorpheniramine
+    examples: |
+      - chlor-trimeton
+
+  - synonym: pseudoephedrine
+    examples: |
+      - sudafed
+
+  - synonym: guaifenesin
+    examples: |
+      - mucinex
+
+  - synonym: dextromethorphan
+    examples: |
+      - delsym
+
+  - synonym: benzonatate
+    examples: |
+      - tessalon

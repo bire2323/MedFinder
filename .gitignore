@@ -1,0 +1,77 @@
+# Node and frontend dependencies
+node_modules/
+dist/
+build/
+.next/
+.nuxt/
+.vite/
+
+# PHP and backend dependencies
+vendor/
+backend/vendor/
+backend/node_modules/
+
+# Environment files - VERY IMPORTANT
+.env
+.env.local
+.env.*.local
+*.env
+*.env.*
+
+# Logs, Storage and Caches
+storage/logs/*
+backend/storage/logs/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/bootstrap/cache/*
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Public Storage & Hot reloading
+public/storage
+public/hot
+backend/public/storage
+backend/public/hot
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Large Data directories (OSRM, Map Tiles, etc.)
+# Exclude these so they don't bloat your git repo
+OSM-data/
+Tiles/
+tiles/
+*.osrm*
+*.pbf
+*.mbtiles
+
+# Docker-specific local volumes or temp files
+mysql-data/
+docker-compose.override.yml
+
+mod/
+
+models/
+
+*.tar.gz
+
+__pycache__/
+*.pyc
+
+cache/
+tmp/
+.rasa_cache/
+/rasa_ready_drugs.txt
+/vendor
+
+/certs
+.DS_Store
+Thumbs.db

@@ -19,6 +19,9 @@ class MessageSent implements ShouldBroadcastNow
 
     public function __construct(ChatMessage $message)
     {
+        \Log::info("MessageSent event: {$message->id}");
+        \Log::info("MessageSent event: {$message->sender_id}");
+        \Log::info("MessageSent event: {$message->chat_session_id}");
         $this->message = $message->load('sender:id');
     }
 

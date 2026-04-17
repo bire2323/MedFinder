@@ -1,7 +1,7 @@
 import React, { use, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ClipboardList, Heart, History, LogOut, MessageSquare, User, Search } from "lucide-react";
+import { ClipboardList, Heart, History, LogOut, MessageSquare, User, Search, ChevronLeft, MapPin } from "lucide-react";
 
 import useAuthStore from "../../store/UserAuthStore";
 import { apiLogout } from "../../api/auth";
@@ -14,6 +14,7 @@ import Header from "../../component/Header";
 import NotificationToast from "../../component/NotificationToast";
 import useChatNotificationStore from "../../store/useChatNotificationStore";
 import { useNotifications } from "../../hooks/UserNotification";
+import DashboardHeader from "../../component/DashboardHeader";
 
 const LS_FAVORITES_KEY = "medfinder_favorites_v1";
 const LS_RECENTS_KEY = "medfinder_recents_v1";
@@ -52,13 +53,13 @@ export default function UserDashboard() {
 
     const { user, clearSession, roles } = useAuthStore();
     const currentUserId = user?.id;
-    console.log(user);
+    //console.log(user);
 
     const { handleIncomingMessage, targetSessionToOpen, getUnreadCount } = useChatNotificationStore();
     const unreadCount = getUnreadCount();
 
     const [activeSection, setActiveSection] = useState("home"); // home | search | favorites | messages | profile
-
+    console.log("cuid",currentUserId);
     useNotifications(currentUserId, (incoming) => {
         handleIncomingMessage({
             message: incoming.message,
@@ -167,9 +168,9 @@ export default function UserDashboard() {
 
     return (
         <>
-            <Header />
+            <DashboardHeader />
             <NotificationToast />
-            <div className="min-h-screen bg-white text-slate-900 dark:bg-gray-900 dark:text-slate-100 transition-colors duration-300 flex ">
+            <div className="min-h-screen mx-5 bg-white text-slate-900 dark:bg-gray-900 dark:text-slate-100 transition-colors duration-300 flex ">
 
                 <Sidebar
                     activeSection={activeSection}
@@ -182,6 +183,7 @@ export default function UserDashboard() {
                 <main className="flex-1 min-w-0 xl:ml-14 flex flex-col overflow-hidden ">
                     <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 border-b border-slate-100 dark:border-gray-800">
                         <div className=" relative flex items-center gap-2">
+                            <button onClick={() => navigate("/")}><ChevronLeft className="hidden  sm:block cursor-pointer text-slate-700 hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-50" /></button>
                             {activeSection !== "profile" && (
                                 <button
                                     type="button"
@@ -195,7 +197,7 @@ export default function UserDashboard() {
 
                         </div>
                         <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-6 h-6 md:w-9 md:h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
+                            <div className="w-6 h-6 md:w-9 md:h-9 rounded-xl bg-green-700 text-white flex items-center justify-center shadow-sm">
                                 {activeSection === "home" ? <ClipboardList size={18} /> : null}
                                 {activeSection === "search" ? <Search size={18} /> : null}
                                 {activeSection === "favorites" ? <Heart size={18} /> : null}
@@ -379,7 +381,7 @@ export default function UserDashboard() {
                                             onClick={() => setActiveSection("search")}
                                             className="mt-4 inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl font-extrabold hover:bg-blue-700"
                                         >
-                                            <MapPin size={16} />
+
                                             {t("UserDashboard.OpenInSearch")}
                                         </button>
                                     </div>

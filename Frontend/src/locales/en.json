@@ -75,7 +75,6 @@
     "facilityNameAmMin": "{{type}} name in Amharic must be at least 3 characters",
     "invalidEmail": "Enter a valid email address",
     "mustAgree": "You must agree to the terms and privacy policy",
-
     "regionEnRequired": "Region (English) is required",
     "regionAmRequired": "Region (Amharic) is required",
     "zoneEnRequired": "Zone / City (English) is required",
@@ -85,15 +84,12 @@
     "kebeleRequired": "Enter your kebele",
     "addressAmRequired": "Enter address in Amharic",
     "addressEnRequired": "Enter address properly",
-
     "latitudeRequired": "Latitude is required",
     "latitudeInvalid": "Enter a valid latitude (-90 to 90)",
     "longitudeRequired": "Longitude is required",
     "longitudeInvalid": "Enter a valid longitude (-180 to 180)",
-
     "phoneRequired": "Main contact phone is required",
     "phoneInvalid": "Enter valid Ethiopian phone",
-
     "licenseRequired": "License number is required",
     "licenseDocRequired": "License document is required",
     "pharmacyTypeRequired": "Pharmacy type is required",
@@ -279,7 +275,7 @@
     "Conversations": "Conversations",
     "ActiveChats": "active {{count}} chats",
     "ActiveChat": "active chat",
-     "SaveUpdated": "Save & Update Profile",
+    "SaveUpdated": "Save & Update Profile",
     "Discard": "Discard Changes",
     "WeeklySchedule": "Weekly Opening Hours",
     "Mon": "Monday",
@@ -306,6 +302,7 @@
     "EmailOptional": "(optional)",
     "PhoneFormat": "Ethiopian phone format: starts with 09 or +2519",
     "AgreeTerms": "I agree to the Terms of Service and Privacy Policy",
+    "TermsAndConditions": "Terms and Conditions!",
     "SelectRegion": "Select Region",
     "GetMyLocation": "Get My Location",
     "MainContact": "Main Contact Phone",
@@ -389,7 +386,7 @@
     "ReviewStep1": "Our team will review your submitted documents",
     "ReviewStep2": "Verification usually takes 1-3 business days",
     "ReviewStep3": "You'll be notified once approved",
-    "ViaSms": "Via SMS",
+    "ViaSMS": "Via SMS",
     "ViaEmail": "Via Email",
     "PhoneNotif": "SMS notification",
     "EmailNotif": "Email notification",
@@ -410,6 +407,131 @@
       "Ngo": "NGO / Non-Profit",
       "FaithBased": "Faith-based"
     }
+  },
+  "review": {
+    "title": "Review Your Information",
+    "subtitle": "Please review all details before submitting",
+    "basicInfo": {
+      "title": "Basic Information",
+      "pharmacyName": "Pharmacy Name",
+      "hospitalName": "Hospital Name",
+      "pharmacyNameAm": "Pharmacy Name (በ አማርኛ)",
+      "hospitalNameAm": "Hospital Name (በ አማርኛ)",
+      "email": "Email"
+    },
+    "location": {
+      "title": "Location & Contact",
+      "region": "Region",
+      "regionAm": "Region (በ አማርኛ)",
+      "zoneCity": "Zone/City",
+      "zoneCityAm": "Zone/City (በ አማርኛ)",
+      "subCity": "Sub-city/Woreda",
+      "subCityAm": "Sub-city/Woreda (በ አማርኛ)",
+      "kebele": "Kebele",
+      "detailedAddress": "Detailed Address",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "workingHour": "Working Hours",
+      "emergencyPhone": "Emergency Phone",
+      "alternatePhone": "Alternate Phone"
+    },
+    "verification": {
+      "title": "Verification & License",
+      "licenseNumber": "License Number",
+      "licenseDocument": "License Document",
+      "pharmacyType": "Pharmacy Type",
+      "workingHours": "Working Hours",
+      "ownershipType": "Ownership Type",
+      "emergencyServices": "Emergency Services",
+      "operates247": "24/7 Operation",
+      "logoUploaded": "Logo uploaded",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "buttons": {
+      "edit": "Edit",
+      "back": "Back",
+      "submitting": "Submitting...",
+      "submit": "Submit for Admin Approval"
+    },
+    "messages": {
+      "notProvided": "Not provided",
+      "submissionFailed": "Submission Failed",
+      "tryAgain": "Please try again.",
+      "alreadyRegisteredAgent": "You are already a registered agent!"
+    },
+    "pharmacyTypes": {
+      "community": "Community Pharmacy",
+      "hospital_based": "Hospital-based Pharmacy",
+      "wholesale": "Wholesale Pharmacy",
+      "import": "Import Pharmacy"
+    },
+    "ownershipTypes": {
+      "public": "Public / Government",
+      "private": "Private",
+      "ngo": "NGO / Non-Profit",
+      "faith_based": "Faith-based"
+    },
+    "regions": {
+      "addis_ababa": "Addis Ababa",
+      "afar": "Afar",
+      "amhara": "Amhara",
+      "benishangul_gumuz": "Benishangul-Gumuz",
+      "dire_dawa": "Dire Dawa",
+      "gambela": "Gambela",
+      "harari": "Harari",
+      "oromia": "Oromia",
+      "sidama": "Sidama",
+      "snnpr": "SNNPR",
+      "somali": "Somali",
+      "south_west": "South West Ethiopia",
+      "tigray": "Tigray"
+    }
+  },
+  "terms": {
+    "title": "Terms & Conditions",
+    "introduction": "Welcome to MedFinder. This platform helps users locate hospitals and pharmacies, check medicine availability, and communicate through an AI-powered chatbot.",
+    "acceptance": {
+      "title": "1. Acceptance of Terms",
+      "content": "By accessing or using this system, you agree to comply with these Terms and Conditions. If you do not agree, please do not use the platform."
+    },
+    "use": {
+      "title": "2. Use of the Platform",
+      "content": "The system provides healthcare navigation, drug availability search, and communication services. It must be used only for lawful and intended purposes."
+    },
+    "accounts": {
+      "title": "3. User Accounts",
+      "content": "Users must provide accurate information during registration. Access to features depends on authentication and assigned roles such as user, pharmacy agent, or administrator."
+    },
+    "data": {
+      "title": "4. Data Privacy",
+      "content": "User data including location and personal information is processed securely and only for system functionality. Data will not be shared without user consent."
+    },
+    "chatbot": {
+      "title": "5. Chatbot Usage",
+      "content": "The chatbot provides general assistance related to pharmacy services and availability. It does not provide medical diagnosis or treatment advice."
+    },
+    "inventory": {
+      "title": "6. Pharmacy Data Responsibility",
+      "content": "Pharmacies are responsible for maintaining accurate drug availability and pricing. The system displays data based on the latest updates."
+    },
+    "liability": {
+      "title": "7. Limitation of Liability",
+      "content": "The platform is not liable for incorrect or outdated information provided by pharmacies or hospitals. Users should verify critical information independently."
+    },
+    "security": {
+      "title": "8. Security",
+      "content": "We implement security measures including authentication, encryption, and role-based access to protect system integrity and user data."
+    },
+    "termination": {
+      "title": "9. Account Termination",
+      "content": "The system reserves the right to suspend or terminate accounts that violate policies or misuse the platform."
+    },
+    "changes": {
+      "title": "10. Changes to Terms",
+      "content": "These terms may be updated at any time. Continued use of the platform indicates acceptance of the updated terms."
+    },
+    "footer": "© MedFinder - Smart Hospital & Pharmacy Finder System"
   },
   "PharmacyDashboard": {
     "Overview": "Overview",
@@ -534,7 +656,10 @@
     "PickAFacility": "Pick a facility from the list to draw a route.",
     "ClearRoute": "Clear Route",
     "TrackingEnabled": "Tracking enabled",
-    "TrackingUnavailable": "Tracking unavailable"
+    "TrackingUnavailable": "Tracking unavailable",
+    "Navigate": "Navigate",
+    "ViewOnMap": "View On Map",
+    "EstimatedTime": "Estimated time to reach"
   },
   "inventory": {
     "title": "Inventory Management",
@@ -599,7 +724,7 @@
     },
     "trash": {
       "title": "Archived Inventory",
-      "description":"Archive of deleted medicines. You can restore them back to active inventory at any time.",
+      "description": "Archive of deleted medicines. You can restore them back to active inventory at any time.",
       "restore": "Restore Item",
       "confirmRestore": "Are you sure you want to restore <strong>{{name}}</strong>?",
       "empty": "No archived items found"

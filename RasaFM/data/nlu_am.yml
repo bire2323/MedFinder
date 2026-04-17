@@ -1,0 +1,1324 @@
+version: "3.1"
+
+nlu:
+  - intent: greet
+    examples: |
+      - ሰላም
+      - ጤና ይስጥልኝ
+      - እንደምን አለህ
+      - እንደምን አለሽ
+      - እንደምን አደራችሁ
+      - እንደምን አመሻችሁ
+      - ሰላም ነው
+      - እንዴት ነህ
+      - እንዴት ነሽ
+      - ሰላም ለ አንተ ይሁን
+      - ሰላም ለ አንቺ ይሁን
+      - ሰላም ለ እናንተ ይሁን
+      - እንደምን ዋልክ
+      - እንደምን ዋልክሽ
+      - እንደምን ቆየህ
+      - እንደምን ቆየሽ
+
+  - intent: goodbye
+    examples: |
+      - ቻው
+      - ደህና ሁን
+      - ደህና ሁኚ
+      - ደህና ሰንብቱ
+      - መልካም ቀን
+      - መልካም ምሽት
+      - በቃ ቻው
+      - በኋላ እንገናኝ
+      - ደህና እደሩ
+
+  - intent: affirm
+    examples: |
+      - አዎ
+      - እሺ
+      - ትክክል
+      - ይሁን
+      - አዎን
+      - እንደዛ ይሻላል
+
+  - intent: deny
+    examples: |
+      - አይደለም
+      - አይ
+      - በፍጹም
+      - አልፈልግም
+      - አይመስለኝም
+      - አይሆንም
+
+  - intent: mood_great
+    examples: |
+      - በጣም ደህና ነኝ
+      - ምርጥ
+      - ደስ የሚል ቀን ነው
+      - ሁሉንም ነገር ወድጄዋለሁ
+      - በጣም ጥሩ
+      - ደስ ብሎኛል
+
+  - intent: mood_unhappy
+    examples: |
+      - ጥሩ አይደለሁም
+      - አዝኛለሁ
+      - ደስተኛ አይደለሁም
+      - ቀኑ መጥፎ ነበር
+      - ስሜቴ ጥሩ አይደለም
+      - በጣም ተከፍቻለሁ
+
+  - intent: bot_challenge
+    examples: |
+      - አንተ ሰው ነህ?
+      - ሮቦት ነህ?
+      - ከ ሰው ጋር ነው የማወራው?
+      - ሰው ነሽ ወይስ ሮቦት?
+      - አንተ ሰው ነህ ወይስ ሮቦት?
+      - አንተ ሰው ነህ ወይስ አይነት ሌላ?
+      - አንተ ሰው ነህ ወይስ አይነት ሌላ የሆነ?
+      - አንተ ሰው ነህ ወይስ አይነት ሌላ የሆነ ወይስ ሮቦት?
+      
+  - intent: search_hospital
+    examples: |
+      - [የልብ ህክምና](medical_service) ያለው ሆስፒታል ፈልግልኝ
+      - [ICU](medical_service) አገልግሎት የሚሰጡ ሆስፒታሎችን ታውቃለህ?
+      - [የእናቶች መውለጃ](medical_service) ያለው ሆስፒታል እፈልጋለሁ
+      - [አዲስ አበባ](location) ውስጥ [የህፃናት](medical_service) ሆስፒታል እፈልጋለሁ
+      - በአቅራቢያዬ [ድንገተኛ አደጋ](medical_service) የት አለ?
+      - [ቀዶ ጥገና](medical_service) ያላቸው ሆስፒታሎችን ዘርዝር
+      - [ጥቁር አንበሳ ሆስፒታል](hospital_name) ውስጥ [ላቦራቶሪ](medical_service) አለ?
+      - [ቅዱስ ጳውሎስ ሆስፒታል](hospital_name) የት ነው የሚገኘው?
+      - [ቦሌ](location) አካባቢ [የልብ](medical_service) ክሊኒክ ፈልግ
+      - [intensive care](medical_service) ያለው ሆስፒታል አሳየኝ
+      - [አራዳ](location) አካባቢ [የወሊድ](medical_service) አገልግሎት ፈልግ
+      - የትኛው ሆስፒታል ነው ጥሩ [የአጥንት](medical_service) ክፍል ያለው?
+      - [ካዛንቺስ](location) አካባቢ [ER](medical_service) እፈልጋለሁ
+      - [ዘውዲቱ ሆስፒታል](hospital_name) የት ነው?
+      - [ጎንደር](location) ውስጥ [የኩላሊት እጥበት](medical_service) ማዕከል አለ?
+      - [ሀያት ሆስፒታል](hospital_name) ውስጥ [የነርቭ](medical_service) ሀኪም እፈልጋለሁ
+      - [ሀዋሳ](location) ውስጥ [የጥርስ](medical_service) ሀኪም ፈልግልኝ
+      - [የራጅ](medical_service) አገልግሎት የት ነው የማገኘው?
+      - [ላንድማርክ ሆስፒታል](hospital_name) [አዲስ አበባ](location) ውስጥ ፈልግ
+      - [የካንሰር](medical_service) ስፔሻሊስት ፈልግልኝ
+      - [ቤቴል ሆስፒታል](hospital_name) [ICU](medical_service) አለው?
+      - [መቀሌ](location) ውስጥ [የውስጥ ደዌ](medical_service) ህክምና ፈልግ
+      - [ፊዚዮቴራፒ](medical_service) ያላቸው ሆስፒታሎችን አሳየኝ
+      - [ልደታ](location) አካባቢ [የህፃናት ሀኪም](medical_service) እፈልጋለሁ
+      - [ኖርዲክ ሜዲካል ሴንተር](hospital_name) ውስጥ [ENT](medical_service) ክፍል የት ነው?
+  - intent: search_pharmacy
+    examples: |
+      - [ጎንደር](location) ውስጥ ፋርማሲ ፈልግልኝ
+      - [ማራኪ](location) ውስጥ ፋርማሲ ፈልግልኝ
+      - [ፒያሳ](location) ውስጥ ፋርማሲ ፈልግልኝ
+      - [አዲስ አበባ](location) የሚገኝ መድኃኒት ቤት
+      - [18](location) የሚገኝ መድኃኒት ቤት
+      - [አራዳ](location) አካባቢ ያሉ ፋርማሲዎች
+      - [ቦሌ](location) ቅርብ ፋርማሲ የት አለ?
+      - [ባህር ዳር](location) ውስጥ የመድኃኒት ቤት ፈልግ
+      - [መቀሌ](location) አካባቢ ፋርማሲ እፈልጋለሁ
+      - [አዳማ](location) ውስጥ መድኃኒት ቤት አለ?
+      - [ሀዋሳ](location) ያሉ ፋርማሲዎችን ፈልግ
+      - [ድሬዳዋ](location) ውስጥ የመድኃኒት መሸጫ አሳየኝ
+      - [ፒያሳ](location) አቅራቢያ ያሉ ፋርማሲዎች
+      - [ካዛንቺስ](location) አካባቢ መድኃኒት ቤት አለ?
+      - [ጅማ](location) ውስጥ ፋርማሲ እየፈለኩ ነው
+      - [ደሴ](location) ያሉ የመድኃኒት ቤቶች ዝርዝር
+      - [ለገሀር](location) አካባቢ ፋርማሲ የት ይገኛል?
+      - [ቂርቆስ](location) ውስጥ ለ24 ሰዓት ክፍት የሆነ ፋርማሲ
+      - [ልደታ](location) አቅራቢያ ያሉ መድኃኒት ቤቶች
+      - [አቃቂ ቃሊቲ](location) ውስጥ የመድኃኒት መሸጫ
+      - [ንፋስ ስልክ](location) መድኃኒት መግዛት እፈልጋለሁ
+      - [ሻሸመኔ](location) ውስጥ ያሉ ፋርማሲዎችን አሳየኝ
+      - [ሆሳዕና](location) የመድኃኒት ቤት ፍለጋ
+      - [ደብረ ማርቆስ](location) ውስጥ መድኃኒት የት አገኛለሁ?
+      - [ወላይታ ሶዶ](location) ውስጥ ፋርማሲ እንድታገኝ እርዳኝ
+  - intent: search_drug
+    examples: |
+      - የትኛው ፋርማሲ [ኤምፓግሊፍሎዚን](drug_name) አለው?
+      - [gastrocrom](drug_name) እዚህ ይገኛል?
+      - [ካርቬዲሎል](drug_name) እዚህ ይገኛል?
+      - እባኮትን [insulin glargine](drug_name) ካለ ያሳውቁኝ
+      - [keflex](drug_name) እፈልጋለሁ
+      - [tocilizumab](drug_name) በቅርብ ርቀት የት አገኛለው
+      - [ሞንቴሉካስት](drug_name) መግዛት እፈልጋለሁ
+      - እባኮትን [zyrtec](drug_name) በቅርብ ካለ ያሳውቁኝ
+      - የትኛው ፋርማሲ [viagra](drug_name) አለው?
+      - እባክዎ [polymyxin b](drug_name) ይፈልጉልኝ
+      - [aluminium fluoratum](drug_name)
+      - [doxycycline hyclate](drug_name)
+      - [insulin glargine](drug_name) አለመኖሩን አረጋግጡልኝ
+      - የ [flexeril](drug_name) ዋጋ ስንት ነው?
+      - [sudafed](drug_name) ፍለጋ
+      - [ፔኒሲሊን](drug_name) እፈልጋለሁ
+      - [ኢቡፕሮፌን](drug_name) እዚህ ይገኛል?
+      - [graphite](drug_name) አስፈልጎኛል
+      - [ሜቲልፕሬድኒሶሎን](drug_name) በቅርብ ርቀት
+      - [cadmium sulphuratum](drug_name) አስፈልጎኛል
+      - [ሜቶክሎፕራማይድ](drug_name) እዚህ ይገኛል?
+      - [elahere](drug_name) አላችሁ?
+      - [zituvimet](drug_name) አለመኖሩን አረጋግጡልኝ
+      - [አሞክሲሲሊን](drug_name) በቅርብ ርቀት
+      - የትኛው ፋርማሲ [ዱሎክሴቲን](drug_name) አለው?
+      - [flomax](drug_name) ፍለጋ
+      - እባኮትን [zithromax](drug_name) ካለ ያሳውቁኝ
+      - እባኮትን [ሊሲኖፕሪል](drug_name) ካለ ያሳውቁኝ
+      - [neomycin](drug_name) መግዛት እፈልጋለሁ
+      - [singulair](drug_name)
+      - [nitrous oxide](drug_name) ፍለጋ
+      - [lipitor](drug_name) ፍለጋ
+      - [ሀይድሮክሎሮቲያዛይድ](drug_name) የት አገኛለሁ?
+      - [insulin glargine](drug_name) አላችሁ?
+      - [aluminium sulphuricum](drug_name) ፍለጋ
+      - [silver sulfadiazine](drug_name) በቅርብ ርቀት
+      - [ስፒሮኖላክቶን](drug_name) እዚህ ይገኛል?
+      - [nux vomica](drug_name) የሚሸጥ ፋርማሲ አለ?
+      - [silicon dioxide](drug_name) መግዛት እፈልጋለሁ
+      - [zyloprim](drug_name) በቅርብ ርቀት
+      - [eucalyptus oil](drug_name) ፍለጋ
+      - የ [baclofen injection](drug_name) ዋጋ ስንት ነው?
+      - ማን ነው [thuja occidentalis](drug_name) ያለው?
+      - [tricor](drug_name)
+      - ማን ነው [haloperidol](drug_name) ያለው?
+      - [lacosamide](drug_name) የት አገኛለሁ?
+      - የ [ዴክሳሜታሶን](drug_name) ዋጋ ስንት ነው?
+      - እባክዎ [flomax](drug_name) ይፈልጉልኝ
+      - [zestril](drug_name) የሚሸጥ ፋርማሲ አለ?
+      - [nitricum acidum](drug_name) እፈልጋለሁ
+      - የ[insulin lispro](drug_name) ክምችት አለን?
+      - [benzalkonium chloride](drug_name) አላችሁ?
+      - [bryonia root](drug_name) እዚህ ይገኛል?
+      - የትኛው ፋርማሲ [hypericum perforatum](drug_name) አለው?
+      - እባክዎ [lorlatinib](drug_name) ይፈልጉልኝ
+      - የትኛው ፋርማሲ [varenicline](drug_name) አለው?
+      - [avagard d](drug_name)
+      - [potassium chloride](drug_name) እፈልጋለሁ
+      - የ [ropinirole](drug_name) ክምችት አለን?
+      - ማን ነው [zestril](drug_name) ያለው?
+      - የ [clotrimazole](drug_name) ዋጋ ስንት ነው?
+      - [selenium](drug_name) እዚህ ይገኛል?
+      - [ativan](drug_name) አላችሁ?
+      - ማን ነው [cefazolin](drug_name) ያለው?
+      - የ [prinivil](drug_name) ክምችት አለን?
+      - [sulfamylon](drug_name) መግዛት እችላለሁ?
+      - [ammonium bromatum](drug_name) አስፈልጎኛል
+      - [ventolin](drug_name)
+      - [pulsatilla pratensis](drug_name) በቅርብ ርቀት
+      - የ [olanzapine](drug_name) ዋጋ ስንት ነው?
+      - [insulin lispro](drug_name) አስፈልጎኛል
+      - የትኛው ፋርማሲ [aluminium fluoratum](drug_name) አለው?
+      - [esomeprazole magnesium](drug_name) መግዛት እችላለሁ?
+      - [ክሎፒዶግሬል](drug_name) አላችሁ?
+      - የ [nux vomica](drug_name) ክምችት አለን?
+      - የትኛው ፋርማሲ [cefazolin](drug_name) አለው?
+      - [azstarys](drug_name) አለ?
+      - እባክዎ [esomeprazole magnesium](drug_name) ይፈልጉልኝ
+      - [bupropion](drug_name) ፍለጋ
+      - [bkemv](drug_name) እፈልጋለሁ
+      - [ዴክስትሮሜቶርፋን](drug_name) እዚህ ይገኛል?
+      - [chloroxylenol](drug_name) መግዛት እፈልጋለሁ
+      - የትኛው ፋርማሲ [decitabine](drug_name) አለው?
+      - [ዴክስትሮሜቶርፋን](drug_name) መግዛት እፈልጋለሁ
+      - [avobenzoneoctisalateoctocrylene](drug_name) አላችሁ?
+      - [rizatriptan benzoate](drug_name) አለመኖሩን አረጋግጡልኝ
+      - [clonidine](drug_name) እዚህ ይገኛል?
+      - [cipro](drug_name) የሚሸጥ ፋርማሲ አለ?
+      - [ታይለኖል](drug_name) ፍለጋ
+      - [avobenzone](drug_name) በቅርብ ርቀት
+      - [monofluoro](drug_name) ማግኘት እችላለሁ?
+      - [propylene glycol](drug_name) አስፈልጎኛል
+      - የ [betadine](drug_name) ክምችት አለን?
+      - ማን ነው [argentum metalicum](drug_name) ያለው?
+      - የ [dch scar](drug_name) ዋጋ ስንት ነው?
+      - [dch hemorrhoidal](drug_name) መግዛት እፈልጋለሁ
+      - የ [ሲምቫስታቲን](drug_name) ክምችት አለን?
+      - [lidocaine](drug_name) ፍለጋ
+      - [bkemv](drug_name) አለ?
+      - [ኢሶሜፕራዞል](drug_name) መግዛት እፈልጋለሁ
+      - [ethyl alcohol](drug_name) እዚህ ይገኛል?
+      - [bentyl](drug_name) አላችሁ?
+      - [symphytum officinale](drug_name) በቅርብ ርቀት
+      - የ [lipitor](drug_name) ዋጋ ስንት ነው?
+      - [zyloprim](drug_name) የት አገኛለሁ?
+      - [capsaicin](drug_name) ፍለጋ
+      - ማን ነው [septra](drug_name) ያለው?
+      - የትኛው ፋርማሲ [ሌቮፍሎክሳሲን](drug_name) አለው?
+      - እባኮትን [pregabalin](drug_name) ካለ ያሳውቁኝ
+      - [ሎሳርታን](drug_name) ፍለጋ
+      - እባክዎ [witch hazel](drug_name) ይፈልጉልኝ
+      - [protonix](drug_name)
+      - የትኛው ፋርማሲ [ታዳላፊል](drug_name) አለው?
+      - [decadron](drug_name) እፈልጋለሁ
+      - ማን ነው [delsym](drug_name) ያለው?
+      - [cuprum met](drug_name)
+      - [zoledronic acid](drug_name) አስፈልጎኛል
+      - [viagra](drug_name) አለ?
+      - የትኛው ፋርማሲ [agaricus muscarius](drug_name) አለው?
+      - [አሴታሚኖፌን](drug_name) እፈልጋለሁ
+      - እባኮትን [elahere](drug_name) ካለ ያሳውቁኝ
+      - የ [ሮሱቫስታቲን](drug_name) ክምችት አለን?
+      - [ሲልዴናፊል](drug_name) የት አገኛለሁ?
+      - [ኢሶሜፕራዞል](drug_name) አስፈልጎኛል
+      - [trexall](drug_name) ማግኘት እችላለሁ?
+      - [silicea](drug_name)
+      - የ [cuprum metallicum](drug_name) ዋጋ ስንት ነው?
+      - [lacosamide](drug_name) አለ?
+      - [aluminium nitricum](drug_name) የሚሸጥ ፋርማሲ አለ?
+      - [carduus marianus](drug_name)
+      - [betamethasone dipropionate](drug_name) እፈልጋለሁ
+      - የ [lorlatinib](drug_name) ዋጋ ስንት ነው?
+      - [lipitor](drug_name) በቅርብ ርቀት
+      - [ታይለኖል](drug_name) እዚህ ይገኛል?
+      - [ግሊሜፒራይድ](drug_name) መግዛት እችላለሁ?
+      - [oxygen](drug_name)
+      - [neomycin](drug_name)
+      - የትኛው ፋርማሲ [ሞንቴሉካስት](drug_name) አለው?
+      - [caffeine](drug_name) አለመኖሩን አረጋግጡልኝ
+      - [plavix](drug_name) እዚህ ይገኛል?
+      - [ክሎሮፌኒራሚን](drug_name) አላችሁ?
+      - [ሲታሎፕራም](drug_name) አለ?
+      - እባኮትን [ክሊንዳማይሲን](drug_name) ካለ ያሳውቁኝ
+      - [ሲምቫስታቲን](drug_name) የት አገኛለሁ?
+      - የ [vabrinty](drug_name) ዋጋ ስንት ነው?
+      - [voltaren](drug_name) አስፈልጎኛል
+      - የ [ሰርትራሊን](drug_name) ዋጋ ስንት ነው?
+      - [ራኒቲዲን](drug_name) አለመኖሩን አረጋግጡልኝ
+      - የትኛው ፋርማሲ [lamotrigine](drug_name) አለው?
+      - የትኛው ፋርማሲ [allium cepa](drug_name) አለው?
+      - [mobic](drug_name) እዚህ ይገኛል?
+      - [lacosamide](drug_name) እፈልጋለሁ
+      - የትኛው ፋርማሲ [microzide](drug_name) አለው?
+      - [cymbalta](drug_name)
+      - የ [አፒክሳባን](drug_name) ክምችት አለን?
+      - [chlorthalidone](drug_name) በቅርብ ርቀት
+      - የ [amaryl](drug_name) ክምችት አለን?
+      - [varenicline](drug_name) መግዛት እችላለሁ?
+      - [ፕራቫስታቲን](drug_name) ማግኘት እችላለሁ?
+      - [doxorubicin](drug_name) መግዛት እፈልጋለሁ
+      - [avobenzone](drug_name) አስፈልጎኛል
+      - [clonidine](drug_name) መግዛት እችላለሁ?
+      - [benzocaine](drug_name)
+      - [histastat pollen](drug_name) የት አገኛለሁ?
+      - የ [ustilago maydis](drug_name) ክምችት አለን?
+      - እባክዎ [eptifibatide](drug_name) ይፈልጉልኝ
+      - [dextroamphetamine saccharate](drug_name)
+      - [ኢንሱሊን](drug_name)
+      - የ [zituvimet](drug_name) ዋጋ ስንት ነው?
+      - [xanax](drug_name) የሚሸጥ ፋርማሲ አለ?
+      - [methocarbamol](drug_name) በቅርብ ርቀት
+      - [glycerin](drug_name) ማግኘት እችላለሁ?
+      - [lanolin](drug_name) የሚሸጥ ፋርማሲ አለ?
+      - [lexapro](drug_name) እፈልጋለሁ
+      - እባክዎ [vabrinty](drug_name) ይፈልጉልኝ
+      - እባኮትን [biofreeze](drug_name) ካለ ያሳውቁኝ
+      - የትኛው ፋርማሲ [macrobid](drug_name) አለው?
+      - [bryonia root](drug_name) አስፈልጎኛል
+      - የ [ferrum metallicum](drug_name) ክምችት አለን?
+      - [motrin](drug_name) መግዛት እችላለሁ?
+      - [minoxidil](drug_name) ፍለጋ
+      - የትኛው ፋርማሲ [ኤስሲታሎፕራም](drug_name) አለው?
+      - እባክዎ [አዚትሮማይሲን](drug_name) ይፈልጉልኝ
+      - የትኛው ፋርማሲ [ቡዴሶኒድ](drug_name) አለው?
+      - ማን ነው [doxepin](drug_name) ያለው?
+      - [mesalamine](drug_name) እፈልጋለሁ
+      - [aleve](drug_name) አላችሁ?
+      - [delsym](drug_name) አለመኖሩን አረጋግጡልኝ
+      - [maxalt](drug_name)
+      - [mesalamine](drug_name) መግዛት እችላለሁ?
+      - [ጓይፌኔሲን](drug_name) የት አገኛለሁ?
+      - [አምሎዲፒን](drug_name) መግዛት እፈልጋለሁ
+      - [pregabalin](drug_name) እዚህ ይገኛል?
+      - [ፔኒሲሊን](drug_name) አለመኖሩን አረጋግጡልኝ
+      - [ናፕሮክሲን](drug_name) መግዛት እችላለሁ?
+      - [አቶርቫስታቲን](drug_name) መግዛት እፈልጋለሁ
+      - [ሴፋሎስፖሪን](drug_name) የሚሸጥ ፋርማሲ አለ?
+      - እባኮትን [ዱሎክሴቲን](drug_name) ካለ ያሳውቁኝ
+      - [zofran](drug_name) እፈልጋለሁ
+      - [chlorthalidone](drug_name) አስፈልጎኛል
+      - [lopressor](drug_name) አለ?
+      - [ሴፋሌክሲን](drug_name) ፍለጋ
+      - እባኮትን [magnesium hydroxide](drug_name) ካለ ያሳውቁኝ
+      - [doxycycline hyclate](drug_name) የት አገኛለሁ?
+      - የትኛው ፋርማሲ [pramipexole di](drug_name) አለው?
+      - የ [አምሎዲፒን](drug_name) ዋጋ ስንት ነው?
+      - [ranolazine](drug_name) ማግኘት እችላለሁ?
+      - [ሮሱቫስታቲን](drug_name) እፈልጋለሁ
+      - [ፓራሰታሞል](drug_name) የሚሸጥ ፋርማሲ አለ?
+      - የ [carduus marianus](drug_name) ዋጋ ስንት ነው?
+      - እባኮትን [keflex](drug_name) ካለ ያሳውቁኝ
+      - [tarentula hispana](drug_name) በቅርብ ርቀት
+      - [duloxetine delayed-release](drug_name) አለመኖሩን አረጋግጡልኝ
+      - [amitriptyline](drug_name) አላችሁ?
+      - የ [petrolatum](drug_name) ዋጋ ስንት ነው?
+      - [ustilago maydis](drug_name) እዚህ ይገኛል?
+      - [glycerin](drug_name) አለመኖሩን አረጋግጡልኝ
+      - [dextroamphetamine](drug_name) አስፈልጎኛል
+      - ማን ነው [cholestyramine light](drug_name) ያለው?
+      - [protonix](drug_name) እፈልጋለሁ
+      - እባኮትን [ሲፕሮፍሎክሳሲን](drug_name) ካለ ያሳውቁኝ
+      - [rivastigmine tartrate](drug_name) አለመኖሩን አረጋግጡልኝ
+      - እባኮትን [ammonium phosphoricum](drug_name) ካለ ያሳውቁኝ
+      - [neurontin](drug_name) ፍለጋ
+      - [sulbactam](drug_name) የት አገኛለሁ?
+      - የትኛው ፋርማሲ [betadine](drug_name) አለው?
+      - [lorlatinib](drug_name) የት አገኛለሁ?
+      - [delsym](drug_name) የሚሸጥ ፋርማሲ አለ?
+      - [eliquis](drug_name) አለመኖሩን አረጋግጡልኝ
+      - [cadmium sulphuratum](drug_name) ፍለጋ
+      - እባክዎ [methocarbamol](drug_name) ይፈልጉልኝ
+      - [clonidine](drug_name) እፈልጋለሁ
+      - [coreg](drug_name) አለ?
+      - እባኮትን [bryonia root](drug_name) ካለ ያሳውቁኝ
+      - [perphenazine](drug_name) ፍለጋ
+      - [ሜቶክሎፕራማይድ](drug_name) አስፈልጎኛል
+      - [propylhexedrine](drug_name) የት አገኛለሁ?
+      - [ursodiol](drug_name) አስፈልጎኛል
+      - [medrol](drug_name)
+      - [mucinex](drug_name) አለመኖሩን አረጋግጡልኝ
+      - [etodolac](drug_name) መግዛት እፈልጋለሁ
+      - የ [verapamil](drug_name) ዋጋ ስንት ነው?
+      - እባኮትን [ኢሶሜፕራዞል](drug_name) ካለ ያሳውቁኝ
+      - የትኛው ፋርማሲ [bupropion  xl](drug_name) አለው?
+      - እባኮትን [povidone-iodine](drug_name) ካለ ያሳውቁኝ
+      - [zituvimet](drug_name) አለ?
+      - የ [esomeprazole magnesium](drug_name) ክምችት አለን?
+      - [caffeine](drug_name) አስፈልጎኛል
+      - የ [doxepin](drug_name) ዋጋ ስንት ነው?
+      - [zantac](drug_name) አስፈልጎኛል
+      - እባኮትን [tetrahydrozoline](drug_name) ካለ ያሳውቁኝ
+      - [betadine](drug_name) አስፈልጎኛል
+      - [አድቪል](drug_name) መግዛት እፈልጋለሁ
+      - [ustilago maydis](drug_name) ማግኘት እችላለሁ?
+      - [maxalt](drug_name) የት አገኛለሁ?
+      - [witch hazel](drug_name) የሚሸጥ ፋርማሲ አለ?
+      - [iclevia](drug_name) አለ?
+      - የ [ranolazine](drug_name) ክምችት አለን?
+      - [esomeprazole magnesium](drug_name) አስፈልጎኛል
+      - [prozac](drug_name) መግዛት እችላለሁ?
+      - [codeine](drug_name) የሚሸጥ ፋርማሲ አለ?
+      - [glucotrol](drug_name) እፈልጋለሁ
+      - እባኮትን [cortifoam](drug_name) ካለ ያሳውቁኝ
+      - [pepcid](drug_name) በቅርብ ርቀት
+      - [phenergan](drug_name) አስፈልጎኛል
+      - [selenium](drug_name) ፍለጋ
+      - [ornithogalum umbellatum](drug_name) መግዛት እችላለሁ?
+      - [allium cepa](drug_name) አለመኖሩን አረጋግጡልኝ
+      - [ammonium phosphoricum](drug_name) እዚህ ይገኛል?
+      - [vabrinty](drug_name) አላችሁ?
+      - [fucus vesiculosus](drug_name) በቅርብ ርቀት
+      - የ [ናፕሮክሲን](drug_name) ክምችት አለን?
+      - [amitriptyline](drug_name) ፍለጋ
+      - [ranolazine](drug_name)
+      - እባኮትን [eszopiclone](drug_name) ካለ ያሳውቁኝ
+      - [mekinist](drug_name) አለ?
+      - የትኛው ፋርማሲ [indomethacin](drug_name) አለው?
+      - [xanax](drug_name) መግዛት እፈልጋለሁ
+      - እባክዎ [sacubitril](drug_name) ይፈልጉልኝ
+      - እባኮትን [ሴቲሪዚን](drug_name) ካለ ያሳውቁኝ
+      - ማን ነው [neurontin](drug_name) ያለው?
+      - [benzocaine](drug_name) የሚሸጥ ፋርማሲ አለ?
+      - [prilosec](drug_name) የሚሸጥ ፋርማሲ አለ?
+      - [አቶርቫስታቲን](drug_name) የሚሸጥ ፋርማሲ አለ?
+      - [dextroamphetamine](drug_name) መግዛት እችላለሁ?
+      - ማን ነው [glycerin](drug_name) ያለው?
+      - የ [ፕራቫስታቲን](drug_name) ክምችት አለን?
+      - [baclofen injection](drug_name)
+      - [haloperidol](drug_name) አላችሁ?
+      - የትኛው ፋርማሲ [ammonium phosphoricum](drug_name) አለው?
+      - [trametinib](drug_name) ፍለጋ
+      - [palonosetron](drug_name) ፍለጋ
+      - እባክዎ [farxiga](drug_name) ይፈልጉልኝ
+  - intent: ask_app_usage
+    examples: |
+      - ይህን መተግበሪያ እንዴት እጠቀም
+      - እንዴት ይሰራል
+      - መመሪያ ስጠኝ
+      - ሆስፒታል እንዴት እፈልጋለሁ
+
+  - intent: ask_developer_info
+    examples: |
+      - ይህን መተግበሪያ ማን አዘጋጀው
+      - የሰራው ማን ነው
+      - መተግበሪያውን የሰራው ሰው ማን ነው?
+      - ስለ ዴቨሎፐር መረጃ ስጠኝ
+
+
+  - intent: ask_help
+    examples: |
+     - እርዳኝ
+     - ምን ልጠይቅ እችላለሁ
+     - ምን ታደርጋለህ
+     - ምን ልጠይቅ እችላለሁ
+     - ምን አገልግሎት ታደርጋለህ
+     - ምን አገልግሎት ትሰጣለህ
+
+  - intent: ask_about_app
+    examples: |
+     - ይህ መተግበሪያ ምንድነው
+     - ስለ ሲስተሙ ንገረኝ
+     - መተግበሪያ ምን ይሰራል
+     - መተግበሪያ ምን ያደርጋል
+     - የመተግበሪያ ምንድን ነው
+     - የ ፕሮጀክቱ አገልግሎት ምንድን ነው
+
+  - lookup: drug_name
+    examples: |
+      - aconitum napellus
+      - adenosine
+      - adrenalinum
+      - agaricus muscarius
+      - aldactone
+      - aleve
+      - allegra
+      - allium cepa
+      - aluminium fluoratum
+      - aluminium nitricum
+      - aluminium phosphoricum
+      - aluminium sulphuricum
+      - aluminum chlorohydrate
+      - aluminum sesquichlorohydrate
+      - amanita pantherina
+      - amaryl
+      - ambrosia artemisiaefolia
+      - amitriptyline
+      - ammonium bromatum
+      - ammonium carbonicum
+      - ammonium causticum
+      - ammonium muriaticum
+      - ammonium phosphoricum
+      - amphetamine
+      - amphetamine aspartate
+      - ampicillin
+      - anestenka
+      - apis mellifica
+      - argentum metalicum
+      - arsenicum album
+      - ascorbic acid
+      - ativan
+      - atropine
+      - avagard d
+      - avobenzone
+      - avobenzoneoctisalateoctocrylene
+      - azacitidine
+      - azacitidine for
+      - azstarys
+      - bacitracin
+      - bacitracin zinc
+      - baclofen
+      - baclofen injection
+      - bactrim
+      - baptisia tinctoria
+      - bellis perennis
+      - benadryl
+      - bentyl
+      - benzalkonium chloride
+      - benzedrex
+      - benzocaine
+      - benzoyl peroxide
+      - betadine
+      - betamethasone dipropionate
+      - biofreeze
+      - biofreeze professional
+      - bkemv
+      - borax
+      - brompheniramine
+      - brufen
+      - bryonia root
+      - bupropion
+      - bupropion  xl
+      - cadmium
+      - cadmium sulphuratum
+      - caffeine
+      - calcium
+      - calcium carbonate
+      - calcium cation
+      - camphor
+      - camphor synthetic
+      - capecitabine
+      - capsaicin
+      - carbamide peroxide
+      - carduus marianus
+      - castor oil
+      - cefazolin
+      - celebrex
+      - celexa
+      - chlor trimeton
+      - chloride
+      - chloroxylenol
+      - chlorthalidone
+      - cholestyramine light
+      - cialis
+      - cipro
+      - cisplatin
+      - cistus canadensis
+      - claritin
+      - cleocin
+      - clonidine
+      - clopidogrel bi
+      - clotrimazole
+      - codeine
+      - coffea cruda
+      - colcrys
+      - coreg
+      - cortef
+      - cortifoam
+      - coumadin
+      - cozaar
+      - crestor
+      - cromolyn
+      - cuprum met
+      - cuprum metallicum
+      - cymbalta
+      - dch hemorrhoidal
+      - dch scar
+      - decadron
+      - decitabine
+      - delsym
+      - deltasone
+      - desyrel
+      - dexmethylphenidate
+      - dextroamphetamine
+      - dextroamphetamine saccharate
+      - dextromethorphan hbr
+      - diflucan
+      - diltiazem
+      - dimenhydrinate
+      - dimethicone
+      - dipyridamole
+      - divalproex
+      - docetaxel
+      - doxepin
+      - doxorubicin
+      - doxycycline hyclate
+      - doxylamine succinate
+      - duloxetine delayed-release
+      - echinacea angustifolia
+      - eculizumab-aeeb
+      - effexor
+      - elahere
+      - eliquis
+      - entecavir
+      - entresto
+      - enulose
+      - eptifibatide
+      - esomeprazole magnesium
+      - eszopiclone
+      - ethyl alcohol
+      - etodolac
+      - eucalyptus oil
+      - euphrasia officinalis
+      - farxiga
+      - ferrum metallicum
+      - flagyl
+      - flexeril
+      - flomax
+      - flonase
+      - fludrocortisone
+      - fluoride
+      - fluticasone propionate
+      - fucus vesiculosus
+      - gablofen
+      - gadobutrol
+      - galium aparine
+      - garlic
+      - gastrocrom
+      - gaunfacine
+      - glucophage
+      - glucotrol
+      - glycerin
+      - graphite
+      - guanfacine
+      - haloperidol
+      - hepar suis
+      - histaminum hydrochloricum
+      - histastat pollen
+      - homosalate
+      - humalog
+      - hypericum perfomatum
+      - hypericum perforatum
+      - hypophysis
+      - hypophysis suis
+      - iclevia
+      - inderal
+      - indomethacin
+      - insulin aspart
+      - insulin glargine
+      - insulin lispro
+      - isopropyl alcohol
+      - januvia
+      - jardiance
+      - kali phosphoricum
+      - keflex
+      - ketoconazole
+      - ketorolac tromethamine
+      - klonopin
+      - lacosamide
+      - lactulose
+      - lamivudine
+      - lamotrigine
+      - lanolin
+      - lantus
+      - lasix
+      - leflunomide
+      - leuprolide
+      - levaquin
+      - lexapro
+      - lidocaine
+      - lipitor
+      - lopressor
+      - lorbrena
+      - lorlatinib
+      - lubiprostone
+      - lupron depot
+      - macrobid
+      - mafenide
+      - magnesia phosphorica
+      - magnesium hydroxide
+      - manganum metallicum
+      - maxalt
+      - maxalt-mlt
+      - medrol
+      - mekinist
+      - menthol
+      - mercurius vivus
+      - mesalamine
+      - methocarbamol
+      - methyl salicylate
+      - metoprolol tartrate
+      - microzide
+      - minoxidil
+      - mirabegron
+      - mirvetuximab soravtansine
+      - mobic
+      - monofluoro
+      - motrin
+      - mucinex
+      - naltrexone
+      - naphazoline
+      - natrum muriaticum
+      - natrum sulphuricum
+      - neomycin
+      - neurontin
+      - nexium
+      - niacinamide
+      - nicotine polacrilex
+      - nitisinone
+      - nitricum acidum
+      - nitrous oxide
+      - nityr
+      - norvasc
+      - novolog
+      - nux vomica
+      - oat
+      - octinoxate
+      - octisalate
+      - octocrylene
+      - olanzapine
+      - orfadin
+      - ornithogalum umbellatum
+      - oseltamivir
+      - oxybenzone
+      - oxygen
+      - palonosetron
+      - pepcid
+      - perphenazine
+      - petrolatum
+      - phenazopyridine
+      - phenergan
+      - phenylephrine
+      - phosphoric acid
+      - phosphorus
+      - phytolacca decandra
+      - plaquenil
+      - plavix
+      - plumbum metallicum
+      - polymyxin b
+      - potassium chloride
+      - povidone-iodine
+      - pramipexole di
+      - pravachol
+      - pred forte
+      - prednisolone
+      - pregabalin
+      - prevacid
+      - prilosec
+      - prinivil
+      - propylene glycol
+      - propylhexedrine
+      - proscar
+      - protonix
+      - proventil
+      - prozac
+      - pulmicort
+      - pulsatilla pratensis
+      - pyrithione zinc
+      - ranolazine
+      - rapidol aspirin
+      - reglan
+      - resorcinol
+      - rhus tox
+      - rivastigmine tartrate
+      - rizatriptan benzoate
+      - ropinirole
+      - sabadilla
+      - sacubitril
+      - salicylic acid
+      - selenium
+      - septra
+      - serdexmethylphenidate
+      - sevelamer carbonate
+      - silicea
+      - silicon dioxide
+      - silver sulfadiazine
+      - simethicone
+      - sinapis nigra
+      - singulair
+      - solidago virgaurea
+      - spiriva
+      - sudafed
+      - sulbactam
+      - sulfamylon
+      - sulphur
+      - symphytum officinale
+      - synthroid
+      - tarentula hispana
+      - tenormin
+      - tessalon
+      - tetrahydrozoline
+      - thallium
+      - thuja occidentalis
+      - thymus suis
+      - tin
+      - titanium dioxide
+      - tizanidne
+      - tocilizumab
+      - tofidence
+      - trametinib
+      - trandolapril
+      - tranexamic acid
+      - trexall
+      - tricor
+      - trimethobenzamide
+      - triple antibiotic
+      - tropicamide
+      - ultram
+      - ursodiol
+      - ustilago maydis
+      - vabrinty
+      - valsartan
+      - valtrex
+      - vancomycin
+      - varenicline
+      - ventolin
+      - veradex-e
+      - verapamil
+      - viagra
+      - vibramycin
+      - voltaren
+      - white petrolatum
+      - witch hazel
+      - wyethia helenioides
+      - xanax
+      - xarelto
+      - ytterbium oxide
+      - zantac
+      - zestril
+      - zetia
+      - zidovudine
+      - zinc oxide
+      - ziprasidone
+      - zithromax
+      - zituvimet
+      - zocor
+      - zofran
+      - zoledronic acid
+      - zoloft
+      - zovirax
+      - zyloprim
+      - zyrtec
+      - ሀይድሮክሎሮቲያዛይድ
+      - ሃይድሮክሲክሎሮኩዊን
+      - ሃይድሮኮርቲሶን
+      - ሊሲኖፕሪል
+      - ላንሶፕራዞል
+      - ሌቮታይሮክሲን
+      - ሌቮፍሎክሳሲን
+      - ሎራታዲን
+      - ሎራዜፓም
+      - ሎሳርታን
+      - ሜሎክሲካም
+      - ሜቲልፕሬድኒሶሎን
+      - ሜትሮኒዳዞል
+      - ሜትፎርሚን
+      - ሜቶትሬክሳቴ
+      - ሜቶክሎፕራማይድ
+      - ሜቶፕሮሎል
+      - ሞንቴሉካስት
+      - ሪቫሮክሳባን
+      - ራኒቲዲን
+      - ሮሱቫስታቲን
+      - ሰልፋሜቶክሳዞል
+      - ሰርትራሊን
+      - ሱዶኢፌድሪን
+      - ሲልዴናፊል
+      - ሲምቫስታቲን
+      - ሲታሎፕራም
+      - ሲታግሊፕቲን
+      - ሲፕሮፍሎክሳሲን
+      - ሳይክሎቤንዛፕሪን
+      - ሴሌኮክሲብ
+      - ሴቲሪዚን
+      - ሴፋሌክሲን
+      - ሴፋሎስፖሪን
+      - ስፒሮኖላክቶን
+      - ቡዴሶኒድ
+      - ቤንዞናታቴ
+      - ቫላሳይክሎቪር
+      - ቬንላፋክሲን
+      - ቲዮትሮፒየም
+      - ታምሱሎሲን
+      - ታይለኖል
+      - ታዳላፊል
+      - ቴትራሳይክሊን
+      - ትራማዶል
+      - ትራዞዶን
+      - ትራይሜቶፕሪም
+      - ኒትሮፉራንቶይን
+      - ናፕሮክሲን
+      - አልቡቴሮል
+      - አልፕራዞላም
+      - አሎፑሪኖል
+      - አምሎዲፒን
+      - አሞክሲሲሊን
+      - አሳይክሎቪር
+      - አሴታሚኖፌን
+      - አስፕሪን
+      - አቴኖሎል
+      - አቶርቫስታቲን
+      - አዚትሮማይሲን
+      - አድቪል
+      - አፒክሳባን
+      - ኢሶሜፕራዞል
+      - ኢቡፕሮፌን
+      - ኢንሱሊን
+      - ኢዜቲሚብ
+      - ኤምፓግሊፍሎዚን
+      - ኤሪትሮማይሲን
+      - ኤስሲታሎፕራም
+      - ኦሜፕራዞል
+      - ኦንዳንሴትሮን
+      - ካርቬዲሎል
+      - ክሊንዳማይሲን
+      - ክሎሮፌኒራሚን
+      - ክሎናዜፓም
+      - ክሎፒዶግሬል
+      - ኮልቺሲን
+      - ዋርፋሪን
+      - ዱሎክሴቲን
+      - ዳይሳይክሎሚን
+      - ዳይክሎፌናክ
+      - ዳይፌንሀይድራሚን
+      - ዳፓግሊፍሎዚን
+      - ዴክሳሜታሶን
+      - ዴክስትሮሜቶርፋን
+      - ዶክሲሳይክሊን
+      - ጋባፔንቲን
+      - ግሊሜፒራይድ
+      - ግሊፒዛይድ
+      - ጓይፌኔሲን
+      - ፉሮሴማይድ
+      - ፊናስቴራይድ
+      - ፋሞቲዲን
+      - ፌኖፊብሬት
+      - ፌክሶፌናዲን
+      - ፍሉቲካሶን
+      - ፍሉኦክሴቲን
+      - ፍሉኮናዞል
+      - ፓራሰታሞል
+      - ፓናዶል
+      - ፓንቶፕራዞል
+      - ፔኒሲሊን
+      - ፕራቫስታቲን
+      - ፕሬድኒሶን
+      - ፕሮሜታዚን
+      - ፕሮፕራኖሎል
+
+  - synonym: ፓራሰታሞል
+    examples: |
+      - ፓራሰታሞል
+      - አሴታሚኖፌን
+      - ፓናዶል
+      - ታይለኖል
+
+  - synonym: ኢቡፕሮፌን
+    examples: |
+      - ኢቡፕሮፌን
+      - አድቪል
+
+  - synonym: አሞክሲሲሊን
+    examples: |
+      - አሞክሲሲሊን
+
+  - synonym: አዚትሮማይሲን
+    examples: |
+      - አዚትሮማይሲን
+
+  - synonym: ሲፕሮፍሎክሳሲን
+    examples: |
+      - ሲፕሮፍሎክሳሲን
+
+  - synonym: ኦሜፕራዞል
+    examples: |
+      - ኦሜፕራዞል
+
+  - synonym: ሜትፎርሚን
+    examples: |
+      - ሜትፎርሚን
+
+  - synonym: ሎሳርታን
+    examples: |
+      - ሎሳርታን
+
+  - synonym: አምሎዲፒን
+    examples: |
+      - አምሎዲፒን
+
+  - synonym: አቶርቫስታቲን
+    examples: |
+      - አቶርቫስታቲን
+
+  - synonym: ሌቮታይሮክሲን
+    examples: |
+      - ሌቮታይሮክሲን
+
+  - synonym: ሊሲኖፕሪል
+    examples: |
+      - ሊሲኖፕሪል
+
+  - synonym: አልቡቴሮል
+    examples: |
+      - አልቡቴሮል
+
+  - synonym: ጋባፔንቲን
+    examples: |
+      - ጋባፔንቲን
+
+  - synonym: ሰርትራሊን
+    examples: |
+      - ሰርትራሊን
+
+  - synonym: ፍሉኦክሴቲን
+    examples: |
+      - ፍሉኦክሴቲን
+
+  - synonym: ሲታሎፕራም
+    examples: |
+      - ሲታሎፕራም
+
+  - synonym: ፓንቶፕራዞል
+    examples: |
+      - ፓንቶፕራዞል
+
+  - synonym: ትራማዶል
+    examples: |
+      - ትራማዶል
+
+  - synonym: ክሎናዜፓም
+    examples: |
+      - ክሎናዜፓም
+
+  - synonym: ሎራዜፓም
+    examples: |
+      - ሎራዜፓም
+
+  - synonym: አልፕራዞላም
+    examples: |
+      - አልፕራዞላም
+
+  - synonym: ሳይክሎቤንዛፕሪን
+    examples: |
+      - ሳይክሎቤንዛፕሪን
+
+  - synonym: ትራዞዶን
+    examples: |
+      - ትራዞዶን
+
+  - synonym: ዱሎክሴቲን
+    examples: |
+      - ዱሎክሴቲን
+
+  - synonym: ቬንላፋክሲን
+    examples: |
+      - ቬንላፋክሲን
+
+  - synonym: ኤስሲታሎፕራም
+    examples: |
+      - ኤስሲታሎፕራም
+
+  - synonym: ራኒቲዲን
+    examples: |
+      - ራኒቲዲን
+
+  - synonym: ፋሞቲዲን
+    examples: |
+      - ፋሞቲዲን
+
+  - synonym: ሴቲሪዚን
+    examples: |
+      - ሴቲሪዚን
+
+  - synonym: ሎራታዲን
+    examples: |
+      - ሎራታዲን
+
+  - synonym: ፌክሶፌናዲን
+    examples: |
+      - ፌክሶፌናዲን
+
+  - synonym: ዳይፌንሀይድራሚን
+    examples: |
+      - ዳይፌንሀይድራሚን
+
+  - synonym: ዳይክሎፌናክ
+    examples: |
+      - ዳይክሎፌናክ
+
+  - synonym: ናፕሮክሲን
+    examples: |
+      - ናፕሮክሲን
+
+  - synonym: ሜሎክሲካም
+    examples: |
+      - ሜሎክሲካም
+
+  - synonym: ሴሌኮክሲብ
+    examples: |
+      - ሴሌኮክሲብ
+
+  - synonym: ሀይድሮክሎሮቲያዛይድ
+    examples: |
+      - ሀይድሮክሎሮቲያዛይድ
+
+  - synonym: ፉሮሴማይድ
+    examples: |
+      - ፉሮሴማይድ
+
+  - synonym: ስፒሮኖላክቶን
+    examples: |
+      - ስፒሮኖላክቶን
+
+  - synonym: ካርቬዲሎል
+    examples: |
+      - ካርቬዲሎል
+
+  - synonym: ሜቶፕሮሎል
+    examples: |
+      - ሜቶፕሮሎል
+
+  - synonym: አቴኖሎል
+    examples: |
+      - አቴኖሎል
+
+  - synonym: ፕሮፕራኖሎል
+    examples: |
+      - ፕሮፕራኖሎል
+
+  - synonym: ክሎፒዶግሬል
+    examples: |
+      - ክሎፒዶግሬል
+
+  - synonym: ዋርፋሪን
+    examples: |
+      - ዋርፋሪን
+
+  - synonym: አፒክሳባን
+    examples: |
+      - አፒክሳባን
+
+  - synonym: ሪቫሮክሳባን
+    examples: |
+      - ሪቫሮክሳባን
+
+  - synonym: ሮሱቫስታቲን
+    examples: |
+      - ሮሱቫስታቲን
+
+  - synonym: ሲምቫስታቲን
+    examples: |
+      - ሲምቫስታቲን
+
+  - synonym: ፕራቫስታቲን
+    examples: |
+      - ፕራቫስታቲን
+
+  - synonym: ኢዜቲሚብ
+    examples: |
+      - ኢዜቲሚብ
+
+  - synonym: ፌኖፊብሬት
+    examples: |
+      - ፌኖፊብሬት
+
+  - synonym: ግሊፒዛይድ
+    examples: |
+      - ግሊፒዛይድ
+
+  - synonym: ግሊሜፒራይድ
+    examples: |
+      - ግሊሜፒራይድ
+
+  - synonym: ሲታግሊፕቲን
+    examples: |
+      - ሲታግሊፕቲን
+
+  - synonym: ኤምፓግሊፍሎዚን
+    examples: |
+      - ኤምፓግሊፍሎዚን
+
+  - synonym: ዳፓግሊፍሎዚን
+    examples: |
+      - ዳፓግሊፍሎዚን
+
+  - synonym: ሌቮፍሎክሳሲን
+    examples: |
+      - ሌቮፍሎክሳሲን
+
+  - synonym: ዶክሲሳይክሊን
+    examples: |
+      - ዶክሲሳይክሊን
+
+  - synonym: ሴፋሌክሲን
+    examples: |
+      - ሴፋሌክሲን
+
+  - synonym: ክሊንዳማይሲን
+    examples: |
+      - ክሊንዳማይሲን
+
+  - synonym: ኒትሮፉራንቶይን
+    examples: |
+      - ኒትሮፉራንቶይን
+
+  - synonym: ሜትሮኒዳዞል
+    examples: |
+      - ሜትሮኒዳዞል
+
+  - synonym: ፍሉኮናዞል
+    examples: |
+      - ፍሉኮናዞል
+
+  - synonym: ቫላሳይክሎቪር
+    examples: |
+      - ቫላሳይክሎቪር
+
+  - synonym: አሳይክሎቪር
+    examples: |
+      - አሳይክሎቪር
+
+  - synonym: ሞንቴሉካስት
+    examples: |
+      - ሞንቴሉካስት
+
+  - synonym: ፍሉቲካሶን
+    examples: |
+      - ፍሉቲካሶን
+
+  - synonym: ቡዴሶኒድ
+    examples: |
+      - ቡዴሶኒድ
+
+  - synonym: ቲዮትሮፒየም
+    examples: |
+      - ቲዮትሮፒየም
+
+  - synonym: ኦንዳንሴትሮን
+    examples: |
+      - ኦንዳንሴትሮን
+
+  - synonym: ፕሮሜታዚን
+    examples: |
+      - ፕሮሜታዚን
+
+  - synonym: ሜቶክሎፕራማይድ
+    examples: |
+      - ሜቶክሎፕራማይድ
+
+  - synonym: ላንሶፕራዞል
+    examples: |
+      - ላንሶፕራዞል
+
+  - synonym: ኢሶሜፕራዞል
+    examples: |
+      - ኢሶሜፕራዞል
+
+  - synonym: ዳይሳይክሎሚን
+    examples: |
+      - ዳይሳይክሎሚን
+
+  - synonym: ታምሱሎሲን
+    examples: |
+      - ታምሱሎሲን
+
+  - synonym: ፊናስቴራይድ
+    examples: |
+      - ፊናስቴራይድ
+
+  - synonym: ሲልዴናፊል
+    examples: |
+      - ሲልዴናፊል
+
+  - synonym: ታዳላፊል
+    examples: |
+      - ታዳላፊል
+
+  - synonym: አሎፑሪኖል
+    examples: |
+      - አሎፑሪኖል
+
+  - synonym: ኮልቺሲን
+    examples: |
+      - ኮልቺሲን
+
+  - synonym: ሜቶትሬክሳቴ
+    examples: |
+      - ሜቶትሬክሳቴ
+
+  - synonym: ሃይድሮክሲክሎሮኩዊን
+    examples: |
+      - ሃይድሮክሲክሎሮኩዊን
+
+  - synonym: ፕሬድኒሶን
+    examples: |
+      - ፕሬድኒሶን
+
+  - synonym: ሜቲልፕሬድኒሶሎን
+    examples: |
+      - ሜቲልፕሬድኒሶሎን
+
+  - synonym: ዴክሳሜታሶን
+    examples: |
+      - ዴክሳሜታሶን
+
+  - synonym: ሃይድሮኮርቲሶን
+    examples: |
+      - ሃይድሮኮርቲሶን
+
+  - synonym: ክሎሮፌኒራሚን
+    examples: |
+      - ክሎሮፌኒራሚን
+
+  - synonym: ሱዶኢፌድሪን
+    examples: |
+      - ሱዶኢፌድሪን
+
+  - synonym: ጓይፌኔሲን
+    examples: |
+      - ጓይፌኔሲን
+
+  - synonym: ዴክስትሮሜቶርፋን
+    examples: |
+      - ዴክስትሮሜቶርፋን
+
+  - synonym: ቤንዞናታቴ
+    examples: |
+      - ቤንዞናታቴ

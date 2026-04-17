@@ -105,12 +105,12 @@ export default function RegisterationForm() {
   }
 
 
-const isAmharic = localStorage.getItem("i18nextLng") === "am";
+  const isAmharic = localStorage.getItem("i18nextLng") === "am";
   return (
 
 
-    <div className="w-full h-fit md:w-1/2 py-10 md:px-4 lg:px-16">
-     
+    <div className="w-full h-fit md:w-1/2 py-10 md:px-4 lg:px-16 overflow-y-auto max-h-[80vh]">
+
       <h2 className="text-2xl  font-bold mb-2 text-slate-900 dark:text-white">
         {t("Register.Register")}
       </h2>
@@ -211,7 +211,7 @@ const isAmharic = localStorage.getItem("i18nextLng") === "am";
                 dark:hover:bg-gray-400 transition-all duration-500 shadow-black rounded-2xl cursor-pointer"
         onClick={() =>
         (window.location.href =
-          "http://localhost:8000/api/auth/google/redirect")
+          "https://medfinder.com/api/auth/google/redirect")
         }
       >
         <FcGoogle className="w-6 h-6" />

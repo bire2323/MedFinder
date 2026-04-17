@@ -7,8 +7,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\HospitalController;
 use App\Http\Controllers\PharmacyController;
 use App\Http\Controllers\DrugController;
-use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ChatSessionController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ServiceController;
@@ -21,9 +19,6 @@ use Illuminate\Support\Facades\Broadcast;
 
 use App\Models\Hospital;
 use App\Models\Pharmacy;
-use App\Models\Location;
-
-use App\Models\PharmacyDrugInventory;
 use Illuminate\Support\Facades\Http;
 
 
@@ -110,10 +105,15 @@ Route::get('pharmacies', [PharmacyController::class, 'index']);
 Route::get('pharmacies/{pharmacy}', [PharmacyController::class, 'show']);
 Route::get('drugs', [DrugController::class, 'index']);
 Route::get('drugs/{drug}', [DrugController::class, 'show']);
+Route::get('pharmacy/inventory/medicines/search', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'searchMedicine']);
 
+
+Route::get('/pharmacies', [PharmacyController::class, 'botIndex']);
+Route::get('/hospitals', [HospitalController::class, 'botIndex']);
 Route::middleware("auth:sanctum")->group(function () {
     Route::post('pharmacy/profile/{pharmacy}', [PharmacyController::class, 'updateProfile']);
     Route::post('hospital/profile/{hospital}', [HospitalController::class, 'updateProfile']);
+
 });
 
 // Routing & Smart Pharmacy Search
@@ -210,6 +210,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('pharmacy/inventory')->group(function () {
 
         Route::get('/', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getInventory']);
+
         Route::get('analytics', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getAnalytics']);
         Route::get('trash', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getTrash']);
         Route::get('history', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getStockHistory']);
@@ -292,6 +293,10 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::fallback(function () {
     return response()->json(['message' => 'Not Found.'], 404);
 });
-Route::post('/broadcasting/auth', function (Request $request) {
-    return Broadcast::auth($request);
-});
+
+
+
+
+
+
+Route::get('/bot/search-drug', [\App\Http\Controllers\PharmacyDrugInventoryController::class, "botSearchMedicine"]);

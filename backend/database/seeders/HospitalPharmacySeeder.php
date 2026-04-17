@@ -25,36 +25,46 @@ class HospitalPharmacySeeder extends Seeder
                 'en' => 'University of Gondar Comprehensive Hospital',
                 'am' => 'የጎንደር ዩኒቨርሲቲ ስፔሻላይዝድ ሆስፒታል',
                 'phone' => '0581141232',
+                "EMAIL_ADDRESS" => 'some@gmail.com',
                 'lat' => 12.6156, 'long' => 37.4523, 'sub_city' => 'Chechela'
             ],
             [
                 'en' => 'Gondar General Hospital',
                 'am' => 'ጎንደር አጠቃላይ ሆስፒታል',
                 'phone' => '0581110245',
+                "EMAIL_ADDRESS" => 'some@gmail.com',
+
                 'lat' => 12.6050, 'long' => 37.4600, 'sub_city' => 'Arada'
             ],
             [
                 'en' => 'Ibex General Hospital',
                 'am' => 'አይቤክስ አጠቃላይ ሆስፒታል',
                 'phone' => '0918765432',
+                "EMAIL_ADDRESS" => 'some@gmail.com',
+
                 'lat' => 12.5983, 'long' => 37.4502, 'sub_city' => 'Azezo'
             ],
             [
                 'en' => 'Alpha Hospital',
                 'am' => 'አልፋ ሆስፒታል',
                 'phone' => '0921345678',
+                "EMAIL_ADDRESS" => 'some@gmail.com',
+
                 'lat' => 12.6100, 'long' => 37.4700, 'sub_city' => 'Maraki'
             ],
             [
                 'en' => 'Gondar Primary Hospital',
                 'am' => 'ጎንደር አንደኛ ደረጃ ሆስፒታል',
                 'phone' => '0581119988',
+                "EMAIL_ADDRESS" => 'some@gmail.com',
+
                 'lat' => 12.6200, 'long' => 37.4400, 'sub_city' => 'Piazza'
             ],
             [
                 'en' => 'Tibebe Ghion Specialized Clinic',
                 'am' => 'ጥበበ ጊዮን ስፔሻላይዝድ ክሊኒክ',
                 'phone' => '0933445566',
+                "EMAIL_ADDRESS" => 'some@gmail.com',
                 'lat' => 12.6012, 'long' => 37.4650, 'sub_city' => 'Abina'
             ],
         ];
@@ -78,6 +88,7 @@ class HospitalPharmacySeeder extends Seeder
                 'working_hour' => '24/7',
                 'is_full_time_service' => true,
                 'emergency_contact' => $h['phone'],
+                'contact_email' => $h["EMAIL_ADDRESS"],
                 'status' => 'APPROVED',
             ])->addresses()->create([
                 'region_en' => 'Amhara', 'region_am' => 'አማራ',

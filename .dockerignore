@@ -1,0 +1,46 @@
+# Global ignores for monorepo
+.git
+.github
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Environment & Docker files
+*.env
+*.env.*
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Documentation
+*.md
+README*
+LICENSE
+
+# Logs and temporary files
+**/*.log
+**/logs
+**/tmp
+**/temp
+
+# Build artifacts & dependencies (critical!)
+**/node_modules
+**/vendor
+**/dist
+**/build
+**/.next
+**/.nuxt
+**/.vite
+**/storage/framework/cache
+**/storage/framework/sessions
+**/storage/framework/views
+**/storage/logs
+**/public/hot
+**/public/storage
+
+# Other project-specific large folders
+osrn-data/**   # if it contains big files (tiles, images, etc.)
+tiles/**
+
+# Ignore everything by default, then selectively include in Dockerfiles

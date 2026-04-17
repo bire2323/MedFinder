@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, Marker, Popup, useMap, LayersControl, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { ChevronLeft, Search, Navigation, MapPin, X, ArrowUp, Navigation2, Volume2, VolumeX } from "lucide-react";
+import { ChevronLeft, Search, Navigation, MapPin, Navigation2 } from "lucide-react";
 import iconpharma from "../../assets/iconpharma.png";
 import { useNavigate, useLocation } from "react-router-dom";
 import getDistanceFromLatLonInMeters from "../../utils/GetDistanceFromLatLoInMeters";
@@ -11,14 +11,10 @@ import Routing from "./Routing";
 import { VoiceNavigator } from "./VoiceNavigator";
 import { apiSmartPharmacySearch } from "../../api/routing";
 import { enhanceRouteSteps } from "./enhanceRouteSteps";
+import { apiGetFacilities } from "../../api/hospital";
+import NavigationUI from "./NavigationUI";
 
-// Initialize singleton instance
-const voiceNav = new VoiceNavigator({
-  proximityThreshold: 60,
-  nowThreshold: 15,
-});
-
-// Leaflet Icon Fix for standard markers
+// Leaflet Icon Fix
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -49,15 +45,14 @@ function RecenterMap({ position, followUser, isNavigating }) {
     } else {
       map.setView(position, 16, { animate: true });
     }
-  }, [position, map, followUser, isNavigating]);
+  }, [position, map, followUser, isNavigating, hasInitialZoom]);
 
   return null;
 }
-const BACKEND_URL = import.meta.env.VITE_API_BASE || "/api";
-const API_BASE_URL = "/api";
+
 export default function MapPage() {
   const navigate = useNavigate();
-  const location = useLocation(); // To accept facility from card
+  const location = useLocation();
   const { t } = useTranslation();
 
   const [userLocation, setUserLocation] = useState(null);
@@ -72,39 +67,54 @@ export default function MapPage() {
   const [currentRoute, setCurrentRoute] = useState(null);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [lastRouteUpdatePos, setLastRouteUpdatePos] = useState(null);
-  const [isMuted, setIsMuted] = useState(voiceNav.isMuted);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isRouteLoading, setIsRouteLoading] = useState(false); // ✅ Add loading state
 
-  // 1. Accept facility passed from ResultCard
+  const markersRef = useRef({});
+  const voiceNavRef = useRef(null);
+  const isStartingNavigationRef = useRef(false); // ✅ Prevent double start
+
+
+  const [routeFetched, setRouteFetched] = useState(false);
+
+
+  // Initialize voice navigator
+  useEffect(() => {
+    voiceNavRef.current = new VoiceNavigator({
+      proximityThreshold: 60,
+      nowThreshold: 15,
+      rate: 0.9,
+      pitch: 1.0,
+    });
+
+    setIsMuted(voiceNavRef.current.isMuted);
+
+    return () => {
+      if (voiceNavRef.current) {
+        voiceNavRef.current.stop();
+      }
+    };
+  }, []);
+
+  // Accept facility from ResultCard
   useEffect(() => {
     if (location.state?.selectedFacility) {
       const facility = location.state.selectedFacility;
-      //console.log("location", location.state);
       setSelectedDestination(facility);
       setFollowUser(false);
     }
   }, [location.state]);
 
-  // 2. Data Fetching (Restored exactly as provided)
+  // Fetch facilities
   useEffect(() => {
-    //  const fetchData = async () => {
-    // setLoading(true);
-    // try {
-    //   const res = await apiGetFacilities();
-    //   if (res.success) {
-    //     const data = res?.data || [];
-    //    setFacilities(data);
-    //  }
-    // } catch (error) {
-    //  console.log("Error fetching facilities", error);
-    //} finally {
-    //  setLoading(false);
-    // }
-    // };
-    //fetchData();
+    const fetchData = async () => {
+      try {
+        const res = await apiGetFacilities();
+        if (!res.ok) {
+          return;
+        }
+        const data = await res.json();
 
-    fetch(`/api/medical-facilities`)
-      .then(res => res.json())
-      .then(data => {
         const normalizedData = data.data.map(f => {
           const mainAddress = f.addresses && f.addresses.length > 0 ? f.addresses[0] : null;
           return {
@@ -117,26 +127,15 @@ export default function MapPage() {
         }).filter(f => f.lat !== null && f.lng !== null);
 
         setFacilities(normalizedData);
-      })
-      .catch(err => console.error("API Fetch Error:", err));
+      }
+      catch (err) {
+        console.error("API Fetch Error:", err);
+      }
+    };
+    fetchData();
   }, []);
 
-  // 3. Live User Tracking
-  //  useEffect(() => {
-  //  if (!navigator.geolocation) return;
-  //  const watchId = navigator.geolocation.watchPosition(
-  //    (loc) => {
-  //       const pos = [loc.coords.latitude, loc.coords.longitude];
-  //       setUserLocation(pos);
-  //     },
-  //      () => console.error("Location access denied"),
-  //      { enableHighAccuracy: true }
-  ///   );
-  //  return () => navigator.geolocation.clearWatch(watchId);
-  // }, []);
-
-
-
+  // Live User Tracking
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
@@ -145,7 +144,6 @@ export default function MapPage() {
 
         setUserLocation(prev => {
           if (!prev) return [newLat, newLng];
-          // Smoothing logic
           return [
             prev[0] + (newLat - prev[0]) * 0.3,
             prev[1] + (newLng - prev[1]) * 0.3
@@ -155,47 +153,117 @@ export default function MapPage() {
       (err) => {
         console.error("Geolocation Error:", err.message);
       },
-      { 
-        enableHighAccuracy: true, 
-        maximumAge: 1000, 
-        timeout: 10000 
+      {
+        enableHighAccuracy: true,
+        maximumAge: 1000,
+        timeout: 10000
       }
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
-  // Separate effect for navigation updates (voice & route refresh)
-  useEffect(() => {
-    if (!isNavigating || !userLocation || !selectedDestination) return;
-
-    // Update voice navigator with current smoothed position
-    voiceNav.update(userLocation[0], userLocation[1]);
-    
-    // Sync current step index from voice navigator to UI
-    if (voiceNav.currentStepIndex !== currentStepIndex) {
-      setCurrentStepIndex(voiceNav.currentStepIndex);
+  const startNavigationWithRoute = (route) => {
+    if (!route || !route.steps || route.steps.length === 0) {
+      console.error("Cannot start navigation: Invalid route");
+      return false;
     }
 
-    // Refresh route if user moved significantly (>30 meters)
+    if (isStartingNavigationRef.current) {
+      console.log("Navigation already starting, skipping...");
+      return false;
+    }
+
+    isStartingNavigationRef.current = true;
+
+    try {
+      // Stop any existing navigation first
+      if (voiceNavRef.current) {
+        voiceNavRef.current.stop();
+      }
+
+      // ALWAYS enhance the route
+      const enhancedRoute = enhanceRouteSteps(route);
+      // console.log("Starting navigation with enhanced route:", enhancedRoute);
+      // console.log("First step instruction:", enhancedRoute.steps[0]?.fullInstruction);
+
+      // Start voice navigation
+      if (voiceNavRef.current) {
+        voiceNavRef.current.start(enhancedRoute.steps);
+      }
+
+      // Update state
+      setCurrentRoute(enhancedRoute);
+      setCurrentStepIndex(0);
+      setIsNavigating(true);
+      setFollowUser(true);
+      setLastRouteUpdatePos(userLocation);
+
+      return true;
+    } catch (error) {
+      console.error("Error starting navigation:", error);
+      return false;
+    } finally {
+      setTimeout(() => {
+        isStartingNavigationRef.current = false;
+      }, 1000);
+    }
+  };
+  const handleRouteUpdate = useCallback((route) => {
+    console.log("Route received from Routing component:", route);
+    console.log("Route steps count:", route.steps?.length);
+
+    if (route && route.steps && route.steps.length > 0) {
+      if (isNavigating) {
+        console.log("Starting voice navigation with received route");
+        startNavigationWithRoute(route);
+      } else {
+        console.log("Storing route for later use");
+        setCurrentRoute(route);
+      }
+    } else {
+      console.error("Invalid route received - no steps!");
+    }
+  }, [isNavigating, startNavigationWithRoute]);
+  // ✅ FIXED: Navigation updates
+  useEffect(() => {
+    if (!isNavigating || !userLocation || !voiceNavRef.current) return;
+    if (!currentRoute || !currentRoute.steps) return;
+
+    // Update voice navigator with current position
+    voiceNavRef.current.update(userLocation[0], userLocation[1]);
+
+    // Sync step index
+    const voiceStepIndex = voiceNavRef.current.currentStepIndex;
+    if (voiceStepIndex !== currentStepIndex && voiceStepIndex >= 0) {
+      setCurrentStepIndex(voiceStepIndex);
+    }
+
+    // Check if navigation completed
+    if (voiceStepIndex >= currentRoute.steps.length - 1) {
+      const lastStep = currentRoute.steps[voiceStepIndex];
+      if (lastStep?.type === 'arrive') {
+        console.log("Arrived at destination!");
+        setTimeout(() => {
+          handleStopNavigation();
+        }, 5000);
+      }
+    }
+
+    // Refresh route if moved significantly
     if (lastRouteUpdatePos) {
       const distMoved = getDistanceFromLatLonInMeters(
         userLocation[0], userLocation[1],
         lastRouteUpdatePos[0], lastRouteUpdatePos[1]
       );
-
       if (distMoved > 30) {
-        console.log(`User moved ${Math.round(distMoved)}m - refreshing route...`);
         setLastRouteUpdatePos(userLocation);
-        // This setLastRouteUpdatePos will trigger a re-fetch in the Routing component
       }
     } else {
-      // Set initial position for distance tracking
       setLastRouteUpdatePos(userLocation);
     }
-  }, [userLocation, isNavigating, selectedDestination, currentStepIndex]);
+  }, [userLocation, isNavigating, currentRoute, currentStepIndex, lastRouteUpdatePos]);
 
-  // 4. Distance Calculation & Sorting
   const sortedFacilities = userLocation && facilities.length > 0
     ? facilities
       .map((p) => ({
@@ -210,7 +278,6 @@ export default function MapPage() {
       .sort((a, b) => a.distance - b.distance)
     : [];
 
-  // 5. Search Filter
   const filteredPlaces = searchQuery.trim()
     ? facilities.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
     : [];
@@ -219,32 +286,56 @@ export default function MapPage() {
     ? [selectedDestination.lat, selectedDestination.lng]
     : null;
 
-  const handleStartNavigation = async (initialRoute = null) => {
-    if (!userLocation || !selectedDestination) {
-      alert("Please ensure location is enabled and a destination is selected.");
+  // ✅ FIXED: Single function to start navigation with enhanced route
+
+  // Generate a unique key for the route
+  const routeKey = useMemo(() => {
+    if (!userLocation || !routeDestination) return null;
+    return `${userLocation[0].toFixed(6)}-${userLocation[1].toFixed(6)}|${routeDestination[0].toFixed(6)}-${routeDestination[1].toFixed(6)}`;
+  }, [userLocation, routeDestination]);
+
+  // Reset fetched flag when destination changes
+  useEffect(() => {
+    setRouteFetched(false);
+  }, [selectedDestination]);
+
+  // ✅ FIXED: Handle navigation start from button click
+  const handleStartNavigation = (place) => {
+    if (!userLocation) {
+      alert("Please enable location services");
+      return;
+    }
+    setSelectedDestination(place);
+    //console.log("Selected destination:", selectedDestination);
+    if (!place) {
+      alert("Please select a destination first");
       return;
     }
 
-    console.log("Starting navigation...",initialRoute);
-    setIsNavigating(true);
-    setFollowUser(true);
-    setLastRouteUpdatePos(userLocation);
-
-    const routeToUse = initialRoute || currentRoute;
-    if (routeToUse && routeToUse.steps) {
-      console.log("Starting voice navigation...");
-      voiceNav.start(routeToUse.steps);
-      setCurrentStepIndex(voiceNav.currentStepIndex);
-      if (!currentRoute) setCurrentRoute(routeToUse);
+    // If we already have a route, use it
+    if (currentRoute && currentRoute.steps) {
+      console.log("Using existing route for navigation");
+      startNavigationWithRoute(currentRoute);
+    } else {
+      // Route will be provided by Routing component's onRouteUpdate
+      console.log("Waiting for route to be calculated...");
+      setIsNavigating(true); // This will trigger the Routing component
+      setFollowUser(true);
+      setLastRouteUpdatePos(userLocation);
     }
   };
 
   const handleStopNavigation = () => {
-    console.log("Stopping navigation flow...");
+    console.log("Stopping navigation...");
     setIsNavigating(false);
-    setCurrentRoute(null);
+    if (voiceNavRef.current) {
+      voiceNavRef.current.stop();
+    }
+    // Don't clear currentRoute immediately - keep it for potential restart
+    // setCurrentRoute(null);
+    setCurrentStepIndex(0);
     setLastRouteUpdatePos(null);
-    voiceNav.stop();
+    isStartingNavigationRef.current = false;
   };
 
   const handleDrugSearch = async () => {
@@ -252,9 +343,8 @@ export default function MapPage() {
     setLoading(true);
     try {
       const data = await apiSmartPharmacySearch(userLocation, searchQuery);
-      
+
       if (data && data.success) {
-        // Transform backend pharmacy data to match local facility format
         const p = data.pharmacy;
         const mainAddress = p.addresses[0];
         const normalizedPharma = {
@@ -272,7 +362,12 @@ export default function MapPage() {
         });
 
         setSelectedDestination(normalizedPharma);
-        handleStartNavigation(data.route);
+
+        // Start navigation with the route from API
+        if (data.route) {
+          startNavigationWithRoute(data.route);
+        }
+
         setSearchQuery("");
         setIsDrugSearch(false);
       } else {
@@ -285,26 +380,25 @@ export default function MapPage() {
     }
   };
 
-
   const toggleMute = () => {
-    const newMute = voiceNav.toggleMute();
-    setIsMuted(newMute);
+    if (voiceNavRef.current) {
+      const newMute = voiceNavRef.current.toggleMute();
+      setIsMuted(newMute);
+    }
   };
 
-  function testSpeak() {
-    if (currentRoute && currentRoute.steps[currentStepIndex]) {
-      voiceNav.speak(currentRoute.steps[currentStepIndex], 'near');
-    } else {
-      voiceNav._executeSpeech("No route active. Please start navigation.");
+
+  const repeatCurrentInstruction = () => {
+    if (voiceNavRef.current && isNavigating) {
+      voiceNavRef.current.repeatCurrentInstruction();
     }
-  }
+  };
 
   return (
     <div className="relative w-screen h-screen">
-      {/* Search UI with Auto-Stretch logic */}
+      {/* Search UI */}
       <div className={`absolute top-4 left-14 z-[1000] transition-all duration-300 ease-in-out 
         ${isSearchFocused || searchQuery ? 'right-4 sm:w-96' : 'w-48 sm:w-72'}`}>
-
         <div className="relative group">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
             <button onClick={() => navigate(-1)} className="hover:bg-gray-100 rounded-full p-1 transition-colors">
@@ -344,11 +438,16 @@ export default function MapPage() {
           </div>
 
           {searchQuery && !isDrugSearch && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-xl shadow-lg max-h-48 overflow-y-auto z-[1001]">
               {filteredPlaces.map((place) => (
                 <button
                   key={place.id}
-                  onClick={() => { setSelectedDestination(place); setFollowUser(false); setSearchQuery(""); }}
+                  onClick={() => {
+                    setSelectedDestination(place);
+                    setFollowUser(false);
+                    setSearchQuery("");
+                    handleStopNavigation();
+                  }}
                   className="w-full px-4 py-3 text-left hover:bg-gray-100 flex items-center gap-2"
                 >
                   <MapPin size={16} className="text-emerald-500" />
@@ -369,9 +468,7 @@ export default function MapPage() {
             <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
           </LayersControl.BaseLayer>
         </LayersControl>
-        
 
-        {/* Dynamic Recenter */}
         {followUser && userLocation && (
           <RecenterMap
             position={userLocation}
@@ -380,24 +477,26 @@ export default function MapPage() {
           />
         )}
         {!followUser && selectedDestination && (
-
           <RecenterMap
             position={[selectedDestination.lat, selectedDestination.lng]}
             followUser={true}
             isNavigating={false}
           />
-
         )}
 
-        {userLocation && <Marker position={userLocation} icon={new L.DivIcon({
-          className: 'custom-user-icon',
-          html: `<div class="relative w-8 h-8 flex items-center justify-center">
-                   <div class="absolute w-full h-full bg-blue-500/20 rounded-full animate-ping"></div>
-                   <div class="relative w-5 h-5 bg-blue-600 rounded-full border-2 border-white shadow-[0_0_15px_rgba(37,99,235,0.6)] flex items-center justify-center">
-                     <div class="w-2 h-2 bg-white rounded-full"></div>
-                   </div>
-                 </div>`
-        })}><Popup>You are here</Popup></Marker>}
+        {userLocation && (
+          <Marker position={userLocation} icon={new L.DivIcon({
+            className: 'custom-user-icon',
+            html: `<div class="relative w-8 h-8 flex items-center justify-center">
+                     <div class="absolute w-full h-full bg-blue-500/20 rounded-full animate-ping"></div>
+                     <div class="relative w-5 h-5 bg-blue-600 rounded-full border-2 border-white shadow-[0_0_15px_rgba(37,99,235,0.6)] flex items-center justify-center">
+                       <div class="w-2 h-2 bg-white rounded-full"></div>
+                     </div>
+                   </div>`
+          })}>
+            <Popup>You are here</Popup>
+          </Marker>
+        )}
 
         {facilities.map((place) => (
           <Marker
@@ -409,20 +508,35 @@ export default function MapPage() {
               <span className="font-bold">{place.name}</span>
             </Tooltip>
 
-            <Popup>
+            <Popup ref={(el) => {
+              if (el) markersRef.current[place.id] = el;
+            }}>
               <div className="p-1 min-w-[150px]">
                 <h3 className="text-sm font-bold border-b pb-1 mb-1">{place.name}</h3>
                 <p className="text-xs text-gray-600">
                   <span className="font-semibold">Type:</span> {place.type === 'hospital' ? '🏥 Hospital' : '💊 Pharmacy'}
                 </p>
                 <button
-                  onClick={() => { setSelectedDestination(place); setFollowUser(false); handleStopNavigation(); }}
+                  onClick={() => {
+                    setSelectedDestination(place);
+                    setFollowUser(false);
+                    handleStopNavigation();
+                    markersRef.current[place.id]?.close();
+                  }}
                   className="mt-3 w-full bg-blue-600 text-white text-[10px] py-1.5 rounded hover:bg-blue-700 transition-colors uppercase font-bold"
                 >
                   {t("Map.ViewOnMap") || "View on Map"}
                 </button>
                 <button
-                  onClick={() => { setSelectedDestination(place); handleStartNavigation(); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setSelectedDestination(place);
+                    markersRef.current[place.id]?.close();
+                    setTimeout(() => {
+                      handleStartNavigation(place);
+                    }, 100); // ✅ Call start navigation
+                  }}
                   className="mt-1 w-full bg-emerald-600 text-white text-[10px] py-1.5 rounded hover:bg-emerald-700 transition-colors uppercase font-bold flex items-center justify-center gap-1"
                 >
                   <Navigation2 size={12} />
@@ -433,91 +547,29 @@ export default function MapPage() {
           </Marker>
         ))}
 
-        {userLocation && routeDestination && (
+        {userLocation && routeDestination && !routeFetched && (
           <Routing
+            key={routeKey}  // ✅ Key changes only when route actually changes
             from={isNavigating && lastRouteUpdatePos ? lastRouteUpdatePos : userLocation}
             to={routeDestination}
             onRouteUpdate={(route) => {
-              setCurrentRoute(route);
-          //  console.log(route.steps);
-
-              //voiceNav.start(route.steps);
-            //  console.log(isNavigating);
-              // If we're already navigating and the route just refreshed, 
-              // we might need to tell voiceNav about the new steps.
-              // We'll only restart it if the structure changed significantly.
-              if (isNavigating && route.steps) {
-                const enhancedRoute = enhanceRouteSteps(route);
-                console.log(enhancedRoute.steps);
-                voiceNav.start(enhancedRoute.steps);
-                setCurrentStepIndex(voiceNav.currentStepIndex);
-              }
+              setRouteFetched(true);  // ✅ Mark as fetched
+              handleRouteUpdate(route);
             }}
           />
         )}
       </MapContainer>
 
-      {/* Turn-by-Turn UI Overlay - RELOCATED TO BOTTOM */}
-      {isNavigating && currentRoute && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] w-[92%] max-w-sm backdrop-blur-md bg-white/90 dark:bg-gray-800/90 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-5 flex flex-col gap-4 border border-white/20 animate-in slide-in-from-bottom-4 duration-300">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-600 rounded-2xl text-white shadow-lg shadow-blue-500/30">
-                <ArrowUp size={28} />
-              </div>
-              <div>
-                <h4 className="text-base font-bold text-gray-900 dark:text-white leading-tight">
-                  {currentRoute.steps[currentStepIndex]?.instruction || "Arriving..."}
-                </h4>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="flex items-center gap-1 text-emerald-600 font-bold text-sm">
-                    <Navigation2 size={14} fill="currentColor" />
-                    <span>{(currentRoute.steps[currentStepIndex]?.distance || 0).toFixed(0)}m</span>
-                  </div>
-                  <span className="text-gray-400">•</span>
-                  <span className="text-gray-500 text-xs uppercase tracking-wider font-semibold">
-                    Step {currentStepIndex + 1} of {currentRoute.steps.length}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={toggleMute}
-                className={`p-2 rounded-xl transition-colors ${isMuted ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-600'}`}
-                title={isMuted ? "Unmute" : "Mute"}
-              >
-                {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-              </button>
-              <button
-                onClick={handleStopNavigation}
-                className="p-2 hover:bg-gray-100 text-gray-400 hover:text-red-500 rounded-xl transition-colors"
-                title="Exit Navigation"
-              >
-                <X size={20} />
-              </button>
-            </div>
-          </div>
-
-          <div className="flex grid-cols-2 gap-2 border-t border-gray-100 dark:border-gray-700 pt-4">
-            <div
-              onClick={testSpeak}
-              className="flex-1 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors group"
-              title="Click to repeat instruction"
-            >
-              <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 group-hover:text-blue-500 transition-colors">Distance</p>
-              <p className="text-lg font-black text-gray-800 dark:text-gray-100">
-                {(currentRoute.distance / 1000).toFixed(1)} <span className="text-xs font-medium">km</span>
-              </p>
-            </div>
-            <div className="flex-1 bg-blue-50/50 dark:bg-blue-900/20 p-3 rounded-xl border border-blue-100/50 dark:border-blue-800/30">
-              <p className="text-[10px] text-blue-500 uppercase tracking-widest mb-1 font-bold">Time Left</p>
-              <p className="text-lg font-black text-blue-700 dark:text-blue-300">
-                {(currentRoute.duration / 60).toFixed(0)} <span className="text-xs font-medium text-blue-600/70">min</span>
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* ✅ Navigation UI - Shows when navigating AND route exists */}
+      {isNavigating && currentRoute && currentRoute.steps && currentRoute.steps.length > 0 && (
+        <NavigationUI
+          currentRoute={currentRoute}
+          currentStepIndex={currentStepIndex}
+          isMuted={isMuted}
+          toggleMute={toggleMute}
+          handleStopNavigation={handleStopNavigation}
+          testSpeak={repeatCurrentInstruction}
+        />
       )}
     </div>
   );

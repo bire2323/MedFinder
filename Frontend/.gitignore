@@ -12,6 +12,14 @@ dist
 dist-ssr
 *.local
 
+
+node_modules/
+dist/
+.vite/
+.env
+.env.local
+/src1
+
 /src/notes.txt
 
 
@@ -25,3 +33,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+/src1
+/nginx.conf

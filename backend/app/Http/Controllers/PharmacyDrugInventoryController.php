@@ -82,7 +82,123 @@ class PharmacyDrugInventoryController extends Controller
             ]
         ]);
     }
+    public function searchMedicine(Request $request)
+    {
+        $searchTerm = $request->query('query');
 
+        if (empty($searchTerm)) {
+            return response()->json(['message' => 'Missing search query'], 400);
+        }
+
+        // 1. Find medicines matching the search term (by name or generic name)
+        $medicines = Drug::where('brand_name_en', 'LIKE', "%{$searchTerm}%")
+                             ->orWhere('generic_name', 'LIKE', "%{$searchTerm}%")
+                             ->orWhere('brand_name_am', 'LIKE', "%{$searchTerm}%")
+                             ->get();
+
+        if ($medicines->isEmpty()) {
+            return response()->json([]);
+        }
+
+        // 2. Get all pharmacy IDs that stock any of these medicines, with pivot data
+        $medicineIds = $medicines->pluck('id');
+
+        $pharmacies = Pharmacy::whereHas('drugs', function ($query) use ($medicineIds) {
+            $query->whereIn('drugs.id', $medicineIds);
+        })
+        ->where('status', 'APPROVED')
+        ->with(['addresses', 'drugs' => function ($query) use ($medicineIds, $searchTerm) {
+            $query->whereIn('drugs.id', $medicineIds)
+                  ->select('drugs.id', 'drugs.generic_name')
+                  ->withPivot('price', 'stock', 'expire_date');
+        }])
+        ->get();
+
+        // 3. Transform the result to match the frontend expected format
+        $result = [];
+        foreach ($pharmacies as $pharmacy) {
+            $pArray = $pharmacy->toArray();
+            $pArray['type'] = 'pharmacy';
+            $pArray['global_id'] = 'p-' . $pharmacy->id;
+
+            foreach ($pharmacy->drugs as $medicine) {
+                $item = $pArray;
+                $item['drugPrice'] = $medicine->inventory->price ?? null;
+                $item['expire_date'] = $medicine->inventory->expire_date ?? null;
+                $item['drugAvailability'] = ($medicine->inventory->stock ?? 0) > 0 ? 'available' : 'not_available';
+                $item['drugName'] = $medicine->generic_name ?? null;
+                $result[] = $item;
+            }
+        }
+
+        return response()->json($result);
+    }
+public function botSearchMedicine(Request $request)
+{
+    $searchTerm = $request->query('name');
+
+    if (empty($searchTerm)) {
+        return response()->json(['message' => 'Missing search query'], 400);
+    }
+
+    // 1. Find matching medicines
+    $medicines = Drug::where('brand_name_en', 'LIKE', "%{$searchTerm}%")
+        ->orWhere('generic_name', 'LIKE', "%{$searchTerm}%")
+        ->orWhere('brand_name_am', 'LIKE', "%{$searchTerm}%")
+        ->pluck('id');
+
+    if ($medicines->isEmpty()) {
+        Log::info("no item",[""=>$medicines->toArray()]);
+        return response()->json(["opps"=>"opps"]);
+    }
+
+    // 2. Get pharmacies with only relevant drug data
+    $pharmacies = Pharmacy::whereHas('drugs', function ($query) use ($medicines) {
+            $query->whereIn('drugs.id', $medicines);
+        })
+        ->where('status', 'APPROVED')
+        ->with([
+            'addresses:id,addressable_id,region_en,sub_city_en',
+            'drugs' => function ($query) use ($medicines) {
+                $query->whereIn('drugs.id', $medicines)
+                      ->select('drugs.id', 'drugs.generic_name')
+                      ->withPivot('price', 'stock', 'expire_date', 'prescription_required');
+            }
+        ])
+        ->get();
+
+    // 3. Transform into CLEAN chatbot-friendly format
+    $result = [];
+
+    foreach ($pharmacies as $pharmacy) {
+
+        $address = $pharmacy->addresses->first();
+
+        foreach ($pharmacy->drugs as $drug) {
+
+            $inventory = $drug->inventory ?? $drug->pivot;
+            if (!$inventory || $inventory->stock <= 0) {
+                continue; // skip unavailable
+            }
+
+            $result[] = [
+                'pharmacy' => $pharmacy->pharmacy_name_en,
+                'location' => ($address->sub_city_en ?? '') . ', ' . ($address->region_en ?? ''),
+                'drug' => $drug->generic_name,
+                'price' => (float) $inventory->price,
+                'stock' => (int) $inventory->stock,
+                'availability' => 'available',
+                'requires_prescription' => (bool) $inventory->prescription_required,
+                'expiry' => optional($inventory->expire_date)->format('Y-m-d'),
+            ];
+        }
+    }
+  Log::info("no item",[""=>$result]);
+    // 4. Sort by price (cheapest first)
+    usort($result, fn($a, $b) => $a['price'] <=> $b['price']);
+
+    return response()->json($result);
+}
     /**
      * Add Drug with Normalization Strategy
      */

@@ -75,23 +75,24 @@ export async function logHospitalEvent(token, payload) {
  * API functions for hospital dashboard management (departments & services)
  */
 
-const API_BASE_Local = "http://localhost:8000/api";
+const API_BASE_Local = "https://medfinder.com";
 
 /**
  * Get auth token from localStorage
  */
 export async function apiGetTopFacilities() {
-  const res = await apiFetch("/api/top-medical-facilities", { method: "GET" });
+  const res = await apiFetch("https://medfinder.com/api/top-medical-facilities", { method: "GET" });
   // keep backward-compat shape expected by router loader
   return res;
 }
 export async function apiGetFacilities() {
-  const res = await apiFetch("/api/medical-facilities", { method: "GET" });
+  console.log("apiGetFacilities response");
+  const res = await apiFetch("https://medfinder.com/api/medical-facilities", { method: "GET" });
   // keep backward-compat shape expected by router loader
   return { ok: true, json: async () => res };
 }
 export async function apiGetHospitals() {
-  const res = await apiFetch("/api/hospitals", { method: "GET" });
+  const res = await apiFetch("https://medfinder.com/api/hospitals", { method: "GET" });
   return { ok: true, json: async () => res };
 }
 

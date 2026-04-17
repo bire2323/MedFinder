@@ -32,6 +32,7 @@ import { localizeFacility } from '../hooks/Localizer';
 import apiStartChatSession from '../api/RealtimeChat';
 import useAuthStore from '../store/UserAuthStore';
 import toast from 'react-hot-toast';
+import Loading from '../component/SupportiveComponent/Loading';
 
 
 const FacilityDetailPage = () => {
@@ -115,7 +116,8 @@ const FacilityDetailPage = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
+        {/*<Loader2 className="h-12 w-12 animate-spin text-blue-600" />*/}
+        <Loading />
       </div>
     );
   }
@@ -137,7 +139,8 @@ const FacilityDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gray-900 relative">
-      {/* Header */}
+      {console.log("facility", facility)}
+      {console.log("data", data)}
       <header className="bg-white dark:bg-gray-800 border-b border-slate-200 dark:border-gray-700 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
           <button

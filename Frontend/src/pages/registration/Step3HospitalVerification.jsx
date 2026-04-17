@@ -328,6 +328,7 @@ const Step3HospitalVerification = () => {
           {formData.hospitalLogoPreview ? (
             <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-400 dark:border-gray-500">
               <img
+              
                 src={formData.hospitalLogoPreview}
                 alt="Logo preview"
                 className="w-16 h-16 object-cover rounded-lg"
@@ -371,7 +372,7 @@ const Step3HospitalVerification = () => {
             accept="image/*"
             onChange={handleLogoUpload}
             className="hidden"
-            required
+            
           />
         </div>
       </div>

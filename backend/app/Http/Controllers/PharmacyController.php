@@ -11,8 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use PhpParser\Builder\Function_;
-use Spatie\Permission\Models\Role;
+
 
 class PharmacyController extends Controller
 {
@@ -258,7 +257,7 @@ class PharmacyController extends Controller
             'facilityNameEn' => 'required|string|min:3|max:255',
             'facilityNameAm' => 'required|string|min:3|max:255',
 
-            'email' => 'nullable|email|unique:users,email',
+            'contact_email' => 'nullable|email|unique:users,email',
 
 
             // Location Info
@@ -275,7 +274,6 @@ class PharmacyController extends Controller
             'longitude' => 'required|numeric|between:-180,180',
             'working_hour' => 'required|string',
              'contact_phone' => 'nullable|string',
-            'contact_email' => 'nullable|string',
 
             // Hospital Verification
             'license_number' => 'required|string|max:100',
@@ -286,12 +284,21 @@ class PharmacyController extends Controller
             // Files
             'license_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
             'logo' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // 2MB max
+        ],[
+            'contact_email.unique' => 'Email already exists',
+
         ]);
 
         try {
             $user = auth('sanctum')->user();
             if (!$user) {
                 return response()->json(['success' => false, "message" => "unauthorized"]);
+            }else if($user->hasAnyRole(["hospitalAgent","pharmacyAgent"])){
+                    return response()->json([
+                        'success' => false,
+                        'code' => 'ALREADY_REGISTERED_AGENT',
+                        'message' => 'This agent is already registered.'
+                    ], 200);
             }
 
             // 3. Store License Document
@@ -374,19 +381,47 @@ class PharmacyController extends Controller
         return response()->json(["success" => true, "data" => $pharmacy]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Pharmacy $pharmacy)
+public function botIndex(Request $request)
     {
-        //
-    }
+        $query = Pharmacy::with(['addresses', 'drugs.inventory'])
+            ->where('status', 'APPROVED');
+     
+        // 🔍 Filter by pharmacy name
+        if ($request->name) {
+            $query->where(function ($q) use ($request) {
+                $q->where('pharmacy_name_en', 'LIKE', "%{$request->name}%")
+                  ->orWhere('pharmacy_name_am', 'LIKE', "%{$request->name}%");
+            });
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Pharmacy $pharmacy)
-    {
-        //
-    }
+        // 📍 Filter by location (from addresses relation)
+        if ($request->location) {
+            $query->whereHas('addresses', function ($q) use ($request) {
+                $q->where('region_en', 'LIKE', "%{$request->location}%")
+                  ->orWhere('zone_en', 'LIKE', "%{$request->location}%")
+                  ->orWhere('sub_city_en', 'LIKE', "%{$request->location}%");
+            });
+        }
+
+        $pharmacies = $query->limit(5)->get();
+
+        // ✅ Transform response for Rasa
+        $result = $pharmacies->map(function ($p) {
+
+            $address = $p->addresses->first();
+
+            return [
+                "pharmacy" => $p->pharmacy_name_en,
+                "location" => $address
+                    ? "{$address->region_en}, {$address->zone_en}, {$address->sub_city_en}"
+                    : "Unknown",
+                "working_hours" => $p->working_hour,
+                "phone" => $p->contact_phone,
+                "latitude" => $address->latitude ?? null,
+                "longitude" => $address->longitude ?? null,
+            ];
+        });
+
+        return response()->json($result);
+}
 }

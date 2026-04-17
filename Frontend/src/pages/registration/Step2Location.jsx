@@ -175,9 +175,9 @@ const Step2Location = () => {
     detailedAddress_am: '',
     latitude: '',
     longitude: '',
-    workingHour: '',
-    mainContactPhone: '',
-    alternatePhone: '',
+    working_hour: '',
+    contact_phone: '',
+    contact_email: '',
   });
 
   useEffect(() => {
@@ -193,11 +193,11 @@ const Step2Location = () => {
       detailedAddress_am: storeFormData.detailedAddress_am || '',
       latitude: storeFormData.latitude || '',
       longitude: storeFormData.longitude || '',
-      workingHour: storeFormData.workingHour || '',
-      mainContactPhone: storeFormData.mainContactPhone || '',
-      alternatePhone: storeFormData.alternatePhone || '',
+      working_hour: storeFormData.working_hour || '',
+      contact_phone: storeFormData.contact_phone || '',
+      contact_email: storeFormData.contact_email || '',
     });
-  }, []);
+  }, [storeFormData]);
 
   const handleNext = (e) => {
     e.preventDefault();
@@ -364,7 +364,7 @@ const Step2Location = () => {
               label={t('Registration.DetailedAddress') + ' (አማርኛ)'}
               icon={Map}
               onKeyDown={handleKeyDown}
-              placeholder="ለምሳሌ፤, ማራኪ በርበር"
+              placeholder="ለምሳሌ፤, ማራኪ በር"
               value={localData.detailedAddress_am}
               error={errors.detailedAddress_am}
               onChange={handleInputChange}
@@ -424,29 +424,29 @@ const Step2Location = () => {
           {
             registrationType === 'hospital' &&
             <InputField
-              id="workingHour"
+              id="working_hour"
               onKeyDown={handleKeyDown}
               label={t('Registration.WorkingHour')}
               icon={Timer}
               type="text"
               placeholder="e.g 2:00 - 12:00AM"
               required
-              value={localData.workingHour}
-              error={errors.workingHour}
+              value={localData.working_hour}
+              error={errors.working_hour}
               onChange={handleInputChange}
             />
           }
 
           <InputField
-            id="mainContactPhone"
+            id="contact_phone"
             label={registrationType === 'hospital' ? t('Registration.EmergencyPhone') : t('Registration.MainContact')}
             icon={Phone}
             type="tel"
             onKeyDown={handleKeyDown}
             placeholder="09XXXXXXXX"
             required={registrationType === 'hospital'}
-            value={localData.mainContactPhone}
-            error={errors.mainContactPhone}
+            value={localData.contact_phone}
+            error={errors.contact_phone}
             hint={registrationType === 'hospital' ? t('Registration.EmergencyPhone') : t('Registration.MainContact')}
             onChange={handleInputChange}
           />

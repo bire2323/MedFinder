@@ -2,6 +2,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import useAuthStore from "../store/UserAuthStore";
 import { initializeAuth } from "./initAuth";
 import { useState, useEffect } from "react";
+import Loading from "../component/SupportiveComponent/Loading";
 
 export default function ProtectedRoute() {
     const { isLoading } = useAuthStore((state) => state.isLoading);
@@ -16,8 +17,9 @@ export default function ProtectedRoute() {
         };
         init();
     }, []);
-    if (isLoading) return
-
+    if (isLoading) {
+        return <Loading />;
+    }
 
 
     return <Outlet />;

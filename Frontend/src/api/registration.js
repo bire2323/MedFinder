@@ -15,7 +15,7 @@ export async function apiRegisterPharmacy(formData) {
   data.append('facilityNameEn', formData.facilityNameEn);
   data.append('facilityNameAm', formData.facilityNameAm);
 
-  data.append('email', formData.email || '');
+  data.append('contact_email', formData.contact_email || '');
 
 
   // Location info
@@ -31,13 +31,12 @@ export async function apiRegisterPharmacy(formData) {
   data.append('detailed_address_am', formData.detailedAddress_am || '');
   data.append('latitude', formData.latitude);
   data.append('longitude', formData.longitude);
-  data.append('working_hour', formData.workingHour);
-  data.append('emergency_contact', formData.mainContactPhone);
+  data.append('working_hour', formData.working_hour);
+  data.append('contact_phone', formData.contact_phone);
 
   // Verification info
   data.append('license_number', formData.licenseNumber);
   data.append('pharmacy_type', formData.pharmacyType);
-  data.append('working_hours', formData.workingHours);
 
   // File uploads
   if (formData.licenseDocument) {
@@ -67,7 +66,7 @@ export async function apiRegisterHospital(formData) {
   data.append('facilityNameEn', formData.facilityNameEn);
   data.append('facilityNameAm', formData.facilityNameAm);
 
-  data.append('email', formData.email || '');
+  data.append('contact_email', formData.contact_email || '');
 
 
   // Location info
@@ -84,12 +83,12 @@ export async function apiRegisterHospital(formData) {
   data.append('detailed_address_am', formData.detailedAddress_am || '');
   data.append('latitude', formData.latitude);
   data.append('longitude', formData.longitude);
-  data.append('working_hour', formData.workingHour);
-  data.append('emergency_contact', formData.mainContactPhone);
+  data.append('working_hour', formData.working_hour);
+  data.append('contact_phone', formData.contact_phone);
 
   // Verification info
   data.append('license_number', formData.licenseNumber);
-  data.append('ownership_type', formData.ownershipType);
+  data.append('hospital_ownership_type', formData.ownershipType);
   data.append('provides_emergency', formData.providesEmergency ? '1' : '0');
   data.append('operates_24_hours', formData.operates24Hours ? '1' : '0');
 

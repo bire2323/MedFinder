@@ -214,10 +214,10 @@ class AuthController extends Controller
     // GET /api/user (protected)
     public function user(Request $request)
     {
-        Log::info('API USER SESSION', [
-    'session_id' => session()->getId(),
-    'auth_check' => Auth::check()
-]);
+    //    Log::info('API USER SESSION', [
+    //'session_id' => session()->getId(),
+   // 'auth_check' => Auth::check()
+//  ]);
         /** @var \App\Models\User|null $user */
         $user = $request->user();
         if (!$user) {
@@ -275,7 +275,7 @@ class AuthController extends Controller
    public function redirectToGoogle()
 {
     // Set the redirect URL dynamically for local development
-    $redirectUrl = env('GOOGLE_REDIRECT_URL');   // e.g. http://127.0.0.1:8000/auth/google/callback
+    $redirectUrl = env('GOOGLE_REDIRECT_URL');  
 
     return Socialite::driver('google')
         ->redirectUrl($redirectUrl)   // ← This is the most important line

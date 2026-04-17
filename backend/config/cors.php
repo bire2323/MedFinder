@@ -4,6 +4,7 @@ return [
       'paths' => [
         'api/*',
         'sanctum/csrf-cookie',
+        'api/broadcasting/auth',
         'broadcasting/auth',
         'login',
         'logout',
@@ -13,7 +14,9 @@ return [
     'allowed_methods' => ['*'],
 
     // Add your React frontend origin here
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:5173')],
+    'allowed_origins' =>  env('APP_ENV') === 'local' ? ['http://medfinder.com'] : [
+    'http://mefinder.com'
+],
 
     'allowed_headers' => ['*'],
 

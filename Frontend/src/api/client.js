@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_API_BASE || "https://medfinder.com";
 
 function getCookie(name) {
   const cookies = document.cookie ? document.cookie.split("; ") : [];
@@ -21,7 +21,7 @@ export function getXsrfToken() {
 }
 
 export async function ensureCsrfCookie() {
-  await fetch(`${API_BASE}/sanctum/csrf-cookie`, {
+  await fetch(`/sanctum/csrf-cookie`, {
     method: "GET",
     credentials: "include",
   });

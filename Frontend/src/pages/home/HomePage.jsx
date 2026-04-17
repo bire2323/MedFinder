@@ -302,6 +302,7 @@ export default function HomePage() {
  */
 function FacilitySlider({ facilities, loading, onCardClick }) {
   const scrollRef = useRef(null);
+  const { t } = useTranslation();
   //console.log(facilities);
   const scroll = (direction) => {
     if (scrollRef.current) {

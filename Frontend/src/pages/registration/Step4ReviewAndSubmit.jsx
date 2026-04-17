@@ -4,6 +4,7 @@
  */
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useRegistrationStore } from '../../store/registrationStore';
 import { apiRegisterPharmacy, apiRegisterHospital } from '../../api/registration';
 import {
@@ -24,38 +25,48 @@ import {
   TimerIcon
 } from 'lucide-react';
 
-// Region labels for display
-const REGION_LABELS = {
-  addis_ababa: 'Addis Ababa',
-  afar: 'Afar',
-  amhara: 'Amhara',
-  benishangul_gumuz: 'Benishangul-Gumuz',
-  dire_dawa: 'Dire Dawa',
-  gambela: 'Gambela',
-  harari: 'Harari',
-  oromia: 'Oromia',
-  sidama: 'Sidama',
-  snnpr: 'SNNPR',
-  somali: 'Somali',
-  south_west: 'South West Ethiopia',
-  tigray: 'Tigray',
+// Region labels for display - will use t() function
+const getRegionLabel = (regionKey, t) => {
+  const regionMap = {
+    addis_ababa: t('review.regions.addis_ababa'),
+    afar: t('review.regions.afar'),
+    amhara: t('review.regions.amhara'),
+    benishangul_gumuz: t('review.regions.benishangul_gumuz'),
+    dire_dawa: t('review.regions.dire_dawa'),
+    gambela: t('review.regions.gambela'),
+    harari: t('review.regions.harari'),
+    oromia: t('review.regions.oromia'),
+    sidama: t('review.regions.sidama'),
+    snnpr: t('review.regions.snnpr'),
+    somali: t('review.regions.somali'),
+    south_west: t('review.regions.south_west'),
+    tigray: t('review.regions.tigray'),
+  };
+  return regionMap[regionKey] || regionKey;
 };
 
-const PHARMACY_TYPE_LABELS = {
-  community: 'Community Pharmacy',
-  hospital_based: 'Hospital-based Pharmacy',
-  wholesale: 'Wholesale Pharmacy',
-  import: 'Import Pharmacy',
+const getPharmacyTypeLabel = (typeKey, t) => {
+  const typeMap = {
+    community: t('review.pharmacyTypes.community'),
+    hospital_based: t('review.pharmacyTypes.hospital_based'),
+    wholesale: t('review.pharmacyTypes.wholesale'),
+    import: t('review.pharmacyTypes.import'),
+  };
+  return typeMap[typeKey] || typeKey;
 };
 
-const OWNERSHIP_TYPE_LABELS = {
-  public: 'Public / Government',
-  private: 'Private',
-  ngo: 'NGO / Non-Profit',
-  faith_based: 'Faith-based',
+const getOwnershipTypeLabel = (typeKey, t) => {
+  const typeMap = {
+    public: t('review.ownershipTypes.public'),
+    private: t('review.ownershipTypes.private'),
+    ngo: t('review.ownershipTypes.ngo'),
+    faith_based: t('review.ownershipTypes.faith_based'),
+  };
+  return typeMap[typeKey] || typeKey;
 };
 
 const Step4ReviewAndSubmit = () => {
+  const { t } = useTranslation();
   const { type } = useParams();
   const navigate = useNavigate();
   const {
@@ -67,7 +78,6 @@ const Step4ReviewAndSubmit = () => {
   } = useRegistrationStore();
 
   const [submitError, setSubmitError] = useState(null);
-
   // Handle form submission
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -77,24 +87,36 @@ const Step4ReviewAndSubmit = () => {
       const apiCall = registrationType === 'pharmacy'
         ? apiRegisterPharmacy
         : apiRegisterHospital;
-      // console.log(formData);
+      
+    try {
       const response = await apiCall(formData);
 
-
-
-      if (response.success) {
-        setSubmissionResult({ success: true, data: response });
-        navigate(`/register/${type}/success`);
-      } else {
-        setSubmitError(response.message || 'Registration failed. Please try again.');
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      setSubmitError('try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // Success path
+       if (response.success) {
+         setSubmissionResult({ success: true, data: response });
+         navigate(`/register/${type}/success`);
+  } else if (response.code === 'ALREADY_REGISTERED_AGENT') {
+    setSubmitError(t('review.messages.alreadyRegisteredAgent'));
+  } else {
+    setSubmitError(t('review.messages.tryAgain'));
+  }
+} catch (error) {
+  // For fetch wrappers that throw on 4xx/5xx
+  console.error(error);
+  if (error?.code === 'ALREADY_REGISTERED_AGENT') {
+    setSubmitError(t('review.messages.alreadyRegisteredAgent'));
+  } else {
+    setSubmitError(t('review.messages.tryAgain'));
+  }
+} finally {
+  setIsSubmitting(false);
+}
+  }catch(error){
+    console.log("ddddddddddddd");
+  }finally {
+  setIsSubmitting(false);
+  }
+};
 
   // Review section component
   const ReviewSection = ({ title, icon: Icon, step, children }) => (
@@ -107,7 +129,6 @@ const Step4ReviewAndSubmit = () => {
         <button
           type="button"
           onClick={() => {
-            console.log(step);
             if (step == 1) {
               navigate(`/register/${type}/basic-info`);
             } else if (step == 2) {
@@ -128,7 +149,7 @@ const Step4ReviewAndSubmit = () => {
           "
         >
           <Edit2 size={12} />
-          Edit
+          {t('review.buttons.edit')}
         </button>
       </div>
       <div className="space-y-3">
@@ -144,7 +165,7 @@ const Step4ReviewAndSubmit = () => {
       <div className="flex-1 min-w-0">
         <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
         <p className="text-sm font-medium text-gray-800 dark:text-white break-words">
-          {value || <span className="text-gray-400 italic">Not provided</span>}
+          {value || <span className="text-gray-400 italic">{t('review.messages.notProvided')}</span>}
         </p>
       </div>
     </div>
@@ -158,81 +179,80 @@ const Step4ReviewAndSubmit = () => {
           <CheckCircle size={24} className="text-emerald-600 dark:text-emerald-400" />
         </div>
         <h2 className="text-xl font-bold text-gray-800 dark:text-white">
-          Review Your Information
+          {t('review.title')}
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Please review all details before submitting
+          {t('review.subtitle')}
         </p>
       </div>
 
       <div className="space-y-4">
         {/* Basic Information */}
-        <ReviewSection title="Basic Information" icon={Building2} step={1}>
+        <ReviewSection title={t('review.basicInfo.title')} icon={Building2} step={1}>
           <InfoItem
-            label={registrationType === 'pharmacy' ? 'Pharmacy Name' : 'Hospital Name'}
+            label={registrationType === 'pharmacy' ? t('review.basicInfo.pharmacyName') : t('review.basicInfo.hospitalName')}
             value={formData.facilityNameEn}
             icon={Building2}
           />
           <InfoItem
-            label={registrationType === 'pharmacy' ? 'Pharmacy Name (በ አማርኛ)' : 'Hospital Name (በ አማርኛ)'}
+            label={registrationType === 'pharmacy' ? t('review.basicInfo.pharmacyNameAm') : t('review.basicInfo.hospitalNameAm')}
             value={formData.facilityNameAm}
             icon={Building2}
           />
-          <InfoItem label="Email" value={formData.email} icon={Mail} />
-
+          <InfoItem label={t('review.basicInfo.email')} value={formData.contact_email} icon={Mail} />
         </ReviewSection>
 
         {/* Location & Contact */}
-        <ReviewSection title="Location & Contact" icon={MapPin} step={2}>
+        <ReviewSection title={t('review.location.title')} icon={MapPin} step={2}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <InfoItem
-              label="Region"
-              value={REGION_LABELS[formData.region_en] || formData.region}
+              label={t('review.location.region')}
+              value={getRegionLabel(formData.region_en, t)}
               icon={Globe}
             />
             <InfoItem
-              label="Region (በ አማርኛ)"
-              value={REGION_LABELS[formData.region_am] || formData.region}
+              label={t('review.location.regionAm')}
+              value={getRegionLabel(formData.region_am, t)}
               icon={Globe}
             />
-            <InfoItem label="Zone/City" value={formData.zone_en} icon={MapPin} />
-            <InfoItem label="Zone/City (በ አማርኛ)" value={formData.zone_am} icon={MapPin} />
-            <InfoItem label="Sub-city/Woreda" value={formData.subCity_en} icon={MapPin} />
-            <InfoItem label="Sub-city/Woreda (በ አማርኛ)" value={formData.subCity_am} icon={MapPin} />
-            <InfoItem label="Kebele" value={formData.kebele} icon={MapPin} />
+            <InfoItem label={t('review.location.zoneCity')} value={formData.zone_en} icon={MapPin} />
+            <InfoItem label={t('review.location.zoneCityAm')} value={formData.zone_am} icon={MapPin} />
+            <InfoItem label={t('review.location.subCity')} value={formData.subCity_en} icon={MapPin} />
+            <InfoItem label={t('review.location.subCityAm')} value={formData.subCity_am} icon={MapPin} />
+            <InfoItem label={t('review.location.kebele')} value={formData.kebele} icon={MapPin} />
           </div>
           <InfoItem
-            label="Detailed Address"
-            value={formData.detailedAddress}
+            label={t('review.location.detailedAddress')}
+            value={formData.detailedAddress_en}
             icon={MapPin}
           />
           <div className="grid grid-cols-2 gap-3 pt-2">
-            <InfoItem label="Latitude" value={formData.latitude} />
-            <InfoItem label="Longitude" value={formData.longitude} />
+            <InfoItem label={t('review.location.latitude')} value={formData.latitude} />
+            <InfoItem label={t('review.location.longitude')} value={formData.longitude} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
             <InfoItem
-              label="Working Hour"
-              value={formData.workingHour}
+              label={t('review.location.workingHour')}
+              value={formData.working_hour}
               icon={TimerIcon}
             />
             <InfoItem
-              label={registrationType === 'hospital' ? 'Emergency Phone' : 'Alternate Phone'}
-              value={formData.mainContactPhone}
+              label={registrationType === 'hospital' ? t('review.location.emergencyPhone') : t('review.location.alternatePhone')}
+              value={formData.contact_phone}
               icon={Phone}
             />
           </div>
         </ReviewSection>
 
         {/* Verification Info */}
-        <ReviewSection title="Verification & License" icon={FileText} step={3}>
+        <ReviewSection title={t('review.verification.title')} icon={FileText} step={3}>
           <InfoItem
-            label="License Number"
+            label={t('review.verification.licenseNumber')}
             value={formData.licenseNumber}
             icon={FileText}
           />
           <InfoItem
-            label="License Document"
+            label={t('review.verification.licenseDocument')}
             value={formData.licenseDocumentName}
             icon={FileText}
           />
@@ -240,24 +260,24 @@ const Step4ReviewAndSubmit = () => {
           {registrationType === 'pharmacy' ? (
             <>
               <InfoItem
-                label="Pharmacy Type"
-                value={PHARMACY_TYPE_LABELS[formData.pharmacyType] || formData.pharmacyType}
+                label={t('review.verification.pharmacyType')}
+                value={getPharmacyTypeLabel(formData.pharmacyType, t)}
                 icon={Building2}
               />
               <InfoItem
-                label="Working Hours"
-                value={formData.workingHour}
+                label={t('review.verification.workingHours')}
+                value={formData.working_hour}
                 icon={Clock}
               />
               {formData.pharmacyLogoPreview && (
                 <div className="flex items-center gap-3 pt-2">
                   <img
                     src={formData.pharmacyLogoPreview}
-                    alt="Pharmacy Logo"
+                    alt={t('review.verification.logoUploaded')}
                     className="w-12 h-12 object-cover rounded-lg"
                   />
                   <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Logo uploaded
+                    {t('review.verification.logoUploaded')}
                   </span>
                 </div>
               )}
@@ -265,21 +285,21 @@ const Step4ReviewAndSubmit = () => {
           ) : (
             <>
               <InfoItem
-                label="Ownership Type"
-                value={OWNERSHIP_TYPE_LABELS[formData.ownershipType] || formData.ownershipType}
+                label={t('review.verification.ownershipType')}
+                value={getOwnershipTypeLabel(formData.ownershipType, t)}
                 icon={Building2}
               />
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 rounded-full ${formData.providesEmergency ? 'bg-emerald-500' : 'bg-gray-300'}`} />
                   <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Emergency Services: {formData.providesEmergency ? 'Yes' : 'No'}
+                    {t('review.verification.emergencyServices')}: {formData.providesEmergency ? t('review.verification.yes') : t('review.verification.no')}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 rounded-full ${formData.operates24Hours ? 'bg-emerald-500' : 'bg-gray-300'}`} />
                   <span className="text-sm text-gray-600 dark:text-gray-400">
-                    24/7 Operation: {formData.operates24Hours ? 'Yes' : 'No'}
+                    {t('review.verification.operates247')}: {formData.operates24Hours ? t('review.verification.yes') : t('review.verification.no')}
                   </span>
                 </div>
               </div>
@@ -287,11 +307,11 @@ const Step4ReviewAndSubmit = () => {
                 <div className="flex items-center gap-3 pt-2">
                   <img
                     src={formData.hospitalLogoPreview}
-                    alt="Hospital Logo"
+                    alt={t('review.verification.logoUploaded')}
                     className="w-12 h-12 object-cover rounded-lg"
                   />
                   <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Logo uploaded
+                    {t('review.verification.logoUploaded')}
                   </span>
                 </div>
               )}
@@ -306,7 +326,7 @@ const Step4ReviewAndSubmit = () => {
           <AlertCircle size={20} className="text-red-500 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-red-800 dark:text-red-200">
-              Submission Failed
+              {t('review.messages.submissionFailed')}
             </p>
             <p className="text-xs text-red-600 dark:text-red-400 mt-1">
               {submitError}
@@ -330,7 +350,7 @@ const Step4ReviewAndSubmit = () => {
           "
         >
           <ArrowLeft size={18} />
-          Back
+          {t('review.buttons.back')}
         </button>
         <button
           type="button"
@@ -348,12 +368,12 @@ const Step4ReviewAndSubmit = () => {
           {isSubmitting ? (
             <>
               <Loader2 size={20} className="animate-spin" />
-              Submitting...
+              {t('review.buttons.submitting')}
             </>
           ) : (
             <>
               <Send size={18} />
-              Submit for Admin Approval
+              {t('review.buttons.submit')}
             </>
           )}
         </button>

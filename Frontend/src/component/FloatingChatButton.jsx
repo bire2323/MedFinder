@@ -11,7 +11,7 @@ export default function FloatingChatButton() {
   const [globalModalOpen, setGlobalModalOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
-    { role: "bot", text: t("floatingChat.greeting") },
+    { role: "bot", text: t("floatingChat.greeting"), buttons: [] },
   ]);
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
@@ -24,7 +24,12 @@ export default function FloatingChatButton() {
       });
     }
   }, [messages, loading]);
-
+  const handleButtonClick = (payload) => {
+    setInput(payload.intent);
+    setTimeout(() => {
+      handleSend();
+    }, 100);
+  };
   useEffect(() => {
     function onModalChange(e) {
       setGlobalModalOpen(!!e.detail?.open);
@@ -35,14 +40,29 @@ export default function FloatingChatButton() {
 
   const handleSend = async () => {
     if (!input.trim()) return;
-    const userMsg = { role: "user", text: input };
+    const userMsg = {
+      role: "user", text: input, buttons: []
+    };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
 
     try {
       const data = await sendMessage(input);
-      setMessages((prev) => [...prev, { role: "bot", text: data.reply }]);
+
+      if (data && data.length > 0) {
+        // Map all responses from the array
+        const botMessages = data.map(msg => ({
+          role: "bot",
+          text: msg.text,
+          buttons: msg.buttons || []
+        }));
+
+        setMessages((prev) => [...prev, ...botMessages]);
+      } else {
+        // Handle empty response from Rasa
+        setMessages((prev) => [...prev, { role: "bot", text: "..." }]);
+      }
     } catch (err) {
       setMessages((prev) => [
         ...prev,
@@ -57,7 +77,7 @@ export default function FloatingChatButton() {
 
   return (
     <div className={`fixed bottom-6 right-6 z-[999] flex flex-col items-end transition-all duration-300 ${rootStateClass}`}>
-      
+
       {/* 1. THE CHAT WINDOW */}
       {isOpen && (
         <div
@@ -87,14 +107,14 @@ export default function FloatingChatButton() {
             </button>
           </div>
 
-          {/* Messages Area */}
+          {console.log(messages)}
           <div
             ref={scrollRef}
             className="flex-1 overflow-y-auto p-5 space-y-5 bg-slate-50 dark:bg-gray-950 no-scrollbar"
           >
             {messages.map((msg, i) => (
-              <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div
+              <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`} >
+                <div style={{ whiteSpace: "pre-line" }}
                   className={`max-w-[85%] px-4 py-3 rounded-2xl text-[14px] leading-relaxed shadow-sm transition-all
                     ${msg.role === "user"
                       ? "bg-blue-600 dark:bg-blue-700 text-white rounded-tr-none"
@@ -102,10 +122,24 @@ export default function FloatingChatButton() {
                     }`}
                 >
                   {msg.text}
+                  {msg.buttons?.length > 0 && (
+                    <div style={{ marginTop: "10px" }}>
+                      {msg.buttons.map((btn, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleButtonClick(btn.payload)}
+                          className="flex flex-wrap mx-0 my-5 px-2 py-1 bg-slate-200 dark:bg-gray-700 rounded-xl cursor-pointer"
+                        >
+                          {btn.title}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
+
             ))}
-            
+
             {loading && (
               <div className="flex items-center gap-3 text-slate-400 dark:text-gray-500">
                 <div className="flex gap-1">
@@ -119,7 +153,7 @@ export default function FloatingChatButton() {
           </div>
 
           {/* Premium Input Area */}
-          <div className="p-4 bg-white dark:bg-gray-900 border-t border-slate-100 dark:border-gray-800">
+          < div className="p-4 bg-white dark:bg-gray-900 border-t border-slate-100 dark:border-gray-800" >
             <div className="relative flex items-center bg-slate-100 dark:bg-gray-800 rounded-2xl p-1.5 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
               <input
                 type="text"
@@ -140,7 +174,8 @@ export default function FloatingChatButton() {
             </div>
           </div>
         </div>
-      )}
+      )
+      }
 
       {/* 2. THE FLOATING TOGGLE BUTTON */}
       <button
@@ -153,7 +188,7 @@ export default function FloatingChatButton() {
       >
         {/* Glow Effect */}
         <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        
+
         {isOpen ? (
           <IoClose size={28} />
         ) : (
@@ -163,6 +198,6 @@ export default function FloatingChatButton() {
           </div>
         )}
       </button>
-    </div>
+    </div >
   );
 }
