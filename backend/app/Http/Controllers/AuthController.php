@@ -41,8 +41,8 @@ class AuthController extends Controller
                 "message" => "Invalid_credentials",
             ]);
         }
-        Auth::login($user);
-        $request->session()->regenerate();
+        Auth::guard('web')->login($user);
+        $request->session()->regenerate(true);
         AuditLog::create([
             'user_id' => $user->id,
             'category' => 'user',
@@ -141,8 +141,9 @@ class AuthController extends Controller
         ]);
 
         $user->assignRole('patient'); // or default role
-        Auth::login($user);
-        $request->session()->regenerate();
+        Auth::guard("web")->login($user);
+        $request->session()->regenerateToken(true);
+
 
         // Cleanup
         $otpRow->delete();

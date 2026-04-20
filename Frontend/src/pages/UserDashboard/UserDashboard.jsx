@@ -59,7 +59,7 @@ export default function UserDashboard() {
     const unreadCount = getUnreadCount();
 
     const [activeSection, setActiveSection] = useState("home"); // home | search | favorites | messages | profile
-    console.log("cuid",currentUserId);
+    // console.log("cuid",currentUserId);
     useNotifications(currentUserId, (incoming) => {
         handleIncomingMessage({
             message: incoming.message,
@@ -183,7 +183,7 @@ export default function UserDashboard() {
                 <main className="flex-1 min-w-0 xl:ml-14 flex flex-col overflow-hidden ">
                     <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 border-b border-slate-100 dark:border-gray-800">
                         <div className=" relative flex items-center gap-2">
-                            <button onClick={() => navigate("/")}><ChevronLeft className="hidden  sm:block cursor-pointer text-slate-700 hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-50" /></button>
+                            <button onClick={() => navigate("/")}><ChevronLeft className="hidden  md:block cursor-pointer text-slate-700 hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-50" /></button>
                             {activeSection !== "profile" && (
                                 <button
                                     type="button"
@@ -420,7 +420,7 @@ export default function UserDashboard() {
                         )}
 
                         {activeSection === "messages" && (
-                            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                            <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-2 md:py-6">
                                 <Chat
                                     key={chatTargetNonce}
 

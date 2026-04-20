@@ -65,6 +65,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
   const { sessions, setSessions, activeSessionId, setActiveSessionId } = useChatNotificationStore();
   const [sessionsLoading, setSessionsLoading] = useState(false);
   const [sessionsError, setSessionsError] = useState("");
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
@@ -128,16 +129,23 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
   }, []);
 
 
-  useEffect(() => {
-    // Load agent sessions
-    setSessionsLoading(true);
+  const loadAgentHistory = async () => {
+    setHistoryLoading(true);
     setSessionsError("");
-    apiFetch("/api/chat/sessions", { method: "GET" })
-      .then((data) => {
-        setSessions(Array.isArray(data) ? data : []);
-      })
-      .catch((e) => setSessionsError(e?.message || t("error.generic_error")))
-      .finally(() => setSessionsLoading(false));
+    try {
+      const data = await apiFetch("/api/chat/sessions", { method: "GET" });
+      setSessions(Array.isArray(data) ? data : []);
+    } catch (e) {
+      setSessionsError(e?.message || t("error.generic_error"));
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Initial Load agent sessions
+    setSessionsLoading(true);
+    loadAgentHistory().finally(() => setSessionsLoading(false));
   }, []);
 
   useEffect(() => {
@@ -287,7 +295,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-[520px]">
       {/* Left column: session list / history list */}
-      <div className={`lg:col-span-5 sticky top-14 self-start ${activeSessionId ? 'hidden lg:block' : 'block'}`}>
+      <div className={`col-span-12 md:col-span-12 lg:col-span-5 sticky top-14 self-start ${activeSessionId ? 'hidden lg:block' : 'block'}`}>
         <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 p-4">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-base font-extrabold">{mode === "agent" ? t("Chat.Chats") : mode === "ai" ? t("Chat.AiAssistant") : t("Chat.ChatHistory")}</h2>
@@ -380,13 +388,13 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
-                            <p className="font-extrabold truncate">{label}</p>
+                            <p className="text-sm font-bold truncate">{label}</p>
                             <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 truncate">
                               {s.last_message || (s.pharmacy?.pharmacy_name_en ? "Pharmacy Agent" : s.hospital?.hospital_name_en ? "Hospital Agent" : "Agent")}
                             </p>
                           </div>
                           {s.unread_count > 0 ? (
-                            <span className="shrink-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            <span className="shrink-0 bg-red-500 text-white text-[10px] font-bold px-0.5 sm:px-2 py-0.5 rounded-full">
                               {s.unread_count}
                             </span>
                           ) : (
@@ -494,7 +502,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                         key={String(h.sessionId)}
                         type="button"
                         onClick={() => {
-                          handleSelectSession(h.sessionId);
+                          handleSelectSession({ id: h.sessionId });
                           setMode("agent");
                         }}
                         className="w-full text-left border border-slate-200 dark:border-gray-700 rounded-2xl p-3 bg-white dark:bg-gray-900/30 hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors"
@@ -519,8 +527,19 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
       </div>
 
       {/* Right column: message panel */}
-      <div className={`lg:col-span-7 ${!activeSessionId ? 'hidden lg:block' : 'block'}`}>
-        <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 lg:mt-5 overflow-hidden h-[90vh] flex flex-col">
+      <div className={`col-span-12 z-999 md:z-20 md:col-span-8 lg:col-span-7
+  ${!activeSessionId ? 'hidden lg:block' : 'block'}
+  fixed inset-0 z-50 bg-white dark:bg-gray-900
+  md:relative md:z-auto md:bg-transparent
+`}>
+        <div className="
+  flex flex-col overflow-hidden
+  h-full md:h-[90vh]
+  rounded-none md:rounded-2xl
+  border-0 md:border border-slate-200 dark:border-gray-700
+  bg-white dark:bg-gray-800/40
+  md:mt-5
+">
           {mode === "agent" && (
             <>
               <div className="p-4 border-b border-slate-200 dark:border-gray-700 hidden lg:flex items-center justify-between gap-3 shrink-0">

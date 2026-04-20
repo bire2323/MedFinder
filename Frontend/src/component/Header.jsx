@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { HiMenuAlt3, HiOutlineLocationMarker } from "react-icons/hi";
 import { IoMdClose } from "react-icons/io";
 import { FaHospitalSymbol, FaPills, FaUser, FaUserCircle, FaMapMarkedAlt } from "react-icons/fa";
@@ -20,17 +20,48 @@ import en_black from "../assets/en_black.png";
 // Custom hook to get current search type
 
 
+import useLocationStore from "../store/useLocationStore";
+
 export default function Header() {
   const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [toggleProfileDropDown, setToggleProfileDropDown] = useState(false);
+  const [isEditingLocation, setIsEditingLocation] = useState(false);
+  const [newLocationName, setNewLocationName] = useState("");
 
-  const user = useAuthStore((state) => state.user);
-  const roles = useAuthStore((state) => state.roles);
-  const isLoading = useAuthStore((state) => state.isLoading);
-  const clearSession = useAuthStore((state) => state.clearSession);
+  const { locationName, setLocation, detectLocation, coordinates } = useLocationStore();
+  const [isDetecting, setIsDetecting] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
+
+  // 1. AUTO-DETECT LOCATION ON INITIAL LOAD
+  useEffect(() => {
+    if (!coordinates) {
+      handleDetectLocation();
+    }
+  }, []); // Only on mount
+
+  const handleDetectLocation = async () => {
+    setIsDetecting(true);
+    try {
+      await detectLocation();
+      setIsEditingLocation(false);
+    } catch (err) {
+      console.error("Auto-detection failed:", err);
+    } finally {
+      setIsDetecting(false);
+    }
+  };
+
+  const handleLocationSubmit = (e) => {
+    if (e.key === "Enter" || e.type === "blur") {
+      if (newLocationName.trim()) {
+        setLocation(newLocationName.trim(), null);
+      }
+      setIsEditingLocation(false);
+    }
+  };
 
   const handleLogout = () => {
     apiLogout().then(() => {
@@ -50,6 +81,12 @@ export default function Header() {
   const isHospitalActive = searchType === "hospital";
   const isPharmacyActive = searchType === "pharmacy";
   const isMapActive = location.pathname === "/map";
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const user = useAuthStore((state) => state.user);
+  const roles = useAuthStore((state) => state.roles);
+  const clearSession = useAuthStore((state) => state.clearSession);
+
+
 
   const isAmharic = useTranslation().i18n.language === "am";
 
@@ -72,9 +109,9 @@ export default function Header() {
               className="flex items-center gap-3 group"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
-              <img src={isAmharic ? am_white : en_white} alt= {t("headingNav.healthcare_platform")} onClick={()=>navigate("/")} className="w-30 sm:w-50 h-full"/>
-              
-              
+              <img src={isAmharic ? am_white : en_white} alt={t("headingNav.healthcare_platform")} onClick={() => navigate("/")} className="w-30 sm:w-50 h-full" />
+
+
             </Link>
           </div>
 
@@ -142,11 +179,48 @@ export default function Header() {
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
                     {t("headingNav.location")}
                   </span>
-                  <div className="flex items-center gap-1 text-slate-700 dark:text-gray-200">
-                    <HiOutlineLocationMarker className="text-blue-600" />
-                    <span className="text-xs font-bold italic">
-                      {t("headingNav.addis_ababa")}
-                    </span>
+                  <div
+                    className="flex items-center gap-1 text-slate-700 dark:text-gray-200 cursor-pointer group"
+                    onClick={() => {
+                      setIsEditingLocation(true);
+                      setNewLocationName(locationName);
+                    }}
+                  >
+                    <HiOutlineLocationMarker className="text-blue-600 group-hover:scale-110 transition-transform" />
+                    {isEditingLocation ? (
+                      <div className="flex items-center gap-1">
+                        <input
+                          autoFocus
+                          type="text"
+                          value={newLocationName}
+                          onChange={(e) => setNewLocationName(e.target.value)}
+                          onKeyDown={handleLocationSubmit}
+                          onBlur={(e) => {
+                            // Delay blur to allow button clicks
+                            setTimeout(() => setIsEditingLocation(false), 200);
+                          }}
+                          className="text-xs font-bold italic bg-slate-100 dark:bg-gray-800 outline-none border-b border-blue-500 px-1 w-24"
+                        />
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDetectLocation();
+                          }}
+                          className="p-1 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded text-blue-600 transition-colors"
+                          title="Detect my location"
+                        >
+                          {isDetecting ? (
+                            <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <FaMapMarkedAlt className="text-[10px]" />
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-xs font-bold italic group-hover:text-blue-600 transition-colors">
+                        {locationName}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -257,7 +331,7 @@ export default function Header() {
 
           <Link
             to="/home/map"
-            className={`flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-bold shadow-lg ${isMapActive
+            className={`flex items-center justify-center gap-2 w-1/2 py-4 rounded-2xl font-bold shadow-lg ${isMapActive
               ? "bg-emerald-600 text-white"
               : "bg-emerald-500 text-white hover:bg-emerald-600"
               }`}
@@ -272,7 +346,7 @@ export default function Header() {
                 navigate("/login");
                 setIsMenuOpen(false);
               }}
-              className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold"
+              className="w-1/2 py-4 bg-blue-600 text-white rounded-2xl font-bold"
             >
               {t("Login.Login")}
             </button>

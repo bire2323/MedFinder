@@ -4,12 +4,12 @@ import { Search, Loader2, X } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://medfinder.com/api";
 
-export default function AutocompleteInput({ 
-  placeholder, 
-  onSearch, 
-  className = "" 
+export default function AutocompleteInput({
+  placeholder,
+  onSearch,
+  className = ""
 }) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
@@ -32,12 +32,12 @@ export default function AutocompleteInput({
         // Mocking drug autocomplete for now
         // In real app: const res = await axios.get(`${API_BASE_URL}/medicines/autocomplete?query=${query}`);
         // setSuggestions(res.data);
-        
+
         // Mock data
         const mockSuggestions = [
           "Paracetamol", "Panadol", "Amoxicillin", "Ciprofloxacin", "Metformin"
         ].filter(s => s.toLowerCase().includes(query.toLowerCase()));
-        
+
         setSuggestions(mockSuggestions);
         setIsOpen(true);
       } catch (error) {
@@ -98,7 +98,7 @@ export default function AutocompleteInput({
             <Loader2 size={20} />
           </div>
         ) : query && (
-          <button 
+          <button
             onClick={handleClear}
             className="absolute right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
           >

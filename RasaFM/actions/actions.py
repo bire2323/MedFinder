@@ -60,7 +60,7 @@ class ActionSearchDrugs(Action):
 
         # Call your backend API
         try:
-            response = requests.get(f"http://localhost:8000/api/bot/search-drug?name={drug_name}")
+            response = requests.get(f"https://medfinder.com/api/bot/search-drug?name={drug_name}")
             response.raise_for_status()
             data = response.json()
         except:
@@ -134,7 +134,7 @@ class ActionSearchPharmacy(Action):
         location = tracker.get_slot("location")
         pharmacy_name = tracker.get_slot("pharmacy_name")
 
-        url = "http://127.0.0.1:8000/api/pharmacies"
+        url = "https://medfinder.com/api/pharmacies"
         params = {"location": location} if location else {}
 
         # --- API CALL ---
@@ -237,7 +237,7 @@ class ActionSearchHospital(Action):
         hospital_name = tracker.get_slot("hospital_name")
         location = tracker.get_slot("location")
 
-        url = "http://localhost:8000/api/hospitals"
+        url = "https://medfinder.com/api/hospitals"
         params = {"location": location} if location else {}
 
         try:

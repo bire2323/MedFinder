@@ -1,4 +1,4 @@
-import { Heart, Home, LogOut, MessageSquare, MapPin, User, Menu, X } from "lucide-react";
+import { Heart, Home, LogOut, MessageSquare, MapPin, User, Menu, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 
@@ -25,10 +25,10 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="lg:hidden fixed top-24 left-4 z-60 w-11 h-11 rounded-2xl bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 shadow-sm flex items-center justify-center"
+        className="lg:hidden fixed top-20 left-0 z-60 w-9 h-9 rounded-r-3xl bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 shadow-sm flex items-center justify-center"
         aria-label={t("UserDashboard.OpenNavigation")}
       >
-        <Menu size={20} className="text-slate-700 dark:text-slate-200 text-5xl" />
+        <ChevronRight size={20} className="text-slate-700 dark:text-slate-200 text-5xl" />
       </button>
 
       {/* Mobile backdrop */}
@@ -57,7 +57,7 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
             </div>
             <div className="leading-tight">
               <p className="text-xl font-extrabold">MedFinder</p>
-              <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest">
+              <p className="text-[9px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest">
                 {t("UserDashboard.YourHealthcareDashboard")}
               </p>
             </div>
@@ -107,13 +107,13 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
                   >
                     <Icon size={18} />
                   </span>
-                  <span className="font-extrabold">{item.label}</span>
+                  <span className="text-sm md:font-extrabold">{item.label}</span>
                 </span>
 
                 {badge !== null && (
                   <span
                     className={[
-                      "shrink-0 inline-flex items-center justify-center min-w-[28px] px-2 h-7 rounded-full text-xs font-extrabold",
+                      "shrink-0 inline-flex items-center justify-center min-w-[28px] px-1  md:px-2 h-4 md:h-7 rounded-full text-xs font-extrabold",
                       isUnreadBadge
                         ? "bg-red-500 text-white"
                         : (active ? "bg-blue-600/20 text-blue-700 dark:text-blue-300" : "bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-slate-200")
@@ -131,7 +131,7 @@ export default function Sidebar({ activeSection, setActiveSection, onLogout, fav
           <button
             type="button"
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-red-600/10 text-red-700 dark:text-red-300 hover:bg-red-600/15 transition-colors font-extrabold"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-red-600/10 text-red-700 dark:text-red-300 hover:bg-red-600/15 transition-colors text-sm md:font-extrabold"
           >
             <LogOut size={18} />
             {t("headingNav.profile_dropdown.logout")}

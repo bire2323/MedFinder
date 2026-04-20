@@ -66,11 +66,12 @@ const FacilityDetailPage = () => {
     setIsLoading(false);
   }, [data, type, i18n.language]);
   //console.log("isauth", isAuthenticated);
-  // Open in Google Maps
+  // Open in Map
   const openInMaps = () => {
-    if (facility?.coordinates) {
-      const { lat, lng } = facility.coordinates;
-      window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
+    if (facility?.lat && facility?.lng) {
+      navigate('/home/map', { state: { selectedFacility: facility } });
+    } else {
+      toast.error(t("FacilityDetail.NoLocation") || "Location not available");
     }
   };
 
@@ -100,7 +101,7 @@ const FacilityDetailPage = () => {
 
 
       const sessionData = await response;
-      console.log("resp", sessionData);
+      // console.log("resp", sessionData);
 
       navigate(`/user/dashboard?session=${sessionData?.id ?? sessionData?.chat_session_id} `, { state: { openChatSessionId: sessionData?.id ?? sessionData?.chat_session_id } });
     } catch (err) {
@@ -115,10 +116,9 @@ const FacilityDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center">
-        {/*<Loader2 className="h-12 w-12 animate-spin text-blue-600" />*/}
-        <Loading />
-      </div>
+
+      <Loading />
+
     );
   }
 
@@ -139,8 +139,7 @@ const FacilityDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gray-900 relative">
-      {console.log("facility", facility)}
-      {console.log("data", data)}
+
       <header className="bg-white dark:bg-gray-800 border-b border-slate-200 dark:border-gray-700 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
           <button
@@ -187,28 +186,31 @@ const FacilityDetailPage = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg border border-slate-200 dark:border-gray-700 overflow-hidden mb-6"
+          className="bg-white/80 backdrop-blur-2xl dark:bg-gray-800/90 rounded-[2rem] shadow-2xl border border-white/40 dark:border-gray-700/50 overflow-hidden mb-8 transform transition-all hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
         >
           {/* Gradient Header */}
-          <div className={`h-32 ${type === 'pharmacy' ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-gradient-to-r from-blue-500 to-indigo-500'}`}>
-            <div className="h-full flex items-center justify-center">
+          <div className={`h-40 relative overflow-hidden ${type === 'pharmacy' ? 'bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600' : 'bg-gradient-to-br from-blue-400 via-indigo-500 to-blue-600'}`}>
+            <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px]"></div>
+            <div className="absolute inset-0 flex items-center justify-center opacity-30">
               {type === 'pharmacy' ? (
-                <Pill size={48} className="text-white/50" />
+                <Pill size={120} className="text-white transform rotate-12" />
               ) : (
-                <Building2 size={48} className="text-white/50" />
+                <Building2 size={120} className="text-white transform -rotate-12" />
               )}
             </div>
           </div>
 
           {/* Info Section */}
-          <div className="p-6 -mt-12">
-            <div className="flex flex-col md:flex-row items-start gap-4">
+          <div className="p-8 -mt-16 relative z-10">
+            <div className="flex flex-col md:flex-row items-start gap-6">
               {/* Logo/Icon */}
-              <div className={`w-24 h-24 rounded-2xl ${type === "pharmacy" ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-blue-100 dark:bg-blue-900/30'} flex items-center justify-center border-4 border-white dark:border-gray-800 shadow-lg`}>
-                {type === 'pharmacy' ? (
-                  <Pill size={40} className="text-emerald-600" />
+              <div className={`w-32 h-32 rounded-[1.5rem] ${type === "pharmacy" ? 'bg-emerald-50 dark:bg-emerald-900/50' : 'bg-blue-50 dark:bg-blue-900/50'} flex items-center justify-center border-4 border-white dark:border-gray-800 shadow-xl transform hover:scale-105 transition-transform duration-300`}>
+                {facility.logo_url ? (
+                  <img src={facility.logo_url} alt="logo" className="w-full h-full object-cover rounded-[1.2rem]" />
+                ) : type === 'pharmacy' ? (
+                  <Pill size={56} className="text-emerald-500" />
                 ) : (
-                  <Building2 size={40} className="text-blue-600" />
+                  <Building2 size={56} className="text-blue-500" />
                 )}
               </div>
 
@@ -218,7 +220,7 @@ const FacilityDetailPage = () => {
                   <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
                     {facility.facility_name}
                   </h2>
-                  {type === 'hospital' && facility.emergency_contact && (
+                  {type === 'hospital' && facility.contact_phone && (
                     <span className="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-full text-xs font-semibold flex items-center gap-1">
                       <Heart size={12} />
                       {t("FacilityDetail.Emergency")}
@@ -246,20 +248,20 @@ const FacilityDetailPage = () => {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-2 w-full md:w-auto">
+              <div className="flex gap-3 w-full md:w-auto">
                 <a
-                  href={`tel:${facility.phone || facility.emergency_contact}`}
-                  className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold ${type === 'pharmacy' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-blue-500 hover:bg-blue-600'
-                    } text-white transition-colors`}
+                  href={`tel:${facility.contact_phone}`}
+                  className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-8 py-3.5 rounded-[1.2rem] font-bold shadow-lg shadow-blue-500/20 transform hover:-translate-y-0.5 ${type === 'pharmacy' ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20' : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    } transition-all duration-300`}
                 >
-                  <Phone size={18} />
+                  <Phone size={20} />
                   {t("FacilityDetail.Call")}
                 </a>
                 <button
                   onClick={openInMaps}
-                  className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-300 hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors"
+                  className="flex-1 md:flex-none flex items-center justify-center gap-2 px-8 py-3.5 rounded-[1.2rem] font-bold bg-white/80 dark:bg-gray-700/80 backdrop-blur text-slate-800 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-600 border border-slate-200 dark:border-gray-600 shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
                 >
-                  <Navigation size={18} />
+                  <Navigation size={20} className="text-blue-500" />
                   {t("FacilityDetail.Directions")}
                 </button>
               </div>
@@ -300,14 +302,14 @@ const FacilityDetailPage = () => {
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Quick Info */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-200 dark:border-gray-700">
+              <div className="bg-white/60 backdrop-blur-xl dark:bg-gray-800/80 rounded-3xl p-6 border border-white/20 shadow-xl dark:border-gray-700/50 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] transition-all duration-300">
                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                   <Globe size={18} className={type === 'pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
                   {t("FacilityDetail.QuickInfo")}
                 </h3>
                 <div className="space-y-4">
                   <InfoRow label={t("FacilityDetail.License")} value={facility.license_number} />
-                  <InfoRow label={t("FacilityDetail.Region")} value={facility.region} />
+                  <InfoRow label={t("FacilityDetail.Region")} value={facility.addresses?.[0]?.region || facility.region} />
                   {type === 'pharmacy' && <InfoRow label={t("FacilityDetail.Type")} value={facility.facility_ownership_type} />}
                   {type === 'hospital' && <InfoRow label={t("FacilityDetail.Ownership")} value={facility.facility_ownership_type} />}
                   {type === 'hospital' && (
@@ -320,21 +322,33 @@ const FacilityDetailPage = () => {
               </div>
 
               {/* Location */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-200 dark:border-gray-700">
-                <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                  <MapPin size={18} className={type === 'pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
-                  {t("FacilityDetail.Location")}
-                </h3>
-                <p className="text-slate-600 dark:text-gray-400 mb-4">{facility.address}</p>
-                <div className="bg-slate-100 dark:bg-gray-700 rounded-xl h-40 flex items-center justify-center mb-4">
-                  <span className="text-slate-400">Map Preview</span>
+              <div className="bg-white/60 backdrop-blur-xl dark:bg-gray-800/80 rounded-3xl p-6 border border-white/20 shadow-xl dark:border-gray-700/50 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                    <MapPin size={18} className={type === 'pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
+                    {t("FacilityDetail.Location")}
+                  </h3>
+                  <div className="text-slate-600 dark:text-gray-400 mb-6 space-y-2">
+                    {facility.addresses?.map((a, i) => (
+                      <div key={i} className="flex flex-col gap-1 p-3 bg-slate-50 dark:bg-gray-700/50 rounded-xl border border-slate-100 dark:border-gray-600">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-gray-300">
+                          <MapPin size={14} className="text-emerald-500" />
+                          {a.region}, {a.zone}
+                        </div>
+                        <div className="text-xs text-slate-500 dark:text-gray-400 ml-6">
+                          {a.sub_city}, Kebele: {a.kebele}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
+
                 <button
                   onClick={openInMaps}
-                  className="w-full flex items-center justify-center gap-2 py-3 border-2 border-slate-200 dark:border-gray-600 rounded-xl text-slate-600 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 mt-auto"
                 >
-                  <ExternalLink size={16} />
-                  {t("FacilityDetail.OpenMaps")}
+                  <Navigation size={18} />
+                  {t("FacilityDetail.Directions") || "View on Map"}
                 </button>
               </div>
             </div>
@@ -342,27 +356,29 @@ const FacilityDetailPage = () => {
 
           {/* Inventory Tab (Pharmacy) */}
           {activeTab === 'inventory' && type === 'pharmacy' && (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 overflow-hidden">
-              <div className="p-6 border-b dark:border-gray-700">
+            <div className="bg-slate-50 dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 overflow-hidden">
+              <div className="p-6 border-b dark:border-gray-300 mb-2">
                 <h3 className="font-bold text-lg flex items-center gap-2">
                   <Package size={18} className="text-emerald-500" />
                   {t("FacilityDetail.AvailableMeds")}
                 </h3>
               </div>
-              <div className="divide-y dark:divide-gray-700">
+              <div className="flex flex-wrap w-fit px-2 dark:divide-gray-700">
                 {facility.inventory?.map((item, index) => (
-                  <div key={index} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-gray-700/50">
-                    <div>
+                  <div key={index} className="p-2 m-2 rounded-xl bg-white dark:bg-slate-400 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-gray-700/50">
+                    <div className='p-2'>
                       <p className="font-semibold">{item.name}</p>
-                      <p className="text-xs text-slate-400">{item.generic}</p>
+                      <p className="text-xs text-slate-400">{item.generic_name}</p>
+                      <p className="text-xs text-slate-400">{item.brand_name}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right p-2">
                       <p className="font-bold text-emerald-600">{item.price} ETB</p>
-                      <span className={`text-xs ${item.available ? 'text-emerald-500' : 'text-red-500'}`}>
-                        {item.available ? t("FacilityDetail.InStock") : t("FacilityDetail.OutOfStock")}
+                      <span className={`text-xs ${item.status ? 'text-emerald-500' : 'text-red-500'}`}>
+                        {item.status ? t("FacilityDetail.InStock") : t("FacilityDetail.OutOfStock")}
                       </span>
                     </div>
                   </div>
+
                 ))}
               </div>
             </div>
@@ -470,17 +486,17 @@ const FacilityDetailPage = () => {
 
               {/* Contact details */}
               <div className="space-y-4">
-                <ContactItem icon={Phone} label={t("Login.Phone")} value={facility.phone} href={`tel:${facility.phone}`} />
+                <ContactItem icon={Phone} label={t("Login.Phone")} value={facility.contact_phone} href={`tel:${facility.contact_phone}`} />
                 {facility.alternatePhone && (
                   <ContactItem icon={Phone} label={t("FacilityDetail.Alternate")} value={facility.alternatePhone} href={`tel:${facility.alternatePhone}`} />
                 )}
                 {facility.emergencyPhone && (
                   <ContactItem icon={Heart} label={t("FacilityDetail.Emergency")} value={facility.emergencyPhone} href={`tel:${facility.emergencyPhone}`} isEmergency />
                 )}
-                {facility.email && (
-                  <ContactItem icon={Mail} label={t("FacilityDetail.Email")} value={facility.email} href={`mailto:${facility.email}`} />
+                {facility.contact_email && (
+                  <ContactItem icon={Mail} label={t("FacilityDetail.Email")} value={facility.contact_email} href={`mailto:${facility.contact_email}`} />
                 )}
-                <ContactItem icon={MapPin} label={t("FacilityDetail.Address")} value={facility.address} />
+                <ContactItem icon={MapPin} label={t("FacilityDetail.Address")} value={facility.address_description} />
               </div>
             </div>
           )}

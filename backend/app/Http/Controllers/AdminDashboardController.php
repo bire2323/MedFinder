@@ -22,7 +22,6 @@ class AdminDashboardController extends Controller
         $totalPharmacies = Pharmacy::where('status', 'APPROVED')->count();
         $pendingHospitals = Hospital::where('status', 'PENDING')->count();
         $pendingPharmacies = Pharmacy::where('status', 'PENDING')->count();
-
         return response()->json([
             'success' => true,
             'total_users' => $totalUsers,

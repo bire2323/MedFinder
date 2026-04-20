@@ -14,9 +14,7 @@ return [
     'allowed_methods' => ['*'],
 
     // Add your React frontend origin here
-    'allowed_origins' =>  env('APP_ENV') === 'local' ? ['http://medfinder.com'] : [
-    'http://mefinder.com'
-],
+    'allowed_origins' => ['https://medfinder.com'],
 
     'allowed_headers' => ['*'],
 

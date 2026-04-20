@@ -3,8 +3,6 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Routing\Middleware\SubstituteBindings;
-use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,18 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-      //  $middleware->statefulApi();
-        $middleware->group('api', [
-            EnsureFrontendRequestsAreStateful::class,
-            'throttle:api',
-            SubstituteBindings::class,
-        ]);
+     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->statefulApi(); // Enables session and CSRF for first-party SPAs
     })
-    ->withBroadcasting(
-    __DIR__.'/../routes/channels.php',
-    ['prefix' => 'api', 'middleware' => ['api', 'auth:sanctum']],
-)
+   ->withBroadcasting(
+   __DIR__.'/../routes/channels.php',
+    ['prefix' => '', 'middleware' => ['web', 'auth:sanctum']],
+      )
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })

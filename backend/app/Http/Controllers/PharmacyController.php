@@ -375,7 +375,7 @@ class PharmacyController extends Controller
      */
     public function show(Pharmacy $pharmacy)
     {
-        $pharmacy = Pharmacy::with('addresses')->find($pharmacy->id);
+        $pharmacy = Pharmacy::with(['addresses','drugs'])->find($pharmacy->id);
 
 
         return response()->json(["success" => true, "data" => $pharmacy]);

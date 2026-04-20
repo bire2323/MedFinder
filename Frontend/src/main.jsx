@@ -25,7 +25,7 @@ window.Pusher = Pusher;
     forceTLS: true,
     enabledTransports: ['ws', 'wss'],
 
-    authEndpoint: '/api/broadcasting/auth',
+    authEndpoint: '/broadcasting/auth',
 
     wsPath: '/reverb',
 

@@ -15,9 +15,9 @@ services:
       - mysql-data:/var/lib/mysql
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} || exit 1" ]
-      interval: 10s
-      timeout: 5s
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_ROOT_PASSWORD}" ]
+      interval: 30s
+      timeout: 10s
       retries: 10
       start_period: 40s
 
@@ -47,9 +47,14 @@ services:
       REVERB_HOST: reverb
       REVERB_PORT: 6001
       REVERB_SCHEME: http
+      SESSION_DRIVER: database
+      SESSION_DOMAIN: .medfinder.com
+      SESSION_SAME_SITE: none
+      SESSION_SECURE_COOKIE: "true"
+      SANCTUM_STATEFUL_DOMAINS: medfinder.com
+      TRUSTED_PROXIES: "*"
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
     restart: unless-stopped
 
   reverb:
@@ -75,6 +80,7 @@ services:
   osrm:
     image: osrm/osrm-backend
     container_name: medfinder-osrm
+    init: true
     # internal only, no ports exposed
     volumes:
       - ./OSM-data:/data
@@ -97,8 +103,24 @@ services:
     volumes:
       - ./RasaFM:/app
     command: run --enable-api --cors "*" --port 5005
+    depends_on:
+      - action_server
     restart: unless-stopped
 
+  
+
+  action_server:
+    container_name: rasa_action-server
+    build:
+      context: ./rasafm/actions          # ← Point directly to the actions folder
+      dockerfile: Dockerfile
+    volumes:
+      - ./rasafm/actions:/app/actions     # For development hot-reload
+    ports:
+      - "5055:5055"
+    restart: unless-stopped
+    
+ 
   frontend:
     build:
       context: ./Frontend

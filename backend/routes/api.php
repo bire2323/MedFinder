@@ -162,7 +162,7 @@ Route::prefix('ai')->middleware('auth:sanctum')->group(function () {
         return $response->json();
     });
 });
-
+Route::get('/whoami', fn() => gethostname());
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('pharmacy-agent/profile', [PharmacyController::class, 'getPharmaProfile']);
     Route::post('profile/update', [AuthController::class, 'updateProfile']);
@@ -181,8 +181,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/sessions/{sessionId}/mark-delivered', [MessageStatusController::class, 'markDelivered']);
     Route::post('/chat/sessions/{sessionId}/mark-read', [MessageStatusController::class, 'markRead']);
 });
-Route::get('admin/stats', [\App\Http\Controllers\AdminDashboardController::class, 'stats']);
 // Protected routes (require auth:sanctum)
+Route::get('admin/stats', [\App\Http\Controllers\AdminDashboardController::class, 'stats']);
 Route::middleware('auth:sanctum')->group(function () {
     // Full CRUD (explicit routes)
     Route::post('register/hospital', [HospitalController::class, 'store']);
@@ -293,7 +293,6 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::fallback(function () {
     return response()->json(['message' => 'Not Found.'], 404);
 });
-
 
 
 

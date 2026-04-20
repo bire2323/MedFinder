@@ -35,7 +35,7 @@ class ChatSessionController extends Controller
     ]);
 
     // Ensure at least one facility
-    if (! $validated['pharmacy_id'] && ! $validated['hospital_id']) {
+    if (!($validated['pharmacy_id'] ?? null) && !($validated['hospital_id'] ?? null)) {
         return response()->json(['error' => 'Facility required'], 422);
     }
 

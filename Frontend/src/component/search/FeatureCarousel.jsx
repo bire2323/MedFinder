@@ -37,7 +37,7 @@ export default function FeatureCarousel() {
   }, []);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 via-blue-400 to-cyan-400 p-6 mb-6 shadow-xl">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 dark:from-slate-800 via-blue-400 dark:via-slate-800 to-cyan-400 dark:to-slate-900 p-6 mb-6 shadow-xl">
       {/* Background Decor */}
       <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-white/20 rounded-full blur-3xl opacity-50"></div>
       <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-cyan-200/20 rounded-full blur-3xl opacity-50"></div>
@@ -76,8 +76,8 @@ export default function FeatureCarousel() {
               key={idx}
               onClick={() => setCurrent(idx)}
               className={`w-3 h-3 rounded-full transition-all duration-300 border-2 ${current === idx
-                  ? "bg-white border-white scale-125 shadow-md"
-                  : "bg-gray-400/50 border-transparent hover:bg-gray-300"
+                ? "bg-white border-white scale-125 shadow-md"
+                : "bg-gray-400/50 border-transparent hover:bg-gray-300"
                 }`}
               aria-label={`Go to slide ${idx + 1}`}
             />

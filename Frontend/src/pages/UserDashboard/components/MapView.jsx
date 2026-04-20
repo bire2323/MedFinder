@@ -70,9 +70,12 @@ function extractPrescriptionPharmacies(apiResponse) {
   return [];
 }
 
+import useLocationStore from "../../../store/useLocationStore";
+
 export default function MapView({ favorites, isFavorite, onToggleFavorite, onFacilityViewed, onRequestChat }) {
   const { t } = useTranslation();
-  const [userLocation, setUserLocation] = useState(null); // {lat, lng}
+  const { coordinates: storeLocation, setLocation: setStoreLocation, detectLocation } = useLocationStore();
+  const [userLocation, setUserLocation] = useState(storeLocation); // Initially use store location
   const [geoError, setGeoError] = useState("");
 
   const [facilities, setFacilities] = useState([]);
@@ -103,125 +106,38 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
   const [isLocationLoading, setIsLocationLoading] = useState(false);
 
   const defaultCenter = useMemo(() => [12.6000, 37.4500], []);
-  const getLocation = useCallback(() => {
-    if (!navigator.geolocation) {
-      setGeoError('Geolocation is not supported by your browser');
-      return;
-    }
 
+  // Update local userLocation when store location changes
+  useEffect(() => {
+    if (storeLocation) {
+      setUserLocation(storeLocation);
+    }
+  }, [storeLocation]);
+
+  const handleGetLocation = useCallback(async () => {
     setIsLocationLoading(true);
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        });
-        setGeoError(null);
-        setIsLocationLoading(false);
-      },
-      (err) => {
-        console.error('Geolocation error:', err);
-        setGeoError(err.message || t("Map.TrackingUnavailable"));
-        setIsLocationLoading(false);
-
-        // Set permission state based on error
-        if (err.code === err.PERMISSION_DENIED) {
-          setPermissionState('denied');
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      }
-    );
-  }, []);
-
-  // FIXED: Permission monitoring with proper cleanup
-  useEffect(() => {
-    let isMounted = true;
-    let permissionStatus = null;
-
-    // Check if Permission API is supported
-    if (!navigator.permissions) {
-      // Fallback for browsers without Permission API (Safari)
-      if (isMounted) {
-        getLocation();
-      }
-      return;
+    setGeoError("");
+    try {
+      const coords = await detectLocation();
+      setUserLocation(coords);
+      setPermissionState('granted');
+    } catch (err) {
+      console.error('Geolocation error:', err);
+      setGeoError(err.message || t("Map.TrackingUnavailable"));
+      if (err.code === 1) setPermissionState('denied'); // 1 is PERMISSION_DENIED
+    } finally {
+      setIsLocationLoading(false);
     }
+  }, [detectLocation, t]);
 
-    // Query geolocation permission status
-    navigator.permissions.query({ name: 'geolocation' })
-      .then((status) => {
-        if (!isMounted) return;
-
-        permissionStatus = status;
-        setPermissionState(status.state);
-
-        // If already granted, get location immediately
-        if (status.state === 'granted') {
-          getLocation();
-        }
-
-        // Listen for permission changes
-        const handlePermissionChange = () => {
-          if (!isMounted) return;
-
-          console.log('Permission changed to:', status.state);
-          setPermissionState(status.state);
-
-          // If permission is now granted, get location automatically
-          if (status.state === 'granted') {
-            getLocation();
-          } else if (status.state === 'denied') {
-            setGeoError(t("Map.EnableLocationForDistance"));
-          }
-        };
-
-        status.addEventListener('change', handlePermissionChange);
-      })
-      .catch((err) => {
-        console.error('Permission API query failed:', err);
-        if (isMounted) {
-          // Fallback to regular geolocation
-          getLocation();
-        }
-      });
-
-    // Cleanup
-    return () => {
-      isMounted = false;
-      if (permissionStatus) {
-        // Remove event listener if needed
-        // Note: In some implementations, you might need to store the handler reference
-      }
-    };
-  }, [getLocation]);
-
-  // Additional effect: Retry location when page becomes visible
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden && permissionState === 'granted' && !userLocation) {
-        console.log('Page became visible, retrying location...');
-        getLocation();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [getLocation, permissionState, userLocation]);
+  // Removed automatic permission monitoring on mount as requested
   // Manual retry function for user to click
   const handleRetryLocation = useCallback(() => {
     if (permissionState === 'denied') {
       setGeoError(t("Map.EnableLocationForDistance"));
     }
-    getLocation();
-  }, [getLocation, permissionState]);
+    handleGetLocation();
+  }, [handleGetLocation, permissionState, t]);
 
   useEffect(() => {
     let alive = true;
@@ -509,21 +425,15 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                           >
                             {t("Map.OpenInMap")}
                           </button>
-                          {f.type === "pharmacy" ? (
-                            <button
-                              type="button"
-                              onClick={() => onRequestChat?.(f)}
-                              className="rounded-xl bg-slate-100 dark:bg-gray-700/60 text-slate-700 dark:text-slate-200 py-2.5 px-2 font-extrabold text-xs hover:bg-slate-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-1"
-                              title={t("Map.MessagePharmacy")}
-                            >
-                              <MessageSquare size={14} />
-                              {t("UserDashboard.Messages")}
-                            </button>
-                          ) : (
-                            <div className="flex-1 rounded-xl bg-slate-100 dark:bg-gray-700/40 text-slate-400 py-2.5 font-extrabold text-xs text-center cursor-not-allowed border border-dashed border-slate-300 dark:border-gray-600">
-                              {t("UserDashboard.Messages")}
-                            </div>
-                          )}
+                          <button
+                            type="button"
+                            onClick={() => onRequestChat?.(f)}
+                            className="flex-1 rounded-xl bg-slate-100 dark:bg-gray-700/60 text-slate-700 dark:text-slate-200 py-2.5 px-2 font-extrabold text-xs hover:bg-slate-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-1"
+                            title={f.type === "hospital" ? t("Map.MessageHospital") : t("Map.MessagePharmacy")}
+                          >
+                            <MessageSquare size={14} />
+                            {t("UserDashboard.Messages")}
+                          </button>
                         </div>
                       </div>
                     );
@@ -829,15 +739,13 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                             </button>
                           </div>
 
-                          {f.type === "pharmacy" ? (
-                            <button
-                              type="button"
-                              onClick={() => onRequestChat?.(f)}
-                              className="mt-2 w-full bg-slate-900 dark:bg-blue-600 text-white text-[11px] py-2 rounded-lg font-extrabold hover:opacity-90 transition-colors"
-                            >
-                              Message pharmacy agent
-                            </button>
-                          ) : null}
+                          <button
+                            type="button"
+                            onClick={() => onRequestChat?.(f)}
+                            className="mt-2 w-full bg-slate-900 dark:bg-blue-600 text-white text-[11px] py-2 rounded-lg font-extrabold hover:opacity-90 transition-colors"
+                          >
+                            {f.type === "hospital" ? "Message hospital agent" : "Message pharmacy agent"}
+                          </button>
                         </div>
                       </Popup>
                     </Marker>

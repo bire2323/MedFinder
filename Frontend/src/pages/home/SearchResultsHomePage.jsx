@@ -40,10 +40,14 @@ function distanceBucketOk(distanceMeters, bucket) {
   return true;
 }
 
+import useLocationStore from "../../store/useLocationStore";
+
 export default function SearchResultsHomePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
+
+  const { coordinates: userLoc } = useLocationStore();
 
   const initialQ = params.get("q") || "";
   const initialType = (params.get("type") || "all").toLowerCase();
@@ -62,7 +66,6 @@ export default function SearchResultsHomePage() {
     department: "any",
   });
 
-  const [userLoc, setUserLoc] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [allFacilities, setAllFacilities] = useState([]);
@@ -81,16 +84,6 @@ export default function SearchResultsHomePage() {
     next.set("type", facilityType);
     setParams(next, { replace: true });
   }, [query, facilityType, params, setParams]);
-
-  useEffect(() => {
-    if (!navigator.geolocation) return;
-    const watchId = navigator.geolocation.watchPosition(
-      (pos) => setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => setUserLoc(null),
-      { enableHighAccuracy: true, maximumAge: 30_000, timeout: 10_000 }
-    );
-    return () => navigator.geolocation.clearWatch(watchId);
-  }, []);
 
   useEffect(() => {
     setLoading(true);
