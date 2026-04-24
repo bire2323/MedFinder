@@ -10,6 +10,7 @@ import { getNotifications, markNotificationRead } from '../../api/admin';
 import toast from 'react-hot-toast';
 import useAuthStore from '../../store/UserAuthStore';
 import { useTranslation } from 'react-i18next';
+import Loading from '../../component/SupportiveComponent/Loading';
 
 function getNotificationIcon(type) {
   switch (type) {
@@ -18,24 +19,24 @@ function getNotificationIcon(type) {
     case 'violation':
       return <AlertTriangle className="size-5 text-red-600 dark:text-red-400" />;
     case 'update':
-      return <Info className="size-5 text-green-600 dark:text-green-400" />;
+      return <Info className="size-5 text-emerald-600 dark:text-emerald-400" />;
     case 'inactive':
       return <XCircle className="size-5 text-orange-600 dark:text-orange-400" />;
     default:
-      return <Bell className="size-5 text-gray-600 dark:text-gray-400" />;
+      return <Bell className="size-5 text-slate-500 dark:text-gray-400" />;
   }
 }
 
 function getPriorityBadgeClass(priority) {
   switch (priority) {
     case 'high':
-      return 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200';
+      return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300';
     case 'medium':
-      return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-200';
+      return 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300';
     case 'low':
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+      return 'bg-slate-100 text-slate-700 dark:bg-gray-700 dark:text-gray-300';
     default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+      return 'bg-slate-100 text-slate-700 dark:bg-gray-700 dark:text-gray-300';
   }
 }
 
@@ -87,25 +88,26 @@ export default function NotificationCenter({ onNotificationRead }) {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white">ss</div>
+      <div className="flex justify-center items-center py-20">
+        <Loading />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold">{t("Admin.NotificationCenter")}</h2>
-          <p className="text-gray-500 dark:text-gray-400">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t("Admin.NotificationCenter")}</h2>
+          <p className="text-sm text-slate-500 dark:text-gray-400 mt-0.5">
             {t("Admin.NotificationDesc")}
           </p>
         </div>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="w-full sm:w-48 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+          className="w-full sm:w-48 px-3 py-2 rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-slate-700 dark:text-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none transition"
         >
           <option value="all">{t("Admin.AllNotifications")}</option>
           <option value="unread">{t("Admin.UnreadOnly")}</option>
@@ -116,97 +118,104 @@ export default function NotificationCenter({ onNotificationRead }) {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{t("Common.Total")}</p>
-              <p className="text-2xl font-semibold">{notifications.length}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">{t("Common.Total")}</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{notifications.length}</p>
             </div>
-            <Bell className="size-8 text-blue-600 dark:text-blue-400" />
+            <div className="p-2.5 bg-blue-50 dark:bg-blue-900/30 rounded-xl">
+              <Bell className="size-5 text-blue-600 dark:text-blue-400" />
+            </div>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{t("Admin.Unread")}</p>
-              <p className="text-2xl font-semibold">{notifications.filter((n) => !isRead(n)).length}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">{t("Admin.Unread")}</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{notifications.filter((n) => !isRead(n)).length}</p>
             </div>
-            <AlertTriangle className="size-8 text-orange-600 dark:text-orange-400" />
+            <div className="p-2.5 bg-amber-50 dark:bg-amber-900/30 rounded-xl">
+              <AlertTriangle className="size-5 text-amber-600 dark:text-amber-400" />
+            </div>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{t("Admin.HighPriority")}</p>
-              <p className="text-2xl font-semibold">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">{t("Admin.HighPriority")}</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
                 {notifications.filter((n) => (n.priority || '').toLowerCase() === 'high').length}
               </p>
             </div>
-            <XCircle className="size-8 text-red-600 dark:text-red-400" />
+            <div className="p-2.5 bg-red-50 dark:bg-red-900/30 rounded-xl">
+              <XCircle className="size-5 text-red-600 dark:text-red-400" />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Notifications List */}
       {filteredNotifications.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 py-12 text-center">
-          <Bell className="size-12 mx-auto mb-4 text-gray-400" />
-          <p className="text-xl font-medium mb-2">{t("Admin.NoNotifications")}</p>
-          <p className="text-gray-500 dark:text-gray-400">
-            {filter === 'unread'
-              ? t("Admin.CaughtUp")
-              : t("Admin.NoMatchFilter")}
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 py-16 text-center">
+          <div className="size-14 bg-slate-50 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Bell className="size-7 text-slate-300 dark:text-gray-600" />
+          </div>
+          <p className="text-lg font-bold text-slate-700 dark:text-gray-200 mb-1">{t("Admin.NoNotifications")}</p>
+          <p className="text-sm text-slate-500 dark:text-gray-400">
+            {filter === 'unread' ? t("Admin.CaughtUp") : t("Admin.NoMatchFilter")}
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {filteredNotifications.map((notification) => {
             const read = isRead(notification);
             const timestamp = notification.created_at || notification.timestamp;
             return (
               <div
                 key={notification.id}
-                className={`bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 overflow-hidden ${!read ? 'border-l-4 border-l-indigo-600 dark:border-l-indigo-400' : 'border-gray-200'
-                  }`}
+                className={`bg-white dark:bg-gray-900 rounded-xl border dark:border-gray-800 overflow-hidden transition-all duration-200 hover:shadow-sm ${
+                  !read
+                    ? 'border-l-[3px] border-l-indigo-500 dark:border-l-indigo-400 border-slate-200'
+                    : 'border-slate-200'
+                }`}
               >
-                <div className="p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                    <div className="flex items-start gap-3 flex-1">
-                      <div className="mt-1 shrink-0">{getNotificationIcon(notification.type)}</div>
+                <div className="p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <div className="mt-0.5 shrink-0 p-1.5 rounded-lg bg-slate-50 dark:bg-gray-800">
+                        {getNotificationIcon(notification.type)}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <h3 className="text-lg font-semibold">{notification.title}</h3>
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">{notification.title}</h3>
                           {!read && (
-                            <span className="inline-flex px-2 py-0.5 rounded-md text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-200">
+                            <span className="inline-flex px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 uppercase tracking-wide">
                               {t("Common.New")}
                             </span>
                           )}
                         </div>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm">
+                        <p className="text-sm text-slate-500 dark:text-gray-400 leading-relaxed">
                           {notification.message}
                         </p>
                         {timestamp && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                          <p className="text-xs text-slate-400 dark:text-gray-500 mt-2">
                             {new Date(timestamp).toLocaleString()}
                           </p>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-2 shrink-0 flex-wrap">
                       {notification.priority && (
-                        <span
-                          className={`inline-flex px-2 py-0.5 rounded-md text-xs font-medium ${getPriorityBadgeClass(
-                              notification.priority
-                          )}`}
-                        >
+                        <span className={`inline-flex px-2 py-0.5 rounded-md text-xs font-semibold ${getPriorityBadgeClass(notification.priority)}`}>
                           {notification.priority === 'high' ? t("Admin.HighPriority") : notification.priority === 'medium' ? t("Admin.MediumPriority") : t("Admin.LowPriority")}
                         </span>
                       )}
                       {!read && (
                         <button
                           type="button"
-                          className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+                          className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-xs font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors"
                           onClick={() => handleMarkAsRead(notification.id)}
                         >
                           {t("Admin.MarkAsRead")}

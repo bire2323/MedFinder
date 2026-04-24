@@ -293,246 +293,244 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
   }, [aiLogs, historyQuery]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-[520px]">
-      {/* Left column: session list / history list */}
-      <div className={`col-span-12 md:col-span-12 lg:col-span-5 sticky top-14 self-start ${activeSessionId ? 'hidden lg:block' : 'block'}`}>
-        <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 p-4">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-base font-extrabold">{mode === "agent" ? t("Chat.Chats") : mode === "ai" ? t("Chat.AiAssistant") : t("Chat.ChatHistory")}</h2>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setMode("agent")}
-                className={[
-                  "px-3 py-2 rounded-xl text-xs font-extrabold border transition-colors",
-                  mode === "agent"
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white dark:bg-gray-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/50",
-                ].join(" ")}
-              >
-                {t("Chat.Agent")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("ai")}
-                className={[
-                  "px-3 py-2 rounded-xl text-xs font-extrabold border transition-colors hidden sm:inline-flex",
-                  mode === "ai"
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white dark:bg-gray-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/50",
-                ].join(" ")}
-              >
-                {t("Chat.Ai")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("history")}
-                className={[
-                  "px-3 py-2 rounded-xl text-xs font-extrabold border transition-colors hidden sm:inline-flex",
-                  mode === "history"
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white dark:bg-gray-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/50",
-                ].join(" ")}
-              >
-                {t("Chat.Logs")}
-              </button>
+    <div className="px-4 py-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[520px]">
+          {/* Left column: session list / history list */}
+          <div className={`col-span-12 md:col-span-12 lg:col-span-5 sticky top-14 self-start ${activeSessionId ? 'hidden lg:block' : 'block'}`}>
+            <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-base font-extrabold">{mode === "agent" ? t("Chat.Chats") : mode === "ai" ? t("Chat.AiAssistant") : t("Chat.ChatHistory")}</h2>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setMode("agent")}
+                    className={[
+                      "px-3 py-2 rounded-xl text-xs font-extrabold border transition-colors",
+                      mode === "agent"
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white dark:bg-gray-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/50",
+                    ].join(" ")}
+                  >
+                    {t("Chat.Agent")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMode("ai")}
+                    className={[
+                      "px-3 py-2 rounded-xl text-xs font-extrabold border transition-colors hidden sm:inline-flex",
+                      mode === "ai"
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white dark:bg-gray-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/50",
+                    ].join(" ")}
+                  >
+                    {t("Chat.Ai")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMode("history")}
+                    className={[
+                      "px-3 py-2 rounded-xl text-xs font-extrabold border transition-colors hidden sm:inline-flex",
+                      mode === "history"
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white dark:bg-gray-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/50",
+                    ].join(" ")}
+                  >
+                    {t("Chat.Logs")}
+                  </button>
+                </div>
+              </div>
+
+              {mode === "agent" && (
+                <div className="mt-4">
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <div className="text-sm font-extrabold text-slate-800 dark:text-slate-100">{t("Chat.ConversationList")}</div>
+                    <button
+                      type="button"
+                      onClick={() => setMode("history")}
+                      className="text-xs font-extrabold text-blue-700 dark:text-blue-400 hover:underline"
+                    >
+                      {t("Chat.SearchLogs")}
+                    </button>
+                  </div>
+
+                  {sessionsError && (
+                    <div className="text-sm rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/40 p-3 text-rose-800 dark:text-rose-200">
+                      {sessionsError}
+                    </div>
+                  )}
+
+                  {sessionsLoading ? (
+                    <div className="mt-4 flex items-center gap-3 text-slate-600 dark:text-gray-300">
+                      <Loader2 size={20} className="animate-spin" />
+                      {t("Common.Loading")}
+                    </div>
+                  ) : sessions.length === 0 ? (
+                    <div className="mt-4 border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
+                      <p className="font-extrabold">{t("Chat.NoAgentChatsYet")}</p>
+                      <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Chat.StartChatFromSearch")}</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+                      {sessions.map((s) => {
+                        const sid = String(s.id);
+                        const label = getFacilityLabel(s);
+                        const isActive = String(activeSessionId) === sid;
+                        return (
+                          <button
+                            key={sid}
+                            type="button"
+                            onClick={() => handleSelectSession(s)}
+                            className={[
+                              "w-full text-left rounded-2xl p-3 border transition-colors",
+                              isActive
+                                ? "bg-blue-600/10 border-blue-600 text-blue-700 dark:text-blue-300"
+                                : "bg-white dark:bg-gray-900/30 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/50",
+                            ].join(" ")}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-bold truncate">{label}</p>
+                                <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 truncate">
+                                  {s.last_message || (s.pharmacy?.pharmacy_name_en ? "Pharmacy Agent" : s.hospital?.hospital_name_en ? "Hospital Agent" : "Agent")}
+                                </p>
+                              </div>
+                              {s.unread_count > 0 ? (
+                                <span className="shrink-0 bg-red-500 text-white text-[10px] font-bold px-0.5 sm:px-2 py-0.5 rounded-full">
+                                  {s.unread_count}
+                                </span>
+                              ) : (
+                                <span className="shrink-0 w-9 h-9 rounded-xl bg-slate-100 dark:bg-gray-700/60 flex items-center justify-center">
+                                  <UserCircle2 size={16} className="text-slate-600 dark:text-slate-200" />
+                                </span>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {mode === "ai" && (
+                <div className="mt-4">
+                  <div className="border border-slate-200 dark:border-gray-700 rounded-2xl p-4 bg-slate-50 dark:bg-gray-900/30">
+                    <div className="flex items-center gap-2">
+                      <Sparkles size={18} className="text-blue-600" />
+                      <p className="font-extrabold">{t("Chat.AiChatbot")}</p>
+                    </div>
+                    <p className="text-sm text-slate-600 dark:text-gray-300 mt-2">
+                      {t("Chat.AiChatbotDescription")}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {mode === "history" && (
+                <div className="mt-4">
+                  <div className="relative">
+                    <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      value={historyQuery}
+                      onChange={(e) => setHistoryQuery(e.target.value)}
+                      placeholder={t("Chat.SearchInAiAndAgent")}
+                      className="w-full pl-10 pr-3 py-3 rounded-xl bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={loadAgentHistory}
+                      className="text-xs font-extrabold text-blue-700 dark:text-blue-400 hover:underline"
+                      disabled={historyLoading}
+                    >
+                      {historyLoading ? t("Common.Loading") : t("Chat.RefreshAgentLogs")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        localStorage.setItem(LS_AI_LOGS_KEY, JSON.stringify([]));
+                        setAiLogs([]);
+                      }}
+                      className="text-xs font-extrabold text-rose-700 dark:text-rose-300 hover:underline"
+                      title={t("Chat.ClearAi")}
+                    >
+                      {t("Chat.ClearAi")}
+                    </button>
+                  </div>
+
+                  <div className="mt-4 space-y-4 max-h-[420px] overflow-y-auto pr-1">
+                    <div className="space-y-2">
+                      <p className="text-xs font-extrabold text-slate-600 dark:text-gray-300 uppercase tracking-widest">{t("Chat.AiChatLogs")}</p>
+                      {aiLogsFiltered.length === 0 ? (
+                        <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
+                          <p className="font-extrabold">{t("Chat.NoAiLogsYet")}</p>
+                          <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Chat.AskSomethingInAiTab")}</p>
+                        </div>
+                      ) : (
+                        aiLogsFiltered.slice(0, 10).map((c) => (
+                          <div key={c.id} className="border border-slate-200 dark:border-gray-700 rounded-2xl p-3 bg-white dark:bg-gray-900/30">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="font-extrabold truncate">{c.query}</p>
+                                <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">{t("Admin.SavedAt")} {new Date(c.createdAt).toLocaleString()}</p>
+                              </div>
+                              <span className="shrink-0 w-9 h-9 rounded-xl bg-blue-600/10 text-blue-700 dark:text-blue-300 flex items-center justify-center">
+                                <Sparkles size={16} />
+                              </span>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-xs font-extrabold text-slate-600 dark:text-gray-300 uppercase tracking-widest">{t("Chat.AgentChatLogs")}</p>
+                      {sessionsLoading ? (
+                        <div className="flex items-center gap-3 text-slate-600 dark:text-gray-300">
+                          <Loader2 size={18} className="animate-spin" />
+                          {t("Common.Loading")}
+                        </div>
+                      ) : agentHistoryFiltered.length === 0 ? (
+                        <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
+                          <p className="font-extrabold">{t("Chat.NoAgentLogsYet")}</p>
+                          <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Chat.StartPharmacyChat")}</p>
+                        </div>
+                      ) : (
+                        agentHistoryFiltered.slice(0, 10).map((h) => (
+                          <button
+                            key={String(h.sessionId)}
+                            type="button"
+                            onClick={() => {
+                              handleSelectSession({ id: h.sessionId });
+                              setMode("agent");
+                            }}
+                            className="w-full text-left border border-slate-200 dark:border-gray-700 rounded-2xl p-3 bg-white dark:bg-gray-900/30 hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="font-extrabold truncate">{h.facilityLabel}</p>
+                                <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 truncate">{lastMessageText(h.messages) || t("chat.no_messages")}</p>
+                              </div>
+                              <span className="shrink-0 w-9 h-9 rounded-xl bg-slate-100 dark:bg-gray-700/60 flex items-center justify-center">
+                                <MessageSquare size={16} className="text-slate-700 dark:text-slate-200" />
+                              </span>
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {mode === "agent" && (
-            <div className="mt-4">
-              <div className="flex items-center justify-between gap-3 mb-3">
-                <div className="text-sm font-extrabold text-slate-800 dark:text-slate-100">{t("Chat.ConversationList")}</div>
-                <button
-                  type="button"
-                  onClick={() => setMode("history")}
-                  className="text-xs font-extrabold text-blue-700 dark:text-blue-400 hover:underline"
-                >
-                  {t("Chat.SearchLogs")}
-                </button>
-              </div>
-
-              {sessionsError && (
-                <div className="text-sm rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/40 p-3 text-rose-800 dark:text-rose-200">
-                  {sessionsError}
-                </div>
-              )}
-
-              {sessionsLoading ? (
-                <div className="mt-4 flex items-center gap-3 text-slate-600 dark:text-gray-300">
-                  <Loader2 size={20} className="animate-spin" />
-                  {t("Common.Loading")}
-                </div>
-              ) : sessions.length === 0 ? (
-                <div className="mt-4 border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
-                  <p className="font-extrabold">{t("Chat.NoAgentChatsYet")}</p>
-                  <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Chat.StartChatFromSearch")}</p>
-                </div>
-              ) : (
-                <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
-                  {sessions.map((s) => {
-                    const sid = String(s.id);
-                    const label = getFacilityLabel(s);
-                    const isActive = String(activeSessionId) === sid;
-                    return (
-                      <button
-                        key={sid}
-                        type="button"
-                        onClick={() => handleSelectSession(s)}
-                        className={[
-                          "w-full text-left rounded-2xl p-3 border transition-colors",
-                          isActive
-                            ? "bg-blue-600/10 border-blue-600 text-blue-700 dark:text-blue-300"
-                            : "bg-white dark:bg-gray-900/30 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/50",
-                        ].join(" ")}
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold truncate">{label}</p>
-                            <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 truncate">
-                              {s.last_message || (s.pharmacy?.pharmacy_name_en ? "Pharmacy Agent" : s.hospital?.hospital_name_en ? "Hospital Agent" : "Agent")}
-                            </p>
-                          </div>
-                          {s.unread_count > 0 ? (
-                            <span className="shrink-0 bg-red-500 text-white text-[10px] font-bold px-0.5 sm:px-2 py-0.5 rounded-full">
-                              {s.unread_count}
-                            </span>
-                          ) : (
-                            <span className="shrink-0 w-9 h-9 rounded-xl bg-slate-100 dark:bg-gray-700/60 flex items-center justify-center">
-                              <UserCircle2 size={16} className="text-slate-600 dark:text-slate-200" />
-                            </span>
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-
-          {mode === "ai" && (
-            <div className="mt-4">
-              <div className="border border-slate-200 dark:border-gray-700 rounded-2xl p-4 bg-slate-50 dark:bg-gray-900/30">
-                <div className="flex items-center gap-2">
-                  <Sparkles size={18} className="text-blue-600" />
-                  <p className="font-extrabold">{t("Chat.AiChatbot")}</p>
-                </div>
-                <p className="text-sm text-slate-600 dark:text-gray-300 mt-2">
-                  {t("Chat.AiChatbotDescription")}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {mode === "history" && (
-            <div className="mt-4">
-              <div className="relative">
-                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  value={historyQuery}
-                  onChange={(e) => setHistoryQuery(e.target.value)}
-                  placeholder={t("Chat.SearchInAiAndAgent")}
-                  className="w-full pl-10 pr-3 py-3 rounded-xl bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="mt-3 flex items-center justify-between gap-3">
-                <button
-                  type="button"
-                  onClick={loadAgentHistory}
-                  className="text-xs font-extrabold text-blue-700 dark:text-blue-400 hover:underline"
-                  disabled={historyLoading}
-                >
-                  {historyLoading ? t("Common.Loading") : t("Chat.RefreshAgentLogs")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    localStorage.setItem(LS_AI_LOGS_KEY, JSON.stringify([]));
-                    setAiLogs([]);
-                  }}
-                  className="text-xs font-extrabold text-rose-700 dark:text-rose-300 hover:underline"
-                  title={t("Chat.ClearAi")}
-                >
-                  {t("Chat.ClearAi")}
-                </button>
-              </div>
-
-              <div className="mt-4 space-y-4 max-h-[420px] overflow-y-auto pr-1">
-                <div className="space-y-2">
-                  <p className="text-xs font-extrabold text-slate-600 dark:text-gray-300 uppercase tracking-widest">{t("Chat.AiChatLogs")}</p>
-                  {aiLogsFiltered.length === 0 ? (
-                    <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
-                      <p className="font-extrabold">{t("Chat.NoAiLogsYet")}</p>
-                      <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Chat.AskSomethingInAiTab")}</p>
-                    </div>
-                  ) : (
-                    aiLogsFiltered.slice(0, 10).map((c) => (
-                      <div key={c.id} className="border border-slate-200 dark:border-gray-700 rounded-2xl p-3 bg-white dark:bg-gray-900/30">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="font-extrabold truncate">{c.query}</p>
-                            <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">{t("Admin.SavedAt")} {new Date(c.createdAt).toLocaleString()}</p>
-                          </div>
-                          <span className="shrink-0 w-9 h-9 rounded-xl bg-blue-600/10 text-blue-700 dark:text-blue-300 flex items-center justify-center">
-                            <Sparkles size={16} />
-                          </span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-xs font-extrabold text-slate-600 dark:text-gray-300 uppercase tracking-widest">{t("Chat.AgentChatLogs")}</p>
-                  {sessionsLoading ? (
-                    <div className="flex items-center gap-3 text-slate-600 dark:text-gray-300">
-                      <Loader2 size={18} className="animate-spin" />
-                      {t("Common.Loading")}
-                    </div>
-                  ) : agentHistoryFiltered.length === 0 ? (
-                    <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
-                      <p className="font-extrabold">{t("Chat.NoAgentLogsYet")}</p>
-                      <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Chat.StartPharmacyChat")}</p>
-                    </div>
-                  ) : (
-                    agentHistoryFiltered.slice(0, 10).map((h) => (
-                      <button
-                        key={String(h.sessionId)}
-                        type="button"
-                        onClick={() => {
-                          handleSelectSession({ id: h.sessionId });
-                          setMode("agent");
-                        }}
-                        className="w-full text-left border border-slate-200 dark:border-gray-700 rounded-2xl p-3 bg-white dark:bg-gray-900/30 hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="font-extrabold truncate">{h.facilityLabel}</p>
-                            <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 truncate">{lastMessageText(h.messages) || t("chat.no_messages")}</p>
-                          </div>
-                          <span className="shrink-0 w-9 h-9 rounded-xl bg-slate-100 dark:bg-gray-700/60 flex items-center justify-center">
-                            <MessageSquare size={16} className="text-slate-700 dark:text-slate-200" />
-                          </span>
-                        </div>
-                      </button>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Right column: message panel */}
-      <div className={`col-span-12 z-999 md:z-20 md:col-span-8 lg:col-span-7
-  ${!activeSessionId ? 'hidden lg:block' : 'block'}
-  fixed inset-0 z-50 bg-white dark:bg-gray-900
-  md:relative md:z-auto md:bg-transparent
-`}>
-        <div className="
+          {/* Right column: message panel */}
+          <div className={`col-span-12 z-999 md:z-20 md:col-span-8 lg:col-span-7 ${!activeSessionId ? 'hidden lg:block' : 'block'}`}>
+            <div className="
   flex flex-col overflow-hidden
   h-full md:h-[90vh]
   rounded-none md:rounded-2xl
@@ -540,115 +538,117 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
   bg-white dark:bg-gray-800/40
   md:mt-5
 ">
-          {mode === "agent" && (
-            <>
-              <div className="p-4 border-b border-slate-200 dark:border-gray-700 hidden lg:flex items-center justify-between gap-3 shrink-0">
-                <div className="min-w-0">
-                  <p className="font-extrabold truncate">
-                    {activeSession ? getFacilityLabel(activeSession) : t("Chat.SelectAChatSession")}
-                  </p>
-                  <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">
-                    {t("Chat.RealTimeMessages")}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setMode("history")}
-                  className="text-xs font-extrabold text-blue-700 dark:text-blue-400 hover:underline hidden sm:inline-flex"
-                >
-                  {t("Chat.ViewLogs")}
-                </button>
-              </div>
+              {mode === "agent" && (
+                <>
+                  <div className="p-4 border-b border-slate-200 dark:border-gray-700 hidden lg:flex items-center justify-between gap-3 shrink-0">
+                    <div className="min-w-0">
+                      <p className="font-extrabold truncate">
+                        {activeSession ? getFacilityLabel(activeSession) : t("Chat.SelectAChatSession")}
+                      </p>
+                      <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">
+                        {t("Chat.RealTimeMessages")}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setMode("history")}
+                      className="text-xs font-extrabold text-blue-700 dark:text-blue-400 hover:underline hidden sm:inline-flex"
+                    >
+                      {t("Chat.ViewLogs")}
+                    </button>
+                  </div>
 
-              {activeSessionId ? (
-                <div className="flex-1  overflow-hidden relative">
-                  <SharedChatWindow
-                    sessionId={activeSessionId}
-                    currentUserId={currentUserId}
-                    otherParticipantName={activeSession ? getFacilityLabel(activeSession) : t("Chat.Agent")}
-                    onBack={() => setActiveSessionId(null)}
-                  />
-                </div>
-              ) : (
-                <div className="flex-1  flex items-center justify-center">
-                  <div className="text-sm text-slate-600 dark:text-gray-300 text-center p-5">
-                    {t("Chat.PickASession")}
+                  {activeSessionId ? (
+                    <div className="flex-1  overflow-hidden relative">
+                      <SharedChatWindow
+                        sessionId={activeSessionId}
+                        currentUserId={currentUserId}
+                        otherParticipantName={activeSession ? getFacilityLabel(activeSession) : t("Chat.Agent")}
+                        onBack={() => setActiveSessionId(null)}
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex-1  flex items-center justify-center">
+                      <div className="text-sm text-slate-600 dark:text-gray-300 text-center p-5">
+                        {t("Chat.PickASession")}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {mode === "ai" && (
+                <>
+                  <div className="p-4 border-b border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900/30">
+                    <p className="font-extrabold flex items-center gap-2">
+                      <Sparkles size={18} className="text-blue-600" />
+                      {t("Chat.AiAssistant")}
+                    </p>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 dark:bg-gray-950/40">
+                    {aiMessages.map((m, idx) => (
+                      <div key={`${m.role}-${idx}`} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                        <div
+                          className={[
+                            "max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap",
+                            m.role === "user"
+                              ? "bg-blue-600 text-white rounded-br-none"
+                              : "bg-white dark:bg-gray-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-gray-700 rounded-bl-none",
+                          ].join(" ")}
+                        >
+                          {m.text}
+                        </div>
+                      </div>
+                    ))}
+                    {aiLoading && (
+                      <div className="flex items-center gap-3 text-slate-600 dark:text-gray-300">
+                        <Loader2 size={18} className="animate-spin" />
+                        {t("Chat.AiThinking")}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-4 border-t border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900/30 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={aiDraft}
+                        onChange={(e) => setAiDraft(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            startAiChat();
+                          }
+                        }}
+                        placeholder={t("Chat.AskAboutMedicines")}
+                        className="flex-1 rounded-2xl bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={startAiChat}
+                        disabled={aiLoading || !aiDraft.trim()}
+                        className="shrink-0 rounded-2xl bg-blue-600 text-white px-4 py-3 font-extrabold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {aiLoading ? <Loader2 size={18} className="animate-spin mx-auto" /> : <Send size={18} className="mx-auto" />}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {mode === "history" && (
+                <div className="flex-1 overflow-y-auto p-4">
+                  <div className="border border-slate-200 dark:border-gray-700 rounded-2xl bg-slate-50 dark:bg-gray-950/30 p-4">
+                    <p className="font-extrabold">{t("Chat.ChatHistory")}</p>
+                    <p className="text-sm text-slate-600 dark:text-gray-300 mt-2">
+                      {t("Chat.AiChatbotDescription")}
+                    </p>
                   </div>
                 </div>
               )}
-            </>
-          )}
-
-          {mode === "ai" && (
-            <>
-              <div className="p-4 border-b border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900/30">
-                <p className="font-extrabold flex items-center gap-2">
-                  <Sparkles size={18} className="text-blue-600" />
-                  {t("Chat.AiAssistant")}
-                </p>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 dark:bg-gray-950/40">
-                {aiMessages.map((m, idx) => (
-                  <div key={`${m.role}-${idx}`} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                    <div
-                      className={[
-                        "max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap",
-                        m.role === "user"
-                          ? "bg-blue-600 text-white rounded-br-none"
-                          : "bg-white dark:bg-gray-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-gray-700 rounded-bl-none",
-                      ].join(" ")}
-                    >
-                      {m.text}
-                    </div>
-                  </div>
-                ))}
-                {aiLoading && (
-                  <div className="flex items-center gap-3 text-slate-600 dark:text-gray-300">
-                    <Loader2 size={18} className="animate-spin" />
-                    {t("Chat.AiThinking")}
-                  </div>
-                )}
-              </div>
-
-              <div className="p-4 border-t border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900/30 shrink-0">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={aiDraft}
-                    onChange={(e) => setAiDraft(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        startAiChat();
-                      }
-                    }}
-                    placeholder={t("Chat.AskAboutMedicines")}
-                    className="flex-1 rounded-2xl bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  />
-                  <button
-                    type="button"
-                    onClick={startAiChat}
-                    disabled={aiLoading || !aiDraft.trim()}
-                    className="shrink-0 rounded-2xl bg-blue-600 text-white px-4 py-3 font-extrabold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {aiLoading ? <Loader2 size={18} className="animate-spin mx-auto" /> : <Send size={18} className="mx-auto" />}
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
-
-          {mode === "history" && (
-            <div className="flex-1 overflow-y-auto p-4">
-              <div className="border border-slate-200 dark:border-gray-700 rounded-2xl bg-slate-50 dark:bg-gray-950/30 p-4">
-                <p className="font-extrabold">{t("Chat.ChatHistory")}</p>
-                <p className="text-sm text-slate-600 dark:text-gray-300 mt-2">
-                  {t("Chat.AiChatbotDescription")}
-                </p>
-              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

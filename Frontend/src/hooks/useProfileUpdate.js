@@ -28,21 +28,21 @@ const useProfileUpdate = (type, id) => {
     try {
       // Create FormData for mixed data (JSON + Files)
       const formData = new FormData();
-      
+
       // Process each field in data
       Object.entries(data).forEach(([key, value]) => {
         // Skip undefined or null values
         if (value === undefined || value === null) {
           return;
         }
-        
+
         // Skip file-related fields that are URLs (not actual files)
-        if ((key === 'logo' || key === 'pharmacy_license_upload') && 
-            typeof value === 'string' && 
-            (value.startsWith('http') || value.startsWith('/storage'))) {
+        if ((key === 'logo' || key === 'pharmacy_license_upload') &&
+          typeof value === 'string' &&
+          (value.startsWith('http') || value.startsWith('/storage'))) {
           return;
         }
-        
+
         // Handle working_hour specifically
         if (key === 'working_hour') {
           // If working_hour is an object, stringify it cleanly
@@ -55,7 +55,7 @@ const useProfileUpdate = (type, id) => {
               }
             });
             formData.append(key, JSON.stringify(cleanedWorkingHour));
-          } 
+          }
           // If it's already a string, validate it's proper JSON
           else if (typeof value === 'string') {
             try {
@@ -69,7 +69,7 @@ const useProfileUpdate = (type, id) => {
           }
           return;
         }
-        
+
         // Handle addresses (array)
         if (key === 'addresses') {
           if (Array.isArray(value)) {
@@ -89,7 +89,7 @@ const useProfileUpdate = (type, id) => {
           }
           return;
         }
-        
+
         // Handle other objects (like is_full_time_service)
         if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
           // For boolean-like objects, convert to actual boolean
@@ -99,7 +99,7 @@ const useProfileUpdate = (type, id) => {
           } else {
             formData.append(key, JSON.stringify(value));
           }
-        } 
+        }
         // Handle regular fields
         else {
           // Special handling for boolean fields
@@ -123,12 +123,12 @@ const useProfileUpdate = (type, id) => {
       formData.append("_method", "POST");
 
       // Determine endpoint based on type
-      const endpoint = type === "hospital" 
-        ? `/api/hospital/profile/${id}` 
+      const endpoint = type === "hospital"
+        ? `/api/hospital/profile/${id}`
         : `/api/pharmacy/profile/${id}`;
-      
+
       await ensureCsrfCookie();
-      
+      console.log(formData);
       const response = await apiFetch(endpoint, {
         method: "POST",
         body: formData,
@@ -147,7 +147,7 @@ const useProfileUpdate = (type, id) => {
       }
     } catch (err) {
       console.error("Update error:", err);
-      
+
       // Handle validation errors from backend
       if (err.response?.data?.errors) {
         setError(err.response.data.errors);

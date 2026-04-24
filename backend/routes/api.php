@@ -52,6 +52,20 @@ Route::post('/reset-password', [UserController::class, 'resetPassword']);
 Route::get('search/hospitals', [HospitalController::class, 'searchByLocation']);
 Route::get('search/pharmacies', [PharmacyController::class, 'searchByLocation']);
 
+Route::get('/public/hospitals/capabilities', [HospitalController::class, 'publicCapabilities']);
+Route::get('/public/departments', function () {
+    return response()->json([
+        'success' => true,
+        'data' => \App\Models\Department::orderBy('department_name_en')->get(),
+    ]);
+});
+Route::get('/public/services', function () {
+    return response()->json([
+        'success' => true,
+        'data' => \App\Models\Service::orderBy('service_name_en')->get(),
+    ]);
+});
+
 Route::get('/medical-facilities', function () {
 
     $hospitals = Hospital::with('addresses')
@@ -244,20 +258,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('locations/{location}', [LocationController::class, 'destroy']);
 
     // Services
-    Route::get('services', [ServiceController::class, 'index']);
-    Route::post('services', [ServiceController::class, 'store']);
-    Route::get('services/{service}', [ServiceController::class, 'show']);
-    Route::put('services/{service}', [ServiceController::class, 'update']);
-    Route::patch('services/{service}', [ServiceController::class, 'update']);
-    Route::delete('services/{service}', [ServiceController::class, 'destroy']);
+   // Route::get('services', [ServiceController::class, 'index']);
+   // Route::post('services', [ServiceController::class, 'store']);
+   // Route::get('services/{service}', [ServiceController::class, 'show']);
+   // Route::put('services/{service}', [ServiceController::class, 'update']);
+   // Route::patch('services/{service}', [ServiceController::class, 'update']);
+   // Route::delete('services/{service}', [ServiceController::class, 'destroy']);
 
     // Departments
-    Route::get('departments', [DepartmentController::class, 'index']);
-    Route::post('departments', [DepartmentController::class, 'store']);
-    Route::get('departments/{department}', [DepartmentController::class, 'show']);
-    Route::put('departments/{department}', [DepartmentController::class, 'update']);
-    Route::patch('departments/{department}', [DepartmentController::class, 'update']);
-    Route::delete('departments/{department}', [DepartmentController::class, 'destroy']);
+   // Route::get('departments', [DepartmentController::class, 'index']);
+   // Route::post('departments', [DepartmentController::class, 'store']);
+   // Route::get('departments/{department}', [DepartmentController::class, 'show']);
+   // Route::put('departments/{department}', [DepartmentController::class, 'update']);
+   // Route::patch('departments/{department}', [DepartmentController::class, 'update']);
+   // Route::delete('departments/{department}', [DepartmentController::class, 'destroy']);
 
     // Chat endpoints
     Route::post('chat', [ChatSessionController::class, 'chat']);
@@ -271,6 +285,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('pharmacies/{pharmacy}/drugs', [PharmacyController::class, 'drugs']);
     Route::post('detectIntent', [UserController::class, 'detectIntent']);
 
+    // Hospital Agent Dashboard Routes
+    Route::prefix('hospital')->group(function () {
+        Route::get('/', [HospitalController::class, 'getAgentHospital']);
+        Route::get('departments', [DepartmentController::class, 'index']);
+        Route::post('departments', [DepartmentController::class, 'store']);
+        Route::put('departments/{department}', [DepartmentController::class, 'update']);
+        Route::delete('departments/{department}', [DepartmentController::class, 'destroy']);
+        Route::get('departments/search', [DepartmentController::class, 'search']);
+
+        Route::get('services', [ServiceController::class, 'index']);
+        Route::post('services', [ServiceController::class, 'store']);
+        Route::put('services/{service}', [ServiceController::class, 'update']);
+        Route::delete('services/{service}', [ServiceController::class, 'destroy']);
+        Route::get('services/search', [ServiceController::class, 'search']);
+    });
+
     // Admin Approval & Management Routes
     Route::prefix('admin')->group(function () {
         // Approvals (Facilities)
@@ -279,6 +309,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
         // Dashboard Stats & Management
+        Route::get('all/users', [\App\Http\Controllers\AdminDashboardController::class, 'index']);
         Route::get('users', [\App\Http\Controllers\AdminDashboardController::class, 'users']);
         Route::put('users/{user}', [\App\Http\Controllers\AdminDashboardController::class, 'updateUser']);
         Route::get('notifications', [\App\Http\Controllers\AdminDashboardController::class, 'notifications']);

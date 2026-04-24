@@ -13,7 +13,7 @@ export default function RealTimeNotificationProvider() {
 
     // Single global listener for system notifications
     useSystemNotifications(user?.id, (notification) => {
-        console.log('[RealTimeNotificationProvider] Received:', notification);
+        // console.log('[RealTimeNotificationProvider] Received:', notification);
         addNotification(notification);
     });
 

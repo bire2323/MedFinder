@@ -60,8 +60,14 @@ export const useSystemNotifications = (currentUserId, onNotificationReceived) =>
             // Listen for 'notification.sent' event on 'notifications.{userId}' channel
             channel = window.Echo.private(`notifications.${currentUserId}`)
                 .listen('.notification.sent', (e) => {
-                    console.log('[useSystemNotifications] New notification:', e);
-                    callbackRef.current?.(e);
+                    // Normalize event payloads from Reverb / Laravel notifications
+                    // common shapes: { notification: {...} } or { data: {...} } or direct payload
+                    const payload = e?.notification ?? e?.data ?? e;
+                    try {
+                        console.debug('[useSystemNotifications] Received raw event:', e);
+                        console.debug('[useSystemNotifications] Normalized payload:', payload);
+                    } catch (err) { /* noop */ }
+                    callbackRef.current?.(payload);
                 });
         };
 

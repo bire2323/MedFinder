@@ -120,14 +120,23 @@ export default function ServicesTab({
                       </div>
                     </div>
 
-                    <div className="pt-4 border-t border-slate-50 dark:border-gray-700/50 flex items-center justify-between">
-                       <div className="space-y-0.5">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Availability</p>
-                          <p className="text-sm font-bold text-emerald-600">Daily 24/7</p>
+                    <div className="pt-4 border-t border-slate-50 dark:border-gray-700/50 flex flex-col gap-3">
+                       <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Status</p>
+                             <p className={`text-sm font-bold ${service.is_available ? "text-emerald-600" : "text-red-500"}`}>
+                               {service.is_available ? "Available" : "Unavailable"}
+                             </p>
+                          </div>
+                          <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-lg">
+                            Verified
+                          </span>
                        </div>
-                       <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-lg">
-                         Verified
-                       </span>
+                       {service.notes && (
+                         <p className="text-[10px] font-bold text-slate-400 line-clamp-2 bg-slate-50 dark:bg-gray-900/50 p-2 rounded-xl border border-slate-100 dark:border-gray-700">
+                           {service.notes}
+                         </p>
+                       )}
                     </div>
                   </div>
                 </motion.div>

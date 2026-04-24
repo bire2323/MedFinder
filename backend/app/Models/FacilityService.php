@@ -11,12 +11,18 @@ class FacilityService extends Model
     protected $fillable = [
         "addressable_id",
         "addressable_type",
+        "service_id",
         "is_available",
         "notes"
     ];
 
     public function addressable()
     {
-        return $this->morphTo();   // magic — works with both Hospital & Pharmacy
+        return $this->morphTo();
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
     }
 }

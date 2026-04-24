@@ -170,7 +170,7 @@ export default function UserDashboard() {
         <>
             <DashboardHeader />
             <NotificationToast />
-            <div className="min-h-screen mx-5 bg-white text-slate-900 dark:bg-gray-900 dark:text-slate-100 transition-colors duration-300 flex ">
+            <div className="min-h-screen px-10 bg-white text-slate-900 dark:bg-gray-900 dark:text-slate-100 transition-colors duration-300 flex ">
 
                 <Sidebar
                     activeSection={activeSection}

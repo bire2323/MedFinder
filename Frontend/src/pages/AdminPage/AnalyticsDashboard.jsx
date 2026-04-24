@@ -22,7 +22,6 @@ import { getSystemStats } from '../../api/admin';
 import useAuthStore from '../../store/UserAuthStore';
 import { useTranslation } from 'react-i18next';
 
-// Sample data for charts when no backend analytics; can be replaced by real API later
 const sampleUserActivity = [
   { date: 'Mon', patients: 420, hospitalAgents: 45, pharmacyAgents: 78 },
   { date: 'Tue', patients: 380, hospitalAgents: 42, pharmacyAgents: 71 },
@@ -88,25 +87,26 @@ export default function AnalyticsDashboard() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <div className="size-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+      <div className="flex justify-center items-center py-20">
+        <div className="size-8 border-[3px] border-indigo-600 dark:border-indigo-400 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold">{t("Admin.AnalyticsDashboard")}</h2>
-          <p className="text-gray-500 dark:text-gray-400">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t("Admin.AnalyticsDashboard")}</h2>
+          <p className="text-sm text-slate-500 dark:text-gray-400 mt-0.5">
             {t("Admin.AnalyticsDesc")}
           </p>
         </div>
         <select
           value={timeRange}
           onChange={(e) => setTimeRange(e.target.value)}
-          className="w-full sm:w-48 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+          className="w-full sm:w-44 px-3 py-2 rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-slate-700 dark:text-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400 outline-none transition"
         >
           <option value="7d">{t("Admin.Last7Days")}</option>
           <option value="30d">{t("Admin.Last30Days")}</option>
@@ -115,124 +115,143 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* Overview Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex flex-row items-center justify-between pb-2">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{t("Admin.TotalUsers")}</h3>
-            <Users className="size-4 text-blue-600 dark:text-blue-400" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">{t("Admin.TotalUsers")}</p>
+            <div className="p-1.5 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+              <Users className="size-4 text-blue-600 dark:text-blue-400" />
+            </div>
           </div>
-          <p className="text-2xl font-semibold">{overview.totalUsers.toLocaleString()}</p>
-          <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-            <TrendingUp className="size-3 inline mr-1" />
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">{overview.totalUsers.toLocaleString()}</p>
+          <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1.5 font-medium flex items-center gap-1">
+            <TrendingUp className="size-3" />
             {t("Admin.FromLastPeriod", { value: overview.userGrowth })}
           </p>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex flex-row items-center justify-between pb-2">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{t("Admin.ActiveHospitals")}</h3>
-            <Building2 className="size-4 text-indigo-600 dark:text-indigo-400" />
+
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">{t("Admin.ActiveHospitals")}</p>
+            <div className="p-1.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
+              <Building2 className="size-4 text-indigo-600 dark:text-indigo-400" />
+            </div>
           </div>
-          <p className="text-2xl font-semibold">{overview.activeHospitals.toLocaleString()}</p>
-          <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-            <TrendingUp className="size-3 inline mr-1" />
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">{overview.activeHospitals.toLocaleString()}</p>
+          <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1.5 font-medium flex items-center gap-1">
+            <TrendingUp className="size-3" />
             {t("Admin.FromLastPeriod", { value: overview.hospitalGrowth })}
           </p>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex flex-row items-center justify-between pb-2">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{t("Admin.ActivePharmacies")}</h3>
-            <Building2 className="size-4 text-green-600 dark:text-green-400" />
+
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">{t("Admin.ActivePharmacies")}</p>
+            <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg">
+              <Building2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+            </div>
           </div>
-          <p className="text-2xl font-semibold">{overview.activePharmacies.toLocaleString()}</p>
-          <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-            <TrendingUp className="size-3 inline mr-1" />
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">{overview.activePharmacies.toLocaleString()}</p>
+          <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1.5 font-medium flex items-center gap-1">
+            <TrendingUp className="size-3" />
             {t("Admin.FromLastPeriod", { value: overview.pharmacyGrowth })}
           </p>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex flex-row items-center justify-between pb-2">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{t("Admin.Chats24h")}</h3>
-            <MessageSquare className="size-4 text-purple-600 dark:text-purple-400" />
+
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">{t("Admin.Chats24h")}</p>
+            <div className="p-1.5 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
+              <MessageSquare className="size-4 text-purple-600 dark:text-purple-400" />
+            </div>
           </div>
-          <p className="text-2xl font-semibold">{overview.totalChats.toLocaleString()}</p>
-          <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-            <TrendingUp className="size-3 inline mr-1" />
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">{overview.totalChats.toLocaleString()}</p>
+          <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1.5 font-medium flex items-center gap-1">
+            <TrendingUp className="size-3" />
             {t("Admin.FromLastPeriod", { value: overview.chatGrowth })}
           </p>
         </div>
       </div>
 
       {/* User Activity Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="px-6 pt-6">
-          <h3 className="font-semibold">{t("Admin.UserActivityTrends")}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{t("Admin.DailyActiveUsers")}</p>
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div className="px-6 pt-5 pb-1">
+          <h3 className="font-semibold text-slate-900 dark:text-white">{t("Admin.UserActivityTrends")}</h3>
+          <p className="text-sm text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.DailyActiveUsers")}</p>
         </div>
-        <div className="p-6 pt-2 h-80">
+        <div className="px-4 pb-5 pt-2 h-72 sm:h-80">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={sampleUserActivity}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
-              <XAxis dataKey="date" className="text-xs" />
-              <YAxis className="text-xs" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-gray-700" />
+              <XAxis dataKey="date" className="text-xs" tick={{ fontSize: 12, fill: '#94a3b8' }} />
+              <YAxis className="text-xs" tick={{ fontSize: 12, fill: '#94a3b8' }} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'var(--tw-bg-opacity, white)',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
+                  backgroundColor: 'white',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                  fontSize: '12px',
                 }}
               />
-              <Legend />
-              <Line type="monotone" dataKey="patients" stroke="#3b82f6" strokeWidth={2} name={t("Common.Roles.Patient")} />
-              <Line type="monotone" dataKey="hospitalAgents" stroke="#8b5cf6" strokeWidth={2} name={t("Common.Roles.Hospital")} />
-              <Line type="monotone" dataKey="pharmacyAgents" stroke="#10b981" strokeWidth={2} name={t("Common.Roles.Pharmacy")} />
+              <Legend wrapperStyle={{ fontSize: '12px' }} />
+              <Line type="monotone" dataKey="patients" stroke="#3b82f6" strokeWidth={2} dot={false} name={t("Common.Roles.Patient")} />
+              <Line type="monotone" dataKey="hospitalAgents" stroke="#8b5cf6" strokeWidth={2} dot={false} name={t("Common.Roles.Hospital")} />
+              <Line type="monotone" dataKey="pharmacyAgents" stroke="#10b981" strokeWidth={2} dot={false} name={t("Common.Roles.Pharmacy")} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="px-6 pt-6">
-            <h3 className="font-semibold">{t("Admin.ChatbotInteractions")}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{t("Admin.UsageByHour")}</p>
+      {/* Bottom Charts */}
+      <div className="grid gap-5 lg:grid-cols-2">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 shadow-sm overflow-hidden">
+          <div className="px-6 pt-5 pb-1">
+            <h3 className="font-semibold text-slate-900 dark:text-white">{t("Admin.ChatbotInteractions")}</h3>
+            <p className="text-sm text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.UsageByHour")}</p>
           </div>
-          <div className="p-6 pt-2 h-80">
+          <div className="px-4 pb-5 pt-2 h-72 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={sampleChatbotInteractions}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
-                <XAxis dataKey="hour" className="text-xs" />
-                <YAxis className="text-xs" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="hour" tick={{ fontSize: 12, fill: '#94a3b8' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'var(--tw-bg-opacity, white)',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '6px',
+                    backgroundColor: 'white',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    fontSize: '12px',
                   }}
                 />
-                <Bar dataKey="interactions" fill="#8b5cf6" name={t("Admin.Interactions") || "Interactions"} />
+                <Bar dataKey="interactions" fill="#8b5cf6" radius={[4, 4, 0, 0]} name={t("Admin.Interactions") || "Interactions"} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="px-6 pt-6">
-            <h3 className="font-semibold">{t("Admin.TopServices")}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{t("Admin.MostRequested")}</p>
+
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 shadow-sm overflow-hidden">
+          <div className="px-6 pt-5 pb-1">
+            <h3 className="font-semibold text-slate-900 dark:text-white">{t("Admin.TopServices")}</h3>
+            <p className="text-sm text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.MostRequested")}</p>
           </div>
-          <div className="p-6 pt-2 h-80">
+          <div className="px-4 pb-5 pt-2 h-72 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={sampleTopServices} layout="vertical" margin={{ left: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
-                <XAxis type="number" className="text-xs" />
-                <YAxis dataKey="name" type="category" className="text-xs" width={120} />
+              <BarChart data={sampleTopServices} layout="vertical" margin={{ left: 10, right: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#94a3b8' }} width={120} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'var(--tw-bg-opacity, white)',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '6px',
+                    backgroundColor: 'white',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    fontSize: '12px',
                   }}
                 />
-                <Bar dataKey="requests" fill="#10b981" name={t("Admin.Requests")} />
+                <Bar dataKey="requests" fill="#10b981" radius={[0, 4, 4, 0]} name={t("Admin.Requests")} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -240,34 +259,42 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="font-semibold text-lg mb-2">{t("Admin.PeakActivityTime")}</h3>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <h3 className="font-semibold text-slate-900 dark:text-white text-sm mb-3">{t("Admin.PeakActivityTime")}</h3>
           <div className="flex items-center gap-3">
-            <Calendar className="size-8 text-blue-600 dark:text-blue-400 shrink-0" />
+            <div className="p-2.5 bg-blue-50 dark:bg-blue-900/30 rounded-xl shrink-0">
+              <Calendar className="size-6 text-blue-600 dark:text-blue-400" />
+            </div>
             <div>
-              <p className="text-2xl font-semibold">{t("Admin.PeakHour")}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{t("Admin.MostActiveHour")}</p>
+              <p className="text-xl font-bold text-slate-900 dark:text-white">{t("Admin.PeakHour")}</p>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.MostActiveHour")}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="font-semibold text-lg mb-2">{t("Admin.AvgResponseTime")}</h3>
+
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <h3 className="font-semibold text-slate-900 dark:text-white text-sm mb-3">{t("Admin.AvgResponseTime")}</h3>
           <div className="flex items-center gap-3">
-            <MessageSquare className="size-8 text-purple-600 dark:text-purple-400 shrink-0" />
+            <div className="p-2.5 bg-purple-50 dark:bg-purple-900/30 rounded-xl shrink-0">
+              <MessageSquare className="size-6 text-purple-600 dark:text-purple-400" />
+            </div>
             <div>
-              <p className="text-2xl font-semibold">2.3s</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{t("Admin.ChatbotResponse")}</p>
+              <p className="text-xl font-bold text-slate-900 dark:text-white">2.3s</p>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.ChatbotResponse")}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="font-semibold text-lg mb-2">{t("Admin.UserSatisfaction")}</h3>
+
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <h3 className="font-semibold text-slate-900 dark:text-white text-sm mb-3">{t("Admin.UserSatisfaction")}</h3>
           <div className="flex items-center gap-3">
-            <TrendingUp className="size-8 text-green-600 dark:text-green-400 shrink-0" />
+            <div className="p-2.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl shrink-0">
+              <TrendingUp className="size-6 text-emerald-600 dark:text-emerald-400" />
+            </div>
             <div>
-              <p className="text-2xl font-semibold">94.5%</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{t("Admin.PositiveFeedback")}</p>
+              <p className="text-xl font-bold text-slate-900 dark:text-white">94.5%</p>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.PositiveFeedback")}</p>
             </div>
           </div>
         </div>

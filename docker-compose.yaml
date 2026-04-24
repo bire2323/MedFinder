@@ -94,6 +94,8 @@ services:
     volumes:
       - ./tiles:/data
     command: --file /data/ethiopia-260331.mbtiles --port 8080
+    ports:
+      - "8080:8080"
     restart: unless-stopped
 
   rasa:
@@ -107,20 +109,17 @@ services:
       - action_server
     restart: unless-stopped
 
-  
-
   action_server:
     container_name: rasa_action-server
     build:
-      context: ./rasafm/actions          # ← Point directly to the actions folder
+      context: ./rasafm/actions # ← Point directly to the actions folder
       dockerfile: Dockerfile
     volumes:
-      - ./rasafm/actions:/app/actions     # For development hot-reload
+      - ./rasafm/actions:/app/actions # For development hot-reload
     ports:
       - "5055:5055"
     restart: unless-stopped
-    
- 
+
   frontend:
     build:
       context: ./Frontend
@@ -150,6 +149,7 @@ services:
       - "443:443"
       - "80:80"
     volumes:
+      - ./backend:/var/www/html
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./certs:/etc/nginx/certs:ro
     depends_on:

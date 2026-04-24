@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Layers, Stethoscope, Activity, Users, Building2, MessageSquare, ChevronRight } from "lucide-react";
+import { Layers, Stethoscope, Activity, Users, Building2, MessageSquare, ChevronRight, Tag, Clock, MapPin } from "lucide-react";
 
 const AnalyticsCard = ({ title, value, icon, bgColor, description }) => {
   return (
@@ -31,7 +31,7 @@ const AnalyticsCard = ({ title, value, icon, bgColor, description }) => {
   );
 };
 
-export default function OverviewTab({ departments, services, recentChats, setActiveTab }) {
+export default function OverviewTab({ hospitalProfile, departments, services, recentChats, setActiveTab }) {
   return (
     <motion.div
       key="overview"
@@ -40,6 +40,49 @@ export default function OverviewTab({ departments, services, recentChats, setAct
       exit={{ opacity: 0, y: -20 }}
       className="space-y-10"
     >
+      {/* Hospital Profile Summary */}
+      <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden relative group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+          <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-[2rem] bg-slate-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl">
+             {hospitalProfile?.logo_url ? (
+               <img src={hospitalProfile.logo_url} alt="logo" className="w-full h-full object-cover" />
+             ) : (
+               <Building2 size={48} className="text-slate-300" />
+             )}
+          </div>
+          <div className="flex-1 text-center md:text-left space-y-2">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+              <h2 className="text-4xl font-black text-slate-800 dark:text-white tracking-tighter">
+                {hospitalProfile?.hospital_name_en || "Hospital Name"}
+              </h2>
+              <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${hospitalProfile?.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'}`}>
+                {hospitalProfile?.status || "PENDING"}
+              </span>
+            </div>
+            <p className="text-slate-400 font-bold max-w-2xl">
+              {hospitalProfile?.address_description_en || "Official hospital profile overview for MedFinder."}
+            </p>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 mt-4">
+              <div className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-gray-300">
+                <Tag size={16} className="text-blue-500" />
+                {hospitalProfile?.hospital_ownership_type || "Private"}
+              </div>
+              <div className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-gray-300">
+                <Clock size={16} className="text-emerald-500" />
+                {hospitalProfile?.working_hour || "24/7 Service"}
+              </div>
+              {hospitalProfile?.addresses?.[0] && (
+                <div className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-gray-300">
+                  <MapPin size={16} className="text-red-500" />
+                  {`${hospitalProfile.addresses[0].region_en}, ${hospitalProfile.addresses[0].sub_city_en}`}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Analytics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <AnalyticsCard

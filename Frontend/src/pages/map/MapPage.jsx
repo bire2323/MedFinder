@@ -462,7 +462,8 @@ export default function MapPage() {
       <MapContainer center={[12.6000, 37.4500]} zoom={13} className="h-full w-full z-0">
         <LayersControl position="topright">
           <LayersControl.BaseLayer checked name="Street Map">
-            <TileLayer url="https://medfindeer.com/tiles/styles/basic/{z}/{x}/{y}.png" />
+            <TileLayer url="https://medfinder.com/tiles/{z}/{x}/{y}.png" />
+
             {/* <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" /> */}
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="Satellite">
@@ -548,7 +549,7 @@ export default function MapPage() {
           </Marker>
         ))}
 
-        {userLocation && routeDestination && !routeFetched && (
+        {userLocation && routeDestination && (
           <Routing
             key={routeKey}  // ✅ Key changes only when route actually changes
             from={isNavigating && lastRouteUpdatePos ? lastRouteUpdatePos : userLocation}

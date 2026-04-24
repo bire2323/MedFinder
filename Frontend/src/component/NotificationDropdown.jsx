@@ -47,10 +47,10 @@ const NotificationDropdown = () => {
   const handleMarkRead = async (id, e) => {
     e.stopPropagation();
     try {
-        await markNotificationRead(user, id);
-        markAsRead(id);
+      await markNotificationRead(user, id);
+      markAsRead(id);
     } catch (error) {
-        console.error("Failed to mark read:", error);
+      console.error("Failed to mark read:", error);
     }
   };
 
@@ -146,7 +146,7 @@ const NotificationDropdown = () => {
 
             {notifications.length > 0 && (
               <div className="p-3 border-t border-slate-100 dark:border-gray-700 bg-slate-50/30 dark:bg-gray-800/30">
-                <button 
+                <button
                   onClick={() => setIsOpen(false)}
                   className="w-full py-2 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                 >

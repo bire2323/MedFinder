@@ -21,6 +21,7 @@ import FAQSection from "../../component/FAQSection";
 import { apiGetTopFacilities } from "../../api/hospital";
 import { apiFetch } from "../../api/client";
 import ResultCard from "../../component/search/ResultCard";
+import HomeQuickLinkCard from "../../component/home/HomeQuickLinkCard";
 
 // Animation Variants
 const fadeInUp = {
@@ -134,6 +135,36 @@ export default function HomePage() {
       <div className="min-h-screen bg-slate-50 dark:bg-gray-900 transition-colors duration-300">
         <HeroSection onSearch={handleHeroSearch} />
 
+        {/* QUICK ACTIONS — nearest search & department/service discovery */}
+        <section className="border-b border-emerald-100/80 bg-gradient-to-b from-emerald-50/90 to-white py-12 dark:border-emerald-900/40 dark:from-emerald-950/40 dark:to-gray-900">
+          <div className="mx-auto max-w-7xl px-4">
+            <div className="mb-8 text-center">
+              <h2 className="text-xl font-black text-slate-800 dark:text-white sm:text-2xl">{t("home.quickLinks.sectionTitle")}</h2>
+              <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-emerald-500" />
+            </div>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <HomeQuickLinkCard
+                to="/home/search?type=pharmacy"
+                title={t("home.quickLinks.nearestPharmacyTitle")}
+                description={t("home.quickLinks.nearestPharmacyDesc")}
+                icon={<FaPills />}
+              />
+              <HomeQuickLinkCard
+                to="/home/search?type=hospital"
+                title={t("home.quickLinks.nearestHospitalTitle")}
+                description={t("home.quickLinks.nearestHospitalDesc")}
+                icon={<FaHospital />}
+              />
+              <HomeQuickLinkCard
+                to="/search-department-service"
+                title={t("home.quickLinks.departmentServiceTitle")}
+                description={t("home.quickLinks.departmentServiceDesc")}
+                icon={<FaStethoscope />}
+              />
+            </div>
+          </div>
+        </section>
+
         {/* STATS SECTION */}
         <section ref={ref} className="py-12 bg-white dark:bg-gray-950 border-slate-100 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4">
@@ -197,7 +228,7 @@ export default function HomePage() {
         </section>
 
         {/* TOP FACILITIES SECTION */}
-        <section className="py-24 bg-slate-50 dark:bg-gray-900 transition-colors duration-300 overflow-hidden">
+        <section className="py-24 bg-white dark:bg-gray-900 transition-colors duration-300 overflow-hidden">
           <div className="max-w-[1780px] mx-auto px-6 lg:px-12">
 
             {/* Hospitals Slider */}
@@ -344,12 +375,19 @@ function FacilitySlider({ facilities, loading, onCardClick }) {
       <div
         ref={scrollRef}
         className='flex gap-4 overflow-x-auto pb-8 pt-2 scroll-smooth no-scrollbar'
-        style={{ scrollSnapType: 'x mandatory' }}
+        style={{ scrollSnapType: 'x proximity', WebkitOverflowScrolling: 'touch' }}
       >
         {facilities.map((f) => (
-          <div key={`${f.type}-${f.id}`} className='min-w-[300px] sm:min-w-[380px] scroll-snap-align-start transition-transform duration-300 hover:scale-[1.02]'>
+          <motion.div
+            key={`${f.type}-${f.id}`}
+            className='min-w-[300px] sm:min-w-[380px] scroll-snap-align-start transition-transform duration-300 hover:scale-[1.02]'
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          >
             <ResultCard facility={f} onClick={() => onCardClick(f)} />
-          </div>
+          </motion.div>
         ))}
         {/* Fillers for empty states */}
         {facilities.length === 0 && (
@@ -361,8 +399,9 @@ function FacilitySlider({ facilities, loading, onCardClick }) {
 
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .scroll-snap-align-start { scroll-snap-align: start; }
+        .scroll-smooth { scroll-behavior: smooth; }
       `}</style>
     </div>
   );

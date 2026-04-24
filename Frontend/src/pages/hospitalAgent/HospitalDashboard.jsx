@@ -77,7 +77,7 @@ const HospitalDashboard = () => {
 
   const { user } = useAuthStore();
   const currentUserId = user?.id;
-  const roles = user?.roles?.map(r => r.name) || [];
+  const roles = user?.roles?.map(r => r.Name) || [];
 
   const { handleIncomingMessage, targetSessionToOpen, getUnreadCount } = useChatNotificationStore();
   const unreadCount = getUnreadCount();
@@ -96,7 +96,7 @@ const HospitalDashboard = () => {
   const [showAddDeptModal, setShowAddDeptModal] = useState(false);
   const [showEditDeptModal, setShowEditDeptModal] = useState(false);
   const [showDeleteDeptModal, setShowDeleteDeptModal] = useState(false);
-  
+
   const [showAddServiceModal, setShowAddServiceModal] = useState(false);
   const [showEditServiceModal, setShowEditServiceModal] = useState(false);
   const [showDeleteServiceModal, setShowDeleteServiceModal] = useState(false);
@@ -118,6 +118,8 @@ const HospitalDashboard = () => {
     service_name_am: "",
     service_category_name_en: "",
     service_category_name_am: "",
+    is_available: true,
+    notes: "",
   });
 
   const resetDeptForm = () => setDeptForm({
@@ -132,6 +134,8 @@ const HospitalDashboard = () => {
     service_name_am: "",
     service_category_name_en: "",
     service_category_name_am: "",
+    is_available: true,
+    notes: "",
   });
 
   useEffect(() => {
@@ -332,8 +336,8 @@ const HospitalDashboard = () => {
               </span>
             </div>
             <button
-               onClick={() => setSidebarOpen(false)}
-               className="lg:hidden p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white"
             >
               <X size={20} />
             </button>
@@ -375,7 +379,7 @@ const HospitalDashboard = () => {
 
           <div className="p-6">
             <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-gray-700/50 rounded-3xl border border-slate-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
-               <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center font-black text-white shadow-lg shrink-0">
+              <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center font-black text-white shadow-lg shrink-0">
                 {hospitalProfile?.hospital_name_en?.[0] || "H"}
               </div>
               <div className="flex-1 min-w-0">
@@ -390,13 +394,13 @@ const HospitalDashboard = () => {
           {/* HEADER */}
           <header className="h-20 lg:h-24 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-slate-200 dark:border-gray-700 px-4 sm:px-8 flex items-center justify-between z-10 shrink-0">
             <div className="flex items-center gap-4">
-               <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-3 bg-slate-100 dark:bg-gray-700 rounded-2xl active:scale-95 transition-transform shadow-sm">
-                 <Menu size={24} className="text-slate-700 dark:text-slate-200" />
-               </button>
-               <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black border border-slate-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/50">
-                  <span className={`w-2 h-2 rounded-full ${hospitalProfile?.status === 'APPROVED' ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}></span>
-                  <span className="uppercase tracking-widest text-[10px]">{hospitalProfile?.status === 'APPROVED' ? "Live System" : "Pending Approval"}</span>
-               </div>
+              <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-3 bg-slate-100 dark:bg-gray-700 rounded-2xl active:scale-95 transition-transform shadow-sm">
+                <Menu size={24} className="text-slate-700 dark:text-slate-200" />
+              </button>
+              <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black border border-slate-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/50">
+                <span className={`w-2 h-2 rounded-full ${hospitalProfile?.status === 'APPROVED' ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}></span>
+                <span className="uppercase tracking-widest text-[10px]">{hospitalProfile?.status === 'APPROVED' ? "Live System" : "Pending Approval"}</span>
+              </div>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-6">
@@ -405,10 +409,10 @@ const HospitalDashboard = () => {
                 <ThemeToggle />
               </div>
               <div className="sm:hidden flex items-center gap-2">
-                 <ThemeToggle />
+                <ThemeToggle />
               </div>
               <NotificationDropdown />
-              
+
               <div className="relative">
                 <button
                   className="flex items-center gap-2 p-1 hover:bg-slate-100 dark:hover:bg-gray-800 rounded-full transition-all group"
@@ -429,43 +433,43 @@ const HospitalDashboard = () => {
                         className="fixed inset-0 z-10"
                         onClick={() => setToggleProfileDropDown(false)}
                       />
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0, y: 15, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 15, scale: 0.95 }}
                         className="absolute right-0 mt-4 w-72 z-20 bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-gray-800 p-4 overflow-hidden"
                       >
-                         <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800 mb-3">
-                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Authenticated As</p>
-                           <p className="text-sm font-black truncate dark:text-white uppercase tracking-tight">{user?.Email || "Agent Account"}</p>
-                         </div>
-                         <div className="space-y-1">
-                           <button
-                             onClick={() => {
-                               if (roles?.includes("patient")) navigate("/user/dashboard");
-                               else navigateByRole(roles, navigate);
-                               setToggleProfileDropDown(false);
-                             }}
-                             className="w-full flex items-center gap-3 px-5 py-4 text-sm font-black text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-2xl transition-all group"
-                           >
-                             <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-xl group-hover:scale-110 transition-transform">
-                               <FaUser className="text-blue-500" />
-                             </div>
-                             My Account
-                           </button>
-                           <button
-                             onClick={() => {
-                               useAuthStore.getState().logout();
-                               navigate("/");
-                             }}
-                             className="w-full flex items-center gap-3 px-5 py-4 text-sm font-black text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all group"
-                           >
-                             <div className="p-2 bg-red-50 dark:bg-red-900/30 rounded-xl group-hover:scale-110 transition-transform">
-                               <LuLogOut />
-                             </div>
-                             Logout Securely
-                           </button>
-                         </div>
+                        <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800 mb-3">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Sign in As</p>
+                          <p className="text-sm font-black truncate dark:text-white uppercase tracking-tight">{user?.Email || "Agent Account"}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <button
+                            onClick={() => {
+                              if (roles?.includes("patient")) navigate("/user/dashboard");
+                              else navigateByRole(roles, navigate);
+                              setToggleProfileDropDown(false);
+                            }}
+                            className="w-full flex items-center gap-3 px-5 py-4 text-sm font-black text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-2xl transition-all group"
+                          >
+                            <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-xl group-hover:scale-110 transition-transform">
+                              <FaUser className="text-blue-500" />
+                            </div>
+                            My Account
+                          </button>
+                          <button
+                            onClick={() => {
+                              useAuthStore.getState().logout();
+                              navigate("/");
+                            }}
+                            className="w-full flex items-center gap-3 px-5 py-4 text-sm font-black text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all group"
+                          >
+                            <div className="p-2 bg-red-50 dark:bg-red-900/30 rounded-xl group-hover:scale-110 transition-transform">
+                              <LuLogOut />
+                            </div>
+                            Logout
+                          </button>
+                        </div>
                       </motion.div>
                     </>
                   )}
@@ -474,7 +478,7 @@ const HospitalDashboard = () => {
             </div>
           </header>
 
-          {/* CONTENT */}
+          {console.log(hospitalProfile)}
           <section className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-12 custom-scrollbar">
             <StatusBanner
               status={hospitalProfile?.status}
@@ -484,25 +488,26 @@ const HospitalDashboard = () => {
             {isLoading ? (
               <div className="flex flex-col items-center justify-center h-full gap-5">
                 <div className="relative">
-                   <div className="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
-                   <div className="absolute inset-0 flex items-center justify-center">
-                     <Building2 size={24} className="text-blue-500 animate-pulse" />
-                   </div>
+                  <div className="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Building2 size={24} className="text-blue-500 animate-pulse" />
+                  </div>
                 </div>
                 <p className="text-slate-400 font-black uppercase tracking-widest text-xs">Synchronizing Dashboard data...</p>
               </div>
             ) : (
               <AnimatePresence mode="wait">
                 <motion.div
-                   key={activeTab}
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   exit={{ opacity: 0, y: -20 }}
-                   transition={{ duration: 0.3 }}
-                   className="h-full"
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="h-full"
                 >
                   {activeTab === "overview" && (
                     <OverviewTab
+                      hospitalProfile={hospitalProfile}
                       departments={departments}
                       services={services}
                       recentChats={recentInquiries}
@@ -514,7 +519,7 @@ const HospitalDashboard = () => {
                     <DepartmentsTab
                       searchDeptQuery={searchDeptQuery}
                       setSearchDeptQuery={setSearchDeptQuery}
-                      filteredDepartments={departments.filter(d => 
+                      filteredDepartments={departments.filter(d =>
                         d.department_name_en?.toLowerCase().includes(searchDeptQuery.toLowerCase()) ||
                         d.department_name_am?.includes(searchDeptQuery)
                       )}
@@ -531,7 +536,7 @@ const HospitalDashboard = () => {
                     <ServicesTab
                       searchServiceQuery={searchServiceQuery}
                       setSearchServiceQuery={setSearchServiceQuery}
-                      filteredServices={services.filter(s => 
+                      filteredServices={services.filter(s =>
                         s.service_name_en?.toLowerCase().includes(searchServiceQuery.toLowerCase()) ||
                         s.service_name_am?.includes(searchServiceQuery)
                       )}
@@ -556,7 +561,7 @@ const HospitalDashboard = () => {
 
                   {activeTab === "chats" && (
                     <div className="h-full">
-                       <ChatsTab currentUserId={currentUserId} />
+                      <ChatsTab currentUserId={currentUserId} />
                     </div>
                   )}
                 </motion.div>

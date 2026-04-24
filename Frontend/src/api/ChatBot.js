@@ -24,15 +24,16 @@ async function sendMessage(text) {
 
 }
 
-export const getTriage = async (symptoms) => {
-  await ensureCsrfCookie();
-  const res = await apiFetch("/api/ai/triage", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ symptoms }),
-  });
-  return res?.response ?? res;
-};
+// presidence: unused API (temporarily disabled, do not delete)
+// export const getTriage = async (symptoms) => {
+//   await ensureCsrfCookie();
+//   const res = await apiFetch("/api/ai/triage", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ symptoms }),
+//   });
+//   return res?.response ?? res;
+// };
 
 export const uploadPrescription = async (file) => {
   await ensureCsrfCookie();
@@ -44,14 +45,15 @@ export const uploadPrescription = async (file) => {
   });
 };
 
-export async function apiSendMessage(sessionId, message) {
-  await ensureCsrfCookie();
-  // backend expects JSON: { message: string }
-  return apiFetch(`/api/chat/sessions/${sessionId}/message`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message }),
-  });
-}
+// presidence: unused API (temporarily disabled, do not delete)
+// export async function apiSendMessage(sessionId, message) {
+//   await ensureCsrfCookie();
+//   // backend expects JSON: { message: string }
+//   return apiFetch(`/api/chat/sessions/${sessionId}/message`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ message }),
+//   });
+// }
 
 export { sendMessage };

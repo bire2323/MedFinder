@@ -11,6 +11,8 @@ import OtherLayout from "../layout/OtherLayout";
 // Pages
 import HomePage from "../../pages/home/HomePage";
 import SearchResultsHomePage from "../../pages/home/SearchResultsHomePage";
+import SearchDepartmentService from "../../pages/home/SearchDepartmentService";
+import PrescriptionReader from "../../pages/prescription/PrescriptionReader";
 import MapPage from "../../pages/map/MapPage";
 import PharmacyDashboard from "../../pages/pharmacyAgent/PharmacyDashboard";
 import HospitalDashboard from "../../pages/hospitalAgent/HospitalDashboard";
@@ -30,14 +32,10 @@ import {
   RegistrationWizard,
   Step1BasicInfo,
   Step2Location,
-  Step3PharmacyVerification,
-  Step3HospitalVerification,
   Step4ReviewAndSubmit,
   SuccessScreen
 } from "../../pages/registration";
-import { apiGetFacilities, apiGetHospitals } from "../../api/hospital";
 import AdminDashboard from "../../pages/AdminPage/AdminDashboard";
-import HomeError from "../../component/HomeError";
 import UserDashboard from "../../pages/UserDashboard/UserDashboard";
 import ProtectedRoute from "../../auth/ProtectedRoute";
 import AuthCallback from "../../auth/AuthCallBack";
@@ -79,6 +77,14 @@ export const router = createBrowserRouter([
       {
         path: "/home/search",
         element: <SearchResultsHomePage />,
+      },
+      {
+        path: "/search-department-service",
+        element: <SearchDepartmentService />,
+      },
+      {
+        path: "/prescription-reader",
+        element: <PrescriptionReader />,
       },
       // Map page
       {

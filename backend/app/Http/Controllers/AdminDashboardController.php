@@ -43,7 +43,7 @@ class AdminDashboardController extends Controller
                   ->orWhere('Phone', 'like', '%' . $request->search . '%');
         }
 
-        $users = $query->latest()->paginate(20);
+        $users = $query->latest()->paginate(10);
         foreach ($users as $user)
             $user->role = $user->getRoleNames();
 
@@ -51,6 +51,15 @@ class AdminDashboardController extends Controller
             'success' => true,
             'data' => $users,
         ]);
+    }
+    public function index(){
+
+    $users = User::paginate(10); 
+    foreach ($users as $user)
+            $user->role = $user->getRoleNames();
+
+    return response()->json(['success' => true,
+            'data' => $users,]);
     }
 
     /**
@@ -69,7 +78,7 @@ class AdminDashboardController extends Controller
 
         if ($request->has('role')) {
           //  \Log::info("stat");
-            $user->assignRole($request->role);
+            $user->syncRoles($request->role);
         }
         if ($request->has("status")) {
            // \Log::info("sta");

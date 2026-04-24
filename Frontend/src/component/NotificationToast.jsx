@@ -53,7 +53,7 @@ export default function NotificationToast() {
               </p>
             </div>
             <button
-              className="shrink-0 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              className="shrink-0 text-slate-200 hover:text-slate-600 dark:hover:text-slate-200"
               onClick={(e) => {
                 e.stopPropagation();
                 setIsVisible(false);

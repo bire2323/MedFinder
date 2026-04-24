@@ -32,11 +32,11 @@ public function getLogoUrlAttribute() {
     return asset('storage/' . $this->logo);
 }
 
-public function getLicenseDocumentUrlAttribute() {
-    return asset('storage/' . $this->license_document);
+public function getOfficialLicenseUploadUrlAttribute() {
+    return asset('storage/' . $this->official_license_upload);
 }
 
-protected $appends = ['logo_url', 'license_document_url'];
+protected $appends = ['logo_url', 'official_license_upload_url'];
 
     public function addresses()
     {
@@ -64,6 +64,7 @@ protected $appends = ['logo_url', 'license_document_url'];
 
     public function departments()
     {
-        return $this->belongsToMany(Department::class, 'HospitalDepartment', 'hospital_id', 'department_id');
+        
+        return $this->belongsToMany(Department::class, 'hospital_departments', 'hospital_id', 'department_id');
     }
 }

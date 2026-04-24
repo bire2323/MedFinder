@@ -9,24 +9,24 @@ const ContactSection = ({ data, onChange, error, theme }) => {
   return (
     <SectionWrapper id="contact" title={t("Settings.ContactInfo")} theme={theme}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-         <InputField
-            label={t("Settings.EmergencyContact")}
-            icon={<Phone size={14} />}
-            value={data.contact_phone}
-            onChange={(v) => onChange("contact_phone", v)}
-            error={error?.contact_phone}
-            theme={theme}
-            placeholder="0911223344"
-         />
-         <InputField
-            label={t("Settings.PublicEmail")}
-            icon={<Mail size={14} />}
-            value={data.contact_email}
-            onChange={(v) => onChange("contact_email", v)}
-            error={error?.contact_email}
-            theme={theme}
-            placeholder="[EMAIL_ADDRESS]"
-         />
+        <InputField
+          label={t("Settings.EmergencyContact")}
+          icon={<Phone size={14} />}
+          value={data.emergency_contact}
+          onChange={(v) => onChange("contact_phone", v)}
+          error={error?.emergency_contact}
+          theme={theme}
+          placeholder="0911223344"
+        />
+        <InputField
+          label={t("Settings.PublicEmail")}
+          icon={<Mail size={14} />}
+          value={data.contact_email}
+          onChange={(v) => onChange("contact_email", v)}
+          error={error?.contact_email}
+          theme={theme}
+          placeholder="[EMAIL_ADDRESS]"
+        />
       </div>
     </SectionWrapper>
   );

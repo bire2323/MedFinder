@@ -35,7 +35,7 @@ function AvailabilityPill({ isOpen, isFullTime, workingHours }) {
   return <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${tone}`}>{label}</span>;
 }
 
-export default function ResultCard({ facility, onClick, viewMode = "grid" }) {
+export default function ResultCard({ facility, onClick, viewMode = "grid", maxTags = 2, tagSource = "primary" }) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isAmharic = i18n.language === 'am';
@@ -73,8 +73,14 @@ export default function ResultCard({ facility, onClick, viewMode = "grid" }) {
       ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
       : "bg-slate-500/10 text-slate-400 border-slate-500/20";
 
+  const tagCap = typeof maxTags === "number" && maxTags > 0 ? maxTags : 2;
   const tags = isHospital
-    ? (facility.departments?.length ? facility.departments : facility.services)?.slice?.(0, 2) || []
+    ? (tagSource === "both"
+        ? [...(facility.departments || []), ...(facility.services || [])]
+        : facility.departments?.length
+          ? facility.departments
+          : facility.services || []
+      )?.slice?.(0, tagCap) || []
     : [];
 
   const openInInternalMap = (e) => {

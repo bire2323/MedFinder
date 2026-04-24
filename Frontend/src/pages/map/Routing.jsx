@@ -2,12 +2,15 @@ import React, { useEffect, useState, useRef } from "react";
 import { useMap, Polyline } from "react-leaflet";
 import L from "leaflet";
 import { apiFetchRoute } from "../../api/routing";
+import Loading from "../../component/SupportiveComponent/Loading";
 
-export default function Routing({ from, to, onRouteUpdate, onRouteLoading }) {
+export default function Routing({ key, from, to, onRouteUpdate }) {
   const map = useMap();
   const [routeData, setRouteData] = useState(null);
   const hasFetchedRef = useRef(false);
   const lastFromToRef = useRef(null);
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!from || !to) return;
@@ -29,21 +32,22 @@ export default function Routing({ from, to, onRouteUpdate, onRouteLoading }) {
     const ac = new AbortController();
 
     const fetchRoute = async () => {
+
       try {
-        if (onRouteLoading) onRouteLoading(true);
-        console.log("Fetching new route from backend...", { from, to });
+        setLoading(true);
+
 
         const data = await apiFetchRoute(from, to, { signal: ac.signal });
 
         if (data && data.points) {
-          console.log("Route received, steps:", data.steps?.length || 0);
+          // console.log("Route received, steps:", data.steps?.length || 0);
 
           // Ensure steps array exists
           if (!data.steps || data.steps.length === 0) {
             console.warn("API returned no steps, generating fallback steps");
             data.steps = generateFallbackSteps(data.points);
           }
-
+          console.log("1", "userLocation");
           setRouteData(data);
           hasFetchedRef.current = true;
 
@@ -59,12 +63,14 @@ export default function Routing({ from, to, onRouteUpdate, onRouteLoading }) {
           }
         }
       } catch (error) {
+        setLoading(false);
         if (error.name !== 'AbortError') {
           console.error("Error fetching route:", error);
         }
         hasFetchedRef.current = false;
       } finally {
-        if (onRouteLoading) onRouteLoading(false);
+
+        setLoading(false);
       }
     };
 
@@ -72,15 +78,15 @@ export default function Routing({ from, to, onRouteUpdate, onRouteLoading }) {
     return () => {
       ac.abort();
     };
-  }, [
-    from?.[0]?.toFixed(6),
-    from?.[1]?.toFixed(6),
-    to?.[0]?.toFixed(6),
-    to?.[1]?.toFixed(6),
-    map,
-    onRouteUpdate,
-    onRouteLoading
-  ]);
+  },
+    [
+      from?.[0]?.toFixed(6),
+      from?.[1]?.toFixed(6),
+      to?.[0]?.toFixed(6),
+      to?.[1]?.toFixed(6),
+      map,
+      onRouteUpdate
+    ]);
 
   // Helper: Generate fallback steps
   const generateFallbackSteps = (points) => {
@@ -117,9 +123,9 @@ export default function Routing({ from, to, onRouteUpdate, onRouteLoading }) {
 
     return steps;
   };
-
-  if (!routeData) return null;
-
+  //console.log("1", routeData);
+  if (!routeData && loading) return <Loading />;
+  if (!routeData) return <Loading />;
   return (
     <>
       <Polyline

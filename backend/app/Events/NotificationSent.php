@@ -53,7 +53,7 @@ class NotificationSent implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'id' => $this->notification->id,
+            'id' => $this->notification->user_id,
             'type' => $this->notification->type,
             'priority' => $this->notification->priority,
             'title' => $this->notification->title,
