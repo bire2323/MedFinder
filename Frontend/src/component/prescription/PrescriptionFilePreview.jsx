@@ -29,7 +29,7 @@ export default function PrescriptionFilePreview({ file, previewUrl, onRemove, on
         <button
           type="button"
           onClick={onReplace}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-extrabold text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200 dark:hover:bg-emerald-900/40"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200 dark:hover:bg-emerald-900/40"
         >
           <RefreshCw className="h-4 w-4" aria-hidden />
           {t("prescriptionReader.replaceFile")}
@@ -37,7 +37,7 @@ export default function PrescriptionFilePreview({ file, previewUrl, onRemove, on
         <button
           type="button"
           onClick={onRemove}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-extrabold text-slate-700 transition hover:bg-slate-50 dark:border-gray-600 dark:bg-slate-800 dark:text-gray-200 dark:hover:bg-slate-700"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50 dark:border-gray-600 dark:bg-slate-800 dark:text-gray-200 dark:hover:bg-slate-700"
         >
           <Trash2 className="h-4 w-4" aria-hidden />
           {t("prescriptionReader.removeFile")}

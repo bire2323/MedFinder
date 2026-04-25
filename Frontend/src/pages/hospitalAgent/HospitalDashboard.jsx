@@ -137,7 +137,7 @@ const HospitalDashboard = () => {
     is_available: true,
     notes: "",
   });
-
+  const clearSession = useAuthStore((state) => state.clearSession);
   useEffect(() => {
     const init = async () => {
       const isAuthentic = await initializeAuth();
@@ -408,10 +408,11 @@ const HospitalDashboard = () => {
                 <LanguageSwitcher />
                 <ThemeToggle />
               </div>
-              <div className="sm:hidden flex items-center gap-2">
-                <ThemeToggle />
+              <div className="sm:hidden items-center border-r border-slate-200 dark:border-gray-700 ">
+                <LanguageSwitcher />
               </div>
               <NotificationDropdown />
+
 
               <div className="relative">
                 <button
@@ -437,7 +438,7 @@ const HospitalDashboard = () => {
                         initial={{ opacity: 0, y: 15, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                        className="absolute right-0 mt-4 w-72 z-20 bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-gray-800 p-4 overflow-hidden"
+                        className="absolute right-0 mt-4 z-50 w-72 bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-gray-800 p-4 overflow-hidden"
                       >
                         <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800 mb-3">
                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Sign in As</p>
@@ -459,7 +460,7 @@ const HospitalDashboard = () => {
                           </button>
                           <button
                             onClick={() => {
-                              useAuthStore.getState().logout();
+                              clearSession();
                               navigate("/");
                             }}
                             className="w-full flex items-center gap-3 px-5 py-4 text-sm font-black text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all group"
@@ -474,6 +475,9 @@ const HospitalDashboard = () => {
                     </>
                   )}
                 </AnimatePresence>
+              </div>
+              <div className="sm:hidden block gap-2">
+                <ThemeToggle />
               </div>
             </div>
           </header>

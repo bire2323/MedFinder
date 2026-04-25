@@ -337,8 +337,8 @@ export default function Inventory({ activeTab, setActiveTab }) {
                         <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                             {isLoadingInventory ? (
                                 <tr>
-                                   <td colSpan={7} className="px-6 py-20 text-center text-slate-400">
-                                          <div className="flex flex-col justify-center items-center gap-1.5">
+                                    <td colSpan={7} className="px-6 py-20 text-center text-slate-400">
+                                        <div className="flex flex-col justify-center items-center gap-1.5">
                                             <div className="flex items-center gap-2">
                                                 <span className="w-3 h-3 bg-blue-500 rounded-full animate-bounce px-1.5"></span>
                                                 <span className="w-3 h-3 bg-blue-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
@@ -489,7 +489,7 @@ export default function Inventory({ activeTab, setActiveTab }) {
         >
             {/* Header with Sub-Tabs */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-gray-800 p-2 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
-                <div className="flex items-center gap-1">
+                <div className="flex flex-wrap items-center gap-1">
                     <TabButton
                         active={subTab === "active"}
                         onClick={() => setSubTab("active")}
@@ -572,13 +572,13 @@ export default function Inventory({ activeTab, setActiveTab }) {
 const TabButton = ({ active, onClick, icon, label }) => (
     <button
         onClick={onClick}
-        className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all duration-200 ${active
+        className={`flex items-center gap-0.5 md:gap-2 px-2 md:px-6  py-2.5 rounded-xl font-bold transition-all duration-200 ${active
             ? "bg-primary text-white shadow-lg shadow-primary/25"
             : "text-slate-500 hover:bg-slate-50 dark:hover:bg-gray-700/50"
             }`}
     >
         {icon}
-        <span className="text-sm">{label}</span>
+        <span className="text-[9px] md:text-sm">{label}</span>
     </button>
 );
 

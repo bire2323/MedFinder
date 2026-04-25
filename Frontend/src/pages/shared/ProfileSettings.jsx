@@ -127,24 +127,31 @@ const ProfileSettings = ({ initialData, type = "pharmacy", onUpdateSuccess }) =>
   return (
     <div className="flex flex-col lg:sticky lg:top-4 lg:flex-row gap-8 min-h-screen pb-20">
       {/* Sidebar Navigation */}
-      <nav className="lg:w-64 space-y-2 shrink-0 h-fit ">
-        {sections.map((section) => (
-          <button
-            key={section.id}
-            onClick={() => {
-              setActiveSection(section.id);
-              document.getElementById(section.id)?.scrollIntoView({ behavior: "smooth", block: "center" });
-            }}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all ${activeSection === section.id
-              ? `${theme.bgPrimary} text-white shadow-lg shadow-blue-500/20 translate-x-2`
-              : `text-slate-500 hover:bg-slate-100 dark:hover:bg-gray-800 ${section.color || ""}`
-              }`}
-          >
-            {section.icon}
-            <span className="text-sm">{section.label}</span>
-          </button>
-        ))}
-      </nav>
+      {activeSection === null && (
+        <>
+          <nav className="flex flex-wrap w-full space-y-2 shrink-0 h-fit ">
+            {sections.map((section) => (
+              <div className="w-1/3 h-20px" key={section.id}>
+
+                <button
+                  onClick={() => {
+                    setActiveSection(section.id);
+
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all ${activeSection === section.id
+                    ? `${theme.bgPrimary} text-white shadow-lg shadow-blue-500/20 translate-x-2`
+                    : `text-slate-500 hover:bg-slate-100 dark:hover:bg-gray-800 ${section.color || ""}`
+                    }`}
+                >
+                  {section.icon}
+                  <span className="text-sm">{section.label}</span>
+                </button>
+              </div>
+            ))}
+          </nav>
+        </>
+      )}
+
 
       {/* Main Content Sections */}
       <div className="flex-1 space-y-12 max-w-4xl">

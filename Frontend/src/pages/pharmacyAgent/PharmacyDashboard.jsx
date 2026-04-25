@@ -73,7 +73,7 @@ const PharmacyDashboard = () => {
 
   const { user, roles } = useAuthStore();
   const currentUserId = user?.id;
- 
+
   const [pharmacyProfile, setPharmacyProfile] = useState(null);
   const [inventory, setInventory] = useState([]);
 
@@ -112,7 +112,7 @@ const PharmacyDashboard = () => {
 
     init();
   }, [isAuthenticated])
-  useEffect(()=>{
+  useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await apiGetPharmacyProfile();
@@ -125,7 +125,7 @@ const PharmacyDashboard = () => {
       }
     };
     fetchProfile();
-  },[])
+  }, [])
   useEffect(() => {
     if (latestNotification && (latestNotification.type === 'approved' || latestNotification.type === 'rejected')) {
       setPharmacyProfile(prev => prev ? {
@@ -171,10 +171,10 @@ const PharmacyDashboard = () => {
         const response = await apiGetInventory();
         if (response) {
           const inventoryData = response.data || response;
-       //   setPharmacyProfile(inventoryData);
-          
+          //   setPharmacyProfile(inventoryData);
+
           setInventory(inventoryData.drugs || Array.isArray(inventoryData) ? inventoryData : []);
-        //  console.log('Inventory loaded:', inventoryData.drugs?.length || inventoryData?.length);
+          //  console.log('Inventory loaded:', inventoryData.drugs?.length || inventoryData?.length);
         }
       } catch (error) {
         console.error("Error fetching inventory:", error);
@@ -197,65 +197,65 @@ const PharmacyDashboard = () => {
         {/* SIDEBAR - responsive: collapsed on mobile, overlay when open */}
         <nav className={`fixed sm:relative  inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 border-gray-400 dark:border-gray-500 flex flex-col transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'}`}>
           <div className="sticky top-0">
-           <div className="flex flex-col justify-between h-full">
-             <div className=" p-6 flex items-center gap-3">
-            <div className="bg-emerald-600 p-2 rounded-xl text-white shadow-lg">
-              <Pill size={24} />
-            </div>
-            <span className="block font-bold text-xl tracking-tight">
-              Pharma<span className="text-emerald-600">Sync</span>
+            <div className="flex flex-col justify-between h-full">
+              <div className=" p-6 flex items-center gap-3">
+                <div className="bg-emerald-600 p-2 rounded-xl text-white shadow-lg">
+                  <Pill size={24} />
+                </div>
+                <span className="block font-bold text-xl tracking-tight">
+                  Pharma<span className="text-emerald-600">Sync</span>
 
-            </span>
-             </div>
-
-          <div className="flex-1 px-4 space-y-2 mt-4">
-            <NavItem
-              icon={<BarChart3 size={20} />}
-              label={t("PharmacyDashboard.Overview")}
-              active={activeTab === "overview"}
-              onClick={() => setActiveTab("overview")}
-            />
-            <NavItem
-              icon={<Pill size={20} />}
-              label={t("PharmacyDashboard.Inventory")}
-              active={activeTab === "inventory"}
-              onClick={() => setActiveTab("inventory")}
-            />
-            <NavItem
-              icon={<FileText size={20} />}
-              label={t("PharmacyDashboard.Prescriptions")}
-              active={activeTab === "rx"}
-              onClick={() => setActiveTab("rx")}
-            />
-            <NavItem
-              icon={<MessageSquare size={20} />}
-              label={t("PharmacyDashboard.Chats")}
-              active={activeTab === "chats"}
-              onClick={() => setActiveTab("chats")}
-              badge={unreadCount > 0 ? unreadCount : null}
-            />
-            <NavItem
-              icon={<Settings size={20} />}
-              label={t("PharmacyDashboard.Settings")}
-              active={activeTab === "settings"}
-              onClick={() => setActiveTab("settings")}
-            />
-          </div>
-           </div>
-
-          <div className="p-4 border-t border-gray-400 dark:border-gray-500">
-            <div className="hidden lg:flex items-center gap-3 p-3 bg-slate-100 dark:bg-gray-700 rounded-xl">
-              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-white text-xs">
-                AP
+                </span>
               </div>
-              <div className="flex-1 overflow-hidden">
-                <p className="text-xs font-bold truncate">{pharmacyProfile?.pharmacy_name_en || pharmacyProfile?.name || "Pharmacy Agent"}</p>
-                <p className="text-[10px] text-slate-500 dark:text-gray-400">
-                  {t("PharmacyDashboard.OwnerAccount")}
-                </p>
+
+              <div className="flex-1 px-4 space-y-2 mt-4">
+                <NavItem
+                  icon={<BarChart3 size={20} />}
+                  label={t("PharmacyDashboard.Overview")}
+                  active={activeTab === "overview"}
+                  onClick={() => setActiveTab("overview")}
+                />
+                <NavItem
+                  icon={<Pill size={20} />}
+                  label={t("PharmacyDashboard.Inventory")}
+                  active={activeTab === "inventory"}
+                  onClick={() => setActiveTab("inventory")}
+                />
+                <NavItem
+                  icon={<FileText size={20} />}
+                  label={t("PharmacyDashboard.Prescriptions")}
+                  active={activeTab === "rx"}
+                  onClick={() => setActiveTab("rx")}
+                />
+                <NavItem
+                  icon={<MessageSquare size={20} />}
+                  label={t("PharmacyDashboard.Chats")}
+                  active={activeTab === "chats"}
+                  onClick={() => setActiveTab("chats")}
+                  badge={unreadCount > 0 ? unreadCount : null}
+                />
+                <NavItem
+                  icon={<Settings size={20} />}
+                  label={t("PharmacyDashboard.Settings")}
+                  active={activeTab === "settings"}
+                  onClick={() => setActiveTab("settings")}
+                />
               </div>
             </div>
-          </div>
+
+            <div className="p-4 border-t border-gray-400 dark:border-gray-500">
+              <div className="hidden lg:flex items-center gap-3 p-3 bg-slate-100 dark:bg-gray-700 rounded-xl">
+                <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-white text-xs">
+                  AP
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <p className="text-xs font-bold truncate">{pharmacyProfile?.pharmacy_name_en || pharmacyProfile?.name || "Pharmacy Agent"}</p>
+                  <p className="text-[10px] text-slate-500 dark:text-gray-400">
+                    {t("PharmacyDashboard.OwnerAccount")}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </nav>
 
@@ -270,10 +270,10 @@ const PharmacyDashboard = () => {
               <button
                 type="button"
                 onClick={() => setSidebarOpen(true)}
-                className="sm:hidden z-60 w-11 h-11 rounded-xl bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 shadow-sm flex items-center justify-center"
+                className="sm:hidden z-60 rounded-xl shadow-sm flex items-center justify-center"
                 aria-label={t("UserDashboard.OpenNavigation")}
               >
-                <Menu size={20} className="text-slate-700 dark:text-slate-200 text-5xl" />
+                <Menu size={20} className="text-slate-200 text-5xl" />
               </button>
             </div>
             <div className="flex items-center gap-1 sm:gap-4 shrink-0">
@@ -360,13 +360,13 @@ const PharmacyDashboard = () => {
                   initialData={pharmacyProfile}
                   type="pharmacy"
                   onUpdateSuccess={() => {
-                      apiGetPharmacyProfile().then(res => {
-                        if (res.success) {
-                          console.log(res.success);
-                          const profileData = res.data;
-                          setPharmacyProfile(profileData);
-                        }
-                      }); 
+                    apiGetPharmacyProfile().then(res => {
+                      if (res.success) {
+                        console.log(res.success);
+                        const profileData = res.data;
+                        setPharmacyProfile(profileData);
+                      }
+                    });
                   }}
                 />
               )}

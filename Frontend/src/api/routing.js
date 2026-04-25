@@ -12,10 +12,29 @@ export async function apiFetchRoute(from, to, { signal } = {}) {
 
   try {
     const data = await apiFetch(`/api/map/route?from=${from[0]},${from[1]}&to=${to[0]},${to[1]}&steps=${true}`, { signal });
-    
+
     if (data && data.geometry) {
-      // Convert GeoJSON [lng, lat] to Leaflet [lat, lng]
-      const points = data.geometry.coordinates.map(c => [c[1], c[0]]);
+      // Normalize GeoJSON coordinates to a flat array of [lat, lng]
+      // Support LineString and MultiLineString (and other nested variants)
+      let coords = [];
+
+      if (Array.isArray(data.geometry.coordinates)) {
+        // If it's a MultiLineString (array of arrays of coordinates), flatten one level
+        if (data.geometry.type === 'MultiLineString') {
+          coords = data.geometry.coordinates.flat();
+        } else {
+          // Generic flatten: if elements are themselves arrays of arrays, try to flatten to pairs
+          const first = data.geometry.coordinates[0];
+          if (Array.isArray(first) && Array.isArray(first[0])) {
+            coords = data.geometry.coordinates.flat();
+          } else {
+            coords = data.geometry.coordinates;
+          }
+        }
+      }
+
+      // Convert GeoJSON [lng, lat] to Leaflet [lat, lng] and ensure numbers
+      const points = coords.map(c => [Number(c[1]), Number(c[0])]);
       return { ...data, points };
     }
 
@@ -39,12 +58,12 @@ export async function apiSmartPharmacySearch(from, drugName, { signal } = {}) {
 
   try {
     const data = await apiFetch(`/api/smart-pharmacy?from=${from[0]},${from[1]}&drug=${encodeURIComponent(drugName)}`, { signal });
-    
+
     if (data.success && data.route && data.route.geometry) {
       // Normalize points for Leaflet
       data.route.points = data.route.geometry.coordinates.map(c => [c[1], c[0]]);
     }
-    
+
     return data;
   } catch (error) {
     if (error.name === 'AbortError') return null;

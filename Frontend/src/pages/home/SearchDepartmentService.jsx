@@ -313,7 +313,7 @@ export default function SearchDepartmentService() {
             <button
               type="button"
               onClick={() => setMobileFiltersOpen(true)}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-sm font-extrabold text-emerald-800 shadow dark:border-emerald-800 dark:bg-slate-900 dark:text-emerald-200"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-sm font-bold text-emerald-800 shadow dark:border-emerald-800 dark:bg-slate-900 dark:text-emerald-200"
             >
               <Filter className="h-4 w-4" aria-hidden />
               {t("departmentServiceSearch.filtersToggle")}
@@ -369,7 +369,7 @@ export default function SearchDepartmentService() {
             />
             <div className="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto rounded-t-2xl border border-emerald-100 bg-white p-5 shadow-2xl dark:border-emerald-900 dark:bg-slate-900">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">{t("departmentServiceSearch.filtersTitle")}</h2>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t("departmentServiceSearch.filtersTitle")}</h2>
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(false)}

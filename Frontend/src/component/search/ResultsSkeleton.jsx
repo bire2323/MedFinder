@@ -2,7 +2,7 @@ import React from "react";
 
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl  border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
+    <div className="rounded-2xl  border border-slate-300 dark:border-gray-700 bg-slate-300 dark:bg-gray-800 p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex gap-2">

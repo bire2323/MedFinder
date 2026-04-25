@@ -20,6 +20,8 @@ export function localizeFacility(facility, type, lang) {
     contact_email: facility.contact_email,
     addresses: facility.addresses ? facility.addresses.map(a => localizeAddress(a, type, lang)) : [],
     inventory: isHospital ? [] : facility.drugs ? facility.drugs.map(d => localizeDrugs(d, type, lang)) : [],
+    departments: !isHospital ? [] : facility.departments ? facility.departments.map(d => localizeDepartments(d, type, lang)) : [],
+    services: !isHospital ? [] : facility.services ? facility.services.map(s => localizeServices(s, type, lang)) : [],
     address_description: isAm ? facility.address_description_am : facility.address_description_en,
     status: facility.status,
     logo_url: facility.logo_url,
@@ -47,6 +49,25 @@ export function localizeDrugs(drug, type, lang) {
 
   };
 }
+export function localizeServices(service, type, lang) {
+  const isAm = lang === "am";
+  const isHospital = type === 'hospital';
+  return {
+    id: service.id,
+    name: isAm ? service.service?.service_name_am : service.service?.service_name_en,
+    category: isAm ? service.service?.service_category_name_am : service.service?.service_category_name_en,
+  };
+}
+export function localizeDepartments(department, type, lang) {
+  const isAm = lang === "am";
+  const isHospital = type === 'hospital';
+  return {
+    id: department.id,
+    name: isAm ? department.department_name_am : department.department_name_en,
+    category: isAm ? department.department_category_name_am : department.department_category_name_en,
+  };
+}
+
 export function localizeAddress(address, type, lang) {
   const isAm = lang === "am";
   const isHospital = type === 'hospital';

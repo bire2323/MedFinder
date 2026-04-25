@@ -12,6 +12,7 @@ class DepartmentController extends Controller
     {
         $user = auth('sanctum')->user();
         if (!$user) return null;
+        \Log::info("Fetching hospital for user : {$user}");
         return Hospital::where('hospital_agent_id', $user->id)->first();
     }
 
@@ -33,6 +34,7 @@ class DepartmentController extends Controller
     public function store(Request $request)
     {
         $hospital = $this->getHospital();
+        \Log::info("Storing department for hospital : {$hospital}");
         if (!$hospital) {
             return response()->json(['message' => 'Hospital not found for this agent'], 404);
         }

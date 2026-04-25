@@ -85,47 +85,40 @@ export default function Routing({ key, from, to, onRouteUpdate }) {
       to?.[0]?.toFixed(6),
       to?.[1]?.toFixed(6),
       map,
-      onRouteUpdate
+
     ]);
 
   // Helper: Generate fallback steps
   const generateFallbackSteps = (points) => {
     if (!points || points.length < 2) return [];
 
+    // Accept points as either [lat, lng] arrays or {lat, lng} objects
+    const toLatLng = (p) => {
+      if (!p) return { lat: null, lng: null };
+      if (Array.isArray(p)) return { lat: Number(p[0]), lng: Number(p[1]) };
+      if (typeof p.lat === 'number' && typeof p.lng === 'number') return { lat: p.lat, lng: p.lng };
+      // Support possible GeoJSON-like object
+      if (p.coordinates && Array.isArray(p.coordinates)) return { lat: Number(p.coordinates[1]), lng: Number(p.coordinates[0]) };
+      return { lat: null, lng: null };
+    };
+
     const steps = [];
-    steps.push({
-      type: 'depart',
-      lat: points[0].lat,
-      lng: points[0].lng,
-      distance: 0,
-      instruction: "Start your journey"
-    });
+    const first = toLatLng(points[0]);
+    steps.push({ type: 'depart', lat: first.lat, lng: first.lng, distance: 0, instruction: "Start your journey" });
 
     for (let i = 1; i < points.length - 1; i++) {
-      steps.push({
-        type: 'turn',
-        lat: points[i].lat,
-        lng: points[i].lng,
-        distance: 100,
-        instruction: "Continue straight",
-        turnDirection: "straight"
-      });
+      const p = toLatLng(points[i]);
+      steps.push({ type: 'turn', lat: p.lat, lng: p.lng, distance: 100, instruction: "Continue straight", turnDirection: "straight" });
     }
 
-    const lastPoint = points[points.length - 1];
-    steps.push({
-      type: 'arrive',
-      lat: lastPoint.lat,
-      lng: lastPoint.lng,
-      distance: 0,
-      instruction: "You have arrived at your destination"
-    });
+    const last = toLatLng(points[points.length - 1]);
+    steps.push({ type: 'arrive', lat: last.lat, lng: last.lng, distance: 0, instruction: "You have arrived at your destination" });
 
     return steps;
   };
   //console.log("1", routeData);
-  if (!routeData && loading) return <Loading />;
-  if (!routeData) return <Loading />;
+  if (!routeData && loading) return null;
+  if (!routeData) return null;
   return (
     <>
       <Polyline

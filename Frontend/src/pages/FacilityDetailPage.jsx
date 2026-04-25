@@ -397,7 +397,7 @@ const FacilityDetailPage = () => {
                 {facility.departments?.map((dept, index) => (
                   <div key={index} className="p-4 bg-slate-50 dark:bg-gray-700/50 rounded-xl">
                     <p className="font-semibold">{dept.name}</p>
-                    <p className="text-xs text-slate-400">{dept.head}</p>
+                    <p className="text-xs text-slate-400">{dept.category}</p>
                   </div>
                 ))}
               </div>
@@ -417,9 +417,12 @@ const FacilityDetailPage = () => {
                 <div className="p-6">
                   <div className="flex flex-wrap gap-2">
                     {facility.services?.map((service, index) => (
-                      <span key={index} className="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-full text-sm">
-                        {service}
-                      </span>
+                      <>
+                        <span key={index} className="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-full text-sm">
+                          {service?.name}
+                        </span>
+                        <p>{service?.category}</p>
+                      </>
                     ))}
                   </div>
                 </div>
@@ -427,8 +430,8 @@ const FacilityDetailPage = () => {
                 <div className="divide-y dark:divide-gray-700">
                   {facility.services?.map((service, index) => (
                     <div key={index} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-gray-700/50">
-                      <p className="font-semibold">{service.name}</p>
-                      <p className="font-bold text-blue-600">{service.price} {t("Common.Currency")}</p>
+                      <p className="font-semibold">{service.service?.name}</p>
+                      <p className="font-bold text-blue-600">{service.service?.category}</p>
                     </div>
                   ))}
                 </div>
@@ -487,8 +490,8 @@ const FacilityDetailPage = () => {
               {/* Contact details */}
               <div className="space-y-4">
                 <ContactItem icon={Phone} label={t("Login.Phone")} value={facility.contact_phone} href={`tel:${facility.contact_phone}`} />
-                {facility.alternatePhone && (
-                  <ContactItem icon={Phone} label={t("FacilityDetail.Alternate")} value={facility.alternatePhone} href={`tel:${facility.alternatePhone}`} />
+                {facility.contact_phone && (
+                  <ContactItem icon={Phone} label={t("FacilityDetail.Alternate")} value={facility.contact_phone} href={`tel:${facility.alternatePhone}`} />
                 )}
                 {facility.emergencyPhone && (
                   <ContactItem icon={Heart} label={t("FacilityDetail.Emergency")} value={facility.emergencyPhone} href={`tel:${facility.emergencyPhone}`} isEmergency />

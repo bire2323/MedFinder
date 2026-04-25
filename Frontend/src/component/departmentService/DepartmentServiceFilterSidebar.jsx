@@ -27,7 +27,7 @@ export default function DepartmentServiceFilterSidebar({
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">{t("filters.distance.title")}</h3>
+        <h3 className="text-sm font-bold text-slate-900 dark:text-white">{t("filters.distance.title")}</h3>
         <div className="mt-3 space-y-2">
           {distanceOptions.map((opt) => (
             <label key={opt.id} className="flex cursor-pointer items-center gap-3 text-sm text-slate-700 dark:text-gray-200">
@@ -46,7 +46,7 @@ export default function DepartmentServiceFilterSidebar({
       </div>
 
       <div>
-        <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">{labelDept}</h3>
+        <h3 className="text-sm font-bold text-slate-900 dark:text-white">{labelDept}</h3>
         <div className="mt-3 max-h-52 space-y-2 overflow-y-auto pr-1">
           {departments.map((d) => (
             <label key={d.id} className="flex cursor-pointer items-start gap-3 text-sm text-slate-700 dark:text-gray-200">
@@ -66,7 +66,7 @@ export default function DepartmentServiceFilterSidebar({
       </div>
 
       <div>
-        <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">{labelSvc}</h3>
+        <h3 className="text-sm font-bold text-slate-900 dark:text-white">{labelSvc}</h3>
         <div className="mt-3 max-h-52 space-y-2 overflow-y-auto pr-1">
           {services.map((s) => (
             <label key={s.id} className="flex cursor-pointer items-start gap-3 text-sm text-slate-700 dark:text-gray-200">
@@ -88,7 +88,7 @@ export default function DepartmentServiceFilterSidebar({
       <button
         type="button"
         onClick={onReset}
-        className="w-full rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-extrabold text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200 dark:hover:bg-emerald-900/50"
+        className="w-full rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200 dark:hover:bg-emerald-900/50"
       >
         {t("departmentServiceSearch.resetFilters")}
       </button>

@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 
 import ThemeToggle from "./DarkLightTeam";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { createPortal } from "react-dom";
 import useAuthStore from "../store/UserAuthStore";
 import { navigateByRole } from "../utils/UserNavigation";
 import { apiLogout } from "../api/auth";
@@ -59,7 +60,7 @@ function FindCareLinkRows({ onNavigate, variant = "desktop" }) {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block font-bold leading-tight">{title}</span>
-              <span className="mt-0.5 block text-sm font-mono text-slate-500 dark:text-gray-400">{hint}</span>
+              <span className="mt-0.5 block text-sm text-slate-500 dark:text-gray-400">{hint}</span>
             </span>
           </Link>
         </li>
@@ -137,6 +138,7 @@ export default function Header() {
   const user = useAuthStore((state) => state.user);
   const roles = useAuthStore((state) => state.roles);
   const clearSession = useAuthStore((state) => state.clearSession);
+  const initialized = useAuthStore((state) => state.initialized);
 
   const isAmharic = useTranslation().i18n.language === "am";
 
@@ -232,8 +234,8 @@ export default function Header() {
                   id="find-care-desktop-trigger"
                   onClick={openFindCareMenu}
                   className={`flex items-center gap-1 rounded-xl px-2 py-1.5 text-xs font-bold transition-all duration-200 sm:gap-1.5 sm:px-2.5 sm:py-2 sm:text-sm ${findCareOpen || isFindCareSection
-                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-emerald-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-emerald-400"
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-emerald-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-emerald-400"
                     }`}
                 >
                   {t("headingNav.findCareMenu")}
@@ -248,8 +250,8 @@ export default function Header() {
                   role="menu"
                   aria-labelledby="find-care-desktop-trigger"
                   className={`absolute left-1/2 top-full z-[120] mt-2 w-[min(18rem,calc(100vw-2rem))] -translate-x-1/2 origin-top transform rounded-2xl border border-slate-200/90 bg-white shadow-2xl ring-1 ring-black/5 transition-all duration-200 ease-out dark:border-gray-700 dark:bg-gray-900 dark:ring-white/10 ${findCareOpen
-                      ? "pointer-events-auto visible translate-y-0 scale-100 opacity-100"
-                      : "pointer-events-none invisible -translate-y-1 scale-95 opacity-0"
+                    ? "pointer-events-auto visible translate-y-0 scale-100 opacity-100"
+                    : "pointer-events-none invisible -translate-y-1 scale-95 opacity-0"
                     }`}
                 >
                   <div className="border-b border-slate-100 px-3 py-2 dark:border-gray-800">
@@ -264,8 +266,8 @@ export default function Header() {
               <Link
                 to="/home/map"
                 className={`flex shrink-0 items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-bold transition-all sm:gap-2 sm:px-3 sm:py-2 sm:text-sm ${isMapActive
-                    ? "border-emerald-500 bg-emerald-600 text-white dark:border-emerald-500 dark:bg-emerald-600"
-                    : "border-emerald-100 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800/60 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
+                  ? "border-emerald-500 bg-emerald-600 text-white dark:border-emerald-500 dark:bg-emerald-600"
+                  : "border-emerald-100 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800/60 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
                   }`}
                 onClick={closeFindCare}
               >
@@ -282,7 +284,11 @@ export default function Header() {
               <ThemeToggle />
             </div>
 
-            {isLoading ? (
+            {!initialized ? (
+              <div className="hidden items-center rounded-full p-1 hover:bg-slate-100 dark:hover:bg-gray-800 md:flex">
+                <div className="h-9 w-24 bg-slate-100 rounded animate-pulse" />
+              </div>
+            ) : isLoading ? (
               <div className="hidden items-center rounded-full p-1 hover:bg-slate-100 dark:hover:bg-gray-800 md:flex">
                 <FaUserCircle size={28} className="text-slate-500 dark:text-gray-400" />
               </div>
@@ -424,148 +430,154 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile panel */}
-      <div
-        className={`overflow-hidden border-t border-slate-100 transition-all duration-300 ease-in-out dark:border-gray-800 md:hidden ${isMenuOpen ? "max-h-[85vh] opacity-100" : "pointer-events-none max-h-0 border-transparent opacity-0"
-          }`}
-      >
-        <div className="max-h-[min(80vh,32rem)] overflow-y-auto overscroll-contain bg-white px-4 py-5 dark:bg-gray-950 sm:px-6">
-          <div className="flex flex-col gap-1">
-            <Link
-              to="/"
-              className={`rounded-xl px-3 py-3 text-lg font-bold transition-colors ${isHomeActive ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300" : "text-slate-800 dark:text-white"
-                }`}
-              onClick={closeMobileMenu}
-            >
-              {t("headingNav.home")}
-            </Link>
-            <Link
-              to="/home/search?type=hospital&q="
-              className={`rounded-xl px-3 py-3 text-lg font-bold transition-colors ${isHospitalActive ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300" : "text-slate-800 dark:text-white"
-                }`}
-              onClick={closeMobileMenu}
-            >
-              {t("headingNav.hospitals")}
-            </Link>
-            <Link
-              to="/home/search?type=pharmacy&q="
-              className={`rounded-xl px-3 py-3 text-lg font-bold transition-colors ${isPharmacyActive ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300" : "text-slate-800 dark:text-white"
-                }`}
-              onClick={closeMobileMenu}
-            >
-              {t("headingNav.pharmacies")}
-            </Link>
-
-            <div className="rounded-xl border border-slate-100 dark:border-gray-800">
-              <button
-                type="button"
-                className="flex w-full items-center justify-between px-3 py-3 text-left text-lg font-bold text-slate-800 dark:text-white"
-                onClick={() => setMobileFindCareOpen((o) => !o)}
-                aria-expanded={mobileFindCareOpen}
-              >
-                {t("headingNav.findCareMenu")}
-                <ChevronDown
-                  className={`h-5 w-5 shrink-0 text-emerald-600 transition-transform duration-200 dark:text-emerald-400 ${mobileFindCareOpen ? "rotate-180" : ""
-                    }`}
-                  aria-hidden
-                />
-              </button>
-              <div
-                className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${mobileFindCareOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+      {/* Mobile panel (portal to body so it covers full viewport and escapes any stacking/transform contexts) */}
+      {isMenuOpen && typeof document !== "undefined" && createPortal(
+        <>
+          <div aria-hidden className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] md:hidden" onClick={closeMobileMenu} />
+          <div className="fixed inset-x-0 top-14 bottom-0 bg-white dark:bg-gray-950 border-t border-slate-100 dark:border-gray-800 p-6 space-y-6 overflow-y-auto z-[10000] md:hidden">
+            <div className="flex flex-col gap-1">
+              <Link
+                to="/"
+                className={`rounded-xl px-3 py-3 text-lg font-bold transition-colors ${isHomeActive ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300" : "text-slate-800 dark:text-white"
                   }`}
+                onClick={closeMobileMenu}
               >
-                <div className="overflow-hidden px-1 pb-2">
-                  <FindCareLinkRows onNavigate={closeMobileMenu} variant="mobile" />
-                </div>
-              </div>
-            </div>
+                {t("headingNav.home")}
+              </Link>
+              <Link
+                to="/home/search?type=hospital&q="
+                className={`rounded-xl px-3 py-3 text-lg font-bold transition-colors ${isHospitalActive ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300" : "text-slate-800 dark:text-white"
+                  }`}
+                onClick={closeMobileMenu}
+              >
+                {t("headingNav.hospitals")}
+              </Link>
+              <Link
+                to="/home/search?type=pharmacy&q="
+                className={`rounded-xl px-3 py-3 text-lg font-bold transition-colors ${isPharmacyActive ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300" : "text-slate-800 dark:text-white"
+                  }`}
+                onClick={closeMobileMenu}
+              >
+                {t("headingNav.pharmacies")}
+              </Link>
 
-            <Link
-              to="/home/map"
-              className={`mt-2 flex items-center justify-center gap-2 rounded-2xl py-3.5 text-base font-bold shadow-md transition ${isMapActive ? "bg-emerald-700 text-white dark:bg-emerald-600" : "bg-emerald-600 text-white hover:bg-emerald-700"
-                }`}
-              onClick={closeMobileMenu}
-            >
-              <FaMapMarkedAlt /> {t("headingNav.open_live_map")}
-            </Link>
-          </div>
-
-          {!user ? (
-            <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-6 dark:border-gray-800">
-              <button
-                type="button"
-                onClick={() => {
-                  navigate("/login");
-                  closeMobileMenu();
-                }}
-                className="w-full rounded-2xl border-2 border-emerald-600 py-3.5 text-base font-bold text-emerald-700 dark:border-emerald-500 dark:text-emerald-300"
-              >
-                {t("Login.Login")}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  navigate("/register");
-                  closeMobileMenu();
-                }}
-                className="w-full rounded-2xl bg-emerald-700 py-3.5 text-base font-bold text-white shadow-lg dark:bg-emerald-600"
-              >
-                {t("Register.join_medFinder")}
-              </button>
-            </div>
-          ) : (
-            <div className="mt-6 border-t border-slate-100 pt-6 dark:border-gray-800">
-              <div className="relative">
+              <div className="rounded-xl border border-slate-100 dark:border-gray-800">
                 <button
                   type="button"
-                  className="flex w-full items-center gap-3 rounded-xl p-2 hover:bg-slate-50 dark:hover:bg-gray-900"
-                  onClick={() => setToggleProfileDropDown((o) => !o)}
+                  className="flex w-full items-center justify-between px-3 py-3 text-left text-lg font-bold text-slate-800 dark:text-white"
+                  onClick={() => setMobileFindCareOpen((o) => !o)}
+                  aria-expanded={mobileFindCareOpen}
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50">
-                    <FaUserCircle size={28} />
-                  </div>
-                  <span className="font-bold text-slate-800 dark:text-white">{user?.Name}</span>
+                  {t("headingNav.findCareMenu")}
+                  <ChevronDown
+                    className={`h-5 w-5 shrink-0 text-emerald-600 transition-transform duration-200 dark:text-emerald-400 ${mobileFindCareOpen ? "rotate-180" : ""
+                      }`}
+                    aria-hidden
+                  />
                 </button>
-
-                {toggleProfileDropDown && (
-                  <>
-                    <div className="fixed inset-0 z-[105]" onClick={() => setToggleProfileDropDown(false)} aria-hidden />
-                    <div className="relative z-[120] mt-2 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900">
-                      <div className="border-b border-slate-50 px-4 py-3 dark:border-gray-800">
-                        <p className="text-xs font-bold text-slate-400">{t("headingNav.profile_dropdown.account")}</p>
-                        <p className="truncate text-sm font-bold dark:text-white">{user?.Email}</p>
-                      </div>
-                      <NavLink
-                        to="#"
-                        onClick={() => {
-                          if (roles?.includes("patient")) {
-                            navigate("/user/dashboard", { replace: true });
-                          } else {
-                            navigateByRole(roles, navigate);
-                          }
-                          setToggleProfileDropDown(false);
-                          closeMobileMenu();
-                        }}
-                        className="flex cursor-pointer items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-gray-300"
-                      >
-                        <FaUser className="text-emerald-600" />
-                        <span>{t("headingNav.profile_dropdown.my_dashboard")}</span>
-                      </NavLink>
-                      <button
-                        type="button"
-                        onClick={handleLogout}
-                        className="flex w-full items-center gap-3 px-4 py-3 text-sm font-bold text-red-500"
-                      >
-                        <LuLogOut /> {t("headingNav.profile_dropdown.logout")}
-                      </button>
-                    </div>
-                  </>
-                )}
+                <div
+                  className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${mobileFindCareOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                    }`}
+                >
+                  <div className="overflow-hidden px-1 pb-2">
+                    <FindCareLinkRows onNavigate={closeMobileMenu} variant="mobile" />
+                  </div>
+                </div>
               </div>
+
+              <Link
+                to="/home/map"
+                className={`mt-2 flex items-center justify-center gap-2 rounded-2xl py-3.5 text-base font-bold shadow-md transition ${isMapActive ? "bg-emerald-700 text-white dark:bg-emerald-600" : "bg-emerald-600 text-white hover:bg-emerald-700"
+                  }`}
+                onClick={closeMobileMenu}
+              >
+                <FaMapMarkedAlt /> {t("headingNav.open_live_map")}
+              </Link>
             </div>
-          )}
-        </div>
-      </div>
+
+            {!initialized ? (
+              <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-6 dark:border-gray-800">
+                <div className="w-full h-12 bg-slate-100 rounded animate-pulse" />
+                <div className="w-full h-12 bg-slate-100 rounded animate-pulse" />
+              </div>
+            ) : !user ? (
+              <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-6 dark:border-gray-800">
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigate("/login");
+                    closeMobileMenu();
+                  }}
+                  className="w-full rounded-2xl border-2 border-emerald-600 py-3.5 text-base font-bold text-emerald-700 dark:border-emerald-500 dark:text-emerald-300"
+                >
+                  {t("Login.Login")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigate("/register");
+                    closeMobileMenu();
+                  }}
+                  className="w-full rounded-2xl bg-emerald-700 py-3.5 text-base font-bold text-white shadow-lg dark:bg-emerald-600"
+                >
+                  {t("Register.join_medFinder")}
+                </button>
+              </div>
+            ) : (
+              <div className="mt-6 border-t border-slate-100 pt-6 dark:border-gray-800">
+                <div className="relative">
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-3 rounded-xl p-2 hover:bg-slate-50 dark:hover:bg-gray-900"
+                    onClick={() => setToggleProfileDropDown((o) => !o)}
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50">
+                      <FaUserCircle size={28} />
+                    </div>
+                    <span className="font-bold text-slate-800 dark:text-white">{user?.Name}</span>
+                  </button>
+
+                  {toggleProfileDropDown && (
+                    <>
+                      <div className="fixed inset-0 z-[105]" onClick={() => setToggleProfileDropDown(false)} aria-hidden />
+                      <div className="relative z-[120] mt-2 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900">
+                        <div className="border-b border-slate-50 px-4 py-3 dark:border-gray-800">
+                          <p className="text-xs font-bold text-slate-400">{t("headingNav.profile_dropdown.account")}</p>
+                          <p className="truncate text-sm font-bold dark:text-white">{user?.Email}</p>
+                        </div>
+                        <NavLink
+                          to="#"
+                          onClick={() => {
+                            if (roles?.includes("patient")) {
+                              navigate("/user/dashboard", { replace: true });
+                            } else {
+                              navigateByRole(roles, navigate);
+                            }
+                            setToggleProfileDropDown(false);
+                            closeMobileMenu();
+                          }}
+                          className="flex cursor-pointer items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-gray-300"
+                        >
+                          <FaUser className="text-emerald-600" />
+                          <span>{t("headingNav.profile_dropdown.my_dashboard")}</span>
+                        </NavLink>
+                        <button
+                          type="button"
+                          onClick={handleLogout}
+                          className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-sm font-bold text-red-500"
+                        >
+                          <LuLogOut /> {t("headingNav.profile_dropdown.logout")}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </>,
+        document.body
+      )}
     </header>
   );
 }

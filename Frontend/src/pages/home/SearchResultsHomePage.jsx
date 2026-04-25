@@ -94,8 +94,8 @@ export default function SearchResultsHomePage() {
 
     let fetchAction;
     if (facilityType === "drug") {
-      fetchAction = !debouncedQuery.trim() 
-        ? Promise.resolve([]) 
+      fetchAction = !debouncedQuery.trim()
+        ? Promise.resolve([])
         : apiFetchDrugResults(debouncedQuery, { signal: ac.signal });
     } else {
       fetchAction = apiFetchFacilities({ signal: ac.signal });
@@ -139,63 +139,63 @@ export default function SearchResultsHomePage() {
   const filtered = useMemo(() => {
     const effectiveType = filters.type || facilityType;
     const q = (debouncedQuery || "").trim();
-    if(filters.type === "drug"){
+    if (filters.type === "drug") {
       return facilitiesWithDistance
-      .filter((f) => {
-        if (effectiveType === "all") return true;
-        if (effectiveType === "drug") return f.type === "pharmacy"; 
-        return f.type === effectiveType;
-      })
-      .filter((f) => distanceBucketOk(f.distanceMeters, filters.distance))
-      .filter((f) => (filters.openNow ? Boolean(f.isFullTime || f.isOpen === true) : true))
-      .filter((f) => {
-        if (filters.department === "any") return true;
-        if (f.type !== "hospital") return true;
-        const list = (f.departments?.length ? f.departments : f.services) || [];
-        return list.some((d) => {
-          const name = typeof d === "string" ? d : d?.name || d?.department_name_en || d?.service_name_en;
-          return name === filters.department;
+        .filter((f) => {
+          if (effectiveType === "all") return true;
+          if (effectiveType === "drug") return f.type === "pharmacy";
+          return f.type === effectiveType;
+        })
+        .filter((f) => distanceBucketOk(f.distanceMeters, filters.distance))
+        .filter((f) => (filters.openNow ? Boolean(f.isFullTime || f.isOpen === true) : true))
+        .filter((f) => {
+          if (filters.department === "any") return true;
+          if (f.type !== "hospital") return true;
+          const list = (f.departments?.length ? f.departments : f.services) || [];
+          return list.some((d) => {
+            const name = typeof d === "string" ? d : d?.name || d?.department_name_en || d?.service_name_en;
+            return name === filters.department;
+          });
+        })
+        .sort((a, b) => {
+          const da = a.distanceMeters;
+          const db = b.distanceMeters;
+          const aOk = Number.isFinite(da);
+          const bOk = Number.isFinite(db);
+          if (aOk && bOk) return da - db;
+          if (aOk) return -1;
+          if (bOk) return 1;
+          return (a.name || "").localeCompare(b.name || "");
         });
-      })
-      .sort((a, b) => {
-        const da = a.distanceMeters;
-        const db = b.distanceMeters;
-        const aOk = Number.isFinite(da);
-        const bOk = Number.isFinite(db);
-        if (aOk && bOk) return da - db;
-        if (aOk) return -1;
-        if (bOk) return 1;
-        return (a.name || "").localeCompare(b.name || "");
-      });
-    }else{
-       return facilitiesWithDistance
-      .filter((f) => matchesQuery(f, q))
-      .filter((f) => {
-        if (effectiveType === "all") return true;
-        if (effectiveType === "drug") return f.type === "pharmacy"; // Drug results are pharmacies
-        return f.type === effectiveType;
-      })
-      .filter((f) => distanceBucketOk(f.distanceMeters, filters.distance))
-      .filter((f) => (filters.openNow ? Boolean(f.isFullTime || f.isOpen === true) : true))
-      .filter((f) => {
-        if (filters.department === "any") return true;
-        if (f.type !== "hospital") return true;
-        const list = (f.departments?.length ? f.departments : f.services) || [];
-        return list.some((d) => {
-          const name = typeof d === "string" ? d : d?.name || d?.department_name_en || d?.service_name_en;
-          return name === filters.department;
+    } else {
+      return facilitiesWithDistance
+        .filter((f) => matchesQuery(f, q))
+        .filter((f) => {
+          if (effectiveType === "all") return true;
+          if (effectiveType === "drug") return f.type === "pharmacy"; // Drug results are pharmacies
+          return f.type === effectiveType;
+        })
+        .filter((f) => distanceBucketOk(f.distanceMeters, filters.distance))
+        .filter((f) => (filters.openNow ? Boolean(f.isFullTime || f.isOpen === true) : true))
+        .filter((f) => {
+          if (filters.department === "any") return true;
+          if (f.type !== "hospital") return true;
+          const list = (f.departments?.length ? f.departments : f.services) || [];
+          return list.some((d) => {
+            const name = typeof d === "string" ? d : d?.name || d?.department_name_en || d?.service_name_en;
+            return name === filters.department;
+          });
+        })
+        .sort((a, b) => {
+          const da = a.distanceMeters;
+          const db = b.distanceMeters;
+          const aOk = Number.isFinite(da);
+          const bOk = Number.isFinite(db);
+          if (aOk && bOk) return da - db;
+          if (aOk) return -1;
+          if (bOk) return 1;
+          return (a.name || "").localeCompare(b.name || "");
         });
-      })
-      .sort((a, b) => {
-        const da = a.distanceMeters;
-        const db = b.distanceMeters;
-        const aOk = Number.isFinite(da);
-        const bOk = Number.isFinite(db);
-        if (aOk && bOk) return da - db;
-        if (aOk) return -1;
-        if (bOk) return 1;
-        return (a.name || "").localeCompare(b.name || "");
-      });
     }
   }, [debouncedQuery, facilitiesWithDistance, facilityType, filters]);
 
@@ -208,24 +208,24 @@ export default function SearchResultsHomePage() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedResults = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const onSubmitSearch = () => { 
+  const onSubmitSearch = () => {
 
-    if(facilityType === "drug"){
-       setLoading(true);
-    setError("");
-    if (abortRef.current) abortRef.current.abort();
-    const ac = new AbortController();
-    abortRef.current = ac;
-apiFetchDrugResults(debouncedQuery,{signal:ac.signal})
-  .then((rows) => setAllFacilities(rows))
-  .then((rows) => console.log(rows))  
-      .catch((e) => {
-        if (e?.name === "AbortError") return;
-        setError(e?.message || t("search.errors.failedToLoad"));
-      })
-      .finally(() => setLoading(false));
+    if (facilityType === "drug") {
+      setLoading(true);
+      setError("");
+      if (abortRef.current) abortRef.current.abort();
+      const ac = new AbortController();
+      abortRef.current = ac;
+      apiFetchDrugResults(debouncedQuery, { signal: ac.signal })
+        .then((rows) => setAllFacilities(rows))
+        .then((rows) => console.log(rows))
+        .catch((e) => {
+          if (e?.name === "AbortError") return;
+          setError(e?.message || t("search.errors.failedToLoad"));
+        })
+        .finally(() => setLoading(false));
 
-    return () => ac.abort();
+      return () => ac.abort();
     }
   };
 
@@ -275,7 +275,7 @@ apiFetchDrugResults(debouncedQuery,{signal:ac.signal})
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen(true)}
-                className="w-full rounded-2xl border border-slate-200 dark:border-blue-900/30 bg-white dark:bg-slate-900 px-4 py-3 text-sm font-extrabold text-slate-800 dark:text-white"
+                className="w-full rounded-2xl border border-slate-200 dark:border-blue-900/30 bg-white dark:bg-slate-900 px-4 py-3 text-sm font-bold text-slate-800 dark:text-white"
               >
                 {t("search.filtersButton")}
               </button>
@@ -290,7 +290,7 @@ apiFetchDrugResults(debouncedQuery,{signal:ac.signal})
                 />
                 <div className="absolute left-0 top-0 bottom-0 w-[88%] max-w-sm bg-white dark:bg-gray-900 p-5 overflow-y-auto">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                       {t("search.filtersTitle")}
                     </h2>
                     <button
@@ -332,25 +332,25 @@ apiFetchDrugResults(debouncedQuery,{signal:ac.signal})
                       ? t("common.loading")
                       : t("search.resultCount", { count: filtered.length })}
                   </div>
-                  
+
                   {/* View Mode Toggler */}
                   <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-gray-800 rounded-xl p-1 shadow-sm">
-                     <button
-                       type="button"
-                       onClick={() => setViewMode("grid")}
-                       className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${viewMode === "grid" ? "bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"}`}
-                       title="Grid View"
-                     >
-                       <LayoutGrid size={18} />
-                     </button>
-                     <button
-                       type="button"
-                       onClick={() => setViewMode("list")}
-                       className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${viewMode === "list" ? "bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"}`}
-                       title="List View"
-                     >
-                       <List size={18} />
-                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("grid")}
+                      className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${viewMode === "grid" ? "bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"}`}
+                      title="Grid View"
+                    >
+                      <LayoutGrid size={18} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("list")}
+                      className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${viewMode === "list" ? "bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"}`}
+                      title="List View"
+                    >
+                      <List size={18} />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -365,7 +365,7 @@ apiFetchDrugResults(debouncedQuery,{signal:ac.signal})
 
               {!error && !loading && filtered.length === 0 && (
                 <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 text-center">
-                  <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                     {t("search.noMatchesTitle")}
                   </h3>
                   <p className="mt-2 text-sm text-slate-600 dark:text-gray-300">
@@ -379,14 +379,14 @@ apiFetchDrugResults(debouncedQuery,{signal:ac.signal})
                         setFilters({ distance: "any", type: "all", openNow: false, department: "any" });
                         setFacilityType("all");
                       }}
-                      className="rounded-xl bg-green-800 hover:bg-green-700 dark:bg-slate-500 dark:hover:bg-slate-400 text-white px-5 py-3 text-sm font-extrabold"
+                      className="rounded-xl bg-green-800 hover:bg-green-700 dark:bg-slate-500 dark:hover:bg-slate-400 text-white px-5 py-3 text-sm font-bold"
                     >
                       {t("search.clearFiltersButton")}
                     </button>
                     <button
                       type="button"
                       onClick={() => navigate("/home/map")}
-                      className="rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-3 text-sm font-extrabold text-slate-800 dark:text-white"
+                      className="rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-3 text-sm font-bold text-slate-800 dark:text-white"
                     >
                       {t("search.exploreOnMap")}
                     </button>

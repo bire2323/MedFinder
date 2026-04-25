@@ -170,7 +170,7 @@ export default function UserDashboard() {
         <>
             <DashboardHeader />
             <NotificationToast />
-            <div className="min-h-screen px-10 bg-white text-slate-900 dark:bg-gray-900 dark:text-slate-100 transition-colors duration-300 flex ">
+            <div className="min-h-screen px-4 sm:px-6 xl:px-10 bg-white text-slate-900 dark:bg-gray-900 dark:text-slate-100 transition-colors duration-300 flex ">
 
                 <Sidebar
                     activeSection={activeSection}
@@ -181,21 +181,13 @@ export default function UserDashboard() {
                 />
 
                 <main className="flex-1 min-w-0 xl:ml-14 flex flex-col overflow-hidden ">
-                    <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 border-b border-slate-100 dark:border-gray-800">
-                        <div className=" relative flex items-center gap-2">
-                            <button onClick={() => navigate("/")}><ChevronLeft className="hidden  md:block cursor-pointer text-slate-700 hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-50" /></button>
-                            {activeSection !== "profile" && (
-                                <button
-                                    type="button"
-                                    onClick={() => setActiveSection("profile")}
-                                    className="pl-15 pr-3 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-white/60 dark:bg-gray-800/60 hover:bg-white dark:hover:bg-gray-800 text-sm font-bold"
-                                >
-                                    {t("UserDashboard.Profile")}
-                                </button>
-                            )}
+                    <div className="sticky  top-0 z-[90] flex items-center justify-between px-4 sm:px-6 lg:px-8 py- sm:py:2 md:py-4 border-b border-slate-100 dark:border-gray-800">
+
+                        <button onClick={() => navigate("/")}>
+                            <ChevronLeft className="hidden  md:block cursor-pointer text-slate-700 hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-50" />
+                        </button>
 
 
-                        </div>
                         <div className="flex items-center gap-3 min-w-0">
                             <div className="w-6 h-6 md:w-9 md:h-9 rounded-xl bg-green-700 text-white flex items-center justify-center shadow-sm">
                                 {activeSection === "home" ? <ClipboardList size={18} /> : null}
@@ -205,35 +197,33 @@ export default function UserDashboard() {
                                 {activeSection === "profile" ? <User size={18} /> : null}
                             </div>
                             <div className="min-w-0">
-                                <h1 className="text-sm md:text-lg sm:text-xl font-extrabold truncate">
+                                <h1 className="text-[10px] md:text-lg sm:text-xl font-bold truncate">
                                     {activeSection === "home" && t("UserDashboard.Overview")}
                                     {activeSection === "search" && t("UserDashboard.SearchAndNavigate")}
                                     {activeSection === "favorites" && t("UserDashboard.SavedPlaces")}
                                     {activeSection === "messages" && t("UserDashboard.Messages")}
                                     {activeSection === "profile" && t("UserDashboard.Profile")}
                                 </h1>
-                                <p className="text-xs text-slate-600 dark:text-gray-300">
+                                <p className="text-[9px] md:text-xs text-slate-600 dark:text-gray-300">
                                     {user?.Name ? `${t("UserDashboard.Hi")}, ${user.Name}` : t("UserDashboard.YourHealthcareDashboard")}
                                 </p>
                             </div>
                         </div>
-
-
                     </div>
 
-                    <section className="flex-1 overflow-y-auto">
+                    <section className="flex-1 overflow-y-auto ">
                         {activeSection === "home" && (
-                            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+                            <div className="max-w-full sm:max-w-7xl mx-auto px-1 sm:px-2 md:px-6 lg:px-8 py-3 md:py-6 space-y-6">
                                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                                     <div className="lg:col-span-7 bg-white dark:bg-gray-800/40 border border-slate-200 dark:border-gray-700 rounded-2xl p-5">
-                                        <h2 className="text-base font-extrabold mb-1">{t("UserDashboard.RecentViews")}</h2>
-                                        <p className="text-sm text-slate-600 dark:text-gray-300 mb-4">
+                                        <h2 className="text-[10px] md:text-base font-bold mb-1">{t("UserDashboard.RecentViews")}</h2>
+                                        <p className="text-[9px] md:text-sm text-slate-600 dark:text-gray-300 mb-4">
                                             {t("UserDashboard.TapAnyFacility")}
                                         </p>
 
                                         {recents.length === 0 ? (
                                             <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-6 text-center bg-slate-50 dark:bg-gray-900/40">
-                                                <p className="font-extrabold text-slate-800 dark:text-slate-100">{t("UserDashboard.NoRecentsYet")}</p>
+                                                <p className="font-bold text-slate-800 dark:text-slate-100">{t("UserDashboard.NoRecentsYet")}</p>
                                                 <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">
                                                     {t("UserDashboard.YourLastViewed")}
                                                 </p>
@@ -255,16 +245,16 @@ export default function UserDashboard() {
                                                         onClick={() => openFacilityInMapAndRoute(f)}
                                                         className="text-left border border-slate-200 dark:border-gray-700 rounded-2xl p-4 hover:bg-slate-50 shadow-sm dark:hover:bg-gray-800/60 transition-colors"
                                                     >
-                                                        <div className="flex items-start justify-between gap-3">
+                                                        <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
                                                             <div className="min-w-0">
-                                                                <p className="font-extrabold truncate">{f.name}</p>
+                                                                <p className="font-bold truncate">{f.name}</p>
                                                                 <p className="text-xs text-slate-600 dark:text-gray-300 truncate">{f.type === "hospital" ? "Hospital" : "Pharmacy"}</p>
                                                                 {f.address && (
                                                                     <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 truncate">{f.address}</p>
                                                                 )}
                                                             </div>
                                                             <span
-                                                                className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-xs font-extrabold ${f.type === "hospital"
+                                                                className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold ${f.type === "hospital"
                                                                     ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
                                                                     : "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300"
                                                                     }`}
@@ -279,12 +269,12 @@ export default function UserDashboard() {
                                     </div>
 
                                     <div className="lg:col-span-5 bg-white dark:bg-gray-800/40 border border-slate-200 dark:border-gray-700 rounded-2xl p-5">
-                                        <h2 className="text-base font-extrabold mb-1">{t("UserDashboard.SavedPlaces")}</h2>
+                                        <h2 className="text-base font-bold mb-1">{t("UserDashboard.SavedPlaces")}</h2>
                                         <p className="text-sm text-slate-600 dark:text-gray-300 mb-4">{t("UserDashboard.QuicklyJumpBack")}</p>
 
                                         {favorites.length === 0 ? (
                                             <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-6 text-center bg-slate-50 dark:bg-gray-900/40">
-                                                <p className="font-extrabold text-slate-800 dark:text-slate-100">{t("UserDashboard.NoFavoritesYet")}</p>
+                                                <p className="font-bold text-slate-800 dark:text-slate-100">{t("UserDashboard.NoFavoritesYet")}</p>
                                                 <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.BookmarkPharmacies")}</p>
                                                 <button
                                                     type="button"
@@ -304,7 +294,7 @@ export default function UserDashboard() {
                                                         onClick={() => openFacilityInMapAndRoute(f)}
                                                         className="w-full text-left shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-4 hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
                                                     >
-                                                        <p className="font-extrabold">{f.name}</p>
+                                                        <p className="font-bold">{f.name}</p>
                                                         <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">{f.type === "hospital" ? "Hospital" : "Pharmacy"}</p>
                                                     </button>
                                                 ))}
@@ -312,7 +302,7 @@ export default function UserDashboard() {
                                                     <button
                                                         type="button"
                                                         onClick={() => setActiveSection("favorites")}
-                                                        className="mt-2 w-full text-center text-sm font-extrabold text-blue-700 dark:text-blue-400 hover:underline"
+                                                        className="mt-2 w-full text-center text-sm font-bold text-blue-700 dark:text-blue-400 hover:underline"
                                                     >
                                                         View all favorites ({favorites.length})
                                                     </button>
@@ -328,7 +318,7 @@ export default function UserDashboard() {
                                         onClick={() => setActiveSection("search")}
                                         className="bg-white dark:bg-gray-800/40 shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
                                     >
-                                        <p className="font-extrabold">{t("UserDashboard.FacilitySearch")}</p>
+                                        <p className="font-bold">{t("UserDashboard.FacilitySearch")}</p>
                                         <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.FindNearestHospitals")}</p>
                                     </button>
                                     <button
@@ -336,7 +326,7 @@ export default function UserDashboard() {
                                         onClick={() => setActiveSection("messages")}
                                         className="bg-white dark:bg-gray-800/40 shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
                                     >
-                                        <p className="font-extrabold">{t("UserDashboard.RealTimeChat")}</p>
+                                        <p className="font-bold">{t("UserDashboard.RealTimeChat")}</p>
                                         <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.TalkWithPharmacy")}</p>
                                     </button>
                                     <button
@@ -344,7 +334,7 @@ export default function UserDashboard() {
                                         onClick={() => setActiveSection("profile")}
                                         className="bg-white dark:bg-gray-800/40 shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
                                     >
-                                        <p className="font-extrabold">{t("UserDashboard.ProfileAndSecurity")}</p>
+                                        <p className="font-bold">{t("UserDashboard.ProfileAndSecurity")}</p>
                                         <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.UpdateYourInfo")}</p>
                                     </button>
                                 </div>
@@ -352,7 +342,7 @@ export default function UserDashboard() {
                         )}
 
                         {activeSection === "search" && (
-                            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                            <div className="max-w-full sm:max-w-7xl mx-auto px-1 sm:px-4 lg:px-8 py-3 md:py-6">
                                 <MapView
                                     favorites={favorites}
                                     isFavorite={isFavorite}
@@ -364,22 +354,22 @@ export default function UserDashboard() {
                         )}
 
                         {activeSection === "favorites" && (
-                            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                            <div className="max-w-full sm:max-w-7xl mx-auto px-2 md:px-4 sm:px-6 lg:px-8 py-6">
                                 <div className="flex items-end justify-between gap-4 mb-4">
                                     <div>
-                                        <h2 className="text-xl sm:text-2xl font-extrabold">{t("UserDashboard.SavedPlaces")}</h2>
-                                        <p className="text-sm text-slate-600 dark:text-gray-300">{t("UserDashboard.YourBookmarked")}</p>
+                                        <h2 className="text-sm md:text-xl sm:text-2xl font-bold">{t("UserDashboard.SavedPlaces")}</h2>
+                                        <p className="text-[10px] md:text-sm text-slate-600 dark:text-gray-300">{t("UserDashboard.YourBookmarked")}</p>
                                     </div>
                                 </div>
 
                                 {favorites.length === 0 ? (
                                     <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-8 text-center bg-slate-50 dark:bg-gray-900/40">
-                                        <p className="font-extrabold text-slate-800 dark:text-slate-100">{t("UserDashboard.NoFavoritesYet")}</p>
+                                        <p className="font-semibold text-slate-800 dark:text-slate-100">{t("UserDashboard.NoFavoritesYet")}</p>
                                         <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.BookmarkAFacility")}</p>
                                         <button
                                             type="button"
                                             onClick={() => setActiveSection("search")}
-                                            className="mt-4 inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl font-extrabold hover:bg-blue-700"
+                                            className="mt-4 inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-blue-700"
                                         >
 
                                             {t("UserDashboard.OpenInSearch")}
@@ -389,9 +379,9 @@ export default function UserDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                         {favorites.map((f) => (
                                             <div key={`${f.type}:${String(f.id)}`} className="bg-white dark:bg-gray-800/40 border border-slate-200 dark:border-gray-700 rounded-2xl p-4">
-                                                <div className="flex items-start justify-between gap-3">
+                                                <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
                                                     <div className="min-w-0">
-                                                        <p className="font-extrabold truncate">{f.name}</p>
+                                                        <p className="font-bold truncate">{f.name}</p>
                                                         <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">{f.type === "hospital" ? "Hospital" : "Pharmacy"}</p>
                                                         {f.address && <p className="text-xs text-slate-600 dark:text-gray-300 mt-2 truncate">{f.address}</p>}
                                                     </div>
@@ -408,7 +398,7 @@ export default function UserDashboard() {
                                                 <button
                                                     type="button"
                                                     onClick={() => openFacilityInMapAndRoute(f)}
-                                                    className="mt-4 w-full rounded-xl bg-blue-600 text-white py-2.5 font-extrabold hover:bg-blue-700 transition-colors"
+                                                    className="mt-4 w-full rounded-xl bg-blue-600 text-white py-2.5 font-bold hover:bg-blue-700 transition-colors"
                                                 >
                                                     Open in Search
                                                 </button>
@@ -420,7 +410,7 @@ export default function UserDashboard() {
                         )}
 
                         {activeSection === "messages" && (
-                            <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-2 md:py-6">
+                            <div className="max-w-full sm:max-w-7xl mx-auto px-1 sm:px-4 lg:px-8 py-2 md:py-6">
                                 <Chat
                                     key={chatTargetNonce}
 
@@ -431,7 +421,7 @@ export default function UserDashboard() {
                         )}
 
                         {activeSection === "profile" && (
-                            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                            <div className="max-w-full sm:max-w-7xl mx-auto px-1 md:px-3 sm:px-6 lg:px-8 py-3s md:py-6">
                                 <Profile />
                             </div>
                         )}

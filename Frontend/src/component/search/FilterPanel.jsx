@@ -26,7 +26,7 @@ export default function FilterPanel({
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+        <h3 className="text-sm font-bold text-slate-900 dark:text-white">
           {t("filters.distance.title")}
         </h3>
         <div className="mt-3 space-y-2">
@@ -47,7 +47,7 @@ export default function FilterPanel({
       </div>
 
       <div>
-        <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+        <h3 className="text-sm font-bold text-slate-900 dark:text-white">
           {t("filters.type.title")}
         </h3>
         <div className="mt-3 space-y-2">
@@ -68,7 +68,7 @@ export default function FilterPanel({
       </div>
 
       <div>
-        <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+        <h3 className="text-sm font-bold text-slate-900 dark:text-white">
           {t("filters.availability.title")}
         </h3>
         <label className="mt-3 flex items-center gap-3 text-sm text-slate-700 dark:text-gray-200">
@@ -87,7 +87,7 @@ export default function FilterPanel({
 
       {showDepartments && (
         <div>
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white">
             {t("filters.departments.title")}
           </h3>
           <p className="mt-2 text-xs text-slate-500 dark:text-gray-400">
@@ -120,7 +120,7 @@ export default function FilterPanel({
             department: "any",
           })
         }
-        className="w-full rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-extrabold text-slate-700 dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-700 transition"
+        className="w-full rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-bold text-slate-700 dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-700 transition"
       >
         {t("filters.reset")}
       </button>

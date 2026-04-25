@@ -113,7 +113,7 @@ export default function PrescriptionReader() {
             onChange={handleHiddenInputChange}
           />
 
-                    <div className="mb-6 rounded-xl border-l-4 border-amber-500 bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+          <div className="mb-6 rounded-xl border-l-4 border-amber-500 bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
             <p className="font-bold mb-1">{t("prescriptionReader.disclaimerTitle", "Disclaimer")}</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>{t("prescriptionReader.disclaimer1", "This prescription reader is for informational purposes only.")}</li>
@@ -122,7 +122,7 @@ export default function PrescriptionReader() {
             </ul>
           </div>
           <SurfaceCard className="p-4 shadow-xl sm:p-6">
-            <h2 className="mb-4 text-sm font-extrabold uppercase tracking-wide text-slate-500 dark:text-gray-400">{t("prescriptionReader.uploadSectionTitle")}</h2>
+            <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-gray-400">{t("prescriptionReader.uploadSectionTitle")}</h2>
             <PrescriptionUploadZone
               onFileSelected={handleFile}
               onBrowseClick={() => fileInputRef.current?.click()}
@@ -138,7 +138,7 @@ export default function PrescriptionReader() {
 
           {file && (
             <SurfaceCard className="mt-6 p-4 sm:p-6">
-              <h2 className="mb-4 text-sm font-extrabold uppercase tracking-wide text-slate-500 dark:text-gray-400">{t("prescriptionReader.previewSectionTitle")}</h2>
+              <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-gray-400">{t("prescriptionReader.previewSectionTitle")}</h2>
               <PrescriptionFilePreview file={file} previewUrl={previewUrl} onRemove={handleRemove} onReplace={handleReplace} />
             </SurfaceCard>
           )}

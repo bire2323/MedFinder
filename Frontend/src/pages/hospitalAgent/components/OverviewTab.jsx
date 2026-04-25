@@ -6,7 +6,7 @@ const AnalyticsCard = ({ title, value, icon, bgColor, description }) => {
   return (
     <div className="relative p-6 rounded-[2.5rem] border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-xl transition-all duration-500 group overflow-hidden cursor-default">
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      
+
       <div className="relative z-10 flex items-center justify-between transition-all duration-500 group-hover:opacity-0 group-hover:-translate-y-4">
         <div className="space-y-2">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
@@ -42,14 +42,14 @@ export default function OverviewTab({ hospitalProfile, departments, services, re
     >
       {/* Hospital Profile Summary */}
       <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden relative group">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+        <div className="absolute  top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative flex flex-col md:flex-row items-center gap-8">
           <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-[2rem] bg-slate-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl">
-             {hospitalProfile?.logo_url ? (
-               <img src={hospitalProfile.logo_url} alt="logo" className="w-full h-full object-cover" />
-             ) : (
-               <Building2 size={48} className="text-slate-300" />
-             )}
+            {hospitalProfile?.logo_url ? (
+              <img src={hospitalProfile.logo_url} alt="logo" className="w-full h-full object-cover" />
+            ) : (
+              <Building2 size={48} className="text-slate-300" />
+            )}
           </div>
           <div className="flex-1 text-center md:text-left space-y-2">
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
@@ -169,11 +169,10 @@ export default function OverviewTab({ hospitalProfile, departments, services, re
             {recentChats?.map((chat) => (
               <div
                 key={chat.id}
-                className={`p-5 rounded-3xl border transition-all hover:scale-[1.02] cursor-pointer ${
-                  chat.status === "unread"
+                className={`p-5 rounded-3xl border transition-all hover:scale-[1.02] cursor-pointer ${chat.status === "unread"
                     ? "bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/50"
                     : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-black text-blue-600 uppercase tracking-widest">{chat.user}</span>

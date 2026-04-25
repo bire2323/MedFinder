@@ -8,7 +8,7 @@ const useProfileUpdate = (type, id) => {
   const [success, setSuccess] = useState(false);
 
   const updateProfile = async (data, files = {}) => {
-    console.log("data passed to userprofileupdate", data);
+    // console.log("data passed to userprofileupdate", data);
     setLoading(true);
     setError(null);
     setSuccess(false);

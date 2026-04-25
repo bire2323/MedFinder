@@ -181,7 +181,7 @@ export default function FloatingChatButton() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          relative group overflow-hidden bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 text-white w-16 h-16 rounded-2xl shadow-[0_10px_30px_rgba(37,99,235,0.4)] transition-all duration-300
+          relative group overflow-hidden bg-green-800 dark:bg-green-700 hover:bg-green-700 text-white w-fit h-fit px-4 py-4 rounded-2xl shadow-[0_10px_30px_rgba(37,99,235,0.4)] transition-all duration-300
           active:scale-90 flex items-center justify-center cursor-pointer
           ${isOpen ? "hidden sm:flex" : "flex"} 
         `}

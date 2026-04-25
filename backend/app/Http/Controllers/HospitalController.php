@@ -233,13 +233,15 @@ class HospitalController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Hospital $hospital)
-    {
-        $hospital = Hospital::with('addresses')->find($hospital->id);
+   public function show(Hospital $hospital)
+{
+    $hospital->load(['addresses', 'departments', 'services.service']);
 
-        return response()->json(["success"=>true,"data"=>$hospital]);
-    }
-
+    return response()->json([
+        "success" => true,
+        "data" => $hospital
+    ]);
+}
     /**
      * Update the specified resource in storage.
      */

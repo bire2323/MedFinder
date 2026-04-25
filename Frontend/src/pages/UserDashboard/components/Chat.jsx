@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Loader2,
   MessageSquare,
   Search,
   Send,
   Sparkles,
+  ChevronLeft,
   UserCircle2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -58,6 +59,7 @@ function formatTime(iso) {
 export default function Chat({ initialFacility, onClearInitialFacility }) {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const currentUserId = user?.id;
 
@@ -297,16 +299,30 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[520px]">
           {/* Left column: session list / history list */}
-          <div className={`col-span-12 md:col-span-12 lg:col-span-5 sticky top-14 self-start ${activeSessionId ? 'hidden lg:block' : 'block'}`}>
+          <div className={(() => {
+            const base = 'col-span-12 md:col-span-12 lg:col-span-5 sticky top-14 self-start';
+            const visible = activeSessionId ? 'hidden lg:block' : 'block';
+            const mobileFull = !activeSessionId ? 'fixed inset-0 z-50 w-full h-screen bg-white dark:bg-gray-800/90 lg:static lg:w-auto lg:h-auto overflow-auto' : '';
+            return `${base} ${visible} ${mobileFull}`;
+          })()}>
             <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 p-4">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="text-base font-extrabold">{mode === "agent" ? t("Chat.Chats") : mode === "ai" ? t("Chat.AiAssistant") : t("Chat.ChatHistory")}</h2>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => navigate(-1)}
+                    className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-gray-800 text-slate-600 dark:text-slate-200 hover:scale-105 transition-transform"
+                    aria-label="Back"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <h2 className="text-base font-bold">{mode === "agent" ? t("Chat.Chats") : mode === "ai" ? t("Chat.AiAssistant") : t("Chat.ChatHistory")}</h2>
+                </div>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => setMode("agent")}
                     className={[
-                      "px-3 py-2 rounded-xl text-xs font-extrabold border transition-colors",
+                      "px-3 py-2 rounded-xl text-xs font-bold border transition-colors",
                       mode === "agent"
                         ? "bg-blue-600 text-white border-blue-600"
                         : "bg-white dark:bg-gray-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/50",
@@ -318,7 +334,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                     type="button"
                     onClick={() => setMode("ai")}
                     className={[
-                      "px-3 py-2 rounded-xl text-xs font-extrabold border transition-colors hidden sm:inline-flex",
+                      "px-3 py-2 rounded-xl text-xs font-bold border transition-colors hidden sm:inline-flex",
                       mode === "ai"
                         ? "bg-blue-600 text-white border-blue-600"
                         : "bg-white dark:bg-gray-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/50",
@@ -330,7 +346,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                     type="button"
                     onClick={() => setMode("history")}
                     className={[
-                      "px-3 py-2 rounded-xl text-xs font-extrabold border transition-colors hidden sm:inline-flex",
+                      "px-3 py-2 rounded-xl text-xs font-bold border transition-colors hidden sm:inline-flex",
                       mode === "history"
                         ? "bg-blue-600 text-white border-blue-600"
                         : "bg-white dark:bg-gray-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/50",
@@ -344,11 +360,11 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
               {mode === "agent" && (
                 <div className="mt-4">
                   <div className="flex items-center justify-between gap-3 mb-3">
-                    <div className="text-sm font-extrabold text-slate-800 dark:text-slate-100">{t("Chat.ConversationList")}</div>
+                    <div className="text-sm font-bold text-slate-800 dark:text-slate-100">{t("Chat.ConversationList")}</div>
                     <button
                       type="button"
                       onClick={() => setMode("history")}
-                      className="text-xs font-extrabold text-blue-700 dark:text-blue-400 hover:underline"
+                      className="text-xs font-bold text-blue-700 dark:text-blue-400 hover:underline"
                     >
                       {t("Chat.SearchLogs")}
                     </button>
@@ -367,7 +383,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                     </div>
                   ) : sessions.length === 0 ? (
                     <div className="mt-4 border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
-                      <p className="font-extrabold">{t("Chat.NoAgentChatsYet")}</p>
+                      <p className="font-bold">{t("Chat.NoAgentChatsYet")}</p>
                       <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Chat.StartChatFromSearch")}</p>
                     </div>
                   ) : (
@@ -418,7 +434,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                   <div className="border border-slate-200 dark:border-gray-700 rounded-2xl p-4 bg-slate-50 dark:bg-gray-900/30">
                     <div className="flex items-center gap-2">
                       <Sparkles size={18} className="text-blue-600" />
-                      <p className="font-extrabold">{t("Chat.AiChatbot")}</p>
+                      <p className="font-bold">{t("Chat.AiChatbot")}</p>
                     </div>
                     <p className="text-sm text-slate-600 dark:text-gray-300 mt-2">
                       {t("Chat.AiChatbotDescription")}
@@ -443,7 +459,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                     <button
                       type="button"
                       onClick={loadAgentHistory}
-                      className="text-xs font-extrabold text-blue-700 dark:text-blue-400 hover:underline"
+                      className="text-xs font-bold text-blue-700 dark:text-blue-400 hover:underline"
                       disabled={historyLoading}
                     >
                       {historyLoading ? t("Common.Loading") : t("Chat.RefreshAgentLogs")}
@@ -454,7 +470,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                         localStorage.setItem(LS_AI_LOGS_KEY, JSON.stringify([]));
                         setAiLogs([]);
                       }}
-                      className="text-xs font-extrabold text-rose-700 dark:text-rose-300 hover:underline"
+                      className="text-xs font-bold text-rose-700 dark:text-rose-300 hover:underline"
                       title={t("Chat.ClearAi")}
                     >
                       {t("Chat.ClearAi")}
@@ -463,10 +479,10 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
 
                   <div className="mt-4 space-y-4 max-h-[420px] overflow-y-auto pr-1">
                     <div className="space-y-2">
-                      <p className="text-xs font-extrabold text-slate-600 dark:text-gray-300 uppercase tracking-widest">{t("Chat.AiChatLogs")}</p>
+                      <p className="text-xs font-bold text-slate-600 dark:text-gray-300 uppercase tracking-widest">{t("Chat.AiChatLogs")}</p>
                       {aiLogsFiltered.length === 0 ? (
                         <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
-                          <p className="font-extrabold">{t("Chat.NoAiLogsYet")}</p>
+                          <p className="font-bold">{t("Chat.NoAiLogsYet")}</p>
                           <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Chat.AskSomethingInAiTab")}</p>
                         </div>
                       ) : (
@@ -474,7 +490,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                           <div key={c.id} className="border border-slate-200 dark:border-gray-700 rounded-2xl p-3 bg-white dark:bg-gray-900/30">
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
-                                <p className="font-extrabold truncate">{c.query}</p>
+                                <p className="font-bold truncate">{c.query}</p>
                                 <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">{t("Admin.SavedAt")} {new Date(c.createdAt).toLocaleString()}</p>
                               </div>
                               <span className="shrink-0 w-9 h-9 rounded-xl bg-blue-600/10 text-blue-700 dark:text-blue-300 flex items-center justify-center">
@@ -487,7 +503,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                     </div>
 
                     <div className="space-y-2">
-                      <p className="text-xs font-extrabold text-slate-600 dark:text-gray-300 uppercase tracking-widest">{t("Chat.AgentChatLogs")}</p>
+                      <p className="text-xs font-bold text-slate-600 dark:text-gray-300 uppercase tracking-widest">{t("Chat.AgentChatLogs")}</p>
                       {sessionsLoading ? (
                         <div className="flex items-center gap-3 text-slate-600 dark:text-gray-300">
                           <Loader2 size={18} className="animate-spin" />
@@ -495,7 +511,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                         </div>
                       ) : agentHistoryFiltered.length === 0 ? (
                         <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
-                          <p className="font-extrabold">{t("Chat.NoAgentLogsYet")}</p>
+                          <p className="font-bold">{t("Chat.NoAgentLogsYet")}</p>
                           <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Chat.StartPharmacyChat")}</p>
                         </div>
                       ) : (
@@ -511,7 +527,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
-                                <p className="font-extrabold truncate">{h.facilityLabel}</p>
+                                <p className="font-bold truncate">{h.facilityLabel}</p>
                                 <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 truncate">{lastMessageText(h.messages) || t("chat.no_messages")}</p>
                               </div>
                               <span className="shrink-0 w-9 h-9 rounded-xl bg-slate-100 dark:bg-gray-700/60 flex items-center justify-center">
@@ -529,20 +545,25 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
           </div>
 
           {/* Right column: message panel */}
-          <div className={`col-span-12 z-999 md:z-20 md:col-span-8 lg:col-span-7 ${!activeSessionId ? 'hidden lg:block' : 'block'}`}>
-            <div className="
+          <div className={(() => {
+            const base = 'col-span-12 z-999 md:z-20 md:col-span-8 lg:col-span-7';
+            const visible = !activeSessionId ? 'hidden lg:block' : 'block';
+            const mobileFull = activeSessionId ? 'fixed inset-0 z-50 w-full h-screen bg-white dark:bg-gray-900/90 lg:static lg:w-auto lg:h-auto' : '';
+            return `${base} ${visible} ${mobileFull}`;
+          })()}>
+            <div className={`
   flex flex-col overflow-hidden
-  h-full md:h-[90vh]
+  ${activeSessionId ? 'h-screen' : 'h-full'} md:h-[90vh]
   rounded-none md:rounded-2xl
   border-0 md:border border-slate-200 dark:border-gray-700
   bg-white dark:bg-gray-800/40
   md:mt-5
-">
+`}>
               {mode === "agent" && (
                 <>
                   <div className="p-4 border-b border-slate-200 dark:border-gray-700 hidden lg:flex items-center justify-between gap-3 shrink-0">
                     <div className="min-w-0">
-                      <p className="font-extrabold truncate">
+                      <p className="font-bold truncate">
                         {activeSession ? getFacilityLabel(activeSession) : t("Chat.SelectAChatSession")}
                       </p>
                       <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">
@@ -552,7 +573,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                     <button
                       type="button"
                       onClick={() => setMode("history")}
-                      className="text-xs font-extrabold text-blue-700 dark:text-blue-400 hover:underline hidden sm:inline-flex"
+                      className="text-xs font-bold text-blue-700 dark:text-blue-400 hover:underline hidden sm:inline-flex"
                     >
                       {t("Chat.ViewLogs")}
                     </button>
@@ -580,7 +601,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
               {mode === "ai" && (
                 <>
                   <div className="p-4 border-b border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900/30">
-                    <p className="font-extrabold flex items-center gap-2">
+                    <p className="font-bold flex items-center gap-2">
                       <Sparkles size={18} className="text-blue-600" />
                       {t("Chat.AiAssistant")}
                     </p>
@@ -628,7 +649,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                         type="button"
                         onClick={startAiChat}
                         disabled={aiLoading || !aiDraft.trim()}
-                        className="shrink-0 rounded-2xl bg-blue-600 text-white px-4 py-3 font-extrabold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="shrink-0 rounded-2xl bg-blue-600 text-white px-4 py-3 font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {aiLoading ? <Loader2 size={18} className="animate-spin mx-auto" /> : <Send size={18} className="mx-auto" />}
                       </button>
@@ -640,7 +661,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
               {mode === "history" && (
                 <div className="flex-1 overflow-y-auto p-4">
                   <div className="border border-slate-200 dark:border-gray-700 rounded-2xl bg-slate-50 dark:bg-gray-950/30 p-4">
-                    <p className="font-extrabold">{t("Chat.ChatHistory")}</p>
+                    <p className="font-bold">{t("Chat.ChatHistory")}</p>
                     <p className="text-sm text-slate-600 dark:text-gray-300 mt-2">
                       {t("Chat.AiChatbotDescription")}
                     </p>
