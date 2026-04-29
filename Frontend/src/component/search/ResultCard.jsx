@@ -9,6 +9,7 @@ import {
   FaMapMarkedAlt,
   FaDirections
 } from "react-icons/fa";
+import { getTodayHours } from "../../utils/workingHoursUtils";
 
 /**
  * Utility to format distance from meters to km/m
@@ -64,7 +65,8 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
   };
 
   // 3. WORKING HOURS
-  const workingHours = facility.working_hour || (facility.is_full_time_service ? "24/7" : null);
+  console.log(facility.workingHour);
+  const workingHours = facility.isFullTime ? "24/7" : getTodayHours(facility.workingHour);
 
   const typeLabel = isHospital ? t("search.hospital") : isPharmacy ? t("search.pharmacy") : t("search.facility");
   const typeTone = isHospital
@@ -76,11 +78,11 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
   const tagCap = typeof maxTags === "number" && maxTags > 0 ? maxTags : 2;
   const tags = isHospital
     ? (tagSource === "both"
-        ? [...(facility.departments || []), ...(facility.services || [])]
-        : facility.departments?.length
-          ? facility.departments
-          : facility.services || []
-      )?.slice?.(0, tagCap) || []
+      ? [...(facility.departments || []), ...(facility.services || [])]
+      : facility.departments?.length
+        ? facility.departments
+        : facility.services || []
+    )?.slice?.(0, tagCap) || []
     : [];
 
   const openInInternalMap = (e) => {
@@ -95,7 +97,7 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
       type="button"
       onClick={onClick}
       className={`group relative overflow-hidden rounded-2xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-slate-900 hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_40px_rgba(37,99,235,0.1)] hover:-translate-y-1.5 transition-all duration-300 w-full flex ${isList ? 'flex-col sm:flex-row h-auto text-left items-stretch' : 'flex-col h-full'}`}
-   >
+    >
       {/* 1. TOP SECTION: ICON/LOGO PREVIEW */}
       <div className={`relative overflow-hidden bg-slate-50 dark:bg-slate-950 flex items-center justify-center border-slate-100 dark:border-gray-800 shrink-0 ${isList ? 'w-full sm:w-48 lg:w-1/3 sm:border-r border-b sm:border-b-0 h-48 sm:h-auto' : 'h-40 w-full border-b'}`}>
         <div className="absolute inset-0 opacity-10 pointer-events-none">
@@ -139,13 +141,13 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
           <h3 className="text-lg font-black text-slate-900 dark:text-white leading-tight group-hover:text-blue-500 transition-colors line-clamp-2 text-left">
             {name}
           </h3>
-           <div
-          onClick={openInInternalMap}
-          className={` ${isList ? 'absolute' : 'hidden'} top-3 right-3 p-2 rounded-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-600 dark:text-gray-300 hover:text-blue-500 shadow-sm border border-white/20 dark:border-gray-700 transition-colors z-20`}
-          title={t("search.viewOnMap")}
-        >
-          <FaMapMarkedAlt size={18} />
-        </div>
+          <div
+            onClick={openInInternalMap}
+            className={` ${isList ? 'absolute' : 'hidden'} top-3 right-3 p-2 rounded-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-600 dark:text-gray-300 hover:text-blue-500 shadow-sm border border-white/20 dark:border-gray-700 transition-colors z-20`}
+            title={t("search.viewOnMap")}
+          >
+            <FaMapMarkedAlt size={18} />
+          </div>
 
           <div className="mt-2 space-y-1 w-full text-left">
             <p className="text-xs text-slate-500 dark:text-gray-400 line-clamp-1 italic">
@@ -180,7 +182,7 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
             {workingHours && !facility.drugPrice && (
               <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                {workingHours}
+                Today: {workingHours}
               </p>
             )}
           </div>

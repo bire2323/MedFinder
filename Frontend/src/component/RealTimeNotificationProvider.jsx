@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import useAuthStore from '../store/UserAuthStore';
 import useSystemNotificationStore from '../store/useSystemNotificationStore';
-import { useSystemNotifications } from '../hooks/UserNotification';
+import { useSystemNotifications, useNotifications } from '../hooks/UserNotification';
+import useChatNotificationStore from '../store/useChatNotificationStore';
 
 /**
  * Global provider to handle real-time system notifications (Reverb)
@@ -10,12 +11,27 @@ import { useSystemNotifications } from '../hooks/UserNotification';
 export default function RealTimeNotificationProvider() {
     const { user } = useAuthStore();
     const { addNotification } = useSystemNotificationStore();
-
-    // Single global listener for system notifications
+    const { handleIncomingMessage } = useChatNotificationStore();
+    // // Single global listener for system notifications
+    // useSystemNotifications(user?.id, (notification) => {
+    //     // console.log('[RealTimeNotificationProvider] Received:', notification);
+    //     addNotification(notification);
+    // });
     useSystemNotifications(user?.id, (notification) => {
-        // console.log('[RealTimeNotificationProvider] Received:', notification);
-        addNotification(notification);
+        console.log('[RealTime] Received notification:', notification);
+
+        if (notification?.id) {
+            addNotification(notification);     // This will update latestNotification
+        }
+    });
+    useNotifications(user?.id, (incoming) => {
+        handleIncomingMessage({
+            message: incoming.message,
+            senderName: incoming.sender.sender?.Name || `User ${incoming.sender_id}`,
+            sessionId: incoming.chat_session_id,
+            fullMessage: incoming
+        });
     });
 
-    return null; // This is a logic-only provider
+    return null;
 }

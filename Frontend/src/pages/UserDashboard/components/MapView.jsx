@@ -274,7 +274,7 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                                                                 className="text-left flex-1 min-w-0"
                                                             >
                                                                 <p className="font-bold truncate">{f.name}</p>
-                                                                <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 truncate" onClick={() => { setOpenMap(true) }}>
+                                                                <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 truncate" >
                                                                     {f.type === "hospital" ? t("Map.hospital") : t("Map.pharmacy")}
                                                                     {distanceLabel ? ` · ${distanceLabel}` : ""}
                                                                 </p>
@@ -296,7 +296,10 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                                                         <div className="flex gap-2 ">
                                                             <button
                                                                 type="button"
-                                                                onClick={() => handleOpenInMap(f)}
+                                                                onClick={() => {
+                                                                    handleOpenInMap(f);
+                                                                    setOpenMap(true);
+                                                                }}
                                                                 className="flex-1 rounded-xl bg-blue-600 text-white py-2.5 font-bold text-xs hover:bg-blue-700 transition-colors"
                                                             >
                                                                 {t("Map.OpenInMap")}
@@ -325,16 +328,20 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                             <div className="rounded-2xl border border-slate-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800/40 shadow-md">
                                 <div className="p-4 border-b border-slate-200 dark:border-gray-700 flex flex-col items-center justify-between gap-3">
                                     <div className="flex w-full justify-between items-center">
-                                        <div className="min-w-0">
-                                            <button onClick={() => navigate("/")}>
-                                                <ChevronLeft className="hidden  md:block cursor-pointer text-slate-700 hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-50" />
-                                            </button>
-                                            <h2 className="font-bold text-base truncate">{t("Map.LiveFacilitiesMap")}</h2>
-                                            <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">
-                                                {routeTo
-                                                    ? `${t("Register.Location")}: ${routeTo.name} (${routeTo.type === "hospital" ? t("Map.hospital") : t("Map.pharmacy")})`
-                                                    : t("Map.PickAFacility")}
-                                            </p>
+                                        <div className="min-w-0 flex justify-baseline items-center">
+                                            <div className="flex items-center justify-start gap-2">
+                                                <button onClick={() => setOpenMap(false)} className="p-1 rounded-lg bg-slate-100 dark:bg-gray-700/60 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-gray-700 transition-colors">
+                                                    <ChevronLeft className="block md:hidden cursor-pointer text-slate-700 hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-50" />
+                                                </button>
+                                                <div className="flex flex-col items-start justify-start">
+                                                    <h2 className="font-semibold text-[10px] md:text-base truncate">{t("Map.LiveFacilitiesMap")}</h2>
+                                                    <p className="text-[9px] md:text-sm text-slate-600 dark:text-gray-300 mt-1">
+                                                        {routeTo
+                                                            ? `${t("Register.Location")}: ${routeTo.name} (${routeTo.type === "hospital" ? t("Map.hospital") : t("Map.pharmacy")})`
+                                                            : t("Map.PickAFacility")}
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div>
                                             {routeTo && userLocation && routeToLatLng ? (
@@ -344,12 +351,12 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                                                         setRouteTo(null);
                                                         setFollowUser(true);
                                                     }}
-                                                    className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-gray-700/60 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-gray-700 transition-colors text-sm font-bold"
+                                                    className="px-2 md:px-3 py-1 md:py-2 rounded-xl bg-slate-100 dark:bg-gray-700/60 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-gray-700 transition-colors text-sm font-bold"
                                                 >
                                                     {t("Map.ClearRoute")}
                                                 </button>
                                             ) : (
-                                                <div className="text-xs text-slate-600 dark:text-gray-300">{userLocation ? t("Map.TrackingEnabled") : t("Map.TrackingUnavailable")}</div>
+                                                <div className="text-[9px] md:text-xs text-slate-600 dark:text-gray-300">{userLocation ? t("Map.TrackingEnabled") : t("Map.TrackingUnavailable")}</div>
                                             )}
                                         </div>
                                     </div>

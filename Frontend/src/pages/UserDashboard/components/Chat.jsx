@@ -330,7 +330,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                   >
                     {t("Chat.Agent")}
                   </button>
-                  <button
+                  {/* <button
                     type="button"
                     onClick={() => setMode("ai")}
                     className={[
@@ -341,7 +341,7 @@ export default function Chat({ initialFacility, onClearInitialFacility }) {
                     ].join(" ")}
                   >
                     {t("Chat.Ai")}
-                  </button>
+                  </button>*/}
                   <button
                     type="button"
                     onClick={() => setMode("history")}

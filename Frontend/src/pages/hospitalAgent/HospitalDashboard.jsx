@@ -42,7 +42,7 @@ import ThemeToggle from "../../component/DarkLightTeam";
 import OverviewTab from "./components/OverviewTab";
 import DepartmentsTab from "./components/DepartmentsTab";
 import ServicesTab from "./components/ServicesTab";
-import ProfileSettingsLayout from "../shared/ProfileSettings";
+import ProfileSettingsLayout from "../shared/ProfileSettings/ProfileSettingsLayout";
 import ChatsTab from "./components/ChatsTab";
 import StatusBanner from "../../component/StatusBanner";
 import NotificationDropdown from "../../component/NotificationDropdown";
@@ -146,15 +146,15 @@ const HospitalDashboard = () => {
     init();
   }, []);
 
-  // Real-time Chat
-  useNotifications(currentUserId, (incoming) => {
-    handleIncomingMessage({
-      message: incoming.message,
-      senderName: incoming.sender.sender?.Name || `User ${incoming.sender_id}`,
-      sessionId: incoming.chat_session_id,
-      fullMessage: incoming
-    });
-  });
+  // // Real-time Chat
+  // useNotifications(currentUserId, (incoming) => {
+  //   handleIncomingMessage({
+  //     message: incoming.message,
+  //     senderName: incoming.sender.sender?.Name || `User ${incoming.sender_id}`,
+  //     sessionId: incoming.chat_session_id,
+  //     fullMessage: incoming
+  //   });
+  // });
 
   const { latestNotification } = useSystemNotificationStore();
 

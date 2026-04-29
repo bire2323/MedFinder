@@ -18,9 +18,10 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { getSystemStats } from '../../api/admin';
+import { getSystemStats, getAnalytics } from '../../api/admin';
 import useAuthStore from '../../store/UserAuthStore';
 import { useTranslation } from 'react-i18next';
+import Loading from '../../component/SupportiveComponent/Loading';
 
 const sampleUserActivity = [
   { date: 'Mon', patients: 420, hospitalAgents: 45, pharmacyAgents: 78 },
@@ -51,34 +52,39 @@ const sampleTopServices = [
 
 export default function AnalyticsDashboard() {
   const { t } = useTranslation();
-  const { token } = useAuthStore();
+  const { user } = useAuthStore();
   const [stats, setStats] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('7d');
 
   useEffect(() => {
-    if (token) loadStats();
-  }, [token, timeRange]);
+    if (user) loadData();
+  }, [user, timeRange]);
 
-  const loadStats = async () => {
-    if (!token) return;
+  const loadData = async () => {
     setLoading(true);
     try {
-      const data = await getSystemStats(token);
-      setStats(data);
+      const [statsData, analyticsData] = await Promise.all([
+        getSystemStats(),
+        getAnalytics(timeRange)
+      ]);
+      setStats(statsData);
+      setAnalytics(analyticsData);
     } catch (err) {
       console.error(err);
       setStats(null);
+      setAnalytics(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const overview = {
-    totalUsers: stats?.total_users ?? 0,
-    activeHospitals: stats?.total_hospitals ?? 0,
-    activePharmacies: stats?.total_pharmacies ?? 0,
-    totalChats: stats?.chat_interactions_24h ?? 0,
+  const overview = analytics?.overview || {
+    totalUsers: 0,
+    activeHospitals: 0,
+    activePharmacies: 0,
+    totalChats: 0,
     userGrowth: 12.5,
     hospitalGrowth: 8.3,
     pharmacyGrowth: 15.2,
@@ -87,9 +93,7 @@ export default function AnalyticsDashboard() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-20">
-        <div className="size-8 border-[3px] border-indigo-600 dark:border-indigo-400 border-t-transparent rounded-full animate-spin" />
-      </div>
+      <Loading />
     );
   }
 
@@ -181,7 +185,7 @@ export default function AnalyticsDashboard() {
         </div>
         <div className="px-4 pb-5 pt-2 h-72 sm:h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={sampleUserActivity}>
+            <LineChart data={analytics?.userActivity || sampleUserActivity}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-gray-700" />
               <XAxis dataKey="date" className="text-xs" tick={{ fontSize: 12, fill: '#94a3b8' }} />
               <YAxis className="text-xs" tick={{ fontSize: 12, fill: '#94a3b8' }} />
@@ -212,7 +216,7 @@ export default function AnalyticsDashboard() {
           </div>
           <div className="px-4 pb-5 pt-2 h-72 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={sampleChatbotInteractions}>
+              <BarChart data={analytics?.chatbotInteractions || sampleChatbotInteractions}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="hour" tick={{ fontSize: 12, fill: '#94a3b8' }} />
                 <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} />
@@ -238,7 +242,7 @@ export default function AnalyticsDashboard() {
           </div>
           <div className="px-4 pb-5 pt-2 h-72 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={sampleTopServices} layout="vertical" margin={{ left: 10, right: 10 }}>
+              <BarChart data={analytics?.topServices || sampleTopServices} layout="vertical" margin={{ left: 10, right: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} />
                 <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#94a3b8' }} width={120} />
@@ -267,7 +271,7 @@ export default function AnalyticsDashboard() {
               <Calendar className="size-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <p className="text-xl font-bold text-slate-900 dark:text-white">{t("Admin.PeakHour")}</p>
+              <p className="text-xl font-bold text-slate-900 dark:text-white">{analytics?.insights?.peakHour || t("Admin.PeakHour")}</p>
               <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.MostActiveHour")}</p>
             </div>
           </div>
@@ -280,7 +284,7 @@ export default function AnalyticsDashboard() {
               <MessageSquare className="size-6 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <p className="text-xl font-bold text-slate-900 dark:text-white">2.3s</p>
+              <p className="text-xl font-bold text-slate-900 dark:text-white">{analytics?.insights?.avgResponseTime || 2.3}s</p>
               <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.ChatbotResponse")}</p>
             </div>
           </div>
@@ -293,7 +297,7 @@ export default function AnalyticsDashboard() {
               <TrendingUp className="size-6 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <p className="text-xl font-bold text-slate-900 dark:text-white">94.5%</p>
+              <p className="text-xl font-bold text-slate-900 dark:text-white">{analytics?.insights?.userSatisfaction || 94.5}%</p>
               <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.PositiveFeedback")}</p>
             </div>
           </div>

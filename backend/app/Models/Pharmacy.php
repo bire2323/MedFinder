@@ -26,6 +26,10 @@ class Pharmacy extends Model
         "approved_by"
     ];
 
+    protected $casts = [
+        'working_hour' => 'array',
+    ];
+
 public function getLogoUrlAttribute() {
     return asset('storage/' . $this->logo);
 }

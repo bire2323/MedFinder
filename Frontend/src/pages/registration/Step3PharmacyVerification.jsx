@@ -7,6 +7,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useRegistrationStore } from '../../store/registrationStore';
 import { FileText, Upload, Clock, ArrowLeft, ArrowRight, ShieldCheck, Building2, Image, X } from 'lucide-react';
 import handleKeyDown from '../../hooks/handleKeyDown';
+import WorkingHoursPicker from '../shared/WorkingHoursPicker';
 const PHARMACY_TYPES = [
   { value: '', label: 'Select Pharmacy Type' },
   { value: 'community', label: 'Community Pharmacy' },
@@ -23,6 +24,38 @@ const Step3PharmacyVerification = () => {
   const { type } = useParams();
   const { formData, errors, updateFormData, syncFormDataFromLocal, validateStep3Pharmacy } = useRegistrationStore();
 
+  const parseWorkingHour = (value) => {
+    if (!value) return {};
+    if (typeof value === 'object' && !Array.isArray(value)) return value;
+    if (typeof value === 'string') {
+      // Try to parse as JSON first
+      try {
+        const parsed = JSON.parse(value);
+        if (typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+      } catch { }
+      // Parse as "8:00 - 12:00" format
+      const match = value.match(/(\d+):(\d+)\s*-\s*(\d+):(\d+)/);
+      if (match) {
+        const startHour = parseInt(match[1]);
+        const endHour = parseInt(match[3]);
+        if (startHour < endHour && startHour >= 0 && endHour <= 24) {
+          const hours = Array.from({ length: endHour - startHour }, (_, i) => startHour + i);
+          // Apply to all weekdays, empty for weekends
+          return {
+            Mon: hours,
+            Tue: hours,
+            Wed: hours,
+            Thu: hours,
+            Fri: hours,
+            Sat: [],
+            Sun: []
+          };
+        }
+      }
+    }
+    return {};
+  };
+
   const PHARMACY_TYPES = [
     { value: '', label: t('Registration.SelectType', { type: t('Registration.PharmacyType') }) },
     { value: 'community', label: t('Registration.PharmacyTypes.Community') },
@@ -31,7 +64,7 @@ const Step3PharmacyVerification = () => {
     { value: 'import', label: t('Registration.PharmacyTypes.Import') },
   ];
 
-  const [localData, setLocalData] = useState({ licenseNumber: '', pharmacyType: '', workingHour: '', confirmLicensed: false });
+  const [localData, setLocalData] = useState({ licenseNumber: '', pharmacyType: '', workingHour: {}, confirmLicensed: false });
   const licenseInputRef = useRef(null);
   const logoInputRef = useRef(null);
 
@@ -39,7 +72,7 @@ const Step3PharmacyVerification = () => {
     setLocalData({
       licenseNumber: formData.licenseNumber || '',
       pharmacyType: formData.pharmacyType || '',
-      workingHour: formData.workingHour || '',
+      workingHour: parseWorkingHour(formData.workingHour) || {},
       confirmLicensed: formData.confirmLicensed || false,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -238,24 +271,17 @@ const Step3PharmacyVerification = () => {
         {/* Working Hours */}
         <div className="space-y-2">
           <label
-            htmlFor="working_hour"
             className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
           >
             <Clock size={16} className="text-blue-500" />
-            {t('Registration.WorkingHour')}
-            <span className="text-red-500">*</span>
+            {t('Registration.WorkingHour')} <span className="text-red-500">*</span>
           </label>
-          <input
-            id="working_hour"
-            type="text"
-            onKeyDown={handleKeyDown}
-            value={localData.working_hour}
-            onChange={handleChange('working_hour')}
-            placeholder="e.g., 08:00 - 20:00 or 24/7"
-            className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${errors.workingHours ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'}`}
+          <WorkingHoursPicker
+            value={localData.workingHour}
+            onChange={(v) => setLocalData(prev => ({ ...prev, workingHour: v }))}
           />
-          {errors.working_hour && (
-            <p className="text-xs text-red-500">{errors.working_hour}</p>
+          {errors.workingHour && (
+            <p className="text-xs text-red-500">{errors.workingHour}</p>
           )}
         </div>
 
@@ -311,7 +337,7 @@ const Step3PharmacyVerification = () => {
             onChange={handleLogoUpload}
             className="opacity-0 absolute pointer-events-none"
             name='file'
-            
+
           />
         </div>
 

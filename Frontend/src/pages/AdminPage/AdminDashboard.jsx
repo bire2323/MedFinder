@@ -16,19 +16,24 @@ import { useNavigate } from 'react-router-dom';
 import UserManagement from './UserManagement';
 import ApprovalManagement from './ApprovalManagement';
 import AnalyticsDashboard from './AnalyticsDashboard';
+import AuditLog from './AuditLog';
 import NotificationCenter from './NotificationCenter';
 import { useRef } from 'react';
 import useSystemNotificationStore from '../../store/useSystemNotificationStore';
 import { initializeAuth } from '../../auth/initAuth';
+import RealTimeNotificationProvider from '../../component/RealTimeNotificationProvider';
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuthStore();
+  const { notifications, setNotifications } = useSystemNotificationStore();
   const [activeTab, setActiveTab] = useState('overview');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const unreadNotifications = notifications.filter(n => !n.read_at).length;
+
 
   const navigate = useNavigate();
 
@@ -43,17 +48,13 @@ export default function AdminDashboard() {
     try {
       const data = await getNotifications();
       const list = Array.isArray(data) ? data : data?.data ?? [];
-      const unread = list.filter((n) => !n.read_at).length;
-      setUnreadNotifications(unread);
+      setNotifications(list);
     } catch (err) {
       console.error('Error loading notifications:', err);
     }
   };
 
-  useEffect(() => {
-    // Rely on global RealTimeNotificationProvider to update the store
-    // Here we just pull from store to update local counters if needed
-  }, []);
+
 
   useEffect(() => {
     const init = async () => {
@@ -64,13 +65,6 @@ export default function AdminDashboard() {
     };
     init();
   }, [isAuthenticated]);
-
-  const { latestNotification } = useSystemNotificationStore();
-  useEffect(() => {
-    if (latestNotification && latestNotification.type === 'approval') {
-      setUnreadNotifications(prev => prev + 1);
-    }
-  }, [latestNotification]);
 
   const loadStats = async () => {
     if (!isAuthenticated) return;
@@ -106,6 +100,7 @@ export default function AdminDashboard() {
     { id: 'users', label: t("Admin.UserManagement"), icon: Users },
     { id: 'approvals', label: t("Admin.Approvals"), icon: CheckCircle },
     { id: 'analytics', label: t("Admin.Analytics"), icon: BarChart3 },
+    { id: 'auditlog', label: t("Admin.AuditLog"), icon: Shield },
     { id: 'notifications', label: t("Admin.Notifications"), icon: Bell, badge: unreadNotifications },
   ];
 
@@ -181,11 +176,10 @@ export default function AdminDashboard() {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150 ${
-                  activeTab === tab.id
-                    ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-sm'
-                    : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-200 hover:bg-slate-100 dark:hover:bg-gray-800'
-                }`}
+                className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150 ${activeTab === tab.id
+                  ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-sm'
+                  : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-200 hover:bg-slate-100 dark:hover:bg-gray-800'
+                  }`}
               >
                 <Icon className="size-4 shrink-0" />
                 {tab.label}
@@ -213,11 +207,10 @@ export default function AdminDashboard() {
                       setActiveTab(tab.id);
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-left w-full transition-colors ${
-                      activeTab === tab.id
-                        ? 'bg-indigo-600 dark:bg-indigo-500 text-white'
-                        : 'text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-800'
-                    }`}
+                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-left w-full transition-colors ${activeTab === tab.id
+                      ? 'bg-indigo-600 dark:bg-indigo-500 text-white'
+                      : 'text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-800'
+                      }`}
                   >
                     <Icon className="size-4 shrink-0" />
                     {tab.label}
@@ -301,6 +294,7 @@ export default function AdminDashboard() {
         {activeTab === 'users' && <UserManagement />}
         {activeTab === 'approvals' && <ApprovalManagement />}
         {activeTab === 'analytics' && <AnalyticsDashboard />}
+        {activeTab === 'auditlog' && <AuditLog />}
         {activeTab === 'notifications' && (
           <NotificationCenter onNotificationRead={loadNotifications} />
         )}

@@ -11,6 +11,7 @@ import toast from 'react-hot-toast';
 import useAuthStore from '../../store/UserAuthStore';
 import { useTranslation } from 'react-i18next';
 import Loading from '../../component/SupportiveComponent/Loading';
+import useSystemNotificationStore from '../../store/useSystemNotificationStore';
 
 function getNotificationIcon(type) {
   switch (type) {
@@ -42,7 +43,7 @@ function getPriorityBadgeClass(priority) {
 
 export default function NotificationCenter({ onNotificationRead }) {
   const { t } = useTranslation();
-  const [notifications, setNotifications] = useState([]);
+  const { notifications, setNotifications, markAsRead: storeMarkAsRead } = useSystemNotificationStore();
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const { user } = useAuthStore();
@@ -71,7 +72,7 @@ export default function NotificationCenter({ onNotificationRead }) {
   const handleMarkAsRead = async (notificationId) => {
     try {
       await markNotificationRead(user, notificationId);
-      loadNotifications();
+      storeMarkAsRead(notificationId);
       if (typeof onNotificationRead === 'function') onNotificationRead();
     } catch (err) {
       console.error('Failed to mark as read:', err);
@@ -88,9 +89,9 @@ export default function NotificationCenter({ onNotificationRead }) {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-20">
-        <Loading />
-      </div>
+
+      <Loading />
+
     );
   }
 
@@ -175,11 +176,10 @@ export default function NotificationCenter({ onNotificationRead }) {
             return (
               <div
                 key={notification.id}
-                className={`bg-white dark:bg-gray-900 rounded-xl border dark:border-gray-800 overflow-hidden transition-all duration-200 hover:shadow-sm ${
-                  !read
-                    ? 'border-l-[3px] border-l-indigo-500 dark:border-l-indigo-400 border-slate-200'
-                    : 'border-slate-200'
-                }`}
+                className={`bg-white dark:bg-gray-900 rounded-xl border dark:border-gray-800 overflow-hidden transition-all duration-200 hover:shadow-sm ${!read
+                  ? 'border-l-[3px] border-l-indigo-500 dark:border-l-indigo-400 border-slate-200'
+                  : 'border-slate-200'
+                  }`}
               >
                 <div className="p-5">
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">

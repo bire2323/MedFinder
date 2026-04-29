@@ -31,7 +31,7 @@ export async function apiRegisterPharmacy(formData) {
   data.append('detailed_address_am', formData.detailedAddress_am || '');
   data.append('latitude', formData.latitude);
   data.append('longitude', formData.longitude);
-  data.append('working_hour', formData.working_hour);
+  data.append('working_hour', JSON.stringify(formData.working_hour));
   data.append('contact_phone', formData.contact_phone);
 
   // Verification info
@@ -83,7 +83,7 @@ export async function apiRegisterHospital(formData) {
   data.append('detailed_address_am', formData.detailedAddress_am || '');
   data.append('latitude', formData.latitude);
   data.append('longitude', formData.longitude);
-  data.append('working_hour', formData.working_hour);
+  data.append('working_hour', JSON.stringify(formData.working_hour));
   data.append('contact_phone', formData.contact_phone);
 
   // Verification info

@@ -135,6 +135,7 @@ export async function apiAddDepartment(departmentData) {
   await ensureCsrfCookie();
   return apiFetch("/api/hospital/departments", {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(departmentData),
   });

@@ -15,7 +15,7 @@ use App\Models\ChatSession;
 Broadcast::channel('chat.session.{sessionId}', function ($user, $sessionId) {
     $session = ChatSession::find($sessionId);
     \Log::info("Event fired! {$sessionId}");
-    \Log::info("User ID: {$user}"); 
+    \Log::info("User ID: {$user}");
     if (!$session) return false;
 
     $allowed = app(\App\Policies\ChatSessionPolicy::class)->view($user, $session);
@@ -36,5 +36,7 @@ Broadcast::channel('user.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('notifications.{id}', function ($user, $id) {
+    \Log::info("Event not. str! {$id}");
+    \Log::info("Event not. str! {$user->id}");
     return (int) $user->id === (int) $id;
 });

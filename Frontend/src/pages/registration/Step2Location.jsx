@@ -3,6 +3,7 @@ import { useRegistrationStore } from '../../store/registrationStore';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, Phone, Navigation, ArrowLeft, ArrowRight, Globe, Building, Map, Timer } from 'lucide-react';
 import handleKeyDown from '../../hooks/handleKeyDown';
+import WorkingHoursPicker from '../shared/WorkingHoursPicker';
 
 const ETHIOPIAN_REGIONS_EN = [
   { value: '', label: 'Select Region' },
@@ -163,6 +164,38 @@ const Step2Location = () => {
     }
   };
 
+  const parseWorkingHour = (value) => {
+    if (!value) return {};
+    if (typeof value === 'object' && !Array.isArray(value)) return value;
+    if (typeof value === 'string') {
+      // Try to parse as JSON first
+      try {
+        const parsed = JSON.parse(value);
+        if (typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+      } catch { }
+      // Parse as "8:00 - 12:00" format
+      const match = value.match(/(\d+):(\d+)\s*-\s*(\d+):(\d+)/);
+      if (match) {
+        const startHour = parseInt(match[1]);
+        const endHour = parseInt(match[3]);
+        if (startHour < endHour && startHour >= 0 && endHour <= 24) {
+          const hours = Array.from({ length: endHour - startHour }, (_, i) => startHour + i);
+          // Apply to all weekdays, empty for weekends
+          return {
+            Mon: hours,
+            Tue: hours,
+            Wed: hours,
+            Thu: hours,
+            Fri: hours,
+            Sat: [],
+            Sun: []
+          };
+        }
+      }
+    }
+    return {};
+  };
+
   const [localData, setLocalData] = useState({
     region_en: '',
     region_am: '',
@@ -175,7 +208,7 @@ const Step2Location = () => {
     detailedAddress_am: '',
     latitude: '',
     longitude: '',
-    working_hour: '',
+    workingHour: {},
     contact_phone: '',
     contact_email: '',
   });
@@ -193,7 +226,7 @@ const Step2Location = () => {
       detailedAddress_am: storeFormData.detailedAddress_am || '',
       latitude: storeFormData.latitude || '',
       longitude: storeFormData.longitude || '',
-      working_hour: storeFormData.working_hour || '',
+      workingHour: parseWorkingHour(storeFormData.workingHour) || {},
       contact_phone: storeFormData.contact_phone || '',
       contact_email: storeFormData.contact_email || '',
     });
@@ -420,23 +453,26 @@ const Step2Location = () => {
 
         {/* Working Hour & Main Contact */}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {
-            registrationType === 'hospital' &&
-            <InputField
-              id="working_hour"
-              onKeyDown={handleKeyDown}
-              label={t('Registration.WorkingHour')}
-              icon={Timer}
-              type="text"
-              placeholder="e.g 2:00 - 12:00AM"
-              required
-              value={localData.working_hour}
-              error={errors.working_hour}
-              onChange={handleInputChange}
-            />
-          }
+        {
+          registrationType === 'hospital' && (
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <Timer size={16} className="text-blue-500" />
+                {t('Registration.WorkingHour')}
+                <span className="text-red-500">*</span>
+              </label>
+              <WorkingHoursPicker
+                value={localData.workingHour}
+                onChange={(v) => setLocalData(prev => ({ ...prev, workingHour: v }))}
+              />
+              {errors.workingHour && (
+                <p className="text-xs text-red-500">{errors.workingHour}</p>
+              )}
+            </div>
+          )
+        }
 
+        <div className={`space-y-2 ${registrationType === 'hospital' ? '' : 'col-span-1 md:col-span-2'}`}>
           <InputField
             id="contact_phone"
             label={registrationType === 'hospital' ? t('Registration.EmergencyPhone') : t('Registration.MainContact')}

@@ -3,43 +3,43 @@
  * Supports bilingual (English/Amharic) character sets and local formats.
  */
 
-export const validateProfile = (data,type) => {
+export const validateProfile = (data, type) => {
   const errors = {};
-if (type==="pharmacy") {
-  
-  // Facility Name (EN) - Letters, numbers, and common punctuation
-  if (!data.pharmacy_name_en || data.pharmacy_name_en.trim().length < 3) {
-    errors.pharmacy_name_en = "Name must be at least 3 characters.";
-  } else if (!/^[a-zA-Z0-9\s.,&'()-]+$/.test(data.pharmacy_name_en)) {
-    errors.pharmacy_name_en = "English name contains invalid characters.";
-  }
-  
-  // Facility Name (AM) - Specifically Ge'ez/Amharic characters
-  // Range: \u1200-\u137F (Ethiopic)
-  if (!data.pharmacy_name_am || data.pharmacy_name_am.trim().length < 2) {
-    errors.pharmacy_name_am = "Amharic name is required.";
-  } else if (!/^[\u1200-\u137F\s0-9.,-]+$/.test(data.pharmacy_name_am)) {
-    errors.pharmacy_name_am = "Please use Amharic characters for this field.";
-  }
-}else if (type === "hospital") {
-  
-    
-  // Facility Name (EN) - Letters, numbers, and common punctuation
-  if (!data.hospital_name_en || data.hospital_name_en.trim().length < 3) {
-    errors.hospital_name_en = "Name must be at least 3 characters.";
-  } else if (!/^[a-zA-Z0-9\s.,&'()-]+$/.test(data.hospital_name_en)) {
-    errors.hospital_name_en = "English name contains invalid characters.";
-  }
-  
-  // Facility Name (AM) - Specifically Ge'ez/Amharic characters
-  // Range: \u1200-\u137F (Ethiopic)
-  if (!data.hospital_name_am || data.hospital_name_am.trim().length < 2) {
-    errors.hospital_name_am = "Amharic name is required.";
-  } else if (!/^[\u1200-\u137F\s0-9.,-]+$/.test(data.hospital_name_am)) {
-    errors.hospital_name_am = "Please use Amharic characters for this field.";
-  } 
+  if (type === "pharmacy") {
 
-}
+    // Facility Name (EN) - Letters, numbers, and common punctuation
+    if (!data.pharmacy_name_en || data.pharmacy_name_en.trim().length < 3) {
+      errors.pharmacy_name_en = "Name must be at least 3 characters.";
+    } else if (!/^[a-zA-Z0-9\s.,&'()-]+$/.test(data.pharmacy_name_en)) {
+      errors.pharmacy_name_en = "English name contains invalid characters.";
+    }
+
+    // Facility Name (AM) - Specifically Ge'ez/Amharic characters
+    // Range: \u1200-\u137F (Ethiopic)
+    if (!data.pharmacy_name_am || data.pharmacy_name_am.trim().length < 2) {
+      errors.pharmacy_name_am = "Amharic name is required.";
+    } else if (!/^[\u1200-\u137F\s0-9.,-]+$/.test(data.pharmacy_name_am)) {
+      errors.pharmacy_name_am = "Please use Amharic characters for this field.";
+    }
+  } else if (type === "hospital") {
+
+
+    // Facility Name (EN) - Letters, numbers, and common punctuation
+    if (!data.hospital_name_en || data.hospital_name_en.trim().length < 3) {
+      errors.hospital_name_en = "Name must be at least 3 characters.";
+    } else if (!/^[a-zA-Z0-9\s.,&'()-]+$/.test(data.hospital_name_en)) {
+      errors.hospital_name_en = "English name contains invalid characters.";
+    }
+
+    // Facility Name (AM) - Specifically Ge'ez/Amharic characters
+    // Range: \u1200-\u137F (Ethiopic)
+    if (!data.hospital_name_am || data.hospital_name_am.trim().length < 2) {
+      errors.hospital_name_am = "የሆስፒታል ስም በአማርኛ ያስገቡ.";
+    } else if (!/^[\u1200-\u137F\s0-9.,-]+$/.test(data.hospital_name_am)) {
+      errors.hospital_name_am = "የአማርኛ ፊደል ብቻ ይጠቀሙ.";
+    }
+
+  }
 
 
   // Phone Numbers (Ethiopian format: 09... or 07... or +251...)
@@ -62,7 +62,7 @@ if (type==="pharmacy") {
 
   // Ownership
   if (type === "pharmacy" ? !data.pharmacy_license_category : !data.hospital_ownership_type) {
-     errors.ownership_type = "Please select an ownership type.";
+    errors.ownership_type = "Please select an ownership type.";
   }
 
   return {

@@ -49,12 +49,12 @@ import { useTranslation } from "react-i18next";
 import ThemeToggle from "../../component/DarkLightTeam";
 
 import Inventory from "./Inventory";
-import { apiGetInventory } from "../../api/inventory";
+import { apiGetInventory, apiGetAnalytics } from "../../api/inventory";
 import { apiFetch } from "../../api/client";
 
 // Import Refactored Components
 import OverviewTab from "./components/OverviewTab";
-import ProfileSettingsLayout from "../shared/ProfileSettings";
+import ProfileSettingsLayout from "../shared/ProfileSettings/ProfileSettingsLayout";
 import ChatsTab from "./components/ChatsTab";
 import StatusBanner from "../../component/StatusBanner";
 import NotificationDropdown from "../../component/NotificationDropdown";
@@ -76,6 +76,7 @@ const PharmacyDashboard = () => {
 
   const [pharmacyProfile, setPharmacyProfile] = useState(null);
   const [inventory, setInventory] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
 
   const { handleIncomingMessage, targetSessionToOpen, getUnreadCount } = useChatNotificationStore();
   const unreadCount = getUnreadCount();
@@ -83,14 +84,14 @@ const PharmacyDashboard = () => {
   const { addNotification } = useSystemNotificationStore();
   const { clearSession } = useAuthStore();
 
-  useNotifications(currentUserId, (incoming) => {
-    handleIncomingMessage({
-      message: incoming.message,
-      senderName: incoming.sender.sender?.Name || `User ${incoming.sender_id}`,
-      sessionId: incoming.chat_session_id,
-      fullMessage: incoming
-    });
-  });
+  // useNotifications(currentUserId, (incoming) => {
+  //   handleIncomingMessage({
+  //     message: incoming.message,
+  //     senderName: incoming.sender.sender?.Name || `User ${incoming.sender_id}`,
+  //     sessionId: incoming.chat_session_id,
+  //     fullMessage: incoming
+  //   });
+  // });
   const handleLogout = () => {
     apiLogout().then(() => {
       clearSession();
@@ -156,6 +157,8 @@ const PharmacyDashboard = () => {
 
 
   // --- Recent Chats (mock data) ---
+
+
   const [recentChats] = useState([
     { id: 1, user: "User123", message: "Do you have Amoxicillin?", time: "10 min ago", status: "unread" },
     { id: 2, user: "User456", message: "What's the price of Panadol?", time: "25 min ago", status: "read" },
@@ -166,15 +169,27 @@ const PharmacyDashboard = () => {
 
 
   useEffect(() => {
+    const params = {
+      search: "",
+      category: "all",
+      status: "all",
+      page: 1,
+      per_page: 8,
+    };
     const fetchInv = async () => {
       try {
-        const response = await apiGetInventory();
+        const response = await apiGetInventory(params);
         if (response) {
           const inventoryData = response.data || response;
           //   setPharmacyProfile(inventoryData);
 
           setInventory(inventoryData.drugs || Array.isArray(inventoryData) ? inventoryData : []);
           //  console.log('Inventory loaded:', inventoryData.drugs?.length || inventoryData?.length);
+        }
+
+        const analyticsRes = await apiGetAnalytics();
+        if (analyticsRes.success) {
+          setAnalytics(analyticsRes.data);
         }
       } catch (error) {
         console.error("Error fetching inventory:", error);
@@ -189,7 +204,7 @@ const PharmacyDashboard = () => {
     <>
       <NotificationToast />
       <SystemNotificationToast />
-      <div className="min-h-screen min-w-[320px] bg-slate-50 dark:bg-gray-900 flex text-slate-900 dark:text-gray-100 transition-colors duration-300">
+      <div className="min-h-screen min-w-[320px] bg-white dark:bg-gray-900 flex text-slate-900 dark:text-gray-100 transition-colors duration-300">
         {/* Mobile sidebar backdrop */}
         {sidebarOpen && (
           <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} aria-hidden="true" />
@@ -221,12 +236,12 @@ const PharmacyDashboard = () => {
                   active={activeTab === "inventory"}
                   onClick={() => setActiveTab("inventory")}
                 />
-                <NavItem
+                {/* <NavItem
                   icon={<FileText size={20} />}
                   label={t("PharmacyDashboard.Prescriptions")}
                   active={activeTab === "rx"}
                   onClick={() => setActiveTab("rx")}
-                />
+                /> */}
                 <NavItem
                   icon={<MessageSquare size={20} />}
                   label={t("PharmacyDashboard.Chats")}
@@ -345,7 +360,7 @@ const PharmacyDashboard = () => {
             <AnimatePresence mode="wait">
               {/* OVERVIEW TAB */}
               {activeTab === "overview" && (
-                <OverviewTab inventory={inventory} recentChats={recentChats} setActiveTab={setActiveTab} />
+                <OverviewTab inventory={inventory} analytics={analytics} recentChats={recentChats} setActiveTab={setActiveTab} />
               )}
 
               {/* INVENTORY TAB */}

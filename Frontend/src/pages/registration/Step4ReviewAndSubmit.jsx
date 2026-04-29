@@ -25,6 +25,21 @@ import {
   TimerIcon
 } from 'lucide-react';
 
+// Function to format working hours for display
+const formatWorkingHours = (workingHour) => {
+  if (!workingHour || typeof workingHour !== 'object') return 'Not set';
+
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const formatted = days.map(day => {
+    const hours = workingHour[day] || [];
+    if (hours.length === 0) return `${day}: Closed`;
+    const start = Math.min(...hours);
+    const end = Math.max(...hours) + 1;
+    return `${day}: ${start}:00 - ${end}:00`;
+  });
+  return formatted.join(', ');
+};
+
 // Region labels for display - will use t() function
 const getRegionLabel = (regionKey, t) => {
   const regionMap = {
@@ -87,36 +102,36 @@ const Step4ReviewAndSubmit = () => {
       const apiCall = registrationType === 'pharmacy'
         ? apiRegisterPharmacy
         : apiRegisterHospital;
-      
-    try {
-      const response = await apiCall(formData);
 
-  // Success path
-       if (response.success) {
-         setSubmissionResult({ success: true, data: response });
-         navigate(`/register/${type}/success`);
-  } else if (response.code === 'ALREADY_REGISTERED_AGENT') {
-    setSubmitError(t('review.messages.alreadyRegisteredAgent'));
-  } else {
-    setSubmitError(t('review.messages.tryAgain'));
-  }
-} catch (error) {
-  // For fetch wrappers that throw on 4xx/5xx
-  console.error(error);
-  if (error?.code === 'ALREADY_REGISTERED_AGENT') {
-    setSubmitError(t('review.messages.alreadyRegisteredAgent'));
-  } else {
-    setSubmitError(t('review.messages.tryAgain'));
-  }
-} finally {
-  setIsSubmitting(false);
-}
-  }catch(error){
-    console.log("ddddddddddddd");
-  }finally {
-  setIsSubmitting(false);
-  }
-};
+      try {
+        const response = await apiCall(formData);
+
+        // Success path
+        if (response.success) {
+          setSubmissionResult({ success: true, data: response });
+          navigate(`/register/${type}/success`);
+        } else if (response.code === 'ALREADY_REGISTERED_AGENT') {
+          setSubmitError(t('review.messages.alreadyRegisteredAgent'));
+        } else {
+          setSubmitError(t('review.messages.tryAgain'));
+        }
+      } catch (error) {
+        // For fetch wrappers that throw on 4xx/5xx
+        console.error(error);
+        if (error?.code === 'ALREADY_REGISTERED_AGENT') {
+          setSubmitError(t('review.messages.alreadyRegisteredAgent'));
+        } else {
+          setSubmitError(t('review.messages.tryAgain'));
+        }
+      } finally {
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.log("ddddddddddddd");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Review section component
   const ReviewSection = ({ title, icon: Icon, step, children }) => (
@@ -233,7 +248,7 @@ const Step4ReviewAndSubmit = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
             <InfoItem
               label={t('review.location.workingHour')}
-              value={formData.working_hour}
+              value={formatWorkingHours(formData.workingHour)}
               icon={TimerIcon}
             />
             <InfoItem
@@ -266,7 +281,7 @@ const Step4ReviewAndSubmit = () => {
               />
               <InfoItem
                 label={t('review.verification.workingHours')}
-                value={formData.working_hour}
+                value={formatWorkingHours(formData.workingHour)}
                 icon={Clock}
               />
               {formData.pharmacyLogoPreview && (

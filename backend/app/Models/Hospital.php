@@ -27,6 +27,11 @@ class Hospital extends Model
         "approved_by"
     ];
 
+    protected $casts = [
+        'working_hour' => 'array',
+        'is_full_time_service' => 'boolean',
+    ];
+
 
 public function getLogoUrlAttribute() {
     return asset('storage/' . $this->logo);

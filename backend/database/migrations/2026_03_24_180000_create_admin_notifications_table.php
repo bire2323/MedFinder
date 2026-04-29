@@ -17,7 +17,7 @@ return new class extends Migration
             $blueprint->string('priority')->default('medium'); // high, medium, low
             $blueprint->string('title');
             $blueprint->text('message');
-            $blueprint->foreignId('admin_id')->constrained('users')->onDelete('cascade');
+            $blueprint->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $blueprint->timestamp('read_at')->nullable();
             $blueprint->timestamps();
         });

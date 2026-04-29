@@ -39,8 +39,10 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
 Route::post('resend-otp', [AuthController::class, 'resendOtp']);
 
-Route::get('/auth/google/redirect', [AuthController::class, 'redirectToGoogle']);
-Route::get("/auth/google/callback", [AuthController::class, "handleGoogleCallback"]);
+Route::middleware(['web'])->group(function () {
+    Route::get('/auth/google/redirect', [AuthController::class, 'redirectToGoogle']);
+    Route::get("/auth/google/callback", [AuthController::class, "handleGoogleCallback"]);
+});
 
 // Forgot password - request OTP
 Route::post('/forgot-password', [UserController::class, 'forgotPassword']);
@@ -74,6 +76,7 @@ Route::get('/medical-facilities', function () {
         ->map(function ($item) {
             $item->type = 'hospital';
             $item->global_id = 'h-' . $item->id;
+            $item->working_hour = $item->working_hour; // Include working hours
 
             return $item->toArray();
         });
@@ -84,6 +87,7 @@ Route::get('/medical-facilities', function () {
         ->map(function ($item) {
             $item->type = 'pharmacy';
             $item->global_id = 'p-' . $item->id;
+            $item->working_hour = $item->working_hour; // Include working hours
 
             return $item->toArray();
         });
@@ -97,7 +101,7 @@ Route::get('/top-medical-facilities', function () {
     $hospitals = Hospital::with('addresses')->where('status', 'APPROVED')->limit(6)->get()->map(function ($item) {
         $item->type = 'hospital';
         $item->global_id = 'h-' . $item->id;
-
+        $item->working_hour = $item->working_hour; // Include working hours
 
         return $item;
     });
@@ -105,6 +109,7 @@ Route::get('/top-medical-facilities', function () {
     $pharmacies = Pharmacy::with('addresses')->where('status', 'APPROVED')->limit(6)->get()->map(function ($item) {
         $item->type = 'pharmacy';
         $item->global_id = 'p-' . $item->id;
+        $item->working_hour = $item->working_hour; // Include working hours
 
         return $item;
     });
@@ -314,6 +319,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('users/{user}', [\App\Http\Controllers\AdminDashboardController::class, 'updateUser']);
         Route::get('notifications', [\App\Http\Controllers\AdminDashboardController::class, 'notifications']);
         Route::post('notifications/{notification}/read', [\App\Http\Controllers\AdminDashboardController::class, 'markRead']);
+        Route::get('analytics', [\App\Http\Controllers\AdminDashboardController::class, 'analytics']);
+        Route::get('audit-logs', [\App\Http\Controllers\AdminDashboardController::class, 'auditLogs']);
     });
 
     // Auth actions

@@ -8,6 +8,7 @@ use App\Models\Pharmacy;
 use App\Models\PharmacyDrugInventory;
 use App\Models\StockHistory;
 use Illuminate\Http\Request;
+use App\Models\ChatSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -148,7 +149,7 @@ public function botSearchMedicine(Request $request)
         ->pluck('id');
 
     if ($medicines->isEmpty()) {
-        Log::info("no item",[""=>$medicines->toArray()]);
+        // Log::info("no item",[""=>$medicines->toArray()]);
         return response()->json(["opps"=>"opps"]);
     }
 
@@ -193,7 +194,7 @@ public function botSearchMedicine(Request $request)
             ];
         }
     }
-  Log::info("no item",[""=>$result]);
+//   Log::info("no item",[""=>$result]);
     // 4. Sort by price (cheapest first)
     usort($result, fn($a, $b) => $a['price'] <=> $b['price']);
 
@@ -224,11 +225,11 @@ public function botSearchMedicine(Request $request)
 
         $pharmacy = Auth::user()->pharmacy;
 
-        Log::info('Add Drug Request', [
-            'user_id' => Auth::id(),
-            'pharmacy' => $pharmacy?->id,
-            'validated_data' => $validated
-        ]);
+        // Log::info('Add Drug Request', [
+        //     'user_id' => Auth::id(),
+        //     'pharmacy' => $pharmacy?->id,
+        //     'validated_data' => $validated
+        // ]);
 
         if (!$pharmacy) {
             return response()->json([
@@ -261,7 +262,7 @@ public function botSearchMedicine(Request $request)
             $inventory = null;
 
             if ($existing) {
-                Log::info('Updating existing inventory', ['inventory_id' => $existing->id]);
+                // Log::info('Updating existing inventory', ['inventory_id' => $existing->id]);
 
                 if ($existing->trashed()) {
                     $existing->restore();
@@ -286,15 +287,15 @@ public function botSearchMedicine(Request $request)
 
                 $inventory = $existing;
 
-                Log::info('Inventory updated successfully', [
-                    'inventory_id' => $inventory->id,
-                    'stock' => $inventory->stock
-                ]);
+                // Log::info('Inventory updated successfully', [
+                //     'inventory_id' => $inventory->id,
+                //     'stock' => $inventory->stock
+                // ]);
             } else {
-                Log::info('Creating new inventory', [
-                    'drug_id' => $drug->id,
-                    'pharmacy_id' => $pharmacy->id
-                ]);
+                // Log::info('Creating new inventory', [
+                //     'drug_id' => $drug->id,
+                //     'pharmacy_id' => $pharmacy->id
+                // ]);
 
                 // Create inventory with explicit attributes
                 $inventoryData = [
@@ -315,18 +316,18 @@ public function botSearchMedicine(Request $request)
                     'status' => $validated['stock'] > 0 ? 'AVAILABLE' : 'OUT_OF_STOCK',
                 ];
 
-                Log::info('Inventory data to create', $inventoryData);
+                // Log::info('Inventory data to create', $inventoryData);
 
                 $inventory = PharmacyDrugInventory::create($inventoryData);
 
                 // Refresh the model to ensure we have the latest data
                 $inventory->refresh();
 
-                Log::info('New inventory created', [
-                    'inventory_id' => $inventory->id,
-                    'inventory_exists' => $inventory->exists,
-                    'all_attributes' => $inventory->toArray()
-                ]);
+                // Log::info('New inventory created', [
+                //     'inventory_id' => $inventory->id,
+                //     'inventory_exists' => $inventory->exists,
+                //     'all_attributes' => $inventory->toArray()
+                // ]);
 
                 // Double-check that ID exists
                 if (!$inventory->id) {
@@ -341,11 +342,11 @@ public function botSearchMedicine(Request $request)
             // Log stock history
             $oldStock = $existing ? $existing->getOriginal('stock') : 0;
 
-            Log::info('Creating stock history', [
-                'inventory_id' => $inventory->id,
-                'old_stock' => $oldStock,
-                'new_stock' => $validated['stock']
-            ]);
+            // Log::info('Creating stock history', [
+            //     'inventory_id' => $inventory->id,
+            //     'old_stock' => $oldStock,
+            //     'new_stock' => $validated['stock']
+            // ]);
 
             $stockHistory = StockHistory::create([
                 'inventory_id' => $inventory->id,
@@ -453,7 +454,7 @@ public function botSearchMedicine(Request $request)
     public function getAnalytics()
     {
         $pharmacy = Auth::user()->pharmacy;
-        if (!$pharmacy) return response()->json(['success' => false], 404);
+        if (!$pharmacy) return response()->json(['success' => false], 200);
 
         $totalItems = PharmacyDrugInventory::where('pharmacy_id', $pharmacy->id)->count();
         $lowStock = PharmacyDrugInventory::where('pharmacy_id', $pharmacy->id)
@@ -465,6 +466,7 @@ public function botSearchMedicine(Request $request)
         $expiringSoon = PharmacyDrugInventory::where('pharmacy_id', $pharmacy->id)
             ->where('expire_date', '<=', now()->addMonths(3))
             ->count();
+        $userSession = ChatSession::where("pharmacy_id", $pharmacy->id)->count();
 
         return response()->json([
             'success' => true,
@@ -473,6 +475,7 @@ public function botSearchMedicine(Request $request)
                 'low_stock' => $lowStock,
                 'out_of_stock' => $outOfStock,
                 'expiring_soon' => $expiringSoon,
+                'user_sessions' => $userSession,
             ]
         ]);
     }
@@ -483,12 +486,12 @@ public function botSearchMedicine(Request $request)
     public function getTrash()
     {
         $pharmacy = Auth::user()->pharmacy;
-        Log::info("pha trash", ['pharmacy' => $pharmacy]);
+      //  Log::info("pha trash", ['pharmacy' => $pharmacy]);
         $trashed = PharmacyDrugInventory::onlyTrashed()
             ->where('pharmacy_id', $pharmacy->id)
             ->with('drug')
             ->get();
-        Log::info("pha trash", ['trashed' => $trashed]);
+      //  Log::info("pha trash", ['trashed' => $trashed]);
         return response()->json(['success' => true, 'data' => $trashed]);
     }
 

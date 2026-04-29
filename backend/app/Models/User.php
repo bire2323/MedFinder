@@ -68,5 +68,5 @@ protected $guard_name = 'sanctum';
                     ->withPivot('last_read_at')
                     ->withTimestamps();
     }
-    
+
 }

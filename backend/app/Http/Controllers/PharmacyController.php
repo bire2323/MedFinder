@@ -48,7 +48,7 @@ class PharmacyController extends Controller
 {
     try {
         DB::beginTransaction();
-        
+
         $pharmacy = Pharmacy::find($id);
         if (!$pharmacy) {
             return response()->json([
@@ -56,7 +56,7 @@ class PharmacyController extends Controller
                 'message' => 'Pharmacy not found',
             ], 404);
         }
-        
+
         // Fix boolean fields
         if ($request->has('is_full_time_service')) {
             $value = $request->input('is_full_time_service');
@@ -66,7 +66,7 @@ class PharmacyController extends Controller
                 $request->merge(['is_full_time_service' => true]);
             }
         }
-        
+
         // Prepare validation rules
         $rules = [
             'pharmacy_name_en' => 'sometimes|string|max:255',
@@ -79,25 +79,25 @@ class PharmacyController extends Controller
             'is_full_time_service' => 'sometimes|boolean',
             'working_hour' => 'sometimes|nullable',
         ];
-        
+
         // Only add file validation if files are actually uploaded
         if ($request->hasFile('logo')) {
             $rules['logo'] = 'image|mimes:jpg,jpeg,png|max:2048';
         }
-        
+
         if ($request->hasFile('pharmacy_license_upload')) {
             $rules['pharmacy_license_upload'] = 'file|mimes:pdf,jpg,jpeg,png|max:5120';
         }
-        
+
         $validated = $request->validate($rules);
-        
+
         // Prepare pharmacy data
         $pharmacyData = $request->except(['addresses', 'logo', 'pharmacy_license_upload']);
-        
+
         // Handle working_hour
         if ($request->has('working_hour')) {
             $workingHour = $request->input('working_hour');
-            
+
             // If it's a string, try to decode it
             if (is_string($workingHour)) {
                 $decoded = json_decode($workingHour, true);
@@ -105,7 +105,7 @@ class PharmacyController extends Controller
                     $workingHour = $decoded;
                 }
             }
-            
+
             // If it's an array, clean and encode it
             if (is_array($workingHour)) {
                 // Remove empty arrays
@@ -127,29 +127,29 @@ class PharmacyController extends Controller
                 $pharmacyData['working_hour'] = '{}';
             }
         }
-        
+
         // Update pharmacy
         $pharmacy->update($pharmacyData);
-        
+
         // Handle address - FIX THE ERROR HERE
         if ($request->has('addresses')) {
             $addressData = $request->input('addresses');
-            
+
             // Decode if it's a JSON string
             if (is_string($addressData)) {
                 $addressData = json_decode($addressData, true);
             }
-            
+
             // Ensure it's an array
             if (!is_array($addressData)) {
                 $addressData = [];
             }
-            
+
             // If addresses is an array with main address at index 0
             if (isset($addressData[0]) && is_array($addressData[0])) {
                 $addressData = $addressData[0];
             }
-            
+
             // ONLY unset if it's an array
             if (is_array($addressData)) {
                 // Remove fields that shouldn't be updated
@@ -159,7 +159,7 @@ class PharmacyController extends Controller
                 unset($addressData['created_at']);
                 unset($addressData['updated_at']);
                 unset($addressData['deleted_at']);
-                
+
                 // Only proceed if we have valid address data
                 if (!empty($addressData)) {
                     // Check if pharmacy has an address
@@ -172,7 +172,7 @@ class PharmacyController extends Controller
                 }
             }
         }
-        
+
         // Handle logo upload
         if ($request->hasFile('logo')) {
             if ($pharmacy->logo && Storage::disk('public')->exists($pharmacy->logo)) {
@@ -181,7 +181,7 @@ class PharmacyController extends Controller
             $logoPath = $request->file('logo')->store('logos/pharmacies', 'public');
             $pharmacy->update(['logo' => $logoPath]);
         }
-        
+
         // Handle license upload
         if ($request->hasFile('pharmacy_license_upload')) {
             if ($pharmacy->pharmacy_license_upload && Storage::disk('public')->exists($pharmacy->pharmacy_license_upload)) {
@@ -190,18 +190,18 @@ class PharmacyController extends Controller
             $licensePath = $request->file('pharmacy_license_upload')->store('licenses/pharmacies', 'public');
             $pharmacy->update(['pharmacy_license_upload' => $licensePath]);
         }
-        
+
         DB::commit();
-        
+
         // Load relationships for response
         $pharmacy->load('addresses');
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Pharmacy updated successfully',
             'data' => $pharmacy
         ], 200);
-        
+
     } catch (\Illuminate\Validation\ValidationException $e) {
         DB::rollBack();
         return response()->json([
@@ -213,7 +213,7 @@ class PharmacyController extends Controller
         DB::rollBack();
         Log::error('Pharmacy update error: ' . $e->getMessage());
         Log::error($e->getTraceAsString());
-        
+
         return response()->json([
             'success' => false,
             'message' => 'Failed to update pharmacy',
@@ -307,6 +307,18 @@ class PharmacyController extends Controller
                 ? $request->file('logo')->store('logos/pharmacies', 'public')
                 : null;
 
+            // Process working_hour
+            $workingHour = $validated['working_hour'];
+            if (is_string($workingHour)) {
+                $decoded = json_decode($workingHour, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    $cleaned = array_map(function($day) {
+                        return is_array($day) ? array_filter($day, 'is_numeric') : [];
+                    }, $decoded);
+                    $workingHour = json_encode($cleaned);
+                }
+            }
+
             // 4. Create Hospital Record
             $pharmacy = Pharmacy::create([
                 'pharmacy_agent_id' => $user->id,
@@ -315,7 +327,7 @@ class PharmacyController extends Controller
                 'license_number' => $validated['license_number'],
                 'pharmacy_license_category' => $validated['pharmacy_type'],
                 'pharmacy_license_upload' => $licensePath,
-                'working_hour' => $validated["working_hour"], // Can be updated later
+                'working_hour' => $workingHour,
                 'contact_phone' => $validated["contact_phone"], // Can be updated later
                 'contact_email' => $validated["contact_email"], // Can be updated later
                 "address_description_en" => $validated['detailed_address_en'] ?? null,
@@ -344,7 +356,8 @@ class PharmacyController extends Controller
 
             // 6. Notify Admins in real-time
             $admins = User::role('admin')->get();
-            foreach ($admins as $admin) {
+            \Log::info('Notifying admins about new pharmacy registration', ['admin' => $admins]);
+             foreach ($admins as $admin) {
                 $notification = Notification::create([
                     'user_id' => $admin->id,
                     'type' => 'approval',
@@ -354,6 +367,7 @@ class PharmacyController extends Controller
                 ]);
                 event(new NotificationSent($notification));
             }
+
 
             // 7. Return success response
             return response()->json([
@@ -385,7 +399,7 @@ public function botIndex(Request $request)
     {
         $query = Pharmacy::with(['addresses', 'drugs.inventory'])
             ->where('status', 'APPROVED');
-     
+
         // 🔍 Filter by pharmacy name
         if ($request->name) {
             $query->where(function ($q) use ($request) {

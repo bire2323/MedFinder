@@ -67,6 +67,7 @@ export async function apiMe() {
   await ensureCsrfCookie();
   return apiFetch("/api/user", {
     method: "GET",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
   });
 }

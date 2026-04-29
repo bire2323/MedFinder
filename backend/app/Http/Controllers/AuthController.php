@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\PendingUser;
 use App\Models\OtpVerification;
 use Illuminate\Support\Facades\Auth;
-use App\Models\AuditLog;
-use Laravel\Socialite\Facades\Socialite; 
+use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 
 use Illuminate\Support\Facades\Log;
@@ -29,29 +28,26 @@ class AuthController extends Controller
         ]);
         $user = User::where('Phone', $request->phone)->first();
         if (!$user) {
+            $this->logAudit($request, 'LOGIN', "Failed login: unknown phone {$request->phone}", 'failed', 'auth', ['phone' => $request->phone]);
             return response()->json([
                 'success' => false,
                 'message' => 'User_not_found'
             ]);
         }
+
         if (!Hash::check($request->password, $user->Password)) {
+            $this->logAudit($request, 'LOGIN', "Failed login for user {$user->id}", 'failed', 'auth', ['phone' => $request->phone], $user->id);
             return response()->json([
                 'ok' => false,
                 'success' => false,
-                "message" => "Invalid_credentials",
+                'message' => 'Invalid_credentials',
             ]);
         }
+
         Auth::guard('web')->login($user);
         $request->session()->regenerate(true);
-        AuditLog::create([
-            'user_id' => $user->id,
-            'category' => 'user',
-            'event' => 'user Registration ',
-            'detail' => "{$user->Name} loged successfully",
-            'ip_address' => $request->ip(),
-            'metadata' => json_encode($user),
-            'event_status' => 'success',
-        ]);
+        $this->logAudit($request, 'LOGIN', "{$user->Name} logged in successfully", 'success', 'auth', ['phone' => $request->phone], $user->id);
+
         return response()->json([
             'success' => true,
             'user' => $user,
@@ -101,6 +97,8 @@ class AuthController extends Controller
         // TODO: Send OTP via SMS provider
         // sendOtpSms($validated['phone'], $otp);
 
+        $this->logAudit($request, 'REGISTER_REQUEST', "OTP sent for phone {$validated['phone']}", 'success', 'auth', ['phone' => $validated['phone']]);
+
         return response()->json([
             'success' => true,
             'message' => $otp . " OTP sent to your phone" . $request->phone,
@@ -116,20 +114,23 @@ class AuthController extends Controller
         $pendingUser = PendingUser::where('phone', $request->phone)->first();
 
         if (!$otpRow || !$pendingUser) {
+            $this->logAudit($request, 'REGISTER_VERIFY', "OTP attempt failed - expired or missing record for {$request->phone}", 'failed', 'auth', ['phone' => $request->phone]);
             return response()->json(["success" => false, 'message' => 'OTP expired']);
         }
 
         if ($otpRow->expires_at < now()) {
+            $this->logAudit($request, 'REGISTER_VERIFY', "OTP expired for phone {$request->phone}", 'failed', 'auth', ['phone' => $request->phone]);
             return response()->json(['success' => false, 'message' => 'OTP expired']);
         }
 
         if ($otpRow->attempts >= 2) {
+            $this->logAudit($request, 'REGISTER_VERIFY', "Too many OTP attempts for phone {$request->phone}", 'failed', 'auth', ['phone' => $request->phone]);
             return response()->json(['success' => false, 'message' => 'Too many attempts']);
         }
 
         if (!Hash::check($request->otp, $otpRow->otp_hash)) {
-
             $otpRow->increment('attempts');
+            $this->logAudit($request, 'REGISTER_VERIFY', "Invalid OTP for phone {$request->phone}", 'failed', 'auth', ['phone' => $request->phone], null);
             return response()->json(['success' => false, 'message' => 'Invalid OTP']);
         }
 
@@ -148,15 +149,7 @@ class AuthController extends Controller
         // Cleanup
         $otpRow->delete();
         $pendingUser->delete();
-        AuditLog::create([
-            'user_id' => $user->id,
-            'category' => 'user',
-            'event' => 'user Registration ',
-            'detail' => "{$user->Name} registered successfully",
-            'ip_address' => $request->ip(),
-            'metadata' => json_encode($user),
-            'event_status' => 'success',
-        ]);
+        $this->logAudit($request, 'REGISTER_COMPLETE', "{$user->Name} registered successfully", 'success', 'auth', ['user_id' => $user->id], $user->id);
 
         return response()->json([
             'success' => true,
@@ -203,6 +196,11 @@ class AuthController extends Controller
     }
     // POST /api/logout (protected)
     public function logout(Request $request)    {
+        $user = Auth::guard('web')->user();
+        if ($user) {
+            $this->logAudit($request, 'LOGOUT', "{$user->Name} logged out", 'success', 'auth', ['user_id' => $user->id], $user->id);
+        }
+
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -222,7 +220,7 @@ class AuthController extends Controller
         /** @var \App\Models\User|null $user */
         $user = $request->user();
         if (!$user) {
-       
+
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -250,6 +248,7 @@ class AuthController extends Controller
             'Phone' => $validated['phone'] ?? null,
             'Email' => $validated['email'] ?? null,        ];
         $user->update(array_filter($data, fn($v) => !is_null($v)));
+        $this->logAudit($request, 'PROFILE_UPDATE', "{$user->Name} updated profile", 'success', 'auth', ['user_id' => $user->id], $user->id);
 
         return response()->json(["success" => true, "message" => "Profile updated successfully"]);
     }
@@ -265,10 +264,12 @@ class AuthController extends Controller
             'newPassword' => 'required|min:6|confirmed',
         ]);
         if (!Hash::check($validated['currentPassword'], $user->Password)) {
+            $this->logAudit($request, 'PASSWORD_CHANGE', "Failed password change for {$user->Name}", 'failed', 'auth', ['user_id' => $user->id], $user->id);
             return response()->json(["success" => false, "message" => "Invalid old password"]);
         }
         $user->Password = Hash::make($validated['newPassword']);
         $user->save();
+        $this->logAudit($request, 'PASSWORD_CHANGE', "{$user->Name} changed password", 'success', 'auth', ['user_id' => $user->id], $user->id);
         return response()->json(["success" => true, "message" => "Password updated successfully"]);
     }
 
@@ -276,7 +277,7 @@ class AuthController extends Controller
    public function redirectToGoogle()
 {
     // Set the redirect URL dynamically for local development
-    $redirectUrl = env('GOOGLE_REDIRECT_URL');  
+    $redirectUrl = env('GOOGLE_REDIRECT_URL');
 
     return Socialite::driver('google')
         ->redirectUrl($redirectUrl)   // ← This is the most important line
@@ -300,7 +301,7 @@ public function handleGoogleCallback()
         [
             'Name'   => $googleUser->getName(),
             'Password' => bcrypt(Str::random(16)),
-           
+
         ]
     );
     $user->refresh();
@@ -315,10 +316,11 @@ public function handleGoogleCallback()
         'email'   => $user->Email,
         'roles'   => $user->getRoleNames()->toArray()
     ]);
-}
-// Important fixes for Socialite + Sanctum
+  }
+  // Important fixes for Socialite + Sanctum
     Auth::guard('web')->login($user);     // Explicitly use web guard
     session()->regenerate(true);
+    $this->logAudit(request(), 'LOGIN', "{$user->Name} signed in with Google", 'success', 'auth', ['provider' => 'google'], $user->id);
   Log::info('Google login - session created', [
         'user_id' => $user->id,
         'email'   => $user->Email,

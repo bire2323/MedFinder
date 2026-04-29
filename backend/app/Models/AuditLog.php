@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Models\User;
+
 class AuditLog extends Model
 {
     use SoftDeletes;
@@ -22,8 +24,12 @@ class AuditLog extends Model
 
     protected $casts = [
         'user_id' => 'integer',
-        'action' => 'string',
-        'detail' => 'string',
-        'action_status' => 'string',
+        'metadata' => 'array',
+        'event_status' => 'string',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

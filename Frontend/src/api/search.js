@@ -40,6 +40,7 @@ function normalizeFacility(f) {
     lng,
     rating,
     isFullTime,
+    workingHour: f?.working_hour,
     departments: Array.isArray(f?.departments) ? f.departments : [],
     services: Array.isArray(f?.services) ? f.services : [],
   };

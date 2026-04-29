@@ -28,11 +28,12 @@ import {
 } from 'lucide-react';
 import { useLoaderData } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { localizeFacility } from '../hooks/Localizer';
+import { formatWorkingHours, getTodayHours } from '../utils/workingHoursUtils';
 import apiStartChatSession from '../api/RealtimeChat';
 import useAuthStore from '../store/UserAuthStore';
 import toast from 'react-hot-toast';
 import Loading from '../component/SupportiveComponent/Loading';
+import { localizeFacility } from '../hooks/Localizer';
 
 
 const FacilityDetailPage = () => {
@@ -242,7 +243,7 @@ const FacilityDetailPage = () => {
                   <span className="text-slate-300">|</span>
                   <div className="flex items-center gap-1 text-sm text-slate-500">
                     <Clock size={14} />
-                    {facility.working_hour}
+                    <span className="font-medium">Today: {getTodayHours(facility.working_hour)}</span>
                   </div>
                 </div>
               </div>
@@ -300,7 +301,7 @@ const FacilityDetailPage = () => {
         >
           {/* Overview Tab */}
           {activeTab === 'overview' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Quick Info */}
               <div className="bg-white/60 backdrop-blur-xl dark:bg-gray-800/80 rounded-3xl p-6 border border-white/20 shadow-xl dark:border-gray-700/50 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] transition-all duration-300">
                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
@@ -318,6 +319,45 @@ const FacilityDetailPage = () => {
                       value={facility.is_full_time_service ? t("FacilityDetail.Yes") : t("FacilityDetail.No")}
                     />
                   )}
+                </div>
+              </div>
+
+              {/* Working Hours */}
+              <div className="bg-white/60 backdrop-blur-xl dark:bg-gray-800/80 rounded-3xl p-6 border border-white/20 shadow-xl dark:border-gray-700/50 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] transition-all duration-300">
+                <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                  <Clock size={18} className={type === 'pharmacy' ? 'text-emerald-500' : 'text-blue-500'} />
+                  {t("FacilityDetail.WorkingHours")}
+                </h3>
+                <div className="space-y-3">
+                  <div className="text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2">
+                    Today: <span className="text-emerald-600 dark:text-emerald-400">{getTodayHours(facility.working_hour)}</span>
+                  </div>
+                  <div className="text-xs text-slate-600 dark:text-gray-400 space-y-1">
+                    {(() => {
+                      let parsed;
+                      try {
+                        parsed = typeof facility.working_hour === 'string' ? JSON.parse(facility.working_hour) : facility.working_hour;
+                      } catch (e) {
+                        parsed = {};
+                      }
+                      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                      const dayNames = {
+                        Mon: 'Mon', Tue: 'Tue', Wed: 'Wed', Thu: 'Thu', Fri: 'Fri', Sat: 'Sat', Sun: 'Sun'
+                      };
+                      return days.map(day => {
+                        const hours = parsed?.[day] || [];
+                        const isClosed = !hours || hours.length === 0;
+                        return (
+                          <div key={day} className="flex justify-between items-center">
+                            <span className="font-medium">{dayNames[day]}</span>
+                            <span className={isClosed ? 'text-red-500' : 'text-emerald-600'}>
+                              {isClosed ? 'Closed' : `${Math.min(...hours)}:00 - ${Math.max(...hours) + 1}:00`}
+                            </span>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
                 </div>
               </div>
 
@@ -417,12 +457,12 @@ const FacilityDetailPage = () => {
                 <div className="p-6">
                   <div className="flex flex-wrap gap-2">
                     {facility.services?.map((service, index) => (
-                      <>
-                        <span key={index} className="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-full text-sm">
+                      <div key={index} className="flex flex-col items-center">
+                        <span className="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-full text-sm">
                           {service?.name}
                         </span>
-                        <p>{service?.category}</p>
-                      </>
+                        <p className="text-xs text-slate-500 mt-1">{service?.category}</p>
+                      </div>
                     ))}
                   </div>
                 </div>

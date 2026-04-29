@@ -22,11 +22,11 @@ return new class extends Migration
             $table->string('pharmacy_license_upload');
 
             $table->string('working_hour');
-            $table->string('contact_phone', 10)->unique()->nullable();
+            $table->string('contact_phone', 10);
             $table->string('contact_email')->unique()->nullable();
             $table->string('address_description_en')->nullable();
             $table->string('address_description_am')->nullable();
-            $table->string('logo')->nullable(); 
+            $table->string('logo')->nullable();
             $table->enum('status', ['PENDING', 'APPROVED', 'REJECTED'])
                   ->default('PENDING');
 

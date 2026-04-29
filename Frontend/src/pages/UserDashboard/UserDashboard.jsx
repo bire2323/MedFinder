@@ -168,7 +168,7 @@ export default function UserDashboard() {
 
     return (
         <>
-            <DashboardHeader />
+            <Header />
             <NotificationToast />
             <div className="min-h-screen px-4 sm:px-6 xl:px-10 bg-white text-slate-900 dark:bg-gray-900 dark:text-slate-100 transition-colors duration-300 flex ">
 
@@ -421,7 +421,7 @@ export default function UserDashboard() {
                         )}
 
                         {activeSection === "profile" && (
-                            <div className="max-w-full sm:max-w-7xl mx-auto px-1 md:px-3 sm:px-6 lg:px-8 py-3s md:py-6">
+                            <div className="max-w-full sm:max-w-7xl mx-auto px-1 md:px-3 sm:px-6 lg:px-8 py-3 md:py-6">
                                 <Profile />
                             </div>
                         )}

@@ -560,6 +560,7 @@
     "TotalDrugs": "Total Drugs",
     "LowStock": "Low Stock Items",
     "OutOfStock": "Out of Stock",
+    "USERSESSIONS": "active chat user",
     "RecentChats": "Recent Chats",
     "InventoryOverview": "Inventory Overview",
     "ViewAll": "View All",

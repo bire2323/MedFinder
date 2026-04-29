@@ -550,6 +550,7 @@
     "TotalDrugs": "ጠቅላላ መድኃኒቶች",
     "LowStock": "ዝቅተኛ ክምችት",
     "OutOfStock": "ክምችት የለም",
+    "USERSESSIONS": "active chat user",
     "RecentChats": "የቅርብ ጊዜ ውይይቶች",
     "InventoryOverview": "መድሃኒቶች እይታ",
     "ViewAll": "ሁሉንም ይመልከት",
@@ -1312,7 +1313,7 @@
     "availability": {
       "title": "የስራ ሰዓት",
       "openNow": "አሁን ክፍት ነው",
-      "hint": "በሚገኝበት ጊዜ 24/7 ምልክት ይጠቀማል፤ አለበለዚያ ሰዓቶች ያልታወቁ ሊሆኑ ይችላሉ።"
+      "hint": " ጊዜ 24/7 ምልክት ይጠቀማል፤ አለበለዚያ ሰዓቶች ያልታወቁ ሊሆኑ ይችላሉ።"
     },
     "departments": {
       "title": "ክፍሎች / አገልግሎቶች",

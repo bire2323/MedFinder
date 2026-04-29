@@ -41,7 +41,7 @@ class HospitalController extends Controller
             ->where('status', 'APPROVED');
 
         if ($lat && $lng) {
-            // Basic haversine or distance filter if needed, 
+            // Basic haversine or distance filter if needed,
             // for now returning all APPROVED for simplicity in this implementation step
             // or filtering by lat/lng range
             $query->whereHas('addresses', function($q) use ($lat, $lng, $radius) {
@@ -67,10 +67,10 @@ class HospitalController extends Controller
             // Basic Info
             'facilityNameEn' => 'required|string|min:3|max:255',
             'facilityNameAm' => 'required|string|min:3|max:255',
-         
+
             'contact_email' => 'nullable|email|unique:users,email',
-          
-            
+
+
             // Location Info
             'region_en' => 'required|string|max:255',
             'region_am' => 'required|string|max:255',
@@ -98,10 +98,10 @@ class HospitalController extends Controller
         ],[
              'facilityNameEn' => 'FACILITY_NAME_REQ',
             'facilityNameAm' => 'FACILITY_NAME_AM_REQ',
-         
+
             'contact_email' => 'CONTACT_EMAIL_REQ',
-          
-            
+
+
             // Location Info
             'region_en' => 'REGION_EN_REQ',
             'region_am' => 'REGION_AM_REQ',
@@ -116,7 +116,7 @@ class HospitalController extends Controller
             'longitude' => 'LONGITUDE_REQ',
             'working_hour' => 'WORKING_HOUR_REQ',
             'contact_phone' => 'CONTACT_PHONE_REQ',
-             
+
             'license_number' => 'LICENCE_REQ',
             'hospital_ownership_type' => 'OWNERSHIP_TYPE_REQ',
             'provides_emergency' => 'PROVIDES_EMERGENCY_REQ',
@@ -124,7 +124,7 @@ class HospitalController extends Controller
 
             // Files
             'license_document' => 'LICENCE_DOC_REQ',
-            'logo' => 'LOGO_REQ', 
+            'logo' => 'LOGO_REQ',
         ]);
         } catch (ValidationException $e) {
                return response()->json([
@@ -164,6 +164,18 @@ class HospitalController extends Controller
                 ? $request->file('logo')->store('logos/hospitals', 'public')
                 : null;
 
+            // Process working_hour
+            $workingHour = $validated['working_hour'];
+            if (is_string($workingHour)) {
+                $decoded = json_decode($workingHour, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    $cleaned = array_map(function($day) {
+                        return is_array($day) ? array_filter($day, 'is_numeric') : [];
+                    }, $decoded);
+                    $workingHour = json_encode($cleaned);
+                }
+            }
+
             // 4. Create Hospital Record
             $hospital = Hospital::create([
                 'hospital_agent_id' => $user->id,
@@ -172,7 +184,7 @@ class HospitalController extends Controller
                 'license_number' => $validated['license_number'],
                 'hospital_ownership_type' => $validated['hospital_ownership_type'],
                 'official_license_upload' => $licensePath,
-                'working_hour' => $validated["working_hour"], // Can be updated later
+                'working_hour' => $workingHour,
                 "address_description_en"=>$validated["detailed_address_en"],
                 "address_description_am"=>$validated["detailed_address_am"],
                 'logo' => $logoPath,
@@ -181,7 +193,7 @@ class HospitalController extends Controller
                 'emergency_contact' => $validated['contact_phone'],
                 'status' => 'PENDING', // Admin will approve later
             ]);
-            
+
             // 5. Create Location Record (polymorphic)
             Location::create([
                 'addressable_id' => $hospital->id,
@@ -199,7 +211,7 @@ class HospitalController extends Controller
             ]);
             $user->syncRoles('hospitalAgent');
           Log::info('User booked hospital', ['user_id' => auth('sanctum')->id()]);
-     
+
             // 6. Notify Admins in real-time
             $admins = \App\Models\User::role('admin')->get();
             foreach ($admins as $admin) {
@@ -249,7 +261,7 @@ class HospitalController extends Controller
     {
     try {
         DB::beginTransaction();
-        
+
         $hospital = Hospital::find($id);
         if (!$hospital) {
             return response()->json([
@@ -257,7 +269,7 @@ class HospitalController extends Controller
                 'message' => 'Hospital not found',
             ], 404);
         }
-        
+
         // Fix boolean fields
         if ($request->has('is_full_time_service')) {
             $value = $request->input('is_full_time_service');
@@ -267,7 +279,7 @@ class HospitalController extends Controller
                 $request->merge(['is_full_time_service' => true]);
             }
         }
-        
+
         // Prepare validation rules
         $rules = [
             'hospital_name_en' => 'sometimes|string|max:255',
@@ -280,25 +292,25 @@ class HospitalController extends Controller
             'is_full_time_service' => 'sometimes|boolean',
             'working_hour' => 'sometimes|nullable',
         ];
-        
+
         // Only add file validation if files are actually uploaded
         if ($request->hasFile('logo')) {
             $rules['logo'] = 'image|mimes:jpg,jpeg,png|max:2048';
         }
-        
+
         if ($request->hasFile('hospital_license_upload')) {
             $rules['hospital_license_upload'] = 'file|mimes:pdf,jpg,jpeg,png|max:5120';
         }
-        
+
         $validated = $request->validate($rules);
-        
+
         // Prepare hospital data
         $hospitalData = $request->except(['addresses', 'logo', 'hospital_license_upload']);
-        
+
         // Handle working_hour
         if ($request->has('working_hour')) {
             $workingHour = $request->input('working_hour');
-            
+
             // If it's a string, try to decode it
             if (is_string($workingHour)) {
                 $decoded = json_decode($workingHour, true);
@@ -306,7 +318,7 @@ class HospitalController extends Controller
                     $workingHour = $decoded;
                 }
             }
-            
+
             // If it's an array, clean and encode it
             if (is_array($workingHour)) {
                 // Remove empty arrays
@@ -328,29 +340,29 @@ class HospitalController extends Controller
                 $hospitalData['working_hour'] = '{}';
             }
         }
-        
+
         // Update hospital
         $hospital->update($hospitalData);
-        
+
         // Handle address - FIX THE ERROR HERE
         if ($request->has('addresses')) {
             $addressData = $request->input('addresses');
-            
+
             // Decode if it's a JSON string
             if (is_string($addressData)) {
                 $addressData = json_decode($addressData, true);
             }
-            
+
             // Ensure it's an array
             if (!is_array($addressData)) {
                 $addressData = [];
             }
-            
+
             // If addresses is an array with main address at index 0
             if (isset($addressData[0]) && is_array($addressData[0])) {
                 $addressData = $addressData[0];
             }
-            
+
             // ONLY unset if it's an array
             if (is_array($addressData)) {
                 // Remove fields that shouldn't be updated
@@ -360,7 +372,7 @@ class HospitalController extends Controller
                 unset($addressData['created_at']);
                 unset($addressData['updated_at']);
                 unset($addressData['deleted_at']);
-                
+
                 // Only proceed if we have valid address data
                 if (!empty($addressData)) {
                     // Check if hospital has an address
@@ -373,7 +385,7 @@ class HospitalController extends Controller
                 }
             }
         }
-        
+
         // Handle logo upload
         if ($request->hasFile('logo')) {
             if ($hospital->logo && Storage::disk('public')->exists($hospital->logo)) {
@@ -382,7 +394,7 @@ class HospitalController extends Controller
             $logoPath = $request->file('logo')->store('logos/hospitals', 'public');
             $hospital->update(['logo' => $logoPath]);
         }
-        
+
         // Handle license upload
         if ($request->hasFile('hospital_license_upload')) {
             if ($hospital->hospital_license_upload && Storage::disk('public')->exists($hospital->hospital_license_upload)) {
@@ -391,18 +403,18 @@ class HospitalController extends Controller
             $licensePath = $request->file('hospital_license_upload')->store('licenses/hospitals', 'public');
             $hospital->update(['hospital_license_upload' => $licensePath]);
         }
-        
+
         DB::commit();
-        
+
         // Load relationships for response
         $hospital->load('addresses');
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Hospital updated successfully',
             'data' => $hospital
         ], 200);
-        
+
     } catch (\Illuminate\Validation\ValidationException $e) {
         DB::rollBack();
         return response()->json([
@@ -414,7 +426,7 @@ class HospitalController extends Controller
         DB::rollBack();
         Log::error('hospital update error: ' . $e->getMessage());
         Log::error($e->getTraceAsString());
-        
+
         return response()->json([
             'success' => false,
             'message' => 'Failed to update hospital',
@@ -486,13 +498,10 @@ class HospitalController extends Controller
     public function getAgentHospital()
     {
         $user = auth('sanctum')->user();
-\Log::info('User logged in', ['user_id' => $user->id]);
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
-\Log::info('User logged in', ['user_id' => $user->id]);
         $hospital = Hospital::with('addresses')->where('hospital_agent_id', $user->id)->first();
-\Log::info('Hospital found', ['hospital' => $hospital]);
         // Return 200 with null if not found, to avoid breaking the dashboard on new accounts
         return response()->json(['success' => true, 'data' => $hospital]);
     }
