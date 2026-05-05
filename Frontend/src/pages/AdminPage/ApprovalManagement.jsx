@@ -22,10 +22,11 @@ import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import Loading from '../../component/SupportiveComponent/Loading';
 
-function DetailModal({ approval, onClose }) {
+function DetailModal({ approval, onApprove, onReject, onClose, setDetailModalOpen }) {
+  // console.log("DetailModal approval", approval);
   const { t } = useTranslation();
   if (!approval) return null;
-  console.log(approval);
+  // console.log(approval);
   const isHospital = (approval.type || '').toLowerCase() === 'hospital';
   const address = approval.addresses?.[0] || {};
 
@@ -135,6 +136,33 @@ function DetailModal({ approval, onClose }) {
         </div>
 
         <div className="sticky bottom-0 bg-slate-50 dark:bg-gray-900/80 px-6 py-4 border-t border-slate-200 dark:border-gray-800 flex justify-end">
+          {approval.status === "REJECTED" && (
+
+            <button
+              type="button"
+              className="flex-[1.5] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 dark:bg-indigo-500 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 text-sm font-semibold transition-all shadow-sm active:scale-95"
+              onClick={() => {
+
+                onApprove(approval.id, approval.type);
+                setDetailModalOpen(false);
+              }}
+            >
+              <CheckCircle className="size-3.5" />
+              {t("Admin.Approve")}
+            </button>
+
+          )}
+          {(approval.status === "APPROVED") && (
+            <button
+              type="button"
+              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-red-300 dark:border-red-700/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors"
+              onClick={() => { onReject(approval); setDetailModalOpen(false); }}
+            >
+              <X className="size-3.5" />
+              {t("Admin.Reject")}
+            </button>
+          )}
+
           <button onClick={onClose} className="px-5 py-2 rounded-lg bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors">
             {t("Common.Close")}
           </button>
@@ -217,16 +245,7 @@ function ApprovalCard({ approval, onApprove, onReject, onViewDetails }) {
             </a>
 
           )}
-          {isApproved && (
-            <button
-              type="button"
-              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-red-300 dark:border-red-700/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors"
-              onClick={() => onReject(approval)}
-            >
-              <X className="size-3.5" />
-              {t("Admin.Reject")}
-            </button>
-          )}
+
 
           {isPending && (
             <>
@@ -375,10 +394,16 @@ export default function ApprovalManagement() {
       {detailModalOpen && (
         <DetailModal
           approval={selectedApproval}
+          onApprove={handleApprove}
+          onReject={(a) => {
+            setSelectedApproval(a);
+            setRejectDialogOpen(true);
+          }}
           onClose={() => {
             setDetailModalOpen(false);
             setSelectedApproval(null);
           }}
+          setDetailModalOpen={setDetailModalOpen}
         />
       )}
 

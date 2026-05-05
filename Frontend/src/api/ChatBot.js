@@ -12,12 +12,13 @@ async function sendMessage(text) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      sender: "patient_001", message: text, entities: [
-        {
-          entity: "language",
-          value: detectLanguage(text)
-        }
-      ]
+      sender: "patient_001", message: text,
+      // entities: [
+      //   {
+      //     entity: "language",
+      //     value: detectLanguage(text)
+      //   }
+      // ]
     }),
   })
   return res.json();

@@ -19,6 +19,10 @@ export default function AuthCallback() {
                 const res = await apiMe();
                 if (res.success) {
                     setSession(res.user, res.roles);
+                    if (res.user?.status === "inactive") {
+                        clearSession();
+                        navigate("/");
+                    }
                     navigateByRole(res?.roles, navigate);
                     return true;
                 } else {

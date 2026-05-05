@@ -104,6 +104,7 @@ const HospitalDashboard = () => {
   const [selectedDept, setSelectedDept] = useState(null);
   const [selectedService, setSelectedService] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   // Form States
   const [deptForm, setDeptForm] = useState({
@@ -155,7 +156,11 @@ const HospitalDashboard = () => {
   //     fullMessage: incoming
   //   });
   // });
-
+  useEffect(() => {
+    if (user?.status === "inactive") {
+      setShowModal(true);
+    }
+  }, [user]);
   const { latestNotification } = useSystemNotificationStore();
 
   useEffect(() => {
@@ -315,6 +320,12 @@ const HospitalDashboard = () => {
 
   return (
     <>
+      <div>
+        {showModal && <AlertModal onClose={() => {
+          setShowModal(false);
+          navigate('/');
+        }} />}
+      </div>
       <NotificationToast />
       <SystemNotificationToast />
       <div className="min-h-screen min-w-[320px] bg-slate-50 dark:bg-gray-900 flex text-slate-900 dark:text-gray-100 transition-colors duration-300">

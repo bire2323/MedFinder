@@ -21,7 +21,7 @@ const ProfileSettingsLayout = ({ initialData, type = "hospital", onUpdateSuccess
 
   // Section Navigation
   const [activeSection, setActiveSection] = useState("general");
-
+  console.log("initialData in layout", initialData);
   // Flat Data State
   const [formData, setFormData] = useState(initialData || {});
 
@@ -71,6 +71,9 @@ const ProfileSettingsLayout = ({ initialData, type = "hospital", onUpdateSuccess
   const handleSubmit = async () => {
     // Note: The preparePayload function logic is handled inside useProfileUpdate hook
     // It automatically stringifies `address` and `working_hour` and appends Files
+
+    console.log("Submitting with formData:", formData, "and files:", files);
+
     const ok = await updateProfile(formData, files);
     if (ok) {
       if (onUpdateSuccess) onUpdateSuccess();
@@ -152,7 +155,7 @@ const ProfileSettingsLayout = ({ initialData, type = "hospital", onUpdateSuccess
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[95%] sm:w-full max-w-2xl px-4 pointer-events-auto"
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[95%] sm:w-full min-w-2xl px-4 pointer-events-auto"
           >
             <div className="bg-slate-900 dark:bg-gray-800 text-white p-4 sm:p-5 rounded-[1rem] border border-slate-700/50 dark:border-gray-700 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 w-full relative overflow-hidden backdrop-blur-2xl">
               {/* Glass Shimmer Effect */}

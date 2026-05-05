@@ -12,6 +12,7 @@ import useChatNotificationStore from "../../store/useChatNotificationStore";
 import useSystemNotificationStore from "../../store/useSystemNotificationStore";
 import NotificationToast from "../../component/NotificationToast";
 import SystemNotificationToast from "../../component/SystemNotificationToast";
+import AlertModal from "../../component/SupportiveComponent/AlertModal";
 import {
   Pill,
   FileText,
@@ -72,6 +73,8 @@ const PharmacyDashboard = () => {
   const [toggleProfileDropDown, setToggleProfileDropDown] = useState(false);
 
   const { user, roles } = useAuthStore();
+  const [showModal, setShowModal] = useState(true);
+
   const currentUserId = user?.id;
 
   const [pharmacyProfile, setPharmacyProfile] = useState(null);
@@ -92,6 +95,12 @@ const PharmacyDashboard = () => {
   //     fullMessage: incoming
   //   });
   // });
+  useEffect(() => {
+    const isInactive = user?.status === "inactive";
+    if (isInactive) {
+      setShowModal(true);
+    }
+  }, [user]);
   const handleLogout = () => {
     apiLogout().then(() => {
       clearSession();
@@ -202,6 +211,12 @@ const PharmacyDashboard = () => {
 
   return (
     <>
+      <div>
+        {showModal && <AlertModal onClose={() => {
+          setShowModal(false);
+          navigate('/');
+        }} />}
+      </div>
       <NotificationToast />
       <SystemNotificationToast />
       <div className="min-h-screen min-w-[320px] bg-white dark:bg-gray-900 flex text-slate-900 dark:text-gray-100 transition-colors duration-300">
@@ -210,7 +225,7 @@ const PharmacyDashboard = () => {
           <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} aria-hidden="true" />
         )}
         {/* SIDEBAR - responsive: collapsed on mobile, overlay when open */}
-        <nav className={`fixed sm:relative  inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 border-gray-400 dark:border-gray-500 flex flex-col transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'}`}>
+        <nav className={`fixed sm:relative border-r border-slate-200 md:my-3 dark:border-gray-800  inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 border-gray-400 dark:border-gray-500 flex flex-col transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'}`}>
           <div className="sticky top-0">
             <div className="flex flex-col justify-between h-full">
               <div className=" p-6 flex items-center gap-3">

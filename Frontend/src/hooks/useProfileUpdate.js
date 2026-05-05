@@ -8,7 +8,7 @@ const useProfileUpdate = (type, id) => {
   const [success, setSuccess] = useState(false);
 
   const updateProfile = async (data, files = {}) => {
-    // console.log("data passed to userprofileupdate", data);
+    console.log("data passed to userprofileupdate", data);
     setLoading(true);
     setError(null);
     setSuccess(false);
@@ -16,6 +16,7 @@ const useProfileUpdate = (type, id) => {
     // 1. Validate
     const validation = validateProfile(data, type);
     if (!validation.isValid) {
+      console.log("validation error");
       setError(validation.errors);
       setLoading(false);
       return false;

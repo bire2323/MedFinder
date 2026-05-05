@@ -53,6 +53,7 @@ export default function UserDashboard() {
 
     const { user, clearSession, roles } = useAuthStore();
     const currentUserId = user?.id;
+    const [showModal, setShowModal] = useState(false);
     //console.log(user);
 
     const { handleIncomingMessage, targetSessionToOpen, getUnreadCount } = useChatNotificationStore();
@@ -100,7 +101,11 @@ export default function UserDashboard() {
             setActiveSection("messages")
         }
     }, []);
-
+    useEffect(() => {
+        if (user?.status === "inactive") {
+            setShowModal(true);
+        }
+    }, [user]);
     useEffect(() => {
         localStorage.setItem(LS_FAVORITES_KEY, JSON.stringify(favorites));
     }, [favorites]);
@@ -168,6 +173,12 @@ export default function UserDashboard() {
 
     return (
         <>
+            <div>
+                {showModal && <AlertModal onClose={() => {
+                    setShowModal(false);
+                    navigate('/');
+                }} />}
+            </div>
             <Header />
             <NotificationToast />
             <div className="min-h-screen px-4 sm:px-6 xl:px-10 bg-white text-slate-900 dark:bg-gray-900 dark:text-slate-100 transition-colors duration-300 flex ">

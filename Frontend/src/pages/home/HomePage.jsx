@@ -109,7 +109,7 @@ export default function HomePage() {
         const res = await apiGetTopFacilities();
         if (res.success) {
           const all = res?.data || [];
-
+          //  console.log("Fetched facilities:", all);
           setHospitals(all.filter(f => f.type === 'hospital').slice(0, 12));
           setPharmacies(all.filter(f => f.type === 'pharmacy').slice(0, 12));
         }
@@ -334,7 +334,7 @@ export default function HomePage() {
 function FacilitySlider({ facilities, loading, onCardClick }) {
   const scrollRef = useRef(null);
   const { t } = useTranslation();
-  //console.log(facilities);
+  console.log(facilities);
   const scroll = (direction) => {
     if (scrollRef.current) {
       const { scrollLeft, clientWidth } = scrollRef.current;

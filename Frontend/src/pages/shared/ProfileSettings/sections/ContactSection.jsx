@@ -1,5 +1,5 @@
 import React from "react";
-import { Phone } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SectionWrapper, InputField } from "../components/FormFields";
 
@@ -12,9 +12,9 @@ const ContactSection = ({ data, onChange, error, theme }) => {
         <InputField
           label={t("Settings.EmergencyContact")}
           icon={<Phone size={14} />}
-          value={data.emergency_contact}
+          value={data.contact_phone}
           onChange={(v) => onChange("contact_phone", v)}
-          error={error?.emergency_contact}
+          error={error?.contact_phone}
           theme={theme}
           placeholder="0911223344"
         />

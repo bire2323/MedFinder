@@ -65,8 +65,8 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
   };
 
   // 3. WORKING HOURS
-  console.log(facility.workingHour);
-  const workingHours = facility.isFullTime ? "24/7" : getTodayHours(facility.workingHour);
+  //console.log(facility.working_hour);
+  const workingHours = facility.isFullTime ? "24/7" : getTodayHours(facility.working_hour || facility.raw?.workingHour);
 
   const typeLabel = isHospital ? t("search.hospital") : isPharmacy ? t("search.pharmacy") : t("search.facility");
   const typeTone = isHospital
@@ -105,7 +105,7 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
           <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-emerald-500 rounded-full blur-3xl"></div>
         </div>
 
-        <div className={`relative z-10 rounded-2xl border-2 border-white dark:border-gray-800 overflow-hidden bg-white dark:bg-slate-900 shadow-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-500 ${isList ? 'w-24 h-24' : 'w-24 h-24'}`}>
+        <div className={`relative z-10 rounded-xl border-2 border-white dark:border-gray-800 overflow-hidden bg-white dark:bg-slate-900 shadow-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-500 ${isList ? 'w-24 h-24' : 'w-24 h-24'}`}>
           {facility.raw ? (
             <img src={facility.raw?.logo_url} alt={name} className="w-full h-full object-cover dark:opacity-50" />
           ) : (

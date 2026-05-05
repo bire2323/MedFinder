@@ -51,7 +51,7 @@ export const formatWorkingHours = (workingHour) => {
  * @returns {string} Today's hours or 'Closed'
  */
 export const getTodayHours = (workingHour) => {
-
+    // console.log("getTodayHours called with:", workingHour);
     if (!workingHour) return 'Closed';
 
     let parsed;

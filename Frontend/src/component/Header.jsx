@@ -279,7 +279,7 @@ export default function Header() {
 
           {/* Right actions */}
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 md:gap-3">
-            <div className="hidden items-center gap-1.5 border-r border-slate-200 pr-2 dark:border-gray-800 sm:flex md:gap-2 md:pr-3">
+            <div className="hidden md:flex items-center gap-1.5 border-r border-slate-200 pr-2 dark:border-gray-800 md:gap-2 md:pr-3">
               <LanguageSwitcher />
               <ThemeToggle />
             </div>
@@ -380,21 +380,26 @@ export default function Header() {
                           <p className="text-xs font-bold text-slate-400">{t("headingNav.profile_dropdown.account")}</p>
                           <p className="truncate text-sm font-bold dark:text-white">{user?.Email}</p>
                         </div>
-                        <NavLink
-                          to="#"
-                          onClick={() => {
-                            if (roles?.includes("patient")) {
-                              navigate("/user/dashboard", { replace: true });
-                            } else {
-                              navigateByRole(roles, navigate);
-                            }
-                            setToggleProfileDropDown(false);
-                          }}
-                          className="flex cursor-pointer items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 dark:text-gray-300 dark:hover:bg-gray-800"
-                        >
-                          <FaUser className="text-emerald-600" />
-                          <span>{t("headingNav.profile_dropdown.my_dashboard")}</span>
-                        </NavLink>
+                        {user.status === "inactive" ? (
+                          <p className="px-4 py-3 text-sm text-red-500">{t("headingNav.profile_dropdown.inactive")}</p>
+                        ) : (
+                          <NavLink
+                            to="#"
+                            onClick={() => {
+                              if (roles?.includes("patient")) {
+                                navigate("/user/dashboard", { replace: true });
+                              } else {
+                                navigateByRole(roles, navigate);
+                              }
+                              setToggleProfileDropDown(false);
+                            }}
+                            className="flex cursor-pointer items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 transition-all hover:bg-slate-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                          >
+                            <FaUser className="text-emerald-600" />
+                            <span>{t("headingNav.profile_dropdown.my_dashboard")}</span>
+                          </NavLink>
+                        )
+                        }
                         <button
                           type="button"
                           onClick={handleLogout}
@@ -410,7 +415,7 @@ export default function Header() {
             )}
 
             {/* Mobile / compact: lang, theme, menu */}
-            <div className="flex items-center gap-1 sm:gap-2 md:hidden">
+            <div className="flex md:hidden items-center gap-1 sm:gap-2 ">
               <LanguageSwitcher />
               <ThemeToggle />
             </div>
