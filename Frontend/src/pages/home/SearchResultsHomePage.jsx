@@ -326,7 +326,7 @@ export default function SearchResultsHomePage() {
                       : t("search.enableLocationHint")}
                   </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="text-sm font-black text-slate-800 dark:text-white bg-slate-50 dark:bg-slate-950/40 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-900/30">
                     {loading
                       ? t("common.loading")

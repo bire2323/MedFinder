@@ -97,6 +97,29 @@ nlu:
       - are you a bot or a machine?
       - are you a machine?
       - are you a bot?
+ 
+  - intent: set_language
+    examples: |
+      - switch to [english](language)
+      - change language to [english](language)
+      - set language to [english](language)
+      - use [english](language)
+      - [english](language) please
+      - i want [english](language)
+      - make it [english](language)
+      - change to [en](language)
+
+      - switch to [amharic](language)
+      - change language to [amharic](language)
+      - set language to [amharic](language)
+      - use [amharic](language)
+      - [amharic](language) please
+      - i want [amharic](language)
+      - make it [amharic](language)
+      - change to [am](language)
+      - [አማርኛ](language)
+      - ወደ [አማርኛ](language) ቀይር
+    
   - intent: search_hospital
     examples: |
       - find a hospital with [cardiology](medical_service)
@@ -134,27 +157,15 @@ nlu:
       - which hospital has a good [orthopedics](medical_service) department?
       - I need an [ER](medical_service) near [Kazanchis](location)
       - locate [Zewditu Hospital](hospital_name)
-      - [የልብ ህክምና](medical_service) ያለው ሆስፒታል ፈልግልኝ
-      - [ICU](medical_service) አገልግሎት የሚሰጡ ሆስፒታሎችን ታውቃለህ?
-      - [የእናቶች መውለጃ](medical_service) ያለው ሆስፒታል እፈልጋለሁ
-      - [አዲስ አበባ](location) ውስጥ [የህፃናት](medical_service) ሆስፒታል እፈልጋለሁ
-      - [ቀዶ ጥገና](medical_service) ያላቸው ሆስፒታሎችን ዘርዝር
-      - [ጥቁር አንበሳ ሆስፒታል](hospital_name) ውስጥ [ላቦራቶሪ](medical_service) አለ?
-      - [ቅዱስ ጳውሎስ ሆስፒታል](hospital_name) የት ነው የሚገኘው?
-      - [ቦሌ](location) አካባቢ [የልብ](medical_service) ክሊኒክ ፈልግ
-      - [ካዛንቺስ](location) አካባቢ [ER](medical_service) እፈልጋለሁ
-      - [ዘውዲቱ ሆስፒታል](hospital_name) የት ነው?
+     
       - find a [dentist](medical_service) in [Hawassa](location)
       - where is the [ENT](medical_service) department in [Nordic](hospital_name)?
       - is there a [maternity](medical_service) ward at [Landmark](hospital_name)?
-      - [ሀያት ሆስፒታል](hospital_name) ውስጥ [የነርቭ](medical_service) ሀኪም እፈልጋለሁ
-      - [ጋንዲ](hospital_name) ሆስፒታል [መውለጃ](medical_service) አለው?
-      - list [oncology](medical_service) services at [St. Paul](hospital_name)
-      - [የራጅ](medical_service) አገልግሎት [ጥቁር አንበሳ](hospital_name) አለ?
+      
       - locate [Tibebe Ghion](hospital_name) in [Bahir Dar](location)
       - show hospitals with [physiotherapy](medical_service) in [Adama](location)
       - I need to find [Red Cross](hospital_name)
-      - [የአጥንት](medical_service) ህክምና [አሚን ሆስፒታል](hospital_name) ይገኛል?
+     
   - intent: search_pharmacy
     examples: |
       - find pharmacy in [Gondar](location)
@@ -476,23 +487,32 @@ nlu:
       - I am looking for [neomycin](drug_name)
       - Who has [benzoyl peroxide](drug_name)?
   
-  - intent: ask_app_usage
-    examples: |
-      - how do I use this app
-      - how does this system work
-      - guide me
+ 
 
   - intent: ask_developer_info
     examples: |
       - who developed this app
       - who created this system
       - developer info
+      - creator info
+      - who is the developer of this app
+      - who is the creator of this system
+      - who is the developer of this system
+      - who is the creator of this app
+      - who is the developer of this website
+      - who is the creator of this website
+      - who is the developer of this system
+      - who made this app
+      - who made this system
+      - who made this website
+      - who is behind this app
+      - who is behind this system
+      - who is behind this website
+      - who is responsible for this app 
+      - who is responsible for this system
+      - who is responsible for this website
 
-  - intent: ask_help
-    examples: |
-      - help me
-      - what can I ask
-      - what can you do
+ 
   - intent: ask_about_app
     examples: |
       - tell me about this app
@@ -502,6 +522,66 @@ nlu:
       - what is this app does
       - importance of this app
       - why should I use this app
+      - what this website is for
+      - what this website does
+      - what is the purpose of this website
+      - what is the purpose of this app
+      - what is the purpose of this system
+      - importance of this system
+      - importance of this website
+      - tell me about the website
+      - tell me about the system
+      - explain the purpose of this app
+      - explain the purpose of this system  
+      - explain the purpose of this website
+
+ 
+  - intent: ask_how_to_find_drug
+    examples: |
+      - how do I check drug availability
+      - how can I find medicine
+      - how to search for a drug
+      - can you help me find medication
+      - how do I look for a drug in this app
+      - how do I find a drug in this system
+      - i want to search drug
+      - how can you help me to search drug
+      - how do I find a drug in this website
+      - explain drug searching ways in this app
+      - explain drug searching ways in this system
+      - explain drug searching ways in this website
+      - steps to find drug in this website
+
+  - intent: ask_capabilities
+    examples: |
+      - what can you do
+      - what are your features
+      - what services do you provide
+      - how can you help me
+      - what can you assist me with
+      - what are your capabilities
+      - what are your functions
+      - what are your abilities
+      - what are your skills
+      - what are your services
+      - what can you offer
+      - how can you assist me
+      - write your capabilities
+      - list your capabilities
+      - list your features
+      - what you perform
+      - what you can do
+      - how do I search for a hospital
+      - how can I find pharmacies
+      - how to search in this app
+      - how do I look for medical services
+
+
+  - intent: ask_difference_chatbot_vs_app
+    examples: |
+      - why should I use the chatbot
+      - what is the advantage of chatting instead of using the app
+      - how are you different from the system
 
   - lookup: drug_name
     examples: |
@@ -986,7 +1066,13 @@ nlu:
       - zovirax
       - zyloprim
       - zyrtec
-
+  - lookup: language
+    examples: |
+      - english
+      - en
+      - amharic
+      - am
+      - አማርኛ
   - synonym: paracetamol
     examples: |
       - acetaminophen

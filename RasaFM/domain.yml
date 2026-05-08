@@ -1,315 +1,336 @@
-version: "3.1"
-
+version: '3.1'
 intents:
-  - affirm
-  - bot_challenge
-  - deny
-  - goodbye
-  - greet
-  - mood_great
-  - mood_unhappy
-  - pharmacy_hours
-  - search_drug
-  - search_pharmacy
-  - search_hospital
-  - ask_app_usage
-  - ask_features
-  - ask_developer_info
-  - ask_help
-  - ask_about_app
-  - set_language
-
+- affirm
+- ask_about_app
+- ask_capabilities
+- ask_developer_info
+- ask_difference_chatbot_vs_app
+- ask_features
+- ask_help
+- ask_how_to_find_drug
+- ask_how_to_use_map
+- ask_system_purpose
+- bot_challenge
+- deny
+- goodbye
+- greet
+- mood_great
+- mood_unhappy
+- pharmacy_hours
+- search_drug
+- search_hospital
+- search_pharmacy
+- set_language
 entities:
-  - drug_name
-  - location
-  - hospital_name
-  - pharmacy_name
-  - medical_service
-  - language
-
+- language
+- drug_name
+- location
+- hospital_name
+- pharmacy_name
+- medical_service
 slots:
   language:
     type: text
     influence_conversation: true
     mappings:
-      - type: from_entity
-        entity: language
-
+    - type: from_entity
+      entity: language
   drug_name:
     type: text
     influence_conversation: true
     mappings:
-      - type: from_entity
-        entity: drug_name
-
+    - type: from_entity
+      entity: drug_name
   hospital_name:
     type: text
     influence_conversation: true
     mappings:
-      - type: from_entity
-        entity: hospital_name
-
+    - type: from_entity
+      entity: hospital_name
   medical_service:
     type: text
     influence_conversation: true
     mappings:
-      - type: from_entity
-        entity: medical_service
-
+    - type: from_entity
+      entity: medical_service
   pharmacy_name:
     type: text
     influence_conversation: true
     mappings:
-      - type: from_entity
-        entity: pharmacy_name
-
+    - type: from_entity
+      entity: pharmacy_name
   location:
     type: text
     influence_conversation: true
     mappings:
-      - type: from_entity
-        entity: location
-
+    - type: from_entity
+      entity: location
 responses:
   utter_greet:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: "ሰላም! እንዴት ነህ/ነሽ?"
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: "Hey! How are you?"
-    - text: "Hey! How are you?"
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: ሰላም! እንዴት ነህ/ነሽ?
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: Hey! How are you?
+  - text: Hey! How are you?
   utter_did_that_help:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: "ይህ ረዳዎት?"
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: "Did that help you?"
-    - text: "Did that help you?"
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: ይህ ረዳዎት?
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: Did that help you?
+  - text: Did that help you?
   utter_happy:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: "በጣም ጥሩ፣ ይቀጥሉ!"
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: "Great, carry on!"
-    - text: "Great, carry on!"
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: በጣም ጥሩ፣ ይቀጥሉ!
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: Great, carry on!
+  - text: Great, carry on!
   utter_goodbye:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: "ደህና ሁኑ"
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: "Bye"
-    - text: "Bye"
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: ደህና ሁኑ
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: Bye
+  - text: Bye
   utter_iamabot:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: "እኔ በ MedFinder የምሰራ ረዳት ነኝ"
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: "I am a bot, powered by MedFinder."
-    - text: "I am a bot, powered by MedFinder."
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: እኔ በ MedFinder የምሰራ ረዳት ነኝ
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: I am a bot, powered by MedFinder.
+  - text: I am a bot, powered by MedFinder.
   utter_searching_hospital:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: "{location} አካባቢ {hospital_name}ን እየፈለኩ ነው..."
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: "Searching for {hospital_name} in {location}..."
-    - text: "Searching for {hospital_name} in {location}..."
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: '{location} አካባቢ {hospital_name}ን እየፈለኩ ነው...'
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: Searching for {hospital_name} in {location}...
+  - text: Searching for {hospital_name} in {location}...
   utter_searching_pharmacy:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: "{location} አካባቢ መድኃኒት ቤቶችን እየፈለኩ ነው..."
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: "Looking for pharmacies in {location}..."
-    - text: "Looking for pharmacies in {location}..."
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: '{location} አካባቢ መድኃኒት ቤቶችን እየፈለኩ ነው...'
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: Looking for pharmacies in {location}...
+  - text: Looking for pharmacies in {location}...
   utter_pharmacy_not_found:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: "በተጠቀሰው አካባቢ ምንም መድኃኒት ቤት ማግኘት አልቻልኩም።"
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: "I couldn't find any pharmacies in that area."
-    - text: "I couldn't find any pharmacies in that area."
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: በተጠቀሰው አካባቢ ምንም መድኃኒት ቤት ማግኘት አልቻልኩም።
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: I couldn't find any pharmacies in that area.
+  - text: I couldn't find any pharmacies in that area.
   utter_ask_location:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: "የት አካባቢ ነው የሚፈልጉት?"
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: "Which area or city are you looking in?"
-    - text: "Which area or city are you looking in?"
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: የት አካባቢ ነው የሚፈልጉት?
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: Which area or city are you looking in?
+  - text: Which area or city are you looking in?
   utter_ask_drug_name:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: "ምን መድሃኒት ነው የሚፈልጉት?"
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: "What drug are you looking for?"
-    - text: "What drug are you looking for?"
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: ምን መድሃኒት ነው የሚፈልጉት?
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: What drug are you looking for?
+  - text: What drug are you looking for?
   utter_ask_hospital_name:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: "የት ሆስፒታል ነው የሚፈልጉት?"
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: "What hospital are you looking for?"
-    - text: "What hospital are you looking for?"
-
-  utter_app_usage:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: |
-        MedFinderን ለመጠቀም:
-          - ሆስፒታሎችን እና መድኃኒት ቤቶችን መፈለግ
-          - መድሀኒት እንደሚገኝ ማረጋገጥ
-          - በ real time ስፍራዎችን መፈለግ
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: |
-        You can use MedFinder to:
-          - Find hospitals and pharmacies 
-          - Find locations in real time
-          - Check drug availability
-    - text: "You can use MedFinder to find hospitals, pharmacies, and check drug availability."
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: የት ሆስፒታል ነው የሚፈልጉት?
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: What hospital are you looking for?
+  - text: What hospital are you looking for?
   utter_features:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: |
-        ዋና ባህሪዎች:
-          - በ real time ስፍራዎችን መፈለግ 
-          - ሆስፒታሎችን እና መድኃኒት ቤቶችን መፈለግ
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: |
-        Key features:
-          - Real-time location-based search
-          - Drug availability checking
-          - Hospital and pharmacy directory
-    - text: "Key features include real-time location search and drug availability checking."
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: |
+      ዋና ባህሪዎች:
+        - በ real time ስፍራዎችን መፈለግ 
+        - ሆስፒታሎችን እና መድኃኒት ቤቶችን መፈለግ
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: |
+      Key features:
+        - Real-time location-based search
+        - Drug availability checking
+        - Hospital and pharmacy directory
+  - text: Key features include real-time location search and drug availability checking.
   utter_developer_info:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: |
-        ይህ ስርዓት እንደ ስማርት ሆስፒታሎችን እና መድኃኒት ቤቶችን መፈለግ የሚያስችል መተግበሪያ ነው።
-        የተሰራው: በ Birhanu Derso እና የቡድን አባላት ከ UOG CS ትምህርት ክፍል
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: |
-        This system was developed as a smart hospital and pharmacy finder project.
-        Developed by: Birhanu Derso and team members from UOG CS department
-    - text: "Developed by Birhanu Derso and team members from UOG CS department."
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: |
+      ይህ ስርዓት እንደ ስማርት ሆስፒታሎችን እና መድኃኒት ቤቶችን መፈለግ የሚያስችል መተግበሪያ ነው።
+      የተሰራው: በ Birhanu Derso እና የቡድን አባላት ከ UOG CS ትምህርት ክፍል
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: |
+      This system was developed as a smart hospital and pharmacy finder project.
+      Developed by: Birhanu Derso and team members from UOG CS department
+  - text: Developed by Birhanu Derso and team members from UOG CS department.
   utter_help:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: |
-        እኒህንና የመሳሰሉትን መጠየቅ ይችላሉ፣ ለምሳሌ እንደ:
-          - በአካባቢዬ የሚገኝ መድኃኒት ቤት ፈልግ
-          - የት መድሃኒት ማግኘት እንደሚችሉ መድሃኒት ስም በማስገባት ይፈልጉ?
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: |
-        You can ask me things like:
-          - Find a pharmacy near me
-          - Search for a hospital in Addis Ababa
-          - Check if a drug is available
-    - text: "You can ask me to find pharmacies, hospitals, or specific drugs near you."
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: |
+      እኒህንና የመሳሰሉትን መጠየቅ ይችላሉ፣ ለምሳሌ እንደ:
+        - በአካባቢዬ የሚገኝ መድኃኒት ቤት ፈልግ
+        - የት መድሃኒት ማግኘት እንደሚችሉ መድሃኒት ስም በማስገባት ይፈልጉ?
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: |
+      You can ask me things like:
+        - Find a pharmacy near me
+        - Search for a hospital in Addis Ababa
+        - Check if a drug is available
+  - text: You can ask me to find pharmacies, hospitals, or specific drugs near you.
   utter_about_app:
-    - condition:
-        - type: slot
-          name: language
-          value: am
-      text: |
-        MedFinder ለተጠቃሚዎች ፈጣን የሆነ የሕክምና አገልግሎቶችን መፈለግ የሚያስችል የሕክምና አገልግሎት እና መድሀኒት መፈለጊያ ነው። 
-        በአካባቢዎ የሚገኝ መድኃኒት ቤቶችን እና ሆስፒታሎችን መፈለግ የሚያስችል ነው።
-    - condition:
-        - type: slot
-          name: language
-          value: en
-      text: |
-        MedFinder is a smart healthcare assistant that helps users locate medical services quickly by finding pharmacies and hospitals in your area.
-    - text: "MedFinder is a smart healthcare assistant to help locate pharmacies and hospitals."
-
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: |
+      MedFinder ለተጠቃሚዎች ፈጣን የሆነ የሕክምና አገልግሎቶችን መፈለግ የሚያስችል የሕክምና አገልግሎት እና መድሀኒት መፈለጊያ ነው። 
+      በአካባቢዎ የሚገኝ መድኃኒት ቤቶችን እና ሆስፒታሎችን መፈለግ የሚያስችል ነው።
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: |
+      MedFinder is a smart healthcare assistant that helps users locate medical services quickly by finding pharmacies and hospitals in your area.
+  - text: MedFinder is a smart healthcare assistant to help locate pharmacies and hospitals.
+  utter_how_to_find_drug:
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: |
+      To find a drug, just type the name of the medication.
+      Examples:
+      • "paracetamol"
+      • "Where can I find ibuprofen?"
+      • "Is amoxicillin available near me?"
+      I will check nearby pharmacies and show you where it's available.
+  utter_chatbot_advantage:
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: |
+      The chatbot makes searching faster and easier.
+      Instead of clicking through menus, you can just ask:
+      • "Find nearest hospital with ICU"
+      • "I need a pharmacy open now"
+      I combine multiple steps (search, filtering, and location) into one simple request.
+  utter_system_purpose:
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: |
+      MedFinder is designed to help people quickly access healthcare services.
+      It allows you to:
+      • Find hospitals and pharmacies nearby
+      • Check drug availability
+      • Get directions in real time
+      The goal is to reduce the time it takes to find critical medical support.
+  utter_capabilities:
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: |
+      MedFinder ለተጠቃሚዎች ፈጣን የሆነ የሕክምና አገልግሎቶችን መፈለግ የሚያስችል የሕክምና አገልግሎት እና መድሀኒት መፈለጊያ ነው። 
+      በአካባቢዎ የሚገኝ መድኃኒት ቤቶችን እና ሆስፒታሎችን መፈለግ የሚያስችል ነው። በመሆኑም በ medfinder chatbot በመጻፍ ይጠይቁ፡
+      ለምሳሌ፡
+      • "በአካባቢዬ የሚገኝ መድኃኒት ቤት ፈልግ"
+      • "የት መድሃኒት ማግኘት እንደሚችሉ መድሃኒት ስም በማስገባት ይፈልጉ?"
+      እኔም በአካባቢዎ የሚገኝ መድኃኒት ቤቶችን እና ሆስፒታሎችን መፈለግ የሚያስችል መረጃ እሰጣለሁ።
+  - condition:
+    - type: slot
+      name: language
+      value: en
+    text: |
+      I can help you quickly find healthcare services using simple messages.
+      For example:
+      • "Find a pharmacy near me"
+      • "Is paracetamol available?"
+      • "Hospital with ICU in Bole"
+      I can also guide you with directions and suggest the best options based on your needs.
 actions:
-  - action_set_language
-  - action_search_drugs
-  - action_search_pharmacy
-  - action_search_hospital
+- action_set_language
+- utter_greet
+- action_search_drugs
+- action_search_pharmacy
+- action_search_hospital
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

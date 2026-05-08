@@ -34,9 +34,9 @@ class ActionSetLanguage(Action):
 
         # Send friendly confirmation in the chosen language
         if language == "am":
-            dispatcher.utter_message(text="ቋንቋ ወደ አማርኛ ተቀይሯል ✅")
+            dispatcher.utter_message(text="መልካም በ አማርኛ ቋንቋ እናዎራለን፡፡ እባክዎን ይቀጥሉ፡፡ ✅")
         else:
-            dispatcher.utter_message(text="Language has been set to English ✅")
+            dispatcher.utter_message(text="nice we can toke in English ✅")
 
         return [SlotSet("language", language)]
 class ActionSearchDrugs(Action):

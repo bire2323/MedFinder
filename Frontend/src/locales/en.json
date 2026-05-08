@@ -127,7 +127,8 @@
     "profile_dropdown": {
       "account": "ACCOUNT",
       "my_dashboard": "MY DASHBOARD",
-      "logout": "LOGOUT"
+      "logout": "LOGOUT",
+      "inactive": "your account is temporarily inactive. Please contact support for assistance."
     }
   },
   "heading": {

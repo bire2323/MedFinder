@@ -3,7 +3,7 @@ version: "3.1"
 rules:
 
   # ==================== LANGUAGE ====================
-  - rule: Set language from React frontend
+  - rule: Handle language setting
     steps:
       - intent: set_language
       - action: action_set_language
@@ -20,11 +20,6 @@ rules:
       - action: utter_iamabot
 
   # ==================== INFORMATIONAL ====================
-  - rule: App usage
-    steps:
-      - intent: ask_app_usage
-      - action: utter_app_usage
-
   - rule: Features
     steps:
       - intent: ask_features
@@ -35,29 +30,47 @@ rules:
       - intent: ask_developer_info
       - action: utter_developer_info
 
-  - rule: Help
-    steps:
-      - intent: ask_help
-      - action: utter_help
-
-  - rule: About app
+  - rule: Explain app purpose
     steps:
       - intent: ask_about_app
       - action: utter_about_app
 
-  # ==================== SEARCH TASKS (Only Custom Actions) ====================
+  - rule: List capabilities
+    steps:
+      - intent: ask_capabilities
+      - action: utter_capabilities
 
-  - rule: Search drug
+  - rule: Explain chatbot vs app
+    steps:
+      - intent: ask_difference_chatbot_vs_app
+      - action: utter_chatbot_advantage
+
+  # ==================== SEARCH TASKS (Custom Actions) ====================
+  - rule: Trigger drug search
     steps:
       - intent: search_drug
       - action: action_search_drugs
 
-  - rule: Search pharmacy
+  - rule: Trigger pharmacy search
     steps:
       - intent: search_pharmacy
       - action: action_search_pharmacy
 
-  - rule: Search hospital
+  - rule: Trigger hospital search
     steps:
       - intent: search_hospital
       - action: action_search_hospital
+  - rule: Explain system purpose
+    steps:
+      - intent: ask_system_purpose
+      - action: utter_system_purpose
+
+  - rule: How to find a drug
+    steps:
+      - intent: ask_how_to_find_drug
+      - action: utter_how_to_find_drug
+
+  - rule: Provide help
+    steps:
+      - intent: ask_help
+      - action: utter_help

@@ -1,67 +1,70 @@
 version: "3.1"
 nlu:
-  - intent: greet
-    examples: |
-      - hi
-  - intent: search_drug
-    examples: |
-      - where can i get [panadol](drug_name)
-  - synonym: ICU
-    examples: |
-      - intensive care
-      - intensive care unit
-      - አይ ሲ ዩ
-      - የጥንቁቅ ህክምና
-
-  - synonym: emergency
-    examples: |
-      - ER
-      - emergency room
-      - ድንገተኛ አደጋ
-      - ድንገተኛ ክፍል
-
-  - synonym: maternity
-    examples: |
-      - maternity ward
-      - የናቶች መውለጃ
-      - የወሊድ ክፍል
-      - labor and delivery
-      
-
-  # This is crucial because your DB names are specific
-  - synonym: Tikur Anbessa Specialized Hospital
-    examples: |
-      - Black Lion Hospital
-      - Black Lion
-      - ጥቁር አንበሳ ሆስፒታል
-      - ጥቁር አንበሳ
-
-  - synonym: St. Paul's Hospital Millennium Medical College
-    examples: |
-      - St. Paul
-      - Saint Paul
-      - ቅዱስ ጳውሎስ ሆስፒታል
-      - ጳውሎስ ሆስፒታል
-
-  - synonym: Gandhi Memorial Hospital
-    examples: |
-      - Gandhi
-      - ጋንዲ ሆስፒታል
-      - ጋንዲ
-
-  # Lookup tables help Rasa recognize names even if not in training examples
-  - lookup: hospital_name
-    examples: |
-      - Tikur Anbessa
-      - St. Paul
-      - Zewditu
-      - Gandhi
-      - Yekatit 12
-      - Menelik II
-      - Landmark
-      - Kadisco
-      - Hayat
-      - Bethzatha
-      - Nordic Medical Centre
-      - Amin Hospital
-      - Bethzatha
+- intent: greet
+  examples: |
+    - hi
+- intent: search_drug
+  examples: |
+    - where can i get [panadol](drug_name)
+- intent: set_language
+  examples: |
+    - change language to [amharic]{"entity": "language", "value": "am"}
+    - change to [en](language)
+- synonym: ICU
+  examples: |
+    - intensive care
+    - intensive care unit
+    - አይ ሲ ዩ
+    - የጥንቁቅ ህክምና
+- synonym: en
+  examples: |
+    - english
+    - en
+- synonym: am
+  examples: |
+    - amharic
+    - አማርኛ
+    - am
+- synonym: emergency
+  examples: |
+    - ER
+    - emergency room
+    - ድንገተኛ አደጋ
+    - ድንገተኛ ክፍል
+- synonym: maternity
+  examples: |
+    - maternity ward
+    - የናቶች መውለጃ
+    - የወሊድ ክፍል
+    - labor and delivery
+- synonym: Tikur Anbessa Specialized Hospital
+  examples: |
+    - Black Lion Hospital
+    - Black Lion
+    - ጥቁር አንበሳ ሆስፒታል
+    - ጥቁር አንበሳ
+- synonym: St. Paul's Hospital Millennium Medical College
+  examples: |
+    - St. Paul
+    - Saint Paul
+    - ቅዱስ ጳውሎስ ሆስፒታል
+    - ጳውሎስ ሆስፒታል
+- synonym: Gandhi Memorial Hospital
+  examples: |
+    - Gandhi
+    - ጋንዲ ሆስፒታል
+    - ጋንዲ
+- lookup: hospital_name
+  examples: |
+    - Tikur Anbessa
+    - St. Paul
+    - Zewditu
+    - Gandhi
+    - Menelik II
+    - Landmark
+    - Kadisco
+    - Hayat
+    - Bethzatha
+    - Nordic Medical Centre
+    - Amin Hospital
+    - Bethzatha

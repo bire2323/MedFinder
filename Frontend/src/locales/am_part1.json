@@ -12,7 +12,8 @@
     "profile_dropdown": {
       "account": "ማህደር",
       "my_dashboard": "የኔ አገልግሎት",
-      "logout": "ዘግተው ይውጡ!"
+      "logout": "ዘግተው ይውጡ!",
+      "inactive": "አካዉንትዎ ለጊዜዉ ታግዷል፡ እባክዎ እርዳታ ሰጪዉን ያነጋግሩ።"
     }
   },
   "heading": {

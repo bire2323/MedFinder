@@ -86,16 +86,19 @@ export default function HomePage() {
 
   const offerings = [
     {
+      bg: "bg-blue-50 dark:bg-gray-700",
       title: t("features.ai_chat.title"),
       desc: t("features.ai_chat.desc"),
       icon: <FaRobot className="text-blue-500" />,
     },
     {
+      bg: "bg-emerald-50 dark:bg-emerald-900/30",
       title: t("features.prescription.title"),
       desc: t("features.prescription.desc"),
       icon: <FaFilePrescription className="text-emerald-500" />,
     },
     {
+      bg: "bg-yellow-50 dark:bg-yellow-900/30",
       title: t("features.navigation.title"),
       desc: t("features.navigation.desc"),
       icon: <FaMapMarkedAlt className="text-orange-500" />,
@@ -132,7 +135,7 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-slate-50 dark:bg-gray-900 transition-colors duration-300">
+      <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
         <HeroSection onSearch={handleHeroSearch} />
 
         {/* QUICK ACTIONS — nearest search & department/service discovery */}
@@ -205,15 +208,15 @@ export default function HomePage() {
         </section>
 
         {/* WHAT WE OFFER SECTION */}
-        <section className="py-24 max-w-7xl mx-auto px-4">
+        <section className="py-24 max-w-7xl mx-auto bg-white dark:bg-gray-900  px-4">
           <div className="text-center mb-16">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-400 dark:text-white mb-4">{t("features.header")}</h2>
-            <div className="w-20 h-1.5 bg-slate-400 mx-auto rounded-full" />
+            <div className="w-20 h-1.5  mx-auto rounded-full" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {offerings.map((item, i) => (
-              <motion.div key={i} whileHover={{ y: -10 }} className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl border border-slate-100 dark:border-gray-700 group transition-colors">
+              <motion.div key={i} whileHover={{ y: -10 }} className={`${item.bg} dark:bg-gray-800 p-8 rounded-3xl shadow-xl border border-slate-100 dark:border-gray-700 hover:border hover:border-green-400 group transition-colors`}>
                 <div className="text-3xl mb-6 p-4 inline-block bg-slate-50 dark:bg-gray-700 rounded-2xl group-hover:scale-110 transition-transform">
                   {item.icon}
                 </div>

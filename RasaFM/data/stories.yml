@@ -5,20 +5,27 @@ stories:
     steps:
       - intent: greet
       - action: utter_greet
+      - intent: mood_great
+      - action: utter_happy
 
-  - story: sad path 1
+  - story: drug search path
+    steps:
+      - intent: search_drug
+      - action: action_search_drugs
+      - intent: affirm
+      - action: utter_happy
+
+  - story: sad path with recovery
     steps:
       - intent: greet
       - action: utter_greet
       - intent: mood_unhappy
-      - action: utter_did_that_help
-      - intent: affirm
-      - action: utter_happy
+      - action: utter_help  # Offer help instead of just asking if it helped
+      - intent: search_pharmacy
+      - action: action_search_pharmacy
 
-  - story: sad path 2
+  - story: user denies help
     steps:
-      - intent: greet
-      - action: utter_greet
       - intent: mood_unhappy
       - action: utter_did_that_help
       - intent: deny

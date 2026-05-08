@@ -153,7 +153,6 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./certs:/etc/nginx/certs:ro
     depends_on:
-      - frontend
       - backend
       - reverb
       - rasa

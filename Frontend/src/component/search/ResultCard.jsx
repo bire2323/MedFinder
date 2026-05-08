@@ -24,7 +24,7 @@ function formatDistance(meters) {
  * Small component for showing Open/Closed/24/7 status
  */
 function AvailabilityPill({ isOpen, isFullTime, workingHours }) {
-  const label = isFullTime ? "24/7" : isOpen === true ? "Open" : workingHours ? workingHours : "Hours unknown";
+  const label = isFullTime ? "24/7" : isOpen === true ? "Open" : workingHours ? workingHours : "";
   const tone = isFullTime
     ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200"
     : isOpen === true
@@ -99,15 +99,15 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
       className={`group relative overflow-hidden rounded-2xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-slate-900 hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_40px_rgba(37,99,235,0.1)] hover:-translate-y-1.5 transition-all duration-300 w-full flex ${isList ? 'flex-col sm:flex-row h-auto text-left items-stretch' : 'flex-col h-full'}`}
     >
       {/* 1. TOP SECTION: ICON/LOGO PREVIEW */}
-      <div className={`relative overflow-hidden bg-slate-50 dark:bg-slate-950 flex items-center justify-center border-slate-100 dark:border-gray-800 shrink-0 ${isList ? 'w-full sm:w-48 lg:w-1/3 sm:border-r border-b sm:border-b-0 h-48 sm:h-auto' : 'h-40 w-full border-b'}`}>
+      <div className={`relative overflow-hidden bg-slate-50 dark:bg-slate-950 flex items-center justify-center border-slate-100 dark:border-gray-800 shrink-0 ${isList ? 'w-full sm:w-48 lg:w-1/3 sm:border-r border-b sm:border-b-0 h-20 sm:h-auto' : 'h-40 w-full border-b'}`}>
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-500 rounded-full blur-3xl"></div>
           <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-emerald-500 rounded-full blur-3xl"></div>
         </div>
 
-        <div className={`relative z-10 rounded-xl border-2 border-white dark:border-gray-800 overflow-hidden bg-white dark:bg-slate-900 shadow-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-500 ${isList ? 'w-24 h-24' : 'w-24 h-24'}`}>
+        <div className={`relative z-10 rounded-xl border-2 border-white dark:border-gray-800 overflow-hidden bg-white dark:bg-slate-900 shadow-xl flex items-center justify-center  object-cover transform group-hover:scale-110 transition-transform duration-500 w-full`}>
           {facility.raw ? (
-            <img src={facility.raw?.logo_url} alt={name} className="w-full h-full object-cover dark:opacity-50" />
+            <img src={facility.raw?.logo_url} alt={name} className="w-full h-50 object-fill dark:opacity-50" />
           ) : (
             <div className={`text-4xl ${isHospital ? 'text-blue-500' : 'text-emerald-500'}`}>
               {isHospital ? <FaHospital /> : isPharmacy ? <FaPills /> : <FaClinicMedical />}

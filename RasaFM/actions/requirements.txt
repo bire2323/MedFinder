@@ -1,3 +1,4 @@
+rasa==3.6.20
 rasa-sdk>=3.6.0,<4.0.0
 requests>=2.32.0
 thefuzz>=0.22.0

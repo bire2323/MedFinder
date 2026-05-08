@@ -1,0 +1,663 @@
+[
+  {
+    "text": "የልብ ህክምና ያለው ሆስፒታል ፈልግልኝ",
+    "entities": [
+      {
+        "start": 0,
+        "end": 8,
+        "value": "የልብ ህክምና",
+        "entity": "medical_service"
+      }
+    ],
+    "predicted_entities": [
+      {
+        "entity": "department",
+        "start": 0,
+        "end": 8,
+        "confidence_entity": 0.49597296118736267,
+        "value": "የልብ ህክምና",
+        "extractor": "DIETClassifier",
+        "processors": [
+          "EntitySynonymMapper"
+        ]
+      }
+    ]
+  },
+  {
+    "text": "ቀዶ ጥገና ያላቸው ሆስፒታሎችን ዘርዝር",
+    "entities": [
+      {
+        "start": 0,
+        "end": 6,
+        "value": "ቀዶ ጥገና",
+        "entity": "medical_service"
+      }
+    ],
+    "predicted_entities": [
+      {
+        "entity": "department",
+        "start": 0,
+        "end": 6,
+        "confidence_entity": 0.5201701521873474,
+        "value": "ቀዶ ጥገና",
+        "extractor": "DIETClassifier",
+        "processors": [
+          "EntitySynonymMapper"
+        ]
+      }
+    ]
+  },
+  {
+    "text": "ቦሌ አካባቢ የልብ ክሊኒክ ፈልግ",
+    "entities": [
+      {
+        "start": 0,
+        "end": 2,
+        "value": "ቦሌ",
+        "entity": "location"
+      },
+      {
+        "start": 8,
+        "end": 11,
+        "value": "የልብ",
+        "entity": "medical_service"
+      }
+    ],
+    "predicted_entities": [
+      {
+        "entity": "location",
+        "start": 0,
+        "end": 2,
+        "confidence_entity": 0.9986982345581055,
+        "value": "ቦሌ",
+        "extractor": "DIETClassifier",
+        "processors": [
+          "EntitySynonymMapper"
+        ]
+      },
+      {
+        "entity": "department",
+        "start": 8,
+        "end": 11,
+        "confidence_entity": 0.6216838955879211,
+        "value": "የልብ",
+        "extractor": "DIETClassifier",
+        "processors": [
+          "EntitySynonymMapper"
+        ]
+      }
+    ]
+  },
+  {
+    "text": "ካዛንቺስ አካባቢ ER እፈልጋለሁ",
+    "entities": [
+      {
+        "start": 0,
+        "end": 5,
+        "value": "ካዛንቺስ",
+        "entity": "location"
+      },
+      {
+        "start": 11,
+        "end": 13,
+        "value": "ER",
+        "entity": "medical_service"
+      }
+    ],
+    "predicted_entities": [
+      {
+        "entity": "location",
+        "start": 0,
+        "end": 5,
+        "confidence_entity": 0.9990884065628052,
+        "value": "ካዛንቺስ",
+        "extractor": "DIETClassifier",
+        "processors": [
+          "EntitySynonymMapper"
+        ]
+      },
+      {
+        "entity": "department",
+        "start": 11,
+        "end": 13,
+        "confidence_entity": 0.5322195291519165,
+        "value": "emergency",
+        "extractor": "DIETClassifier",
+        "processors": [
+          "EntitySynonymMapper"
+        ]
+      }
+    ]
+  },
+  {
+    "text": "ሀያት ሆስፒታል ውስጥ የነርቭ ሀኪም እፈልጋለሁ",
+    "entities": [
+      {
+        "start": 0,
+        "end": 9,
+        "value": "ሀያት ሆስፒታል",
+        "entity": "hospital_name"
+      },
+      {
+        "start": 14,
+        "end": 18,
+        "value": "የነርቭ",
+        "entity": "medical_service"
+      }
+    ],
+    "predicted_entities": [
+      {
+        "entity": "hospital_name",
+        "start": 0,
+        "end": 9,
+        "confidence_entity": 0.9988124370574951,
+        "value": "ሀያት ሆስፒታል",
+        "extractor": "DIETClassifier",
+        "processors": [
+          "EntitySynonymMapper"
+        ]
+      },
+      {
+        "entity": "department",
+        "start": 14,
+        "end": 18,
+        "confidence_entity": 0.5511239171028137,
+        "value": "የነርቭ",
+        "extractor": "DIETClassifier",
+        "processors": [
+          "EntitySynonymMapper"
+        ]
+      }
+    ]
+  },
+  {
+    "text": "የእናቶች መውለጃ ያለው ሆስፒታል እፈልጋለሁ",
+    "entities": [
+      {
+        "start": 0,
+        "end": 10,
+        "value": "የእናቶች መውለጃ",
+        "entity": "department"
+      }
+    ],
+    "predicted_entities": [
+      {
+        "entity": "medical_service",
+        "start": 0,
+        "end": 10,
+        "confidence_entity": 0.5985210537910461,
+        "value": "የእናቶች መውለጃ",
+        "extractor": "DIETClassifier",
+        "processors": [
+          "EntitySynonymMapper"
+        ]
+      }
+    ]
+  },
+  {
+    "text": "አዲስ አበባ ውስጥ የህፃናት ሆስፒታል እፈልጋለሁ",
+    "entities": [
+      {
+        "start": 0,
+        "end": 7,
+        "value": "አዲስ አበባ",
+        "entity": "location"
+      },
+      {
+        "start": 12,
+        "end": 17,
+        "value": "የህፃናት",
+        "entity": "department"
+      }
+    ],
+    "predicted_entities": [
+      {
+        "entity": "location",
+        "start": 0,
+        "end": 7,
+        "confidence_entity": 0.9970867037773132,
+        "value": "አዲስ አበባ",
+        "extractor": "DIETClassifier",
+        "processors": [
+          "EntitySynonymMapper"
+        ]
+      },
+      {
+        "entity": "medical_service",
+        "start": 12,
+        "end": 17,
+        "confidence_entity": 0.5150803327560425,
+        "value": "የህፃናት",
+        "extractor": "DIETClassifier",
+        "processors": [
+          "EntitySynonymMapper"
+        ]
+      }
+    ]
+  },
+  {
+    "text": "ጥቁር አንበሳ ሆስፒታል ውስጥ ላቦራቶሪ አለ?",
+    "entities": [
+      {
+        "start": 0,
+        "end": 14,
+        "value": "ጥቁር አንበሳ ሆስፒታል",
+        "entity": "hospital_name"
+      },
+      {
+        "start": 19,
+        "end": 24,
+        "value": "ላቦራቶሪ",
+        "entity": "department"
+      }
+    ],
+    "predicted_entities": [
+      {
+        "entity": "hospital_name",
+        "start": 0,
+        "end": 14,
+        "confidence_entity": 0.9938210844993591,
+        "value": "Tikur Anbessa Specialized Hospital",
+        "extractor": "DIETClassifier",
+        "processors": [
+          "EntitySynonymMapper"
+        ]
+      },
+      {
+        "entity": "medical_service",
+        "start": 19,
+        "end": 24,
+        "confidence_entity": 0.5037461519241333,
+        "value": "ላቦራቶሪ",
+        "extractor": "DIETClassifier",
+        "processors": [
+          "EntitySynonymMapper"
+        ]
+      }
+    ]
+  },
+  {
+    "text": "የflexeril ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 9,
+        "value": "flexeril",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የbaclofen injection ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 19,
+        "value": "baclofen injection",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የዴክሳሜታሶን ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 8,
+        "value": "ዴክሳሜታሶን",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የinsulin lispro ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 15,
+        "value": "insulin lispro",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የropinirole ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 11,
+        "value": "ropinirole",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የclotrimazole ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 13,
+        "value": "clotrimazole",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የprinivil ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 9,
+        "value": "prinivil",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የolanzapine ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 11,
+        "value": "olanzapine",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የnux vomica ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 11,
+        "value": "nux vomica",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የbetadine ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 9,
+        "value": "betadine",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የdch scar ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 9,
+        "value": "dch scar",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የሲምቫስታቲን ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 8,
+        "value": "ሲምቫስታቲን",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የlipitor ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 8,
+        "value": "lipitor",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የሮሱቫስታቲን ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 8,
+        "value": "ሮሱቫስታቲን",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የcuprum metallicum ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 18,
+        "value": "cuprum metallicum",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የlorlatinib ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 11,
+        "value": "lorlatinib",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የvabrinty ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 9,
+        "value": "vabrinty",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የሰርትራሊን ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 7,
+        "value": "ሰርትራሊን",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የአፒክሳባን ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 7,
+        "value": "አፒክሳባን",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የamaryl ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 7,
+        "value": "amaryl",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የustilago maydis ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 16,
+        "value": "ustilago maydis",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የzituvimet ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 10,
+        "value": "zituvimet",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የferrum metallicum ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 18,
+        "value": "ferrum metallicum",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የአምሎዲፒን ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 7,
+        "value": "አምሎዲፒን",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የcarduus marianus ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 17,
+        "value": "carduus marianus",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የpetrolatum ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 11,
+        "value": "petrolatum",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የverapamil ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 10,
+        "value": "verapamil",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የesomeprazole magnesium ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 23,
+        "value": "esomeprazole magnesium",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የdoxepin ዋጋ ስንት ነው?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 8,
+        "value": "doxepin",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የranolazine ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 11,
+        "value": "ranolazine",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የናፕሮክሲን ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 7,
+        "value": "ናፕሮክሲን",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  },
+  {
+    "text": "የፕራቫስታቲን ክምችት አለን?",
+    "entities": [
+      {
+        "start": 1,
+        "end": 8,
+        "value": "ፕራቫስታቲን",
+        "entity": "drug_name"
+      }
+    ],
+    "predicted_entities": []
+  }
+]
