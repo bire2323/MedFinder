@@ -4,6 +4,7 @@
  */
 
 export const validateProfile = (data, type) => {
+  console.log("data to be validated", data);
   const errors = {};
   if (type === "pharmacy") {
 
@@ -19,7 +20,7 @@ export const validateProfile = (data, type) => {
     if (!data.pharmacy_name_am || data.pharmacy_name_am.trim().length < 2) {
       errors.pharmacy_name_am = "Amharic name is required.";
     } else if (!/^[\u1200-\u137F\s0-9.,-]+$/.test(data.pharmacy_name_am)) {
-      errors.pharmacy_name_am = "Please use Amharic characters for this field.";
+      errors.pharmacy_name_am = "የአማርኛ ፊደል ብቻ ይጠቀሙ.";
     }
   } else if (type === "hospital") {
 

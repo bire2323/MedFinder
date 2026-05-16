@@ -23,10 +23,14 @@ export const StatCard = ({ title, value, trend, icon, color }) => {
     );
 };
 
-export default function OverviewTab({ inventory, analytics, recentChats, setActiveTab }) {
+import { useOutletContext, useNavigate } from "react-router-dom";
+
+export default function OverviewTab() {
+    const { inventory, analytics, recentChats } = useOutletContext();
+    const navigate = useNavigate();
     const { t } = useTranslation();
-    console.log(analytics);
-    console.log(inventory);
+    // console.log(analytics);
+    // console.log(inventory);
     return (
         <motion.div
             key="overview"
@@ -72,7 +76,7 @@ export default function OverviewTab({ inventory, analytics, recentChats, setActi
                     <div className="flex items-center justify-between mb-6">
                         <h3 className="font-bold text-lg">{t("PharmacyDashboard.InventoryOverview")}</h3>
                         <button
-                            onClick={() => setActiveTab("inventory")}
+                            onClick={() => navigate("/pharmacy/dashboard/inventory")}
                             className="text-sm text-blue-500 hover:underline"
                         >
                             {t("PharmacyDashboard.ViewAll")}

@@ -1,7 +1,7 @@
 import { apiFetch, ensureCsrfCookie } from "./client";
 
 // Hospital Management
-export async function getHospitalDetails(token) {
+export async function getHospitalDetails() {
   return apiFetch("/api/hospital", { method: "GET" });
 }
 

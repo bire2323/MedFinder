@@ -66,8 +66,13 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
 
   // 3. WORKING HOURS
   //console.log(facility.working_hour);
-  const workingHours = facility.isFullTime ? "24/7" : getTodayHours(facility.working_hour || facility.raw?.workingHour);
+  const isWorkingHour = facility?.workingHour !== "undefined";
 
+  // console.log("isWorkingHour:", isWorkingHour, facility?.workingHour);
+
+  const workingHours = facility.isFullTime ? "24/7" : getTodayHours(isWorkingHour ? facility?.workingHour : facility.working_hour);
+  // console.log(facility.type, facility.working_hour);
+  // console.log(workingHours);
   const typeLabel = isHospital ? t("search.hospital") : isPharmacy ? t("search.pharmacy") : t("search.facility");
   const typeTone = isHospital
     ? "bg-blue-500/10 text-blue-400 border-blue-500/20"

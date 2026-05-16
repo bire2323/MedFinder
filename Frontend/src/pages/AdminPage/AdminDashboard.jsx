@@ -8,33 +8,24 @@ import {
   LogOut,
   Menu,
   X,
+  Settings,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import useAuthStore from '../../store/UserAuthStore';
 import { getNotifications } from '../../api/admin';
-import { useNavigate } from 'react-router-dom';
-import UserManagement from './UserManagement';
-import ApprovalManagement from './ApprovalManagement';
-import AnalyticsDashboard from './AnalyticsDashboard';
-import AuditLog from './AuditLog';
-import NotificationCenter from './NotificationCenter';
-import { useRef } from 'react';
+import { useNavigate, NavLink, Outlet } from 'react-router-dom';
 import useSystemNotificationStore from '../../store/useSystemNotificationStore';
 import { initializeAuth } from '../../auth/initAuth';
-import RealTimeNotificationProvider from '../../component/RealTimeNotificationProvider';
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuthStore();
   const { notifications, setNotifications } = useSystemNotificationStore();
-  const [activeTab, setActiveTab] = useState('overview');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const unreadNotifications = notifications.filter(n => !n.read_at).length;
-
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,8 +45,6 @@ export default function AdminDashboard() {
     }
   };
 
-
-
   useEffect(() => {
     const init = async () => {
       const isAuthentic = await initializeAuth();
@@ -64,7 +53,7 @@ export default function AdminDashboard() {
       }
     };
     init();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate]);
 
   const loadStats = async () => {
     if (!isAuthenticated) return;
@@ -96,12 +85,13 @@ export default function AdminDashboard() {
   };
 
   const tabs = [
-    { id: 'overview', label: t("Admin.Overview"), icon: BarChart3 },
-    { id: 'users', label: t("Admin.UserManagement"), icon: Users },
-    { id: 'approvals', label: t("Admin.Approvals"), icon: CheckCircle },
-    { id: 'analytics', label: t("Admin.Analytics"), icon: BarChart3 },
-    { id: 'auditlog', label: t("Admin.AuditLog"), icon: Shield },
-    { id: 'notifications', label: t("Admin.Notifications"), icon: Bell, badge: unreadNotifications },
+    { id: 'overview', label: t("Admin.Overview"), icon: BarChart3, path: '/admin/dashboard/overview' },
+    { id: 'users', label: t("Admin.UserManagement"), icon: Users, path: '/admin/dashboard/users' },
+    { id: 'approvals', label: t("Admin.Approvals"), icon: CheckCircle, path: '/admin/dashboard/approvals' },
+    { id: 'analytics', label: t("Admin.Analytics"), icon: BarChart3, path: '/admin/dashboard/analytics' },
+    { id: 'auditlog', label: t("Admin.AuditLog"), icon: Shield, path: '/admin/dashboard/auditlog' },
+    { id: 'notifications', label: t("Admin.Notifications"), icon: Bell, path: '/admin/dashboard/notifications', badge: unreadNotifications },
+    { id: "settings", label: t('settings'), icon: Settings, path: "/admin/dashboard/settings" }
   ];
 
   return (
@@ -114,10 +104,7 @@ export default function AdminDashboard() {
               <button
                 type="button"
                 className="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
-                onClick={() => {
-                  setIsMobileMenuOpen(!isMobileMenuOpen);
-                  scrollTo({ top: 0, behavior: 'smooth' });
-                }}
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="Toggle menu"
               >
                 {isMobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -138,10 +125,9 @@ export default function AdminDashboard() {
             </div>
 
             <div className="flex items-center gap-2">
-              <button
-                type="button"
+              <NavLink
+                to="/admin/dashboard/notifications"
                 className="relative p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800 border border-slate-200 dark:border-gray-700 transition-colors"
-                onClick={() => setActiveTab('notifications')}
                 aria-label="Notifications"
               >
                 <Bell className="size-4" />
@@ -150,7 +136,7 @@ export default function AdminDashboard() {
                     {unreadNotifications > 9 ? '9+' : unreadNotifications}
                   </span>
                 )}
-              </button>
+              </NavLink>
               <button
                 type="button"
                 title='Logout'
@@ -172,11 +158,10 @@ export default function AdminDashboard() {
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
-              <button
+              <NavLink
                 key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150 ${activeTab === tab.id
+                to={tab.path}
+                className={({ isActive }) => `inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150 ${isActive
                   ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-sm'
                   : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-200 hover:bg-slate-100 dark:hover:bg-gray-800'
                   }`}
@@ -188,7 +173,7 @@ export default function AdminDashboard() {
                     {tab.badge}
                   </span>
                 )}
-              </button>
+              </NavLink>
             );
           })}
         </div>
@@ -200,14 +185,11 @@ export default function AdminDashboard() {
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
-                  <button
+                  <NavLink
                     key={tab.id}
-                    type="button"
-                    onClick={() => {
-                      setActiveTab(tab.id);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-left w-full transition-colors ${activeTab === tab.id
+                    to={tab.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={({ isActive }) => `flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-left w-full transition-colors ${isActive
                       ? 'bg-indigo-600 dark:bg-indigo-500 text-white'
                       : 'text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-800'
                       }`}
@@ -219,85 +201,19 @@ export default function AdminDashboard() {
                         {tab.badge}
                       </span>
                     )}
-                  </button>
+                  </NavLink>
                 );
               })}
             </div>
           </div>
         )}
 
-        {/* Tab Contents */}
-        {activeTab === 'overview' && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">
-                  {t("Admin.TotalUsers")}
-                </p>
-                <div className="p-1.5 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                  <Users className="size-4 text-blue-600 dark:text-blue-400" />
-                </div>
-              </div>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                {loading ? <span className="text-slate-300 dark:text-gray-600 animate-pulse">—</span> : (stats?.totalUsers ?? 0).toLocaleString()}
-              </p>
-              <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1.5 font-medium">{t("Admin.PlatformUsers")}</p>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">
-                  {t("Admin.ActiveHospitals")}
-                </p>
-                <div className="p-1.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
-                  <Shield className="size-4 text-indigo-600 dark:text-indigo-400" />
-                </div>
-              </div>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                {loading ? <span className="text-slate-300 dark:text-gray-600 animate-pulse">—</span> : (stats?.totalHospitals ?? 0).toLocaleString()}
-              </p>
-              <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1.5 font-medium">{t("Admin.Registered")}</p>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">
-                  {t("Admin.ActivePharmacies")}
-                </p>
-                <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg">
-                  <Shield className="size-4 text-emerald-600 dark:text-emerald-400" />
-                </div>
-              </div>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                {loading ? <span className="text-slate-300 dark:text-gray-600 animate-pulse">—</span> : (stats?.totalPharmacies ?? 0).toLocaleString()}
-              </p>
-              <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1.5 font-medium">{t("Admin.WithInventory")}</p>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">
-                  {t("Admin.PendingApprovals")}
-                </p>
-                <div className="p-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg">
-                  <CheckCircle className="size-4 text-amber-600 dark:text-amber-400" />
-                </div>
-              </div>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                {loading ? <span className="text-slate-300 dark:text-gray-600 animate-pulse">—</span> : (stats?.pendingApprovals ?? 0)}
-              </p>
-              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5 font-medium">{t("Admin.RequiresAttention")}</p>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'users' && <UserManagement />}
-        {activeTab === 'approvals' && <ApprovalManagement />}
-        {activeTab === 'analytics' && <AnalyticsDashboard />}
-        {activeTab === 'auditlog' && <AuditLog />}
-        {activeTab === 'notifications' && (
-          <NotificationCenter onNotificationRead={loadNotifications} />
-        )}
+        {/* Outlet for Tab Contents */}
+        <Outlet context={{
+          stats,
+          loading,
+          loadNotifications
+        }} />
       </div>
     </div>
   );

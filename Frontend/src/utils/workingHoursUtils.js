@@ -8,7 +8,8 @@
  * @returns {string} Formatted working hours string
  */
 export const formatWorkingHours = (workingHour) => {
-    if (!workingHour) return 'Not set';
+    const isEng = localStorage.getItem("i18nextLng") === "en";
+    if (!workingHour) return isEng ? 'Not set' : "አልተቀመጠም";
 
     let parsed;
     if (typeof workingHour === 'string') {
@@ -20,7 +21,7 @@ export const formatWorkingHours = (workingHour) => {
     } else if (typeof workingHour === 'object') {
         parsed = workingHour;
     } else {
-        return 'Not set';
+        return isEng ? 'Not set' : "አልተቀመጠም";
     }
 
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -52,7 +53,9 @@ export const formatWorkingHours = (workingHour) => {
  */
 export const getTodayHours = (workingHour) => {
     // console.log("getTodayHours called with:", workingHour);
-    if (!workingHour) return 'Closed';
+    // console.log(typeof (workingHour));
+    const isEng = localStorage.getItem("i18nextLng") === "en";
+    if (!workingHour) return isEng ? 'closed' : "ዝግ ነው!";
 
     let parsed;
     if (typeof workingHour === 'string') {
@@ -60,18 +63,23 @@ export const getTodayHours = (workingHour) => {
             parsed = JSON.parse(workingHour);
 
         } catch (e) {
-            return 'Closed';
+            return isEng ? 'closed' : "ዝግ ነው!";
         }
     } else if (typeof workingHour === 'object') {
         parsed = workingHour;
     } else {
-        return 'Closed';
+        return isEng ? 'closed' : "ዝግ ነው!";
     }
 
     const today = new Date().toLocaleString('en-US', { weekday: 'short' });
+    // console.log("today", today);
     const dayKey = today.charAt(0).toUpperCase() + today.slice(1, 3); // Mon, Tue, etc.
+    // console.log("daykey", dayKey);
+
 
     const hours = parsed[dayKey] || [];
+    // console.log("hours", hours);
+
     if (hours.length === 0) return 'Closed';
 
     const start = Math.min(...hours);

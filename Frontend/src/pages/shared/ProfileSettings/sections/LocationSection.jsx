@@ -29,34 +29,34 @@ const LocationSection = ({ addressData = {}, onChange, error, theme }) => {
          }
       );
    };
-   // console.log(addressData);
+   console.log(addressData);
    return (
       <SectionWrapper id="location" title={t("Settings.LocationAddress")} theme={theme}>
          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <InputField
                label={t("Settings.RegionEN")}
-               value={addressData[0].region_en}
+               value={addressData[0]?.region_en}
                onChange={(v) => onChange("region_en", v)}
                placeholder="e.g. Addis Ababa"
                theme={theme}
             />
             <InputField
                label={t("Settings.RegionAM")}
-               value={addressData[0].region_am}
+               value={addressData[0]?.region_am}
                onChange={(v) => onChange("region_am", v)}
                placeholder="አዲስ አበባ"
                theme={theme}
             />
             <InputField
                label={t("Settings.ZoneSubCity")}
-               value={addressData[0].zone_en || addressData[0].sub_city_en}
+               value={addressData[0]?.zone_en || addressData[0]?.sub_city_en}
                onChange={(v) => onChange("zone_en", v)}
                placeholder="Bole Subcity"
                theme={theme}
             />
             <InputField
                label={t("Settings.Kebele")}
-               value={addressData[0].kebele}
+               value={addressData[0]?.kebele}
                onChange={(v) => onChange("kebele", v)}
                placeholder="03"
                theme={theme}
@@ -83,7 +83,7 @@ const LocationSection = ({ addressData = {}, onChange, error, theme }) => {
             <div className="h-48 md:h-64 bg-slate-200 dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-300 dark:border-gray-600 relative flex items-center justify-center group cursor-crosshair">
                <div className={`absolute inset-0 transition-colors pointer-events-none ${theme?.name === 'emerald' ? 'bg-emerald-500/5 group-hover:bg-emerald-500/10' : 'bg-blue-500/5 group-hover:bg-blue-500/10'}`} />
 
-               {addressData[0].latitude && addressData[0].longitude ? (
+               {addressData[0]?.latitude && addressData[0]?.longitude ? (
                   <div className="text-center">
                      <motion.div
                         initial={{ y: -20, opacity: 0 }}
@@ -93,7 +93,7 @@ const LocationSection = ({ addressData = {}, onChange, error, theme }) => {
                         <MapPin size={48} className="mx-auto" />
                      </motion.div>
                      <p className="text-xs font-bold mt-2 font-mono text-slate-600 dark:text-gray-400">
-                        {addressData[0].latitude}, {addressData[0].longitude}
+                        {addressData[0]?.latitude}, {addressData[0].longitude}
                      </p>
                   </div>
                ) : (
@@ -108,7 +108,7 @@ const LocationSection = ({ addressData = {}, onChange, error, theme }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                <InputField
                   label={t("Settings.Latitude")}
-                  value={addressData[0].latitude}
+                  value={addressData[0]?.latitude}
                   onChange={(v) => onChange("latitude", v)}
                   error={error?.latitude}
                   placeholder="9.0123"
@@ -116,7 +116,7 @@ const LocationSection = ({ addressData = {}, onChange, error, theme }) => {
                />
                <InputField
                   label={t("Settings.Longitude")}
-                  value={addressData[0].longitude}
+                  value={addressData[0]?.longitude}
                   onChange={(v) => onChange("longitude", v)}
                   error={error?.longitude}
                   placeholder="38.7451"

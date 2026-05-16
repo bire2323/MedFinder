@@ -8,15 +8,16 @@ const useProfileUpdate = (type, id) => {
   const [success, setSuccess] = useState(false);
 
   const updateProfile = async (data, files = {}) => {
-    console.log("data passed to userprofileupdate", data);
+    // console.log("data passed to userprofileupdate", data);
     setLoading(true);
     setError(null);
     setSuccess(false);
 
     // 1. Validate
     const validation = validateProfile(data, type);
+    // console.log(validation);
     if (!validation.isValid) {
-      console.log("validation error");
+      // console.log("validation error");
       setError(validation.errors);
       setLoading(false);
       return false;
@@ -129,7 +130,7 @@ const useProfileUpdate = (type, id) => {
         : `/api/pharmacy/profile/${id}`;
 
       await ensureCsrfCookie();
-      console.log(formData);
+      // console.log(formData);
       const response = await apiFetch(endpoint, {
         method: "POST",
         body: formData,

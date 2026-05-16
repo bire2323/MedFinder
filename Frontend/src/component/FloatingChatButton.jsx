@@ -40,37 +40,62 @@ export default function FloatingChatButton() {
 
   const handleSend = async () => {
     if (!input.trim()) return;
-    const userMsg = {
-      role: "user", text: input, buttons: []
-    };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    setLoading(true);
+
 
     try {
-      const data = await sendMessage(input);
+      const response = await fetch(
+        "https://medfinder.com/ai/facility-intent",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: input,
+          }),
+        }
+      );
 
-      if (data && data.length > 0) {
-        // Map all responses from the array
-        const botMessages = data.map(msg => ({
-          role: "bot",
-          text: msg.text,
-          buttons: msg.buttons || []
-        }));
-
-        setMessages((prev) => [...prev, ...botMessages]);
-      } else {
-        // Handle empty response from Rasa
-        setMessages((prev) => [...prev, { role: "bot", text: "..." }]);
-      }
-    } catch (err) {
-      setMessages((prev) => [
-        ...prev,
-        { role: "bot", text: t("floatingChat.connectionError") },
-      ]);
-    } finally {
-      setLoading(false);
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error(error);
     }
+
+
+
+
+    // const userMsg = {
+    //   role: "user", text: input, buttons: []
+    // };
+    // setMessages((prev) => [...prev, userMsg]);
+    // setInput("");
+    // setLoading(true);
+
+    // try {
+    //   const data = await sendMessage(input);
+
+    //   if (data && data.length > 0) {
+    //     // Map all responses from the array
+    //     const botMessages = data.map(msg => ({
+    //       role: "bot",
+    //       text: msg.text,
+    //       buttons: msg.buttons || []
+    //     }));
+
+    //     setMessages((prev) => [...prev, ...botMessages]);
+    //   } else {
+    //     // Handle empty response from Rasa
+    //     setMessages((prev) => [...prev, { role: "bot", text: "..." }]);
+    //   }
+    // } catch (err) {
+    //   setMessages((prev) => [
+    //     ...prev,
+    //     { role: "bot", text: t("floatingChat.connectionError") },
+    //   ]);
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   const rootStateClass = globalModalOpen ? 'opacity-40 filter blur-sm pointer-events-none' : '';

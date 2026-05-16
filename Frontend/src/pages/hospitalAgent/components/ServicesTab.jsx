@@ -2,17 +2,25 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, Loader2, Edit2, Trash2, Stethoscope, Tag } from "lucide-react";
 
-export default function ServicesTab({
-  searchServiceQuery,
-  setSearchServiceQuery,
-  resetServiceForm,
-  setShowAddServiceModal,
-  isLoadingServices,
-  filteredServices,
-  openEditServiceModal,
-  setSelectedService,
-  setShowDeleteServiceModal
-}) {
+import { useOutletContext } from "react-router-dom";
+
+export default function ServicesTab() {
+  const {
+    searchServiceQuery,
+    setSearchServiceQuery,
+    resetServiceForm,
+    setShowAddServiceModal,
+    isLoading,
+    services,
+    openEditServiceModal,
+    setSelectedService,
+    setShowDeleteServiceModal
+  } = useOutletContext();
+
+  const filteredServices = services.filter(s =>
+    s.service_name_en?.toLowerCase().includes(searchServiceQuery.toLowerCase()) ||
+    s.service_name_am?.includes(searchServiceQuery)
+  );
   return (
     <motion.div
       key="services"
@@ -44,7 +52,7 @@ export default function ServicesTab({
         </button>
       </div>
 
-      {isLoadingServices ? (
+      {isLoading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <Loader2 size={48} className="animate-spin text-emerald-500" />
           <p className="text-slate-400 font-bold animate-pulse">Loading services...</p>

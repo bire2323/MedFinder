@@ -1,8 +1,12 @@
-node_modules
-dist
+node_modules/
+dist/
 build
 .git
 *.log
 .DS_Store
 .env
 .vscode
+.vscode
+.idea
+npm-debug.log
+yarn-error.log

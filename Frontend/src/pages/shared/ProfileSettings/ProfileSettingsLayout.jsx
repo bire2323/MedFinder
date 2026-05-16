@@ -15,13 +15,21 @@ import AvailabilitySection from "./sections/AvailabilitySection";
 import MediaSection from "./sections/MediaSection";
 import DangerZoneSection, { ConfirmDeactivateModal } from "./sections/DangerZoneSection";
 
-const ProfileSettingsLayout = ({ initialData, type = "hospital", onUpdateSuccess }) => {
+import { useOutletContext } from "react-router-dom";
+
+const ProfileSettingsLayout = ({ type = "hospital" }) => {
   const { t } = useTranslation();
   const theme = getTheme(type);
 
+  const { pharmacyProfile } = useOutletContext();
+  const { hospitalProfile } = useOutletContext();
+  const isPharmacy = type === "pharmacy";
+  const initialData = isPharmacy ? pharmacyProfile : hospitalProfile;
+  // console.log(initialData);
+
   // Section Navigation
   const [activeSection, setActiveSection] = useState("general");
-  console.log("initialData in layout", initialData);
+  // console.log("initialData in layout", pharmacyProfile);
   // Flat Data State
   const [formData, setFormData] = useState(initialData || {});
 
@@ -32,7 +40,7 @@ const ProfileSettingsLayout = ({ initialData, type = "hospital", onUpdateSuccess
   const [isDeactModalOpen, setDeactModalOpen] = useState(false);
 
   // Hook for API handling
-  const { updateProfile, loading, error } = useProfileUpdate(type, initialData?.id);
+  const { updateProfile, loading, error, success } = useProfileUpdate(type, initialData?.id);
 
   // Dirty State Calculation
   const isDirty = useMemo(() => {
@@ -72,12 +80,15 @@ const ProfileSettingsLayout = ({ initialData, type = "hospital", onUpdateSuccess
     // Note: The preparePayload function logic is handled inside useProfileUpdate hook
     // It automatically stringifies `address` and `working_hour` and appends Files
 
-    console.log("Submitting with formData:", formData, "and files:", files);
+    // console.log("Submitting with formData:", formData, "and files:", files);
 
     const ok = await updateProfile(formData, files);
     if (ok) {
-      if (onUpdateSuccess) onUpdateSuccess();
+      console.log("ok");
+
+      // if (onUpdateSuccess) onUpdateSuccess();
     } else {
+      console.log(ok);
       toast.error(t("Common.UpdateFailed", { defaultValue: "Failed to update profile." }));
     }
   };
@@ -135,6 +146,21 @@ const ProfileSettingsLayout = ({ initialData, type = "hospital", onUpdateSuccess
             {renderActiveSection()}
           </motion.div>
         </AnimatePresence>
+        <div className={` ${!error && "hidden"} bg-red-200 border border-yellow-300 p-4 mt-5 rounded-2xl`}>
+          {isDirty && error &&
+            <>
+              <p className="text-white">{error.pharmacy_name_en}</p>
+              <p className="text-white">{error.pharmacy_name_am}</p>
+              <p className="text-white">{error.hospital_name_en}</p>
+              <p className="text-white">{error.hospital_name_am}</p>
+              <p className="text-white">{error.contact_phone}</p>
+              <p className="text-white">{error.contact_email}</p>
+              <p className="text-white">{error.latitude}</p>
+              <p className="text-white">{error.longitude}</p>
+              <p className="text-white">{error.ownership_type}</p>
+            </>
+          }
+        </div>
       </div>
 
       <ConfirmDeactivateModal
@@ -155,7 +181,7 @@ const ProfileSettingsLayout = ({ initialData, type = "hospital", onUpdateSuccess
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[95%] sm:w-full min-w-2xl px-4 pointer-events-auto"
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-[80%] sm:w-full min-w-xl px-4 pointer-events-auto"
           >
             <div className="bg-slate-900 dark:bg-gray-800 text-white p-4 sm:p-5 rounded-[1rem] border border-slate-700/50 dark:border-gray-700 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 w-full relative overflow-hidden backdrop-blur-2xl">
               {/* Glass Shimmer Effect */}

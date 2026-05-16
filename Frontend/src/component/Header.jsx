@@ -191,7 +191,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-[100] w-full border-b border-slate-100 bg-white/95 shadow-sm backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/95">
+    <header className="sticky top-0 z-40 w-full border-b border-slate-100 bg-white/95 shadow-sm backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/95">
       <div className="mx-auto max-w-[1780px] px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12">
         <div className="flex min-h-[4rem] items-center justify-between gap-2 py-2 sm:min-h-[4.5rem] sm:gap-3 lg:min-h-[5rem]">
           {/* Brand */}

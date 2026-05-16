@@ -31,7 +31,11 @@ const AnalyticsCard = ({ title, value, icon, bgColor, description }) => {
   );
 };
 
-export default function OverviewTab({ hospitalProfile, departments, services, recentChats, setActiveTab }) {
+import { useOutletContext, useNavigate } from "react-router-dom";
+
+export default function OverviewTab() {
+  const { hospitalProfile, departments, services, recentChats } = useOutletContext();
+  const navigate = useNavigate();
   return (
     <motion.div
       key="overview"
@@ -122,7 +126,7 @@ export default function OverviewTab({ hospitalProfile, departments, services, re
           <div className="flex items-center justify-between">
             <h3 className="text-2xl font-black text-slate-800 dark:text-white">Active Departments</h3>
             <button
-              onClick={() => setActiveTab("departments")}
+              onClick={() => navigate("/hospital/dashboard/departments")}
               className="group flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors"
             >
               Manage all

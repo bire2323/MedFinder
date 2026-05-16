@@ -1,20 +1,17 @@
-import React, { use, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ClipboardList, Heart, History, LogOut, MessageSquare, User, Search, ChevronLeft, MapPin } from "lucide-react";
+import { ClipboardList, Heart, LogOut, MessageSquare, User, Search, ChevronLeft } from "lucide-react";
 
 import useAuthStore from "../../store/UserAuthStore";
 import { apiLogout } from "../../api/auth";
 
 import Sidebar from "./components/Sidebar";
-import MapView from "./components/MapView";
-import Profile from "./components/Profile";
-import Chat from "./components/Chat";
 import Header from "../../component/Header";
 import NotificationToast from "../../component/NotificationToast";
 import useChatNotificationStore from "../../store/useChatNotificationStore";
 import { useNotifications } from "../../hooks/UserNotification";
-import DashboardHeader from "../../component/DashboardHeader";
+import AlertModal from "../../component/SupportiveComponent/AlertModal";
 
 const LS_FAVORITES_KEY = "medfinder_favorites_v1";
 const LS_RECENTS_KEY = "medfinder_recents_v1";
@@ -34,33 +31,18 @@ function isSameFacility(a, b) {
     return a.type === b.type && String(a.id) === String(b.id);
 }
 
-function normalizeFacilityForStorage(facility) {
-    if (!facility) return null;
-    const type = facility.type === "hospital" || facility.type === "pharmacy" ? facility.type : facility.type ? String(facility.type) : "facility";
-    return {
-        type,
-        id: facility.id,
-        name: facility.name ?? facility.raw?.name ?? "Facility",
-        address: facility.address ?? "",
-        lat: facility.lat ?? facility.latitude ?? null,
-        lng: facility.lng ?? facility.longitude ?? null,
-    };
-}
-
 export default function UserDashboard() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { t } = useTranslation();
 
     const { user, clearSession, roles } = useAuthStore();
     const currentUserId = user?.id;
     const [showModal, setShowModal] = useState(false);
-    //console.log(user);
 
     const { handleIncomingMessage, targetSessionToOpen, getUnreadCount } = useChatNotificationStore();
     const unreadCount = getUnreadCount();
 
-    const [activeSection, setActiveSection] = useState("home"); // home | search | favorites | messages | profile
-    // console.log("cuid",currentUserId);
     useNotifications(currentUserId, (incoming) => {
         handleIncomingMessage({
             message: incoming.message,
@@ -71,19 +53,19 @@ export default function UserDashboard() {
     });
 
     useEffect(() => {
-
         if (roles.includes("patient") || roles.includes("admin")) {
             useChatNotificationStore.getState().loadSessions();
         } else {
             navigate("/");
         }
-    }, [user, roles]);
+    }, [user, roles, navigate]);
 
     useEffect(() => {
         if (targetSessionToOpen) {
-            setActiveSection("messages");
+            navigate("/user/dashboard/messages");
         }
-    }, [targetSessionToOpen]);
+    }, [targetSessionToOpen, navigate]);
+
     const [favorites, setFavorites] = useState([]);
     const [recents, setRecents] = useState([]);
 
@@ -95,71 +77,44 @@ export default function UserDashboard() {
         setRecents(safeParseJSON(localStorage.getItem(LS_RECENTS_KEY), []));
 
         const params = new URLSearchParams(location.search);
-
         const sessionId = location.state?.openChatSessionId || params.get("session");
         if (sessionId) {
-            setActiveSection("messages")
+            navigate("/user/dashboard/messages");
         }
-    }, []);
-    useEffect(() => {
-        if (user?.status === "inactive") {
-            setShowModal(true);
-        }
-    }, [user]);
-    useEffect(() => {
-        localStorage.setItem(LS_FAVORITES_KEY, JSON.stringify(favorites));
-    }, [favorites]);
+    }, [location.search, location.state, navigate]);
 
-    useEffect(() => {
-        localStorage.setItem(LS_RECENTS_KEY, JSON.stringify(recents));
-    }, [recents]);
-
-    const favoritesSet = useMemo(() => {
-        const m = new Map();
-        for (const f of favorites) {
-            if (!f) continue;
-            m.set(`${f.type}:${String(f.id)}`, true);
-        }
-        return m;
-    }, [favorites]);
-
-    const isFavorite = (facility) => {
-        const n = normalizeFacilityForStorage(facility);
-        if (!n) return false;
-        return favoritesSet.has(`${n.type}:${String(n.id)}`);
+    const addRecent = (facility) => {
+        setRecents((prev) => {
+            const filtered = prev.filter((f) => !isSameFacility(f, facility));
+            const next = [facility, ...filtered].slice(0, 8);
+            localStorage.setItem(LS_RECENTS_KEY, JSON.stringify(next));
+            return next;
+        });
     };
 
     const toggleFavorite = (facility) => {
-        const normalized = normalizeFacilityForStorage(facility);
-        if (!normalized) return;
-
         setFavorites((prev) => {
-            const exists = prev.some((p) => isSameFacility(p, normalized));
-            if (exists) return prev.filter((p) => !isSameFacility(p, normalized));
-            return [normalized, ...prev].slice(0, 50);
+            const exists = prev.some((f) => isSameFacility(f, facility));
+            let next;
+            if (exists) next = prev.filter((f) => !isSameFacility(f, facility));
+            else next = [facility, ...prev];
+            localStorage.setItem(LS_FAVORITES_KEY, JSON.stringify(next));
+            return next;
         });
     };
 
-    const addRecent = (facility) => {
-        const normalized = normalizeFacilityForStorage(facility);
-        if (!normalized) return;
-
-        setRecents((prev) => {
-            const filtered = prev.filter((p) => !isSameFacility(p, normalized));
-            return [normalized, ...filtered].slice(0, 5);
-        });
+    const isFavorite = (facility) => {
+        return favorites.some((f) => isSameFacility(f, facility));
     };
 
     const openFacilityInMapAndRoute = (facility) => {
-        addRecent(facility);
-        setActiveSection("search");
+        navigate(`/user/dashboard/search?lat=${facility.lat}&lng=${facility.lng}&name=${encodeURIComponent(facility.name)}`);
     };
 
     const requestChatWithFacility = (facility) => {
-        addRecent(facility);
-        setChatTargetFacility(normalizeFacilityForStorage(facility));
+        setChatTargetFacility(facility);
         setChatTargetNonce((n) => n + 1);
-        setActiveSection("messages");
+        navigate("/user/dashboard/messages");
     };
 
     const handleLogout = async () => {
@@ -170,6 +125,8 @@ export default function UserDashboard() {
             navigate("/");
         }
     };
+
+    const activeSection = location.pathname.split("/").pop();
 
     return (
         <>
@@ -182,26 +139,21 @@ export default function UserDashboard() {
             <Header />
             <NotificationToast />
             <div className="min-h-screen px-4 sm:px-6 xl:px-10 bg-white text-slate-900 dark:bg-gray-900 dark:text-slate-100 transition-colors duration-300 flex ">
-
                 <Sidebar
-                    activeSection={activeSection}
-                    setActiveSection={setActiveSection}
                     onLogout={handleLogout}
                     favoritesCount={favorites.length}
                     unreadCount={unreadCount}
                 />
 
                 <main className="flex-1 min-w-0 xl:ml-14 flex flex-col overflow-hidden ">
-                    <div className="sticky  top-0 z-[90] flex items-center justify-between px-4 sm:px-6 lg:px-8 py- sm:py:2 md:py-4 border-b border-slate-100 dark:border-gray-800">
-
+                    <div className="sticky top-0 z-[90] flex items-center justify-between px-4 sm:px-6 lg:px-8 py- sm:py:2 md:py-4 border-b border-slate-100 dark:border-gray-800">
                         <button onClick={() => navigate("/")}>
-                            <ChevronLeft className="hidden  md:block cursor-pointer text-slate-700 hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-50" />
+                            <ChevronLeft className="hidden md:block cursor-pointer text-slate-700 hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-50" />
                         </button>
-
 
                         <div className="flex items-center gap-3 min-w-0">
                             <div className="w-6 h-6 md:w-9 md:h-9 rounded-xl bg-green-700 text-white flex items-center justify-center shadow-sm">
-                                {activeSection === "home" ? <ClipboardList size={18} /> : null}
+                                {activeSection === "overview" || activeSection === "dashboard" ? <ClipboardList size={18} /> : null}
                                 {activeSection === "search" ? <Search size={18} /> : null}
                                 {activeSection === "favorites" ? <Heart size={18} /> : null}
                                 {activeSection === "messages" ? <MessageSquare size={18} /> : null}
@@ -209,7 +161,7 @@ export default function UserDashboard() {
                             </div>
                             <div className="min-w-0">
                                 <h1 className="text-[10px] md:text-lg sm:text-xl font-bold truncate">
-                                    {activeSection === "home" && t("UserDashboard.Overview")}
+                                    {(activeSection === "overview" || activeSection === "dashboard") && t("UserDashboard.Overview")}
                                     {activeSection === "search" && t("UserDashboard.SearchAndNavigate")}
                                     {activeSection === "favorites" && t("UserDashboard.SavedPlaces")}
                                     {activeSection === "messages" && t("UserDashboard.Messages")}
@@ -223,223 +175,21 @@ export default function UserDashboard() {
                     </div>
 
                     <section className="flex-1 overflow-y-auto ">
-                        {activeSection === "home" && (
-                            <div className="max-w-full sm:max-w-7xl mx-auto px-1 sm:px-2 md:px-6 lg:px-8 py-3 md:py-6 space-y-6">
-                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                                    <div className="lg:col-span-7 bg-white dark:bg-gray-800/40 border border-slate-200 dark:border-gray-700 rounded-2xl p-5">
-                                        <h2 className="text-[10px] md:text-base font-bold mb-1">{t("UserDashboard.RecentViews")}</h2>
-                                        <p className="text-[9px] md:text-sm text-slate-600 dark:text-gray-300 mb-4">
-                                            {t("UserDashboard.TapAnyFacility")}
-                                        </p>
-
-                                        {recents.length === 0 ? (
-                                            <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-6 text-center bg-slate-50 dark:bg-gray-900/40">
-                                                <p className="font-bold text-slate-800 dark:text-slate-100">{t("UserDashboard.NoRecentsYet")}</p>
-                                                <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">
-                                                    {t("UserDashboard.YourLastViewed")}
-                                                </p>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setActiveSection("search")}
-                                                    className="mt-4 inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-blue-700"
-                                                >
-                                                    <History size={16} />
-                                                    {t("UserDashboard.ExploreNearest")}
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                {recents.map((f) => (
-                                                    <button
-                                                        key={`${f.type}:${String(f.id)}`}
-                                                        type="button"
-                                                        onClick={() => openFacilityInMapAndRoute(f)}
-                                                        className="text-left border border-slate-200 dark:border-gray-700 rounded-2xl p-4 hover:bg-slate-50 shadow-sm dark:hover:bg-gray-800/60 transition-colors"
-                                                    >
-                                                        <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
-                                                            <div className="min-w-0">
-                                                                <p className="font-bold truncate">{f.name}</p>
-                                                                <p className="text-xs text-slate-600 dark:text-gray-300 truncate">{f.type === "hospital" ? "Hospital" : "Pharmacy"}</p>
-                                                                {f.address && (
-                                                                    <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 truncate">{f.address}</p>
-                                                                )}
-                                                            </div>
-                                                            <span
-                                                                className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold ${f.type === "hospital"
-                                                                    ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-                                                                    : "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300"
-                                                                    }`}
-                                                            >
-                                                                {f.type === "hospital" ? "H" : "P"}
-                                                            </span>
-                                                        </div>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="lg:col-span-5 bg-white dark:bg-gray-800/40 border border-slate-200 dark:border-gray-700 rounded-2xl p-5">
-                                        <h2 className="text-base font-bold mb-1">{t("UserDashboard.SavedPlaces")}</h2>
-                                        <p className="text-sm text-slate-600 dark:text-gray-300 mb-4">{t("UserDashboard.QuicklyJumpBack")}</p>
-
-                                        {favorites.length === 0 ? (
-                                            <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-6 text-center bg-slate-50 dark:bg-gray-900/40">
-                                                <p className="font-bold text-slate-800 dark:text-slate-100">{t("UserDashboard.NoFavoritesYet")}</p>
-                                                <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.BookmarkPharmacies")}</p>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setActiveSection("search")}
-                                                    className="mt-4 inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-blue-700"
-                                                >
-                                                    <Search size={16} />
-                                                    {t("UserDashboard.FindFacilities")}
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <div className="grid grid-cols-1 gap-3">
-                                                {favorites.slice(0, 4).map((f) => (
-                                                    <button
-                                                        key={`${f.type}:${String(f.id)}`}
-                                                        type="button"
-                                                        onClick={() => openFacilityInMapAndRoute(f)}
-                                                        className="w-full text-left shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-4 hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
-                                                    >
-                                                        <p className="font-bold">{f.name}</p>
-                                                        <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">{f.type === "hospital" ? "Hospital" : "Pharmacy"}</p>
-                                                    </button>
-                                                ))}
-                                                {favorites.length > 4 && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setActiveSection("favorites")}
-                                                        className="mt-2 w-full text-center text-sm font-bold text-blue-700 dark:text-blue-400 hover:underline"
-                                                    >
-                                                        View all favorites ({favorites.length})
-                                                    </button>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setActiveSection("search")}
-                                        className="bg-white dark:bg-gray-800/40 shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
-                                    >
-                                        <p className="font-bold">{t("UserDashboard.FacilitySearch")}</p>
-                                        <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.FindNearestHospitals")}</p>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setActiveSection("messages")}
-                                        className="bg-white dark:bg-gray-800/40 shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
-                                    >
-                                        <p className="font-bold">{t("UserDashboard.RealTimeChat")}</p>
-                                        <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.TalkWithPharmacy")}</p>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setActiveSection("profile")}
-                                        className="bg-white dark:bg-gray-800/40 shadow-xl border border-slate-200 dark:border-gray-700 rounded-2xl p-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/60 transition-colors"
-                                    >
-                                        <p className="font-bold">{t("UserDashboard.ProfileAndSecurity")}</p>
-                                        <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.UpdateYourInfo")}</p>
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeSection === "search" && (
-                            <div className="max-w-full sm:max-w-7xl mx-auto px-1 sm:px-4 lg:px-8 py-3 md:py-6">
-                                <MapView
-                                    favorites={favorites}
-                                    isFavorite={isFavorite}
-                                    onToggleFavorite={toggleFavorite}
-                                    onFacilityViewed={(f) => addRecent(f)}
-                                    onRequestChat={(facility) => requestChatWithFacility(facility)}
-                                />
-                            </div>
-                        )}
-
-                        {activeSection === "favorites" && (
-                            <div className="max-w-full sm:max-w-7xl mx-auto px-2 md:px-4 sm:px-6 lg:px-8 py-6">
-                                <div className="flex items-end justify-between gap-4 mb-4">
-                                    <div>
-                                        <h2 className="text-sm md:text-xl sm:text-2xl font-bold">{t("UserDashboard.SavedPlaces")}</h2>
-                                        <p className="text-[10px] md:text-sm text-slate-600 dark:text-gray-300">{t("UserDashboard.YourBookmarked")}</p>
-                                    </div>
-                                </div>
-
-                                {favorites.length === 0 ? (
-                                    <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-8 text-center bg-slate-50 dark:bg-gray-900/40">
-                                        <p className="font-semibold text-slate-800 dark:text-slate-100">{t("UserDashboard.NoFavoritesYet")}</p>
-                                        <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("UserDashboard.BookmarkAFacility")}</p>
-                                        <button
-                                            type="button"
-                                            onClick={() => setActiveSection("search")}
-                                            className="mt-4 inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-blue-700"
-                                        >
-
-                                            {t("UserDashboard.OpenInSearch")}
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {favorites.map((f) => (
-                                            <div key={`${f.type}:${String(f.id)}`} className="bg-white dark:bg-gray-800/40 border border-slate-200 dark:border-gray-700 rounded-2xl p-4">
-                                                <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
-                                                    <div className="min-w-0">
-                                                        <p className="font-bold truncate">{f.name}</p>
-                                                        <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">{f.type === "hospital" ? "Hospital" : "Pharmacy"}</p>
-                                                        {f.address && <p className="text-xs text-slate-600 dark:text-gray-300 mt-2 truncate">{f.address}</p>}
-                                                    </div>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => toggleFavorite(f)}
-                                                        className="p-2 rounded-xl bg-blue-600/10 text-blue-700 dark:text-blue-300 hover:bg-blue-600/15 transition-colors"
-                                                        aria-label={t("UserDashboard.Remove")}
-                                                        title={t("UserDashboard.Remove")}
-                                                    >
-                                                        <Heart size={16} className="fill-current" />
-                                                    </button>
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => openFacilityInMapAndRoute(f)}
-                                                    className="mt-4 w-full rounded-xl bg-blue-600 text-white py-2.5 font-bold hover:bg-blue-700 transition-colors"
-                                                >
-                                                    Open in Search
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {activeSection === "messages" && (
-                            <div className="max-w-full sm:max-w-7xl mx-auto px-1 sm:px-4 lg:px-8 py-2 md:py-6">
-                                <Chat
-                                    key={chatTargetNonce}
-
-                                    initialFacility={chatTargetFacility}
-                                    onClearInitialFacility={() => setChatTargetFacility(null)}
-                                />
-                            </div>
-                        )}
-
-                        {activeSection === "profile" && (
-                            <div className="max-w-full sm:max-w-7xl mx-auto px-1 md:px-3 sm:px-6 lg:px-8 py-3 md:py-6">
-                                <Profile />
-                            </div>
-                        )}
+                        <Outlet context={{
+                            favorites,
+                            recents,
+                            toggleFavorite,
+                            isFavorite,
+                            addRecent,
+                            openFacilityInMapAndRoute,
+                            requestChatWithFacility,
+                            chatTargetFacility,
+                            chatTargetNonce,
+                            setChatTargetFacility
+                        }} />
                     </section>
                 </main>
             </div>
         </>
-
     );
 }

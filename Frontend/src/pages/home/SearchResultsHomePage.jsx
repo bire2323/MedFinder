@@ -8,6 +8,7 @@ import SearchBar from "../../component/search/SearchBar";
 import FilterPanel from "../../component/search/FilterPanel";
 import ResultCard from "../../component/search/ResultCard";
 import ResultsSkeleton from "../../component/search/ResultsSkeleton";
+import Footer from "../../component/Footer";
 
 import { apiFetchFacilities, apiFetchDrugResults } from "../../api/search";
 import { apiGetFacilities } from "../../api/hospital";
@@ -111,7 +112,7 @@ export default function SearchResultsHomePage() {
 
     return () => ac.abort();
   }, [t, debouncedQuery, facilityType]);
-
+  // console.log("Fetched facilities:", allFacilities);
   const facilitiesWithDistance = useMemo(() => {
     if (!userLoc) return allFacilities.map((f) => ({ ...f, distanceMeters: NaN }));
     return allFacilities.map((f) => {
@@ -258,7 +259,7 @@ export default function SearchResultsHomePage() {
             />
           </div>
 
-          <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="mt-6 lg:mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Sidebar Column */}
             <aside className="hidden lg:block lg:col-span-3">
               <div className="sticky top-24 rounded-2xl border border-slate-200 dark:border-blue-900/30 bg-white dark:bg-slate-900 p-5 shadow-lg">
@@ -396,6 +397,7 @@ export default function SearchResultsHomePage() {
 
               {!error && !loading && filtered.length > 0 && (
                 <>
+                  {console.log("Rendering paginated results:", paginatedResults)}
                   <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" : "flex flex-col gap-4"}>
                     {paginatedResults.map((f) => (
                       <ResultCard key={`${f.type}-${f.id}`} facility={f} onClick={() => onCardClick(f)} viewMode={viewMode} />
@@ -455,6 +457,10 @@ export default function SearchResultsHomePage() {
           </div>
         </div>
       </div>
+      <div className="min-h-20 bg-slate-50 dark:bg-slate-950">
+
+      </div>
+      <Footer />
     </>
   );
 }

@@ -2,7 +2,7 @@
  * Application Router Configuration
  * Defines all routes for the MedFinder application
  */
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 // Layouts
 import MainLayout from "../layout/MainLayout";
@@ -15,7 +15,16 @@ import SearchDepartmentService from "../../pages/home/SearchDepartmentService";
 import PrescriptionReader from "../../pages/prescription/PrescriptionReader";
 import MapPage from "../../pages/map/MapPage";
 import PharmacyDashboard from "../../pages/pharmacyAgent/PharmacyDashboard";
+import PharmacyInventory from "../../pages/pharmacyAgent/Inventory";
+import PharmacyOverviewTab from "../../pages/pharmacyAgent/components/OverviewTab";
+import PharmacyChatsTab from "../../pages/pharmacyAgent/components/ChatsTab";
+
 import HospitalDashboard from "../../pages/hospitalAgent/HospitalDashboard";
+import HospitalOverviewTab from "../../pages/hospitalAgent/components/OverviewTab";
+import HospitalDepartmentsTab from "../../pages/hospitalAgent/components/DepartmentsTab";
+import HospitalServicesTab from "../../pages/hospitalAgent/components/ServicesTab";
+import HospitalChatsTab from "../../pages/hospitalAgent/components/ChatsTab";
+
 import FacilityDetailPage from "../../pages/FacilityDetailPage";
 
 // Auth Pages
@@ -36,7 +45,20 @@ import {
   SuccessScreen
 } from "../../pages/registration";
 import AdminDashboard from "../../pages/AdminPage/AdminDashboard";
+import AdminOverview from "../../pages/AdminPage/AdminOverview";
+import AdminUserManagement from "../../pages/AdminPage/UserManagement";
+import AdminApprovalManagement from "../../pages/AdminPage/ApprovalManagement";
+import AdminAnalyticsDashboard from "../../pages/AdminPage/AnalyticsDashboard";
+import AuditLog from "../../pages/AdminPage/AuditLog";
+import AdminNotificationCenter from "../../pages/AdminPage/NotificationCenter";
+import ProfileSettingsLayout from "../../pages/shared/ProfileSettings/ProfileSettingsLayout";
 import UserDashboard from "../../pages/UserDashboard/UserDashboard";
+import UserOverview from "../../pages/UserDashboard/components/UserOverview";
+import UserFavorites from "../../pages/UserDashboard/components/UserFavorites";
+import MapView from "../../pages/UserDashboard/components/MapView";
+import Profile from "../../pages/UserDashboard/components/Profile";
+import Chat from "../../pages/UserDashboard/components/Chat";
+
 import ProtectedRoute from "../../auth/ProtectedRoute";
 import AuthCallback from "../../auth/AuthCallBack";
 import ScrollToTop from "../../component/ScrollToTop";
@@ -138,28 +160,80 @@ export const router = createBrowserRouter([
     ]
   },
 
-  // ==================== AGENT DASHBOARDS (Standalone Pages) ====================
+  // ==================== AGENT DASHBOARDS (Nested Routes) ====================
   // Pharmacy Agent Dashboard
   {
-    path: "/pharmacy-agent/dashboard",
-    element: <PharmacyDashboard />,
+    path: "/pharmacy/dashboard",
+    element: <ProtectedRoute />,
+    children: [
+      {
+        element: <PharmacyDashboard />, children: [
+          { index: true, element: <PharmacyOverviewTab /> },
+          { path: "overview", element: <PharmacyOverviewTab /> },
+          { path: "inventory", element: <PharmacyInventory /> },
+          { path: "chats", element: <PharmacyChatsTab /> },
+          { path: "settings", element: <ProfileSettingsLayout type="pharmacy" /> },
+        ]
+      }
+    ],
   },
   // Hospital Agent Dashboard
   {
-    path: "/hospital-agent/dashboard",
+    path: "/hospital/dashboard",
     element: <ProtectedRoute />,
-    children: [{ index: true, element: <HospitalDashboard /> }],
+    children: [
+      {
+        element: <HospitalDashboard />, children: [
+          { index: true, element: <HospitalOverviewTab /> },
+          { path: "overview", element: <HospitalOverviewTab /> },
+          { path: "departments", element: <HospitalDepartmentsTab /> },
+          { path: "services", element: <HospitalServicesTab /> },
+          { path: "chats", element: <HospitalChatsTab /> },
+          { path: "settings", element: <ProfileSettingsLayout type="hospital" /> },
+        ]
+      }
+    ],
   },
+  // User Dashboard
   {
     path: "/user/dashboard",
     element: <ProtectedRoute />,
-    children: [{ index: true, element: <UserDashboard /> }],
+    children: [
+      {
+        element: <UserDashboard />, children: [
+          { index: true, element: <UserOverview /> },
+          { path: "overview", element: <UserOverview /> },
+          { path: "search", element: <MapView /> },
+          { path: "favorites", element: <UserFavorites /> },
+          { path: "messages", element: <Chat /> },
+          { path: "profile", element: <Profile /> },
+        ]
+      }
+    ],
   },
+  // Admin Dashboard
   {
     path: "/admin/dashboard",
     element: <ProtectedRoute />,
-    children: [{ index: true, element: <AdminDashboard /> }],
+    children: [
+      {
+        element: <AdminDashboard />, children: [
+          { index: true, element: <AdminOverview /> },
+          { path: "overview", element: <AdminOverview /> },
+          { path: "users", element: <AdminUserManagement /> },
+          { path: "approvals", element: <AdminApprovalManagement /> },
+          { path: "analytics", element: <AdminAnalyticsDashboard /> },
+          { path: "auditlog", element: <AuditLog /> },
+          { path: "notifications", element: <AdminNotificationCenter /> },
+          { path: "settings", element: <Profile /> },
+        ]
+      }
+    ],
   },
+  // Backward compatibility redirects
+  { path: "/pharmacy-agent/dashboard", element: <Navigate to="/pharmacy/dashboard" replace /> },
+  { path: "/hospital-agent/dashboard", element: <Navigate to="/hospital/dashboard" replace /> },
+
   {
     path: "/terms-and-conditions",
     element: <TermsConditions />,
@@ -241,7 +315,7 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // ==================== 404 CATCH-ALL ====================
+
   {
     path: "*",
     element: <NotFound />,

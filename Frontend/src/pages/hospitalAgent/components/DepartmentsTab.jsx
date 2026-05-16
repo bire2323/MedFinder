@@ -2,17 +2,25 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, Loader2, Edit2, Trash2, Building2, MoreVertical } from "lucide-react";
 
-export default function DepartmentsTab({
-  searchDeptQuery,
-  setSearchDeptQuery,
-  resetDeptForm,
-  setShowAddDeptModal,
-  isLoadingDepts,
-  filteredDepartments,
-  openEditDeptModal,
-  setSelectedDept,
-  setShowDeleteDeptModal
-}) {
+import { useOutletContext } from "react-router-dom";
+
+export default function DepartmentsTab() {
+  const {
+    searchDeptQuery,
+    setSearchDeptQuery,
+    resetDeptForm,
+    setShowAddDeptModal,
+    isLoading,
+    departments,
+    openEditDeptModal,
+    setSelectedDept,
+    setShowDeleteDeptModal
+  } = useOutletContext();
+
+  const filteredDepartments = departments.filter(d =>
+    d.department_name_en?.toLowerCase().includes(searchDeptQuery.toLowerCase()) ||
+    d.department_name_am?.includes(searchDeptQuery)
+  );
   return (
     <motion.div
       key="departments"
@@ -44,7 +52,7 @@ export default function DepartmentsTab({
         </button>
       </div>
 
-      {isLoadingDepts ? (
+      {isLoading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <Loader2 size={48} className="animate-spin text-blue-500" />
           <p className="text-slate-400 font-bold animate-pulse">Loading departments...</p>

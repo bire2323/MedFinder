@@ -2,17 +2,33 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(),],
+  plugins: [react(), tailwindcss()],
+
   server: {
-    host: true,
-    watch: { usePolling: true },
-    allowedHosts: ['cellulolytic-nonshredding-kena.ngrok-free.dev', "medfinder.com", "localhost"],
-    hmr: {
-      host: 'medfinder.com',
-      protocol: 'wss',
-      port: 443,
+    host: "0.0.0.0",
+    port: 5173,
+
+    watch: {
+      usePolling: true,
+      ignored: [
+        "**/node_modules/**",
+        "**/.git/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/storage/**",
+      ],
     },
-  }
+
+    allowedHosts: [
+      "localhost",
+      "medfinder.com",
+      "cellulolytic-nonshredding-kena.ngrok-free.dev",
+    ],
+
+    hmr: {
+      protocol: "wss",
+      clientPort: 443,
+    },
+  },
 });

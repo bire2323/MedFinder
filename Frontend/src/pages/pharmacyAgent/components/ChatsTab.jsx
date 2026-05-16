@@ -6,7 +6,10 @@ import SharedChatWindow from "../../../component/SharedChatWindow";
 import { apiFetch } from "../../../api/client";
 import useChatNotificationStore from "../../../store/useChatNotificationStore";
 
-export default function ChatsTab({ currentUserId }) {
+import { useOutletContext } from "react-router-dom";
+
+export default function ChatsTab() {
+    const { currentUserId } = useOutletContext();
     const { t } = useTranslation();
     const { sessions: chatSessions, loadSessions, activeSessionId: selectedSessionId, setActiveSessionId: setSelectedSessionId, targetSessionToOpen, setTargetSessionToOpen } = useChatNotificationStore();
     const [loadingChats, setLoadingChats] = useState(false);

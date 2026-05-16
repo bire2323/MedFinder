@@ -22,7 +22,7 @@ export default function Routing({ key, from, to, onRouteUpdate }) {
 
     // Skip if same route already fetched
     if (lastFromToRef.current === currentFromTo && hasFetchedRef.current) {
-      console.log("Same route, skipping fetch");
+      //console.log("Same route, skipping fetch");
       return;
     }
 
@@ -44,10 +44,10 @@ export default function Routing({ key, from, to, onRouteUpdate }) {
 
           // Ensure steps array exists
           if (!data.steps || data.steps.length === 0) {
-            console.warn("API returned no steps, generating fallback steps");
+            //console.warn("API returned no steps, generating fallback steps");
             data.steps = generateFallbackSteps(data.points);
           }
-          console.log("1", "userLocation");
+          //console.log("1", "userLocation");
           setRouteData(data);
           hasFetchedRef.current = true;
 

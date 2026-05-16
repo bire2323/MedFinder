@@ -41,7 +41,10 @@ function getPriorityBadgeClass(priority) {
   }
 }
 
-export default function NotificationCenter({ onNotificationRead }) {
+import { useOutletContext } from 'react-router-dom';
+
+export default function NotificationCenter() {
+  const { loadNotifications: onNotificationRead } = useOutletContext();
   const { t } = useTranslation();
   const { notifications, setNotifications, markAsRead: storeMarkAsRead } = useSystemNotificationStore();
   const [loading, setLoading] = useState(true);

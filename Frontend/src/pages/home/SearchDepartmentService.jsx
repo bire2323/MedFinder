@@ -14,6 +14,7 @@ import {
 } from "../../api/hospitalDirectory";
 import useLocationStore from "../../store/useLocationStore";
 import getDistanceFromLatLonInMeters from "../../utils/GetDistanceFromLatLoInMeters";
+import Footer from "../../component/Footer";
 
 function distanceBucketOk(distanceMeters, bucket) {
   if (!bucket || bucket === "any") return true;
@@ -383,6 +384,10 @@ export default function SearchDepartmentService() {
           </div>
         )}
       </div>
+      <div className="min-h-20 bg-slate-50 dark:bg-slate-950">
+
+      </div>
+      <Footer />
     </>
   );
 }

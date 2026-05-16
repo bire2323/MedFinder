@@ -5,7 +5,10 @@ import { Loader2, MessageSquare, Search, ChevronLeft, User, Phone, Info } from "
 import SharedChatWindow from "../../../component/SharedChatWindow";
 import useChatNotificationStore from "../../../store/useChatNotificationStore";
 
-export default function ChatsTab({ currentUserId }) {
+import { useOutletContext } from "react-router-dom";
+
+export default function ChatsTab() {
+  const { currentUserId } = useOutletContext();
   const {
     sessions: chatSessions,
     loadSessions,

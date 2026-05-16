@@ -23,7 +23,7 @@ import InventoryTrash from "./components/InventoryTrash";
 import { useTranslation } from "react-i18next";
 import Loading from "../../component/SupportiveComponent/Loading";
 
-export default function Inventory({ activeTab, setActiveTab }) {
+export default function Inventory() {
     const { t } = useTranslation();
     const [subTab, setSubTab] = useState("active");
 
@@ -95,13 +95,13 @@ export default function Inventory({ activeTab, setActiveTab }) {
     }, [params, t]);
 
     useEffect(() => {
-        if (activeTab === "inventory" && subTab === "active") {
+        if (subTab === "active") {
             fetchInventory();
             fetchAnalytics();
-        } else if (activeTab === "inventory") {
+        } else {
             fetchAnalytics(); // Keep analytics fresh
         }
-    }, [activeTab, subTab, fetchInventory]);
+    }, [subTab, fetchInventory]);
 
     const handleAddDrug = async () => {
         setIsSubmitting(true);
