@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+@source "./**/*.{js,jsx,ts,tsx}";
+@source "../index.html";
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -25,6 +27,9 @@
 body {
   font-family: 'inconsolata', sans-serif;
   overscroll-behavior-x: none;
+}
+* {
+  -webkit-user-drag: none;
 }
 
 @layer components {

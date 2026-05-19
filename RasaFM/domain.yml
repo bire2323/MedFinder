@@ -5,18 +5,14 @@ intents:
 - ask_capabilities
 - ask_developer_info
 - ask_difference_chatbot_vs_app
-- ask_features
-- ask_help
 - ask_how_to_find_drug
 - ask_how_to_use_map
-- ask_system_purpose
 - bot_challenge
 - deny
 - goodbye
 - greet
 - mood_great
 - mood_unhappy
-- pharmacy_hours
 - search_drug
 - search_hospital
 - search_pharmacy
@@ -72,12 +68,39 @@ responses:
       name: language
       value: am
     text: ሰላም! እንዴት ነህ/ነሽ?
+    buttons:
+    - title: "💊 መድኃኒት ፈልግ"
+      payload: "/search_drug"
+    - title: "🏥 ሆስፒታል ፈልግ"
+      payload: "/search_hospital"
+    - title: "🔍 ፋርማሲ ፈልግ"
+      payload: "/search_pharmacy"
+    - title: "🗺️ ካርታ አጠቃቀም"
+      payload: "/ask_how_to_use_map"
   - condition:
     - type: slot
       name: language
       value: en
     text: Hey! How are you?
+    buttons:
+    - title: "💊 Search Drug"
+      payload: "/search_drug"
+    - title: "🏥 Search Hospital"
+      payload: "/search_hospital"
+    - title: "🔍 Search Pharmacy"
+      payload: "/search_pharmacy"
+    - title: "🗺️ Map Navigation"
+      payload: "/ask_how_to_use_map"
   - text: Hey! How are you?
+    buttons:
+    - title: "💊 Search Drug"
+      payload: "/search_drug"
+    - title: "🏥 Search Hospital"
+      payload: "/search_hospital"
+    - title: "🔍 Search Pharmacy"
+      payload: "/search_pharmacy"
+    - title: "🗺️ Map Navigation"
+      payload: "/ask_how_to_use_map"
   utter_did_that_help:
   - condition:
     - type: slot
@@ -233,6 +256,37 @@ responses:
       This system was developed as a smart hospital and pharmacy finder project.
       Developed by: Birhanu Derso and team members from UOG CS department
   - text: Developed by Birhanu Derso and team members from UOG CS department.
+  utter_map_usage:
+  - text: |
+      To use the map, click on the "Map" button. or you can click on the "Search" button to find a hospital or pharmacy. and 
+      also their is map icon on the top right corner of each facility card, you can click on it to get directions to the facility.
+      inside the map you can also click on the markers to see more details about the facility and get directions.
+        - click the markers in the map to get more details and directions to the facility.
+        - real time navigation to the facility with routing is come up.
+        - you can also search for a specific hospital or pharmacy in the map search bar to find it quickly.
+    buttons:
+    - title: "💊 Search Drug"
+      payload: "/search_drug"
+    - title: "🏥 Search Hospital"
+      payload: "/search_hospital"
+    - title: "🔍 Search Pharmacy"
+      payload: "/search_pharmacy"
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: |
+      ካርታውን ለመጠቀም፣ "ካርታ" ቁልፍ ይጫኑ። ወይም "ፈልግ" ቁልፍ ይጫኑ እና ሆስፒታሎችን ወይም መድኃኒት ቤቶችን ይፈልጉ።
+      እንዲሁም በእያንዳንዱ መረጃ ካርዶች በላይ በግራ ኮርነር ያለውን map icon ይጫኑ።
+      በካርታው ውስጥ መረጃዎችን ለመጠቀም፣ markers (መመሪያ) ይጫኑ። እና አቅጣጫ አሳይ የሚለውን በመንካት የ ሆስፒታሉ ዎይም የ ፋርማሲውን አቅጣጫ ይገኛሉ።
+      እንዲሁም በካርታው ውስጥ ለፍጥነት የሚፈልጉትን ሆስፒታሎችን ወይም መድኃኒት ቤቶችን በመፈለጊያ መስመር ዎይም search ቦታው ላይ በስም ይፈልጉ።
+    buttons:
+    - title: "💊 መድኃኒት ፈልግ"
+      payload: "/search_drug"
+    - title: "🏥 ሆስፒታል ፈልግ"
+      payload: "/search_hospital"
+    - title: "🔍 ፋርማሲ ፈልግ"
+      payload: "/search_pharmacy"
   utter_help:
   - condition:
     - type: slot
@@ -242,6 +296,15 @@ responses:
       እኒህንና የመሳሰሉትን መጠየቅ ይችላሉ፣ ለምሳሌ እንደ:
         - በአካባቢዬ የሚገኝ መድኃኒት ቤት ፈልግ
         - የት መድሃኒት ማግኘት እንደሚችሉ መድሃኒት ስም በማስገባት ይፈልጉ?
+    buttons:
+    - title: "💊 መድኃኒት ፈልግ"
+      payload: "/search_drug"
+    - title: "🏥 ሆስፒታል ፈልግ"
+      payload: "/search_hospital"
+    - title: "🔍 ፋርማሲ ፈልግ"
+      payload: "/search_pharmacy"
+    - title: "🗺️ ካርታ አጠቃቀም"
+      payload: "/ask_how_to_use_map"
   - condition:
     - type: slot
       name: language
@@ -251,7 +314,25 @@ responses:
         - Find a pharmacy near me
         - Search for a hospital in Addis Ababa
         - Check if a drug is available
+    buttons:
+    - title: "💊 Search Drug"
+      payload: "/search_drug"
+    - title: "🏥 Search Hospital"
+      payload: "/search_hospital"
+    - title: "🔍 Search Pharmacy"
+      payload: "/search_pharmacy"
+    - title: "🗺️ Map Navigation"
+      payload: "/ask_how_to_use_map"
   - text: You can ask me to find pharmacies, hospitals, or specific drugs near you.
+    buttons:
+    - title: "💊 Search Drug"
+      payload: "/search_drug"
+    - title: "🏥 Search Hospital"
+      payload: "/search_hospital"
+    - title: "🔍 Search Pharmacy"
+      payload: "/search_pharmacy"
+    - title: "🗺️ Map Navigation"
+      payload: "/ask_how_to_use_map"
   utter_about_app:
   - condition:
     - type: slot
@@ -260,14 +341,50 @@ responses:
     text: |
       MedFinder ለተጠቃሚዎች ፈጣን የሆነ የሕክምና አገልግሎቶችን መፈለግ የሚያስችል የሕክምና አገልግሎት እና መድሀኒት መፈለጊያ ነው። 
       በአካባቢዎ የሚገኝ መድኃኒት ቤቶችን እና ሆስፒታሎችን መፈለግ የሚያስችል ነው።
+    buttons:
+    - title: "💊 መድኃኒት ፈልግ"
+      payload: "/search_drug"
+    - title: "🏥 ሆስፒታል ፈልግ"
+      payload: "/search_hospital"
+    - title: "🔍 ፋርማሲ ፈልግ"
+      payload: "/search_pharmacy"
+    - title: "🗺️ ካርታ አጠቃቀም"
+      payload: "/ask_how_to_use_map"
   - condition:
     - type: slot
       name: language
       value: en
     text: |
       MedFinder is a smart healthcare assistant that helps users locate medical services quickly by finding pharmacies and hospitals in your area.
+    buttons:
+    - title: "💊 Search Drug"
+      payload: "/search_drug"
+    - title: "🏥 Search Hospital"
+      payload: "/search_hospital"
+    - title: "🔍 Search Pharmacy"
+      payload: "/search_pharmacy"
+    - title: "🗺️ Map Navigation"
+      payload: "/ask_how_to_use_map"
   - text: MedFinder is a smart healthcare assistant to help locate pharmacies and hospitals.
   utter_how_to_find_drug:
+  - condition:
+    - type: slot
+      name: language
+      value: am
+    text: |
+      መድኃኒት ለመፈለግ፣ የመድኃኒቱን ስም ብቻ ይጻፉ።
+      ለምሳሌ፡
+      • "ፓራሰታሞል"
+      • "ኢቡፕሮፌን የት ነው የማገኘው?"
+      • "አሞክሲሲሊን በአቅራቢያዬ ይገኛል?"
+      እኔም በአቅራቢያዎ የሚገኙ ፋርማሲዎችን ፈትሼ ያሉበትን ቦታ አሳይዎታለሁ።
+    buttons:
+    - title: "🔍 ፋርማሲ ፈልግ"
+      payload: "/search_pharmacy"
+    - title: "🏥 ሆስፒታል ፈልግ"
+      payload: "/search_hospital"
+    - title: "🗺️ ካርታ አጠቃቀም"
+      payload: "/ask_how_to_use_map"
   - condition:
     - type: slot
       name: language
@@ -279,12 +396,33 @@ responses:
       • "Where can I find ibuprofen?"
       • "Is amoxicillin available near me?"
       I will check nearby pharmacies and show you where it's available.
+    buttons:
+    - title: "🔍 Search Pharmacy"
+      payload: "/search_pharmacy"
+    - title: "🏥 Search Hospital"
+      payload: "/search_hospital"
+    - title: "🗺️ Map Navigation"
+      payload: "/ask_how_to_use_map"
+  - text: To find a drug, just type the name of the medication.
+    buttons:
+    - title: "🔍 Search Pharmacy"
+      payload: "/search_pharmacy"
+    - title: "🏥 Search Hospital"
+      payload: "/search_hospital"
+    - title: "🗺️ Map Navigation"
+      payload: "/ask_how_to_use_map"
   utter_chatbot_advantage:
   - condition:
     - type: slot
       name: language
-      value: en
+      value: am
     text: |
+      ቻትቦቱ ፍለጋን ፈጣን እና ቀላል ያደርገዋል።
+      በሜኑዎች ውስጥ ከማሰስ ይልቅ፣ በቀላሉ እንዲህ ብለው መጠየቅ ይችላሉ፡
+      • "በአቅራቢያዬ የሚገኝ የICU አገልግሎት ያለው ሆስፒታል ፈልግ"
+      • "አሁን ክፍት የሆነ ፋርማሲ እፈልጋለሁ"
+      እኔ ብዙ እርምጃዎችን (ፍለጋ፣ ማጣሪያ እና ቦታ) ወደ አንድ ቀላል ጥያቄ አጣምራለሁ።
+  - text: |
       The chatbot makes searching faster and easier.
       Instead of clicking through menus, you can just ask:
       • "Find nearest hospital with ICU"
@@ -294,8 +432,15 @@ responses:
   - condition:
     - type: slot
       name: language
-      value: en
+      value: am
     text: |
+      MedFinder የተዘጋጀው ሰዎች የጤና አጠባበቅ አገልግሎቶችን በፍጥነት እንዲያገኙ ለመርዳት ነው።
+      የሚያስችሎት ነገሮች፡-
+      • በአቅራቢያ ያሉ ሆስፒታሎችን እና ፋርማሲዎችን መፈለግ
+      • የመድኃኒት አቅርቦት ማረጋገጥ
+      • የአቅጣጫ መረጃ በቅጽበት ማግኘት
+      ዋናው ዓላማ አስፈላጊ የሕክምና ድጋፍ ለማግኘት የሚወስደውን ጊዜ መቀነስ ነው።
+  - text: |
       MedFinder is designed to help people quickly access healthcare services.
       It allows you to:
       • Find hospitals and pharmacies nearby
@@ -314,11 +459,7 @@ responses:
       • "በአካባቢዬ የሚገኝ መድኃኒት ቤት ፈልግ"
       • "የት መድሃኒት ማግኘት እንደሚችሉ መድሃኒት ስም በማስገባት ይፈልጉ?"
       እኔም በአካባቢዎ የሚገኝ መድኃኒት ቤቶችን እና ሆስፒታሎችን መፈለግ የሚያስችል መረጃ እሰጣለሁ።
-  - condition:
-    - type: slot
-      name: language
-      value: en
-    text: |
+  - text: |
       I can help you quickly find healthcare services using simple messages.
       For example:
       • "Find a pharmacy near me"

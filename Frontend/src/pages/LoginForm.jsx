@@ -75,7 +75,7 @@ export default function LoginForm() {
   }
 
   function openRegisterRoute() {
-    navigate("/register", { state: { background: location } });
+    navigate("/register", { state: { background: location.state?.background || location.state?.backgroundLocation || location } });
   }
   return (
 

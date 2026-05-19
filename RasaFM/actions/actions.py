@@ -1,10 +1,14 @@
 import requests
+import os
 from typing import Any, Text, Dict, List
 
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet
 from thefuzz import process
+
+# Configuration from environment variables
+BACKEND_URL = os.getenv("BACKEND_URL", "http://medfinder-backend")
 
 
 class ActionSetLanguage(Action):
@@ -60,10 +64,14 @@ class ActionSearchDrugs(Action):
 
         # Call your backend API
         try:
-            response = requests.get(f"https://medfinder.com/api/bot/search-drug?name={drug_name}")
+            response = requests.get(
+                f"{BACKEND_URL}/api/bot/search-drug?name={drug_name}",
+                timeout=10
+            )
             response.raise_for_status()
             data = response.json()
-        except:
+        except Exception as e:
+            print(f"ERROR in action_search_drugs: {str(e)}")
             if language == "am":
                 dispatcher.utter_message(text="የመረጃ ቋቱን ማግኘት አልቻልኩም። ቆይተው እንደገና ይሞክሩ።")
             else:
@@ -134,17 +142,17 @@ class ActionSearchPharmacy(Action):
         location = tracker.get_slot("location")
         pharmacy_name = tracker.get_slot("pharmacy_name")
 
-        url = "https://medfinder.com/api/pharmacies"
+        url = f"{BACKEND_URL}/api/pharmacies"
         params = {"location": location} if location else {}
 
         # --- API CALL ---
         try:
-            response = requests.get(url, params=params, timeout=20)
+            response = requests.get(url, params=params, timeout=10)
             response.raise_for_status()
             all_pharmacies = response.json()
 
         except Exception as e:
-            print("ERROR:", str(e))
+            print("ERROR in action_search_pharmacy:", str(e))
 
             text = (
                 "የመረጃ ቋቱን ማግኘት አልቻልኩም።"
@@ -237,14 +245,15 @@ class ActionSearchHospital(Action):
         hospital_name = tracker.get_slot("hospital_name")
         location = tracker.get_slot("location")
 
-        url = "https://medfinder.com/api/hospitals"
+        url = f"{BACKEND_URL}/api/hospitals"
         params = {"location": location} if location else {}
 
         try:
             response = requests.get(url, params=params, timeout=5)
             response.raise_for_status()
             results = response.json()
-        except:
+        except Exception as e:
+            print(f"ERROR in action_search_hospital: {str(e)}")
             text = "ሆስፒታል መረጃ ማግኘት አልቻልኩም።" if language == "am" else "I can't reach hospital data right now."
             dispatcher.utter_message(text=text)
             return []
@@ -257,9 +266,11 @@ class ActionSearchHospital(Action):
         final_results = results
         if hospital_name:
             names = [h['name'] for h in results]
-            best_match, score = process.extractOne(hospital_name, names)
-            if score > 70:
-                final_results = [h for h in results if h['name'] == best_match]
+            match = process.extractOne(hospital_name, names)
+            if match:
+                best_match, score = match
+                if score > 70:
+                    final_results = [h for h in results if h['name'] == best_match]
 
         messages = []
         for h in final_results[:3]:

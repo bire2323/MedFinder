@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import {
   TrendingUp,
   Users,
@@ -50,6 +51,21 @@ const sampleTopServices = [
   { name: 'Specialist Referral', requests: 621 },
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08
+    }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 260, damping: 22 } }
+};
+
 export default function AnalyticsDashboard() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
@@ -98,19 +114,24 @@ export default function AnalyticsDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-6"
+    >
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t("Admin.AnalyticsDashboard")}</h2>
-          <p className="text-sm text-slate-500 dark:text-gray-400 mt-0.5">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-850 dark:text-white uppercase tracking-wider">{t("Admin.AnalyticsDashboard")}</h2>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             {t("Admin.AnalyticsDesc")}
           </p>
         </div>
         <select
           value={timeRange}
           onChange={(e) => setTimeRange(e.target.value)}
-          className="w-full sm:w-44 px-3 py-2 rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-slate-700 dark:text-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400 outline-none transition"
+          className="w-full sm:w-44 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-350 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-all shadow-sm"
         >
           <option value="7d">{t("Admin.Last7Days")}</option>
           <option value="30d">{t("Admin.Last30Days")}</option>
@@ -119,190 +140,230 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* Overview Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <motion.div
+          variants={cardVariants}
+          whileHover={{ y: -5, scale: 1.015 }}
+          className="bg-gradient-to-br from-indigo-50/60 to-white dark:from-slate-900 dark:to-slate-950/40 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 p-5 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group"
+        >
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">{t("Admin.TotalUsers")}</p>
-            <div className="p-1.5 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-              <Users className="size-4 text-blue-600 dark:text-blue-400" />
+            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">{t("Admin.TotalUsers")}</p>
+            <div className="p-2 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl border border-indigo-100 dark:border-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+              <Users className="size-4" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">{overview.totalUsers.toLocaleString()}</p>
-          <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1.5 font-medium flex items-center gap-1">
-            <TrendingUp className="size-3" />
+          <p className="text-2xl font-black tracking-tight text-slate-850 dark:text-white leading-none">{overview.totalUsers.toLocaleString()}</p>
+          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-2 font-bold flex items-center gap-1">
+            <TrendingUp className="size-3 shrink-0" />
             {t("Admin.FromLastPeriod", { value: overview.userGrowth })}
           </p>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+        <motion.div
+          variants={cardVariants}
+          whileHover={{ y: -5, scale: 1.015 }}
+          className="bg-gradient-to-br from-blue-50/60 to-white dark:from-slate-900 dark:to-slate-950/40 rounded-2xl border border-blue-100 dark:border-blue-900/50 p-5 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group"
+        >
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">{t("Admin.ActiveHospitals")}</p>
-            <div className="p-1.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
-              <Building2 className="size-4 text-indigo-600 dark:text-indigo-400" />
+            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">{t("Admin.ActiveHospitals")}</p>
+            <div className="p-2 bg-blue-50 dark:bg-blue-950/30 rounded-xl border border-blue-100 dark:border-blue-900/30 text-blue-600 dark:text-blue-400">
+              <Building2 className="size-4" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">{overview.activeHospitals.toLocaleString()}</p>
-          <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1.5 font-medium flex items-center gap-1">
-            <TrendingUp className="size-3" />
+          <p className="text-2xl font-black tracking-tight text-slate-850 dark:text-white leading-none">{overview.activeHospitals.toLocaleString()}</p>
+          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-2 font-bold flex items-center gap-1">
+            <TrendingUp className="size-3 shrink-0" />
             {t("Admin.FromLastPeriod", { value: overview.hospitalGrowth })}
           </p>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+        <motion.div
+          variants={cardVariants}
+          whileHover={{ y: -5, scale: 1.015 }}
+          className="bg-gradient-to-br from-emerald-50/60 to-white dark:from-slate-900 dark:to-slate-950/40 rounded-2xl border border-emerald-100 dark:border-emerald-900/50 p-5 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group"
+        >
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">{t("Admin.ActivePharmacies")}</p>
-            <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg">
-              <Building2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">{t("Admin.ActivePharmacies")}</p>
+            <div className="p-2 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-100 dark:border-emerald-900/30 text-emerald-600 dark:text-emerald-400">
+              <Building2 className="size-4" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">{overview.activePharmacies.toLocaleString()}</p>
-          <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1.5 font-medium flex items-center gap-1">
-            <TrendingUp className="size-3" />
+          <p className="text-2xl font-black tracking-tight text-slate-850 dark:text-white leading-none">{overview.activePharmacies.toLocaleString()}</p>
+          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-2 font-bold flex items-center gap-1">
+            <TrendingUp className="size-3 shrink-0" />
             {t("Admin.FromLastPeriod", { value: overview.pharmacyGrowth })}
           </p>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+        <motion.div
+          variants={cardVariants}
+          whileHover={{ y: -5, scale: 1.015 }}
+          className="bg-gradient-to-br from-purple-50/60 to-white dark:from-slate-900 dark:to-slate-950/40 rounded-2xl border border-purple-100 dark:border-purple-900/50 p-5 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group"
+        >
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400">{t("Admin.Chats24h")}</p>
-            <div className="p-1.5 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
-              <MessageSquare className="size-4 text-purple-600 dark:text-purple-400" />
+            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-gray-400">{t("Admin.Chats24h")}</p>
+            <div className="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-xl border border-purple-100 dark:border-purple-800/50 text-purple-650 dark:text-purple-405">
+              <MessageSquare className="size-4" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">{overview.totalChats.toLocaleString()}</p>
-          <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1.5 font-medium flex items-center gap-1">
-            <TrendingUp className="size-3" />
+          <p className="text-2xl font-black tracking-tight text-slate-850 dark:text-white leading-none">{overview.totalChats.toLocaleString()}</p>
+          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-2 font-bold flex items-center gap-1">
+            <TrendingUp className="size-3 shrink-0" />
             {t("Admin.FromLastPeriod", { value: overview.chatGrowth })}
           </p>
-        </div>
+        </motion.div>
       </div>
 
       {/* User Activity Chart */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 shadow-sm overflow-hidden">
-        <div className="px-6 pt-5 pb-1">
-          <h3 className="font-semibold text-slate-900 dark:text-white">{t("Admin.UserActivityTrends")}</h3>
-          <p className="text-sm text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.DailyActiveUsers")}</p>
+      <motion.div 
+        variants={cardVariants}
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm overflow-hidden"
+      >
+        <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800/65">
+          <h3 className="font-bold text-slate-850 dark:text-white text-sm uppercase tracking-wider">{t("Admin.UserActivityTrends")}</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t("Admin.DailyActiveUsers")}</p>
         </div>
-        <div className="px-4 pb-5 pt-2 h-72 sm:h-80">
+        <div className="px-4 pb-5 pt-4 h-72 sm:h-80">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={analytics?.userActivity || sampleUserActivity}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-gray-700" />
-              <XAxis dataKey="date" className="text-xs" tick={{ fontSize: 12, fill: '#94a3b8' }} />
-              <YAxis className="text-xs" tick={{ fontSize: 12, fill: '#94a3b8' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-slate-800 opacity-60" />
+              <XAxis dataKey="date" className="text-xs" tick={{ fontSize: 11, fill: '#6b7280' }} />
+              <YAxis className="text-xs" tick={{ fontSize: 11, fill: '#6b7280' }} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'white',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                  fontSize: '12px',
+                  backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.3)',
+                  fontSize: '11px',
+                  color: 'white',
                 }}
               />
-              <Legend wrapperStyle={{ fontSize: '12px' }} />
-              <Line type="monotone" dataKey="patients" stroke="#3b82f6" strokeWidth={2} dot={false} name={t("Common.Roles.Patient")} />
-              <Line type="monotone" dataKey="hospitalAgents" stroke="#8b5cf6" strokeWidth={2} dot={false} name={t("Common.Roles.Hospital")} />
-              <Line type="monotone" dataKey="pharmacyAgents" stroke="#10b981" strokeWidth={2} dot={false} name={t("Common.Roles.Pharmacy")} />
+              <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+              <Line type="monotone" dataKey="patients" stroke="#3b82f6" strokeWidth={2.5} dot={false} name={t("Common.Roles.Patient")} />
+              <Line type="monotone" dataKey="hospitalAgents" stroke="#8b5cf6" strokeWidth={2.5} dot={false} name={t("Common.Roles.Hospital")} />
+              <Line type="monotone" dataKey="pharmacyAgents" stroke="#10b981" strokeWidth={2.5} dot={false} name={t("Common.Roles.Pharmacy")} />
             </LineChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </motion.div>
 
       {/* Bottom Charts */}
       <div className="grid gap-5 lg:grid-cols-2">
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 shadow-sm overflow-hidden">
-          <div className="px-6 pt-5 pb-1">
-            <h3 className="font-semibold text-slate-900 dark:text-white">{t("Admin.ChatbotInteractions")}</h3>
-            <p className="text-sm text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.UsageByHour")}</p>
+        <motion.div 
+          variants={cardVariants}
+          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm overflow-hidden"
+        >
+          <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800/65">
+            <h3 className="font-bold text-slate-850 dark:text-white text-sm uppercase tracking-wider">{t("Admin.ChatbotInteractions")}</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t("Admin.UsageByHour")}</p>
           </div>
-          <div className="px-4 pb-5 pt-2 h-72 sm:h-80">
+          <div className="px-4 pb-5 pt-4 h-72 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={analytics?.chatbotInteractions || sampleChatbotInteractions}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="hour" tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-slate-800 opacity-60" />
+                <XAxis dataKey="hour" tick={{ fontSize: 11, fill: '#6b7280' }} />
+                <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                    fontSize: '12px',
+                    backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '12px',
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.3)',
+                    fontSize: '11px',
+                    color: 'white',
                   }}
                 />
-                <Bar dataKey="interactions" fill="#8b5cf6" radius={[4, 4, 0, 0]} name={t("Admin.Interactions") || "Interactions"} />
+                <Bar dataKey="interactions" fill="#8b5cf6" radius={[6, 6, 0, 0]} name={t("Admin.Interactions") || "Interactions"} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 shadow-sm overflow-hidden">
-          <div className="px-6 pt-5 pb-1">
-            <h3 className="font-semibold text-slate-900 dark:text-white">{t("Admin.TopServices")}</h3>
-            <p className="text-sm text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.MostRequested")}</p>
+        <motion.div 
+          variants={cardVariants}
+          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm overflow-hidden"
+        >
+          <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800/65">
+            <h3 className="font-bold text-slate-850 dark:text-white text-sm uppercase tracking-wider">{t("Admin.TopServices")}</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t("Admin.MostRequested")}</p>
           </div>
-          <div className="px-4 pb-5 pt-2 h-72 sm:h-80">
+          <div className="px-4 pb-5 pt-4 h-72 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={analytics?.topServices || sampleTopServices} layout="vertical" margin={{ left: 10, right: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#94a3b8' }} width={120} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-slate-800 opacity-60" />
+                <XAxis type="number" tick={{ fontSize: 11, fill: '#6b7280' }} />
+                <YAxis dataKey="name" type="category" tick={{ fontSize: 10, fill: '#6b7280' }} width={120} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                    fontSize: '12px',
+                    backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '12px',
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.3)',
+                    fontSize: '11px',
+                    color: 'white',
                   }}
                 />
-                <Bar dataKey="requests" fill="#10b981" radius={[0, 4, 4, 0]} name={t("Admin.Requests")} />
+                <Bar dataKey="requests" fill="#10b981" radius={[0, 6, 6, 0]} name={t("Admin.Requests")} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <h3 className="font-semibold text-slate-900 dark:text-white text-sm mb-3">{t("Admin.PeakActivityTime")}</h3>
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-blue-50 dark:bg-blue-900/30 rounded-xl shrink-0">
-              <Calendar className="size-6 text-blue-600 dark:text-blue-400" />
+      <div className="grid gap-5 sm:grid-cols-3">
+        <motion.div
+          variants={cardVariants}
+          whileHover={{ y: -4 }}
+          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/50 dark:border-slate-800/80 p-5.5 shadow-sm hover:shadow-md transition-all duration-300"
+        >
+          <h3 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider mb-4">{t("Admin.PeakActivityTime")}</h3>
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-xl shrink-0 border border-blue-100 dark:border-blue-900/30 text-blue-600 dark:text-blue-400">
+              <Calendar className="size-5" />
             </div>
             <div>
-              <p className="text-xl font-bold text-slate-900 dark:text-white">{analytics?.insights?.peakHour || t("Admin.PeakHour")}</p>
-              <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.MostActiveHour")}</p>
+              <p className="text-lg font-black text-slate-850 dark:text-white leading-tight">{analytics?.insights?.peakHour || t("Admin.PeakHour")}</p>
+              <p className="text-[10px] text-slate-450 dark:text-slate-500 font-bold uppercase tracking-wider mt-0.5">{t("Admin.MostActiveHour")}</p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <h3 className="font-semibold text-slate-900 dark:text-white text-sm mb-3">{t("Admin.AvgResponseTime")}</h3>
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-purple-50 dark:bg-purple-900/30 rounded-xl shrink-0">
-              <MessageSquare className="size-6 text-purple-600 dark:text-purple-400" />
+        <motion.div
+          variants={cardVariants}
+          whileHover={{ y: -4 }}
+          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/50 dark:border-slate-800/80 p-5.5 shadow-sm hover:shadow-md transition-all duration-300"
+        >
+          <h3 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider mb-4">{t("Admin.AvgResponseTime")}</h3>
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-purple-50 dark:bg-purple-950/30 rounded-xl shrink-0 border border-purple-100 dark:border-purple-800/30 text-purple-650 dark:text-purple-400">
+              <MessageSquare className="size-5" />
             </div>
             <div>
-              <p className="text-xl font-bold text-slate-900 dark:text-white">{analytics?.insights?.avgResponseTime || 2.3}s</p>
-              <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.ChatbotResponse")}</p>
+              <p className="text-lg font-black text-slate-850 dark:text-white leading-tight">{analytics?.insights?.avgResponseTime || 2.3}s</p>
+              <p className="text-[10px] text-slate-450 dark:text-slate-500 font-bold uppercase tracking-wider mt-0.5">{t("Admin.ChatbotResponse")}</p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <h3 className="font-semibold text-slate-900 dark:text-white text-sm mb-3">{t("Admin.UserSatisfaction")}</h3>
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl shrink-0">
-              <TrendingUp className="size-6 text-emerald-600 dark:text-emerald-400" />
+        <motion.div
+          variants={cardVariants}
+          whileHover={{ y: -4 }}
+          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/50 dark:border-slate-800/80 p-5.5 shadow-sm hover:shadow-md transition-all duration-300"
+        >
+          <h3 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider mb-4">{t("Admin.UserSatisfaction")}</h3>
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl shrink-0 border border-emerald-100 dark:border-emerald-800/30 text-emerald-600 dark:text-emerald-400">
+              <TrendingUp className="size-5" />
             </div>
             <div>
-              <p className="text-xl font-bold text-slate-900 dark:text-white">{analytics?.insights?.userSatisfaction || 94.5}%</p>
-              <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{t("Admin.PositiveFeedback")}</p>
+              <p className="text-lg font-black text-slate-850 dark:text-white leading-tight">{analytics?.insights?.userSatisfaction || 94.5}%</p>
+              <p className="text-[10px] text-slate-450 dark:text-slate-500 font-bold uppercase tracking-wider mt-0.5">{t("Admin.PositiveFeedback")}</p>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

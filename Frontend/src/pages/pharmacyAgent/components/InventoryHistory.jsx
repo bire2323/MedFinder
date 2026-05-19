@@ -49,44 +49,51 @@ const InventoryHistory = () => {
   const getStatusBadge = (type) => {
     switch (type) {
       case "SALE":
-        return <span className="bg-red-50 text-red-600 px-2 py-1 rounded-full text-xs font-semibold uppercase">{t("inventory.history.type.sale")}</span>;
+        return <span className="px-3 py-1 rounded-full text-[9px] font-black bg-rose-50 text-rose-600 dark:bg-rose-950/40 border border-rose-100/50 select-none uppercase tracking-wider">{t("inventory.history.type.sale")}</span>;
       case "RESTOCK":
-        return <span className="bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full text-xs font-semibold uppercase">{t("inventory.history.type.restock")}</span>;
+        return <span className="px-3 py-1 rounded-full text-[9px] font-black bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 border border-emerald-100/50 select-none uppercase tracking-wider">{t("inventory.history.type.restock")}</span>;
       case "ADJUSTMENT":
-        return <span className="bg-amber-50 text-amber-600 px-2 py-1 rounded-full text-xs font-semibold uppercase">{t("inventory.history.type.adjustment")}</span>;
+        return <span className="px-3 py-1 rounded-full text-[9px] font-black bg-amber-50 text-amber-600 dark:bg-amber-950/40 border border-amber-100/50 select-none uppercase tracking-wider">{t("inventory.history.type.adjustment")}</span>;
       default:
-        return <span className="bg-blue-50 text-blue-600 px-2 py-1 rounded-full text-xs font-semibold uppercase">{t("inventory.history.type.manual")}</span>;
+        return <span className="px-3 py-1 rounded-full text-[9px] font-black bg-blue-50 text-blue-600 dark:bg-blue-950/40 border border-blue-100/50 select-none uppercase tracking-wider">{t("inventory.history.type.manual")}</span>;
     }
   };
 
   if (loading && page === 1) {
     return (
-      <>
-        <Loading/>
-      </>
+      <div className="flex flex-col justify-center items-center py-32 gap-3">
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-bounce"></span>
+          <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+          <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+        </div>
+        <p className="text-xs text-slate-400 font-bold tracking-wide animate-pulse">{t("Common.Loading")}</p>
+      </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      {/* Header Panel */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-gray-200 flex items-center gap-2">
-            <History className="w-6 h-6 text-primary " />
+          <h2 className="text-xl font-black text-slate-800 dark:text-white flex items-center gap-2 tracking-tight">
+            <History className="w-5 h-5 text-emerald-500" />
             {t("inventory.history.title")}
           </h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold mt-0.5">
             {t("inventory.history.description")}
           </p>
         </div>
 
+        {/* Filter Controls */}
         <div className="flex items-center gap-3">
           <div className="relative group">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-100 group-hover:text-primary transition-colors" />
+            <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
             <select
               value={typeFilter}
               onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
-              className="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all appearance-none cursor-pointer"
+              className="pl-10 pr-8 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-xl text-xs font-black uppercase tracking-wider focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all appearance-none cursor-pointer dark:text-gray-200"
             >
               <option value="all">{t("inventory.filters.allStatus")}</option>
               <option value="MANUAL">{t("inventory.history.type.manual")}</option>
@@ -98,7 +105,7 @@ const InventoryHistory = () => {
 
           <button
             onClick={fetchHistory}
-            className="p-2 bg-gray-50 text-gray-600 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200"
+            className="p-2.5 bg-slate-50 dark:bg-slate-900 text-slate-650 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 border border-slate-200/50 dark:border-slate-800 rounded-xl hover:bg-slate-100 transition-all active:scale-95 cursor-pointer"
             title="Refresh"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -106,111 +113,157 @@ const InventoryHistory = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden border-t-4 border-t-green-700">
+      {/* Audit Log Card Container */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 shadow-sm shadow-slate-100/50 dark:shadow-none overflow-hidden">
         {historyItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-              <History className="w-8 h-8 text-gray-300" />
+            <div className="w-16 h-16 bg-slate-50 dark:bg-slate-850/50 rounded-full flex items-center justify-center mb-4 text-slate-350">
+              <History className="w-7 h-7" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900">No stock movements found</h3>
-            <p className="text-gray-500 max-w-xs mt-2">
+            <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">No stock movements found</h3>
+            <p className="text-slate-400 dark:text-slate-500 font-semibold text-xs mt-2 max-w-xs leading-relaxed">
               Every time stock levels change, a log entry will be created here for auditing purposes.
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="bg-gray-50/50 border-b border-gray-100">
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    {t("inventory.history.column.date")}
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    {t("inventory.history.column.drug")}
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    {t("inventory.history.column.change")}
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">
-                    {t("Common.Status")}
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    {t("inventory.history.column.performedBy")}
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    {t("inventory.history.column.reason")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                <AnimatePresence mode="popLayout">
-                  {historyItems.map((log) => (
-                    <motion.tr
-                      key={log.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="hover:bg-gray-50/30 transition-colors"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-sm text-gray-600 font-medium">
-                          <Calendar className="w-4 h-4 text-gray-400" />
-                          {new Date(log.created_at).toLocaleString()}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 font-semibold text-gray-900">
-                        {log.inventory?.drug?.brand_name_en}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className={`flex items-center gap-1 font-bold ${log.change_amount > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                          {log.change_amount > 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                          {Math.abs(log.change_amount)} {t("inventory.toast.units")}
-                          <span className="text-xs text-gray-400 font-normal ml-1">
-                            ({log.old_stock} → {log.new_stock})
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        {getStatusBadge(log.type)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 text-sm text-gray-700">
-                          <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
-                            <User className="w-3 h-3 text-gray-500" />
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 dark:border-slate-800/60 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    <th className="px-6 py-4">{t("inventory.history.column.date")}</th>
+                    <th className="px-6 py-4">{t("inventory.history.column.drug")}</th>
+                    <th className="px-6 py-4">{t("inventory.history.column.change")}</th>
+                    <th className="px-6 py-4 text-center">{t("Common.Status")}</th>
+                    <th className="px-6 py-4">{t("inventory.history.column.performedBy")}</th>
+                    <th className="px-6 py-4">{t("inventory.history.column.reason")}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40">
+                  <AnimatePresence mode="popLayout">
+                    {historyItems.map((log, index) => (
+                      <motion.tr
+                        key={log.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ type: "spring", stiffness: 100, delay: index * 0.02 }}
+                        className="hover:bg-slate-50/50 dark:hover:bg-slate-800/25 transition-colors group"
+                      >
+                        <td className="px-6 py-3.5 whitespace-nowrap">
+                          <div className="flex items-center gap-2 text-xs text-slate-550 dark:text-slate-400 font-bold">
+                            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                            {new Date(log.created_at).toLocaleString()}
                           </div>
-                          {log.performer?.name || t("Common.NoData")}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-sm text-gray-500 italic max-w-xs truncate" title={log.reason}>
-                          {log.reason || "No note provided"}
+                        </td>
+                        <td className="px-6 py-3.5 font-bold text-slate-850 dark:text-white">
+                          {log.inventory?.drug?.brand_name_en || "Deleted Drug"}
+                        </td>
+                        <td className="px-6 py-3.5">
+                          <div className={`flex items-center gap-1 font-black ${log.change_amount > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                            {log.change_amount > 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                            {Math.abs(log.change_amount)} {t("inventory.toast.units")}
+                            <span className="text-[10px] text-slate-400 font-semibold ml-1">
+                              ({log.old_stock} → {log.new_stock})
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-3.5 text-center">
+                          {getStatusBadge(log.type)}
+                        </td>
+                        <td className="px-6 py-3.5">
+                          <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-350">
+                            <div className="w-6 h-6 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center border border-slate-200/50 dark:border-slate-800">
+                              <User className="w-3 h-3 text-slate-500" />
+                            </div>
+                            <span className="font-bold">{log.performer?.name || t("Common.NoData")}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-3.5">
+                          <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold italic max-w-xs truncate" title={log.reason}>
+                            {log.reason || "—"}
+                          </p>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </AnimatePresence>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Cards Grid View */}
+            <div className="block md:hidden p-4 space-y-4">
+              <AnimatePresence mode="popLayout">
+                {historyItems.map((log, index) => (
+                  <motion.div
+                    key={log.id}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: "spring", stiffness: 100, delay: index * 0.02 }}
+                    className="p-4 bg-slate-50/60 dark:bg-slate-800/30 rounded-2xl border border-slate-100/80 dark:border-slate-800/85 space-y-3 shadow-sm"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-black text-slate-800 dark:text-white leading-tight">
+                          {log.inventory?.drug?.brand_name_en || "Deleted Drug"}
                         </p>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
-              </tbody>
-            </table>
-          </div>
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-1 flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-slate-450" />
+                          {new Date(log.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                      {getStatusBadge(log.type)}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/55">
+                      <div>
+                        <span className="text-[9px] text-slate-400 font-black uppercase">Change Amount</span>
+                        <div className={`flex items-center gap-0.5 font-black text-xs mt-0.5 ${log.change_amount > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          {log.change_amount > 0 ? "+" : "-"}
+                          {Math.abs(log.change_amount)} units
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-slate-400 font-black uppercase">Performed By</span>
+                        <p className="text-xs font-bold text-slate-650 dark:text-slate-350 mt-0.5 truncate">
+                          {log.performer?.name || "System"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {log.reason && (
+                      <div className="pt-2 border-t border-slate-100/50 dark:border-slate-800/40">
+                        <span className="text-[9px] text-slate-400 font-black uppercase">Reason / Note</span>
+                        <p className="text-xs font-semibold italic text-slate-450 dark:text-slate-500 mt-0.5 leading-relaxed">
+                          {log.reason}
+                        </p>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </>
         )}
 
-        {/* Pagination */}
+        {/* Pagination Panel */}
         {lastPage > 1 && (
-          <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
-            <p className="text-sm text-gray-500">
+          <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/30 border-t border-slate-100 dark:border-slate-800/40 flex items-center justify-between">
+            <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
               Page {page} of {lastPage}
             </p>
             <div className="flex items-center gap-2">
               <button
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
-                className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-sm"
+                className="px-4 py-2 text-xs font-black uppercase tracking-wider text-slate-650 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-all shadow-sm active:scale-95 cursor-pointer"
               >
                 {t("Common.Back")}
               </button>
               <button
                 disabled={page === lastPage}
                 onClick={() => setPage((p) => p + 1)}
-                className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-all shadow-md shadow-primary/20"
+                className="px-5 py-2 text-xs font-black uppercase tracking-wider text-white bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl hover:scale-[1.02] disabled:hover:scale-100 disabled:opacity-50 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 cursor-pointer"
               >
                 {t("common.next")}
               </button>

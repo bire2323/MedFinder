@@ -136,45 +136,61 @@ export default function UserDashboard() {
                     navigate('/');
                 }} />}
             </div>
-            <Header />
+            {/* <Header /> */}
             <NotificationToast />
-            <div className="min-h-screen px-4 sm:px-6 xl:px-10 bg-white text-slate-900 dark:bg-gray-900 dark:text-slate-100 transition-colors duration-300 flex ">
+            <div className="min-h-screen bg-slate-50/50 text-slate-900 dark:bg-gray-900 dark:text-slate-100 transition-colors duration-300 flex">
                 <Sidebar
                     onLogout={handleLogout}
                     favoritesCount={favorites.length}
                     unreadCount={unreadCount}
                 />
 
-                <main className="flex-1 min-w-0 xl:ml-14 flex flex-col overflow-hidden ">
-                    <div className="sticky top-0 z-[90] flex items-center justify-between px-4 sm:px-6 lg:px-8 py- sm:py:2 md:py-4 border-b border-slate-100 dark:border-gray-800">
-                        <button onClick={() => navigate("/")}>
-                            <ChevronLeft className="hidden md:block cursor-pointer text-slate-700 hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-50" />
-                        </button>
-
-                        <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-6 h-6 md:w-9 md:h-9 rounded-xl bg-green-700 text-white flex items-center justify-center shadow-sm">
-                                {activeSection === "overview" || activeSection === "dashboard" ? <ClipboardList size={18} /> : null}
-                                {activeSection === "search" ? <Search size={18} /> : null}
-                                {activeSection === "favorites" ? <Heart size={18} /> : null}
-                                {activeSection === "messages" ? <MessageSquare size={18} /> : null}
-                                {activeSection === "profile" ? <User size={18} /> : null}
+                <main className="flex-1 min-w-0 flex flex-col overflow-hidden lg:pl-6">
+                    <div className="sticky top-0 z-[40] flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 bg-white/70 dark:bg-gray-950/70 backdrop-blur-md border-b border-slate-100 dark:border-gray-900 shadow-sm">
+                        <div className="flex items-center gap-4 min-w-0">
+                            <button
+                                onClick={() => navigate("/")}
+                                className="p-2 rounded-xl bg-white dark:bg-gray-900 hover:bg-slate-50 dark:hover:bg-gray-800 text-slate-600 dark:text-slate-300 transition-all border border-slate-100 dark:border-gray-800/80 shadow-sm hover:scale-105"
+                                title={t("Common.Back")}
+                            >
+                                <ChevronLeft size={18} />
+                            </button>
+                            <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400 flex items-center justify-center shadow-sm">
+                                    {(activeSection === "overview" || activeSection === "dashboard") && <ClipboardList size={18} />}
+                                    {activeSection === "search" && <Search size={18} />}
+                                    {activeSection === "favorites" && <Heart size={18} />}
+                                    {activeSection === "messages" && <MessageSquare size={18} />}
+                                    {activeSection === "profile" && <User size={18} />}
+                                </div>
+                                <div className="min-w-0">
+                                    <h1 className="text-sm sm:text-base font-bold text-slate-800 dark:text-white truncate">
+                                        {(activeSection === "overview" || activeSection === "dashboard") && t("UserDashboard.Overview")}
+                                        {activeSection === "search" && t("UserDashboard.SearchAndNavigate")}
+                                        {activeSection === "favorites" && t("UserDashboard.SavedPlaces")}
+                                        {activeSection === "messages" && t("UserDashboard.Messages")}
+                                        {activeSection === "profile" && t("UserDashboard.Profile")}
+                                    </h1>
+                                </div>
                             </div>
-                            <div className="min-w-0">
-                                <h1 className="text-[10px] md:text-lg sm:text-xl font-bold truncate">
-                                    {(activeSection === "overview" || activeSection === "dashboard") && t("UserDashboard.Overview")}
-                                    {activeSection === "search" && t("UserDashboard.SearchAndNavigate")}
-                                    {activeSection === "favorites" && t("UserDashboard.SavedPlaces")}
-                                    {activeSection === "messages" && t("UserDashboard.Messages")}
-                                    {activeSection === "profile" && t("UserDashboard.Profile")}
-                                </h1>
-                                <p className="text-[9px] md:text-xs text-slate-600 dark:text-gray-300">
+                        </div>
+
+                        <div className="hidden sm:flex items-center gap-3">
+                            <div className="text-right">
+                                <p className="text-xs font-semibold text-slate-700 dark:text-gray-200">
                                     {user?.Name ? `${t("UserDashboard.Hi")}, ${user.Name}` : t("UserDashboard.YourHealthcareDashboard")}
                                 </p>
+                                <p className="text-[10px] text-slate-400 dark:text-gray-500">
+                                    {user?.Email || ""}
+                                </p>
+                            </div>
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-emerald-500/10 select-none">
+                                {user?.Name ? user.Name.charAt(0).toUpperCase() : "U"}
                             </div>
                         </div>
                     </div>
 
-                    <section className="flex-1 overflow-y-auto ">
+                    <section className="flex-1 overflow-y-auto bg-slate-50/30 dark:bg-gray-900/10">
                         <Outlet context={{
                             favorites,
                             recents,
