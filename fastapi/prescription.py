@@ -26,13 +26,14 @@ def extract_medicines(text: str) -> list[str]:
 
     Text: {text}
     """
-    response = ask_openai(prompt, temperature=0)
-    # Strip markdown code fences if GPT wraps with ```json
-    response = response.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
     try:
+        response = ask_openai(prompt, temperature=0)
+        # Strip markdown code fences if GPT wraps with ```json
+        response = response.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
         medicines = json.loads(response)
         return [m.strip() for m in medicines if isinstance(m, str) and m.strip()]
-    except json.JSONDecodeError:
+    except Exception as e:
+        print(f"[AI API Error in extract_medicines] {e}")
         return []
 
 
@@ -56,8 +57,12 @@ def explain_prescription(text: str) -> str:
         - Keep each explanation to 1-2 sentences
         """
 
-    response = ask_openai(prompt)
-    return f"{response}\n\n{DISCLAIMER}"
+    try:
+        response = ask_openai(prompt)
+        return f"{response}\n\n{DISCLAIMER}"
+    except Exception as e:
+        print(f"[AI API Error in explain_prescription] {e}")
+        return f"We are currently experiencing issues connecting to our AI service. Please try again later.\n\n{DISCLAIMER}"
 
 
 async def search_nearby_pharmacies(

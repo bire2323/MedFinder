@@ -10,7 +10,7 @@ client = OpenAI(
     base_url="https://api.groq.com/openai/v1",
 )
 
-MODEL = os.getenv("GROQ_MODEL", "llama3-8b-8192")
+MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 
 SYSTEM_PROMPT = """
 You are a pharmacy and healthcare assistance chatbot for MedFinder Ethiopia.
