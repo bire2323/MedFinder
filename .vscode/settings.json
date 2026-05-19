@@ -1,3 +1,7 @@
 {
-    "Codegeex.RepoIndex": true
+    "Codegeex.RepoIndex": true,
+    "css.validate": false,
+    "files.associations": {
+        "*.css": "tailwindcss"
+    }
 }

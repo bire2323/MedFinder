@@ -439,7 +439,7 @@ export default function Header() {
       {isMenuOpen && typeof document !== "undefined" && createPortal(
         <>
           <div aria-hidden className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] md:hidden" onClick={closeMobileMenu} />
-          <div className="fixed inset-x-0 top-14 bottom-0 bg-white dark:bg-gray-950 border-t border-slate-100 dark:border-gray-800 p-6 space-y-6 overflow-y-auto z-[10000] md:hidden">
+          <div className="fixed inset-x-0 top-16 sm:top-[4.5rem] bottom-0 bg-white dark:bg-gray-955 border-t border-slate-100 dark:border-gray-850 p-6 space-y-6 overflow-y-auto z-[10000] md:hidden">
             <div className="flex flex-col gap-1">
               <Link
                 to="/"

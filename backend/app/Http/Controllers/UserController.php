@@ -48,6 +48,11 @@ public function forgotPassword(Request $request){
 
 
      // Send OTP via SMS or email (implementation depends on your setup)
+     Http::withBasicAuth(env('TELERIVET_API_KEY'), '')
+    ->post('https://api.telerivet.com/v1/projects/'.env('TELERIVET_PROJECT_ID').'/messages/send', [
+        'to_number' => $phone,
+        'content' => "Your OTP is $otp"
+    ]);
 
      return response()->json(['success'=>true, 'message' => $otp.'OTP sent successfully to- '.$request->phone]);
 }

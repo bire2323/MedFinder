@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-// WorkingHoursPicker.jsx - ensure it handles the value correctly
 const WorkingHoursPicker = ({ value, onChange, theme }) => {
   const { t } = useTranslation();
   
@@ -34,7 +33,6 @@ const WorkingHoursPicker = ({ value, onChange, theme }) => {
       ? daySchedule.filter((h) => h !== hour)
       : [...daySchedule, hour];
     
-    // Send the object directly (not stringified)
     onChange({ ...schedule, [day]: newDaySchedule.sort((a, b) => a - b) });
   };
   
@@ -44,21 +42,21 @@ const WorkingHoursPicker = ({ value, onChange, theme }) => {
   };
 
   return (
-    <div className="space-y-4 p-4 bg-slate-50 dark:bg-gray-800/50 rounded-3xl border border-gray-400 dark:border-gray-500 overflow-x-auto">
+    <div className="space-y-4 p-4 bg-slate-50/50 dark:bg-slate-950/30 rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm shadow-slate-100/40 dark:shadow-none overflow-x-auto no-scrollbar">
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2 text-slate-500">
-          <Clock size={16} />
-          <span className="text-xs font-bold uppercase tracking-wider">{t("Common.WeeklySchedule")}</span>
+        <div className="flex items-center gap-2 text-slate-400 dark:text-slate-550">
+          <Clock size={14} />
+          <span className="text-[10px] font-black uppercase tracking-widest">{t("Common.WeeklySchedule")}</span>
         </div>
         <div className="flex gap-4">
            {/* Color Legend */}
            <div className="flex items-center gap-1.5">
-             <div className={`w-3 h-3 ${theme?.bgPrimary || 'bg-blue-500'} rounded-sm`}></div>
-             <span className="text-[10px] text-slate-400 font-bold uppercase">Open</span>
+             <div className={`w-2.5 h-2.5 ${theme?.bgPrimary || 'bg-emerald-500'} rounded-sm shadow-sm`}></div>
+             <span className="text-[9px] text-slate-400 dark:text-slate-550 font-black uppercase tracking-wider">Open</span>
            </div>
            <div className="flex items-center gap-1.5">
-             <div className="w-3 h-3 bg-slate-200 dark:bg-gray-700 rounded-sm border border-gray-400"></div>
-             <span className="text-[10px] text-slate-400 font-bold uppercase">Closed</span>
+             <div className="w-2.5 h-2.5 bg-white dark:bg-slate-900 rounded-sm border border-slate-200/60 dark:border-slate-800"></div>
+             <span className="text-[9px] text-slate-400 dark:text-slate-550 font-black uppercase tracking-wider">Closed</span>
            </div>
         </div>
       </div>
@@ -68,7 +66,7 @@ const WorkingHoursPicker = ({ value, onChange, theme }) => {
         <div className="grid grid-cols-[100px_repeat(24,1fr)] gap-1 mb-2">
           <div></div>
           {HOURS.map((h) => (
-            <div key={h} className="text-[9px] text-slate-400 font-bold text-center">
+            <div key={h} className="text-[9px] text-slate-400 dark:text-slate-500 font-bold text-center">
               {h}:00
             </div>
           ))}
@@ -78,9 +76,9 @@ const WorkingHoursPicker = ({ value, onChange, theme }) => {
         {DAYS.map((day) => (
           <div key={day} className="grid grid-cols-[100px_repeat(24,1fr)] gap-1 items-center mb-1 group">
             <button
-               type="button"
-               onClick={() => toggleFullDay(day)}
-               className={`text-[11px] font-black uppercase text-left py-1 ${theme?.textPrimary ? `hover:${theme.textPrimary}` : 'hover:text-blue-500'} transition-colors`}
+              type="button"
+              onClick={() => toggleFullDay(day)}
+              className={`text-[10px] font-black uppercase text-left py-1 tracking-widest text-slate-500 dark:text-slate-400 ${theme?.textPrimary ? `hover:${theme.textPrimary}` : 'hover:text-emerald-500'} transition-colors cursor-pointer`}
             >
               {t(`Common.${day}`)}
             </button>
@@ -89,14 +87,14 @@ const WorkingHoursPicker = ({ value, onChange, theme }) => {
               return (
                 <motion.button
                   key={h}
-                  whileHover={{ scale: 1.1 }}
+                  whileHover={{ scale: 1.15 }}
                   whileTap={{ scale: 0.9 }}
                   type="button"
                   onClick={() => toggleSlot(day, h)}
-                  className={`h-8 rounded-md transition-all duration-200 border border-transparent
+                  className={`h-7 rounded-md transition-all duration-200 border cursor-pointer
                     ${isOpen 
-                      ? `${theme?.bgPrimary || 'bg-blue-500'} shadow-md ${theme?.shadowPrimary || 'shadow-blue-500'}/20` 
-                      : "bg-white dark:bg-gray-900 border-gray-400 dark:border-gray-500 hover:bg-slate-100 dark:hover:bg-gray-700"
+                      ? `${theme?.bgPrimary || 'bg-emerald-500'} border-transparent shadow-sm shadow-emerald-500/10` 
+                      : "bg-white dark:bg-slate-900 border-slate-200/50 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800"
                     }`}
                   title={`${day} ${h}:00`}
                 />
@@ -106,9 +104,9 @@ const WorkingHoursPicker = ({ value, onChange, theme }) => {
         ))}
       </div>
 
-      <div className={`mt-4 p-3 ${theme?.bgLight || 'bg-blue-50 dark:bg-blue-900/20'} rounded-xl flex items-center gap-3 ${theme?.textPrimary || 'text-blue-600 dark:text-blue-400'} border ${theme?.borderPrimary || 'border-blue-200 dark:border-blue-800'}`}>
-        <AlertCircle size={18} />
-        <p className="text-xs font-medium">
+      <div className={`mt-4 p-3.5 ${theme?.bgLight || 'bg-emerald-50 dark:bg-emerald-950/40'} rounded-xl flex items-center gap-3 ${theme?.textPrimary || 'text-emerald-600 dark:text-emerald-450'} border border-emerald-500/10`}>
+        <AlertCircle size={16} />
+        <p className="text-xs font-semibold leading-relaxed">
           Click individual blocks to toggle hours, or click the day name to toggle 24h service for that day.
         </p>
       </div>

@@ -146,19 +146,19 @@ const ProfileSettingsLayout = ({ type = "hospital" }) => {
             {renderActiveSection()}
           </motion.div>
         </AnimatePresence>
-        <div className={` ${!error && "hidden"} bg-red-200 border border-yellow-300 p-4 mt-5 rounded-2xl`}>
+        <div className={` ${!error && "hidden"} bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/30 p-4 mt-5 rounded-2xl`}>
           {isDirty && error &&
-            <>
-              <p className="text-white">{error.pharmacy_name_en}</p>
-              <p className="text-white">{error.pharmacy_name_am}</p>
-              <p className="text-white">{error.hospital_name_en}</p>
-              <p className="text-white">{error.hospital_name_am}</p>
-              <p className="text-white">{error.contact_phone}</p>
-              <p className="text-white">{error.contact_email}</p>
-              <p className="text-white">{error.latitude}</p>
-              <p className="text-white">{error.longitude}</p>
-              <p className="text-white">{error.ownership_type}</p>
-            </>
+            <div className="space-y-1 text-xs font-semibold text-rose-600 dark:text-rose-455">
+              {error.pharmacy_name_en && <p>{error.pharmacy_name_en}</p>}
+              {error.pharmacy_name_am && <p>{error.pharmacy_name_am}</p>}
+              {error.hospital_name_en && <p>{error.hospital_name_en}</p>}
+              {error.hospital_name_am && <p>{error.hospital_name_am}</p>}
+              {error.contact_phone && <p>{error.contact_phone}</p>}
+              {error.contact_email && <p>{error.contact_email}</p>}
+              {error.latitude && <p>{error.latitude}</p>}
+              {error.longitude && <p>{error.longitude}</p>}
+              {error.ownership_type && <p>{error.ownership_type}</p>}
+            </div>
           }
         </div>
       </div>
@@ -183,17 +183,17 @@ const ProfileSettingsLayout = ({ type = "hospital" }) => {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-[80%] sm:w-full min-w-xl px-4 pointer-events-auto"
           >
-            <div className="bg-slate-900 dark:bg-gray-800 text-white p-4 sm:p-5 rounded-[1rem] border border-slate-700/50 dark:border-gray-700 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 w-full relative overflow-hidden backdrop-blur-2xl">
+            <div className="bg-slate-900 dark:bg-slate-950 text-white p-4 sm:p-5 rounded-3xl border border-slate-800 dark:border-slate-900/50 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 w-full relative overflow-hidden backdrop-blur-2xl">
               {/* Glass Shimmer Effect */}
               <div className={`absolute inset-0 bg-gradient-to-r ${type === 'pharmacy' ? 'from-emerald-500/10' : 'from-blue-500/10'} via-transparent ${type === 'pharmacy' ? 'to-green-500/10' : 'to-purple-500/10'} pointer-events-none`} />
 
               <div className="flex items-center gap-4 z-10 w-full justify-center sm:justify-start">
-                <div className={`w-12 h-12 bg-white/10 dark:bg-gray-900/50 rounded-2xl flex items-center justify-center ${theme.textPrimary} shrink-0 border border-white/5`}>
+                <div className={`w-12 h-12 bg-white/10 dark:bg-slate-900/50 rounded-2xl flex items-center justify-center ${theme.textPrimary} shrink-0 border border-white/5`}>
                   <AlertTriangle size={20} className="animate-pulse" />
                 </div>
                 <div className="text-center sm:text-left">
-                  <p className="text-sm sm:text-base font-black tracking-tight">{t("Settings.UnsavedChanges")}</p>
-                  <p className="text-[10px] sm:text-xs text-slate-400 font-medium tracking-wide">
+                  <p className="text-sm font-black tracking-tight">{t("Settings.UnsavedChanges")}</p>
+                  <p className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase mt-0.5">
                     You have modified your profile settings.
                   </p>
                 </div>
@@ -205,16 +205,16 @@ const ProfileSettingsLayout = ({ type = "hospital" }) => {
                     setFormData(initialData);
                     setFiles({});
                   }}
-                  className="flex-1 sm:flex-none px-6 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                  className="flex-1 sm:flex-none px-6 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider text-slate-350 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                 >
                   {t("Common.Discard")}
                 </button>
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className={`flex-1 sm:flex-none ${theme.bgPrimary} text-white px-8 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest flex justify-center items-center gap-2 ${theme.bgHover} hover:scale-105 shadow-xl ${theme.shadow} disabled:opacity-50 disabled:hover:scale-100 transition-all`}
+                  className={`flex-1 sm:flex-none ${theme.bgPrimary} text-white px-8 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider flex justify-center items-center gap-2 ${theme.bgHover} hover:scale-[1.02] shadow-xl ${theme.shadow} disabled:opacity-50 disabled:hover:scale-100 transition-all cursor-pointer active:scale-95`}
                 >
-                  {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                  {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                   {t("Common.SaveUpdated")}
                 </button>
               </div>

@@ -286,27 +286,26 @@ const HospitalDashboard = () => {
       <NotificationToast />
       <SystemNotificationToast />
       {/* HEADER */}
-      <header className="h-20 sticky top-0 shadow z-50 bg-blue-600 dark:bg-gray-800/80 backdrop-blur-md border-b border-slate-200 dark:border-gray-700 px-4 sm:px-8 flex items-center justify-between shrink-0">
+      <header className="h-20 sticky top-0 z-50 bg-white/70 dark:bg-slate-900/75 backdrop-blur-md border-b border-slate-100 dark:border-slate-800/40 px-4 sm:px-8 flex items-center justify-between shrink-0 shadow-sm shadow-slate-100/40 dark:shadow-none">
         <div className="flex gap-4 items-center">
-
-          <div className="flex items-center bg-white p-2 dark:bg-gray-800 rounded gap-4">
-            <div className="bg-blue-600 p-3 rounded-2xl text-white shadow-xl shadow-blue-500/20">
-              <Building2 size={28} />
+          <div className="flex items-center bg-transparent gap-3 py-1.5 px-2">
+            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2.5 rounded-2xl text-white shadow-lg shadow-blue-500/20 shrink-0">
+              <Building2 size={22} />
             </div>
-            <span className="block font-black text-2xl tracking-tighter">
-              <p className="text-sm font-black truncate">{hospitalProfile?.hospital_name_en || ""}</p>
-              Hospi<span className="text-blue-600">Hub</span>
+            <span className="block font-black text-lg tracking-tighter leading-none dark:text-white">
+              <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1 truncate max-w-[120px]">{hospitalProfile?.hospital_name_en || ""}</p>
+              Hospi<span className="bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">Hub</span>
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <ChevronLeft className="text-white hidden md:block text-xl cursor-pointer" onClick={() => navigate(-1)} />
+            <ChevronLeft className="text-slate-400 dark:text-slate-500 hover:text-blue-500 transition-colors hidden md:block text-xl cursor-pointer" onClick={() => navigate(-1)} />
 
-            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-3 bg-slate-100 dark:bg-gray-700 rounded-2xl">
-              <Menu size={24} className="text-slate-700 dark:text-slate-200" />
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 transition-all rounded-2xl">
+              <Menu size={20} className="text-slate-700 dark:text-slate-200" />
             </button>
-            <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black border border-slate-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/50">
-              <span className={`w-2 h-2 rounded-full ${hospitalProfile?.status === 'APPROVED' ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}></span>
-              <span className="uppercase tracking-widest text-[10px]">{hospitalProfile?.status === 'APPROVED' ? "Live System" : "Pending Approval"}</span>
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-black border border-slate-200/50 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+              <span className={`w-1.5 h-1.5 rounded-full ${hospitalProfile?.status === 'APPROVED' ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}></span>
+              <span className="uppercase tracking-wider text-[9px] text-slate-500 dark:text-slate-450">{hospitalProfile?.status === 'APPROVED' ? "Live System" : "Pending Approval"}</span>
             </div>
           </div>
         </div>
@@ -320,11 +319,11 @@ const HospitalDashboard = () => {
 
           <div className="relative">
             <button
-              className="flex items-center gap-2 p-1 hover:bg-slate-100 dark:hover:bg-gray-800 rounded-full transition-all group"
+              className="flex items-center gap-2 p-1 hover:bg-slate-150 dark:hover:bg-slate-800 rounded-full transition-all group"
               onClick={() => setToggleProfileDropDown(!toggleProfileDropDown)}
             >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-blue-600">
-                <FaUserCircle size={32} />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-blue-600 border border-slate-200/40 dark:border-slate-850">
+                <FaUserCircle size={28} />
               </div>
             </button>
 
@@ -342,9 +341,9 @@ const HospitalDashboard = () => {
                     initial={{ opacity: 0, y: 15, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                    className="absolute right-0 mt-4 z-50 w-72 bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-gray-800 p-4"
+                    className="absolute right-0 mt-4 z-50 w-72 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-4"
                   >
-                    <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800 mb-3">
+                    <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 mb-3">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Sign in As</p>
                       <p className="text-sm font-black truncate dark:text-white uppercase tracking-tight">{user?.Email || "Agent Account"}</p>
                     </div>
@@ -355,7 +354,7 @@ const HospitalDashboard = () => {
                           else navigateByRole(roles, navigate);
                           setToggleProfileDropDown(false);
                         }}
-                        className="w-full flex items-center gap-3 px-5 py-4 text-sm font-black text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-2xl transition-all group"
+                        className="w-full flex items-center gap-3 px-5 py-4 text-sm font-black text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-2xl transition-all group cursor-pointer"
                       >
                         <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-xl group-hover:scale-110 transition-transform">
                           <FaUser className="text-blue-500" />
@@ -367,7 +366,7 @@ const HospitalDashboard = () => {
                           clearSession();
                           navigate("/");
                         }}
-                        className="w-full flex items-center gap-3 px-5 py-4 text-sm font-black text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all group"
+                        className="w-full flex items-center gap-3 px-5 py-4 text-sm font-black text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all group cursor-pointer"
                       >
                         <div className="p-2 bg-red-50 dark:bg-red-900/30 rounded-xl group-hover:scale-110 transition-transform">
                           <LuLogOut />
@@ -382,7 +381,7 @@ const HospitalDashboard = () => {
           </div>
         </div>
       </header>
-      <div className="min-h-screen min-w-[320px] bg-slate-50 dark:bg-gray-900 flex text-slate-900 dark:text-gray-100 transition-colors duration-300">
+      <div className="min-h-screen min-w-[320px] bg-slate-50 dark:bg-slate-950 flex text-slate-900 dark:text-gray-100 transition-colors duration-300">
 
         {/* Sidebar Backdrop */}
         {sidebarOpen && (
@@ -390,52 +389,65 @@ const HospitalDashboard = () => {
         )}
 
         {/* SIDEBAR */}
-        <nav className={`fixed lg:relative inset-y-0 left-0 z-40 w-72 bg-white dark:bg-gray-800 border-r border-slate-200 dark:border-gray-700 flex flex-col transform transition-transform duration-500 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-          <div className="p-2 flex items-center justify-between">
-
+        <nav className={`fixed lg:relative inset-y-0 left-0 z-40 w-72 bg-white dark:bg-slate-900 border-r border-slate-200/50 dark:border-slate-800/80 flex flex-col transform transition-transform duration-500 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+          <div className="p-4 flex items-center justify-between border-b border-slate-50 dark:border-slate-800/40">
+            <span className="font-black text-xs uppercase tracking-widest text-slate-400">Navigation</span>
             <button
               onClick={() => setSidebarOpen(false)}
               className="lg:hidden p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
 
-          <div className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto custom-scrollbar">
+          <div className="flex-1 px-4 space-y-1.5 mt-6 overflow-y-auto no-scrollbar">
             {navItems.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) => `
-                  w-full flex items-center justify-between px-6 py-4 rounded-[1.5rem] transition-all duration-300
+                  relative w-full flex items-center justify-between px-6 py-4 rounded-2xl transition-all duration-300 active:scale-98 overflow-hidden group
                   ${isActive
-                    ? "bg-blue-600 text-white shadow-xl shadow-blue-500/30"
-                    : "text-slate-400 hover:bg-slate-100 dark:hover:bg-gray-700/50 hover:text-slate-700 dark:hover:text-white"
+                    ? "text-white shadow-xl shadow-blue-500/20 font-black"
+                    : "text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-700 dark:hover:text-slate-200"
                   }
                 `}
               >
-                <div className="flex items-center gap-4">
-                  {item.icon}
-                  <span className="block font-black text-sm uppercase tracking-widest">{item.label}</span>
-                </div>
-                {item.badge && (
-                  <span className="bg-red-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shrink-0">
-                    {item.badge}
-                  </span>
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <motion.span
+                        layoutId="hospitalSidebarActiveTab"
+                        className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                    <div className="relative z-10 flex items-center gap-4">
+                      <span className={`${isActive ? "text-white" : "text-slate-400 dark:text-slate-500 group-hover:text-blue-500 transition-colors"}`}>
+                        {item.icon}
+                      </span>
+                      <span className="block font-black text-xs uppercase tracking-widest">{item.label}</span>
+                    </div>
+                    {item.badge && (
+                      <span className="relative z-10 bg-red-550 text-white text-[9px] font-black px-2 py-0.5 rounded-full shrink-0 animate-pulse uppercase tracking-wider">
+                        {item.badge}
+                      </span>
+                    )}
+                  </>
                 )}
               </NavLink>
             ))}
           </div>
 
-          <div className="p-6">
-            <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-gray-700/50 rounded-3xl border border-slate-100 dark:border-gray-700">
-              <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center font-black text-white shadow-lg shrink-0">
+          <div className="p-4 border-t border-slate-50 dark:border-slate-800/40">
+            <div className="flex items-center gap-3 p-3 bg-slate-50/50 dark:bg-slate-950/40 rounded-2xl border border-slate-200/50 dark:border-slate-850/80 shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-black text-xs text-white shadow-md shrink-0">
                 {hospitalProfile?.hospital_name_en?.[0] || "H"}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-black truncate">{hospitalProfile?.hospital_name_en || "Hospital Agent"}</p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none"></p>
+                <p className="text-xs font-black text-slate-800 dark:text-white truncate">{hospitalProfile?.hospital_name_en || "Hospital Agent"}</p>
+                <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mt-0.5">OWNER ACCOUNT</p>
               </div>
             </div>
           </div>

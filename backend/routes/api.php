@@ -98,7 +98,7 @@ Route::get('/medical-facilities', function () {
     ]);
 });
 Route::get('/top-medical-facilities', function () {
-    $hospitals = Hospital::with('addresses')->where('status', 'APPROVED')->limit(6)->get()->map(function ($item) {
+    $hospitals = Hospital::with('addresses')->where('status', 'APPROVED')->limit(6)->latest()->get()->map(function ($item) {
         $item->type = 'hospital';
         $item->global_id = 'h-' . $item->id;
         $item->working_hour = $item->working_hour; // Include working hours
@@ -106,7 +106,7 @@ Route::get('/top-medical-facilities', function () {
         return $item;
     });
 
-    $pharmacies = Pharmacy::with('addresses')->where('status', 'APPROVED')->limit(6)->get()->map(function ($item) {
+    $pharmacies = Pharmacy::with('addresses')->where('status', 'APPROVED')->limit(6)->latest()->get()->map(function ($item) {
         $item->type = 'pharmacy';
         $item->global_id = 'p-' . $item->id;
         $item->working_hour = $item->working_hour; // Include working hours
@@ -319,8 +319,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('users/{user}', [\App\Http\Controllers\AdminDashboardController::class, 'updateUser']);
         Route::get('notifications', [\App\Http\Controllers\AdminDashboardController::class, 'notifications']);
         Route::post('notifications/{notification}/read', [\App\Http\Controllers\AdminDashboardController::class, 'markRead']);
+        Route::delete('notifications/old', [\App\Http\Controllers\AdminDashboardController::class, 'deleteOldNotifications']);
         Route::get('analytics', [\App\Http\Controllers\AdminDashboardController::class, 'analytics']);
         Route::get('audit-logs', [\App\Http\Controllers\AdminDashboardController::class, 'auditLogs']);
+        Route::delete('audit-logs/clear', [\App\Http\Controllers\AdminDashboardController::class, 'clearOldAuditLogs']);
     });
 
     // Auth actions

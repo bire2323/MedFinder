@@ -28,6 +28,7 @@ export default function PrescriptionReader() {
   const [error, setError] = useState("");
   const [showResults, setShowResults] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [apiResults, setApiResults] = useState(null);
 
   useEffect(() => {
     return () => {
@@ -64,6 +65,7 @@ export default function PrescriptionReader() {
     setFile(null);
     setError("");
     setShowResults(false);
+    setApiResults(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [resetPreviewUrl]);
 
@@ -84,16 +86,41 @@ export default function PrescriptionReader() {
     setIsAnalyzing(false);
   }, [handleRemove]);
 
-  const handleAnalyze = useCallback(() => {
+  const handleAnalyze = useCallback(async () => {
     if (!file) return;
     setError("");
     setIsAnalyzing(true);
     setShowResults(false);
-    window.setTimeout(() => {
-      setIsAnalyzing(false);
+    setApiResults(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Optionally, if you have user location, append it here:
+      // formData.append("lat", latitude);
+      // formData.append("lng", longitude);
+
+      const baseUrl = import.meta.env.VITE_API_BASE || "";
+      const response = await fetch(`${baseUrl}/ai/prescription`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(t("prescriptionReader.errorApiFailed", "Failed to analyze prescription. Please try again."));
+      }
+
+      const data = await response.json();
+      setApiResults(data);
       setShowResults(true);
-    }, 1600);
-  }, [file]);
+    } catch (err) {
+      console.error("Prescription API Error:", err);
+      setError(err.message || t("prescriptionReader.errorApiFailed", "Failed to analyze prescription."));
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }, [file, t]);
 
   return (
     <>
@@ -173,16 +200,10 @@ export default function PrescriptionReader() {
             <p className="mt-10 text-center text-sm font-medium text-slate-500 dark:text-gray-500">{t("prescriptionReader.emptyNoFile")}</p>
           )}
 
-          {showResults && !isAnalyzing && (
+          {showResults && !isAnalyzing && apiResults && (
             <section className="mt-12">
               <h2 className="mb-6 text-center text-xl font-black text-slate-900 dark:text-white">{t("prescriptionReader.resultsSectionTitle")}</h2>
-              <PrescriptionAnalysisResults
-                drugs={[t("prescriptionReader.mockDrug1"), t("prescriptionReader.mockDrug2"), t("prescriptionReader.mockDrug3")]}
-                pharmacies={[
-                  { name: t("prescriptionReader.mockPharmacy1"), note: t("prescriptionReader.mockPharmacyNote") },
-                  { name: t("prescriptionReader.mockPharmacy2"), note: "" },
-                ]}
-              />
+              <PrescriptionAnalysisResults results={apiResults} />
             </section>
           )}
         </div>

@@ -101,7 +101,7 @@ export default function RegisterationForm() {
     return mapping[errorKey] || errorKey; // fallback
   }
   function openLoginRoute() {
-    navigate("/login", { state: { background: location } });
+    navigate("/login", { state: { background: location.state?.background || location.state?.backgroundLocation || location } });
   }
 
 

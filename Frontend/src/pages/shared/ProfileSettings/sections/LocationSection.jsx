@@ -19,7 +19,6 @@ const LocationSection = ({ addressData = {}, onChange, error, theme }) => {
          (pos) => {
             onChange("latitude", pos.coords.latitude);
             onChange("longitude", pos.coords.longitude);
-
             setDetecting(false);
          },
          (err) => {
@@ -29,7 +28,7 @@ const LocationSection = ({ addressData = {}, onChange, error, theme }) => {
          }
       );
    };
-   console.log(addressData);
+
    return (
       <SectionWrapper id="location" title={t("Settings.LocationAddress")} theme={theme}>
          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -63,44 +62,44 @@ const LocationSection = ({ addressData = {}, onChange, error, theme }) => {
             />
          </div>
 
-         <div className="space-y-4 bg-slate-50 dark:bg-gray-800/50 p-6 rounded-3xl border border-dashed border-gray-400">
+         <div className="space-y-4 bg-slate-50/50 dark:bg-slate-950/30 p-6 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
             <div className="flex items-center justify-between">
                <div className="flex items-center gap-2">
-                  <MapPin size={18} className={theme?.textPrimary || 'text-blue-600'} />
-                  <h4 className="text-sm font-black uppercase tracking-widest">{t("Settings.Coordinates")}</h4>
+                  <MapPin size={16} className={theme?.textPrimary || 'text-blue-600'} />
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{t("Settings.Coordinates")}</h4>
                </div>
                <button
                   onClick={handleLocationDetect}
                   disabled={detecting}
-                  className={`flex items-center gap-1.5 text-xs font-black uppercase tracking-wider ${theme?.textPrimary || 'text-blue-600 dark:text-blue-400'} ${theme?.badgeBg || 'bg-blue-100 dark:bg-blue-900/30'} px-4 py-2 rounded-xl hover:bg-slate-200 transition-colors disabled:opacity-50`}
+                  className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider bg-white dark:bg-slate-900 border border-slate-250/20 dark:border-slate-800 px-4 py-2 rounded-xl transition-all cursor-pointer hover:scale-[1.02] active:scale-95 disabled:opacity-50 shadow-sm ${theme?.textPrimary || 'text-emerald-500'}`}
                >
-                  <Navigation size={14} className={detecting ? "animate-spin" : ""} />
+                  <Navigation size={12} className={detecting ? "animate-spin" : ""} />
                   {detecting ? "Detecting..." : t("Settings.UseCurrentLocation")}
                </button>
             </div>
 
-            {/* Placeholder for Interactive Map */}
-            <div className="h-48 md:h-64 bg-slate-200 dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-300 dark:border-gray-600 relative flex items-center justify-center group cursor-crosshair">
+            {/* Interactive Map view placeholder */}
+            <div className="h-48 md:h-64 bg-slate-100 dark:bg-slate-950 rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-800/60 relative flex items-center justify-center group cursor-crosshair shadow-inner">
                <div className={`absolute inset-0 transition-colors pointer-events-none ${theme?.name === 'emerald' ? 'bg-emerald-500/5 group-hover:bg-emerald-500/10' : 'bg-blue-500/5 group-hover:bg-blue-500/10'}`} />
 
                {addressData[0]?.latitude && addressData[0]?.longitude ? (
-                  <div className="text-center">
+                  <div className="text-center z-10">
                      <motion.div
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        className={`${theme?.textPrimary} drop-shadow-xl`}
-                     >
-                        <MapPin size={48} className="mx-auto" />
+                        className={`${theme?.textPrimary || 'text-emerald-500'} drop-shadow-xl`}
+                      >
+                        <MapPin size={40} className="mx-auto animate-bounce" />
                      </motion.div>
-                     <p className="text-xs font-bold mt-2 font-mono text-slate-600 dark:text-gray-400">
+                     <p className="text-xs font-black mt-2 font-mono text-slate-600 dark:text-gray-400">
                         {addressData[0]?.latitude}, {addressData[0].longitude}
                      </p>
                   </div>
                ) : (
-                  <div className="text-center space-y-3 opacity-50 px-4">
-                     <MapPin className="mx-auto text-slate-500" size={32} />
-                     <p className="text-xs font-bold uppercase tracking-widest">{t("Settings.InteractiveMapActive")}</p>
-                     <p className="text-[10px] text-slate-500">Tap to drop a pin or select "Use Current Location"</p>
+                  <div className="text-center space-y-3 opacity-50 px-4 z-10">
+                     <MapPin className="mx-auto text-slate-400" size={28} />
+                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t("Settings.InteractiveMapActive")}</p>
+                     <p className="text-[10px] text-slate-400 font-bold">Tap to drop a pin or select "Use Current Location"</p>
                   </div>
                )}
             </div>

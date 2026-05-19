@@ -964,6 +964,22 @@
     "Remove": "አስወግድ"
   },
   "Admin": {
+    "DeleteOldNotifications": "የቆዩ ማሳወቂያዎችን አጥፋ",
+    "OlderThan1Year": "አንድ ዓመት የቆዩ",
+    "OlderThan6Months": "ስድስት ወር የቆዩ",
+    "OlderThan3Months": "ሶስት ወር የቆዩ",
+    "OlderThan1Month": "አንድ ወር የቆዩ",
+    "OlderThan7Days": "ሰባት ቀን የቆዩ",
+    "ClearLogs": "ምዝግቦችን አጥፋ",
+    "ClearingLogs": "ምዝግቦችን በማጥፋት ላይ...",
+    "ClearLogsSuccess": "በተሳካ ሁኔታ {{count}} የቆዩ ምዝግቦች ተሰርዘዋል።",
+    "ClearLogsFailed": "ምዝግቦችን ማጥፋት አልተቻለም: {{error}}",
+    "ConfirmClearLogsDesc": "እርግጠኛ ነዎት {{period}} የቆዩ የስርዓት ምዝግቦችን ማጥፋት ይፈልጋሉ?",
+    "Delete": "አስወግድ",
+    "DeleteAll": "ሁሉንም አስወግድ",
+    "DeleteAllDesc": "ሁሉንም ማሳወቂያዎችን ማጥፋት እርግጠኛ ነዎት?",
+    "DeleteAllConfirm": "ሁሉንም ማሳወቂያዎችን አጥፋ",
+    "DeleteAllConfirmDesc": "ይህ እርምጃ ሊቀለበስ አይችልም",
     "AuditLogCategories": {
       "ALL": "ሁሉም ክንውኖች",
       "auth": "ማረጋገጫ",
@@ -1264,7 +1280,14 @@
       "greeting": "ሰላም! MedFinder AI ነኝ። ዛሬ እንዴት ልረዳዎት?",
       "thinking": "ረዳት በማሰብ ላይ...",
       "placeholder": "ስለ ምልክቶች፣ መድሃኒቶች ይጠይቁ...",
-      "connectionError": "የግንኙነት ችግር ተፈጥሯል። እባክዎ ሰርቨሩ መሥራቱን ያረጋግጡ።"
+      "connectionError": "የግንኙነት ችግር ተፈጥሯል። እባክዎ ሰርቨሩ መሥራቱን ያረጋግጡ።",
+      "limitReached": "ያለብድርድር 3 ነጻ ጥያቄዎችን ጠይቀዋል። እባክዎ ለመቀጠል ይግቡ ወይም ይመዝገቡ።",
+      "loginNow": "ይግቡ / ይመዝገቡ",
+      "newChat": "አዲስ ውይይት",
+      "history": "የውይይት ታሪክ",
+      "noHistory": "ምንም የቆየ ውይይት የለም።",
+      "clearAll": "ሁሉንም አጥፋ",
+      "confirmClearAll": "ሁሉንም የውይይት ታሪክ ማጥፋት እርግጠኛ ነዎት?"
     },
     "notification": {
       "newMessage": "አዲስ መልእክት",

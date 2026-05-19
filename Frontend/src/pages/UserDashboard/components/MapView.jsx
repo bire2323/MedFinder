@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useMap } from "react-leaflet";
+import { useLocation, useOutletContext } from "react-router-dom";
 
 import { apiFetchFacilities } from "../../../api/search";
 import getDistanceFromLatLonInMeters from "../../../utils/GetDistanceFromLatLoInMeters";
@@ -59,8 +60,24 @@ function normalizePharmacyFromApi(p) {
     };
 }
 
-export default function MapView({ favorites, isFavorite, onToggleFavorite, onFacilityViewed, onRequestChat }) {
+export default function MapView({ 
+    favorites: propFavs, 
+    isFavorite: propIsFav, 
+    onToggleFavorite: propToggleFav, 
+    onFacilityViewed: propViewed, 
+    onRequestChat: propChat 
+}) {
     const { t } = useTranslation();
+    const location = useLocation();
+
+    // Pull defensively from React Router's Outlet Context if props are undefined
+    const context = useOutletContext() || {};
+    const favorites = propFavs ?? context.favorites ?? [];
+    const isFavorite = propIsFav ?? context.isFavorite;
+    const onToggleFavorite = propToggleFav ?? context.toggleFavorite;
+    const onFacilityViewed = propViewed ?? context.addRecent;
+    const onRequestChat = propChat ?? context.requestChatWithFacility;
+
     const { coordinates: storeLocation, detectLocation } = useLocationStore();
     const [userLocation, setUserLocation] = useState(storeLocation);
     const [geoError, setGeoError] = useState("");
@@ -83,6 +100,47 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
     useEffect(() => {
         if (storeLocation) setUserLocation(storeLocation);
     }, [storeLocation]);
+
+    // Parse incoming URL query parameters (e.g. from favorites/recents redirects)
+    useEffect(() => {
+        try {
+            const params = new URLSearchParams(location.search);
+            const latStr = params.get("lat");
+            const lngStr = params.get("lng");
+            const name = params.get("name");
+            
+            if (latStr && lngStr) {
+                const lat = parseFloat(latStr);
+                const lng = parseFloat(lngStr);
+                if (Number.isFinite(lat) && Number.isFinite(lng)) {
+                    // Try to enrich facility details using coordinates if already loaded in facilities list
+                    const matched = facilities.find(f => 
+                        Math.abs(f.lat - lat) < 0.0001 && 
+                        Math.abs(f.lng - lng) < 0.0001
+                    );
+                    
+                    const targetFacility = matched ? matched : {
+                        id: params.get("id") ?? "query-target",
+                        name: name ?? "Selected Facility",
+                        lat,
+                        lng,
+                        type: params.get("type") ?? "hospital"
+                    };
+                    
+                    setRouteTo(targetFacility);
+                    setFollowUser(false);
+                    setOpenMap(true);
+                    
+                    // Mark as viewed
+                    if (onFacilityViewed) {
+                        onFacilityViewed(targetFacility);
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Failed to parse map query parameters:", e);
+        }
+    }, [location.search, facilities, onFacilityViewed]);
 
     const handleGetLocation = useCallback(async () => {
         setIsLocationLoading(true);
@@ -171,35 +229,38 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
     };
     const [openMap, setOpenMap] = useState(false);
     return (
-        <div className="px-2 py-3">
+        <div className="px-4 py-6">
             <div className="max-w-full sm:max-w-7xl mx-auto">
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
 
                         <aside className={`${openMap ? 'hidden md:block md:col-span-4 lg:col-span-5' : 'block md:col-span-4 lg:col-span-5'} order-2 lg:order-1 space-y-4`}>
-                            <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 p-4 shadow-sm">
+                            <div className="rounded-2xl border border-slate-100 dark:border-gray-800/80 bg-white dark:bg-gray-955/40 p-5 shadow-sm">
                                 <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
                                     <div>
-                                        <h2 className="text-base font-bold">{t("Map.FacilitySearch")}</h2>
-                                        <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{userLocation ? t("Map.SortedByDistance") : t("Map.EnableLocationForDistance")}</p>
+                                        <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                            <MapPin size={18} className="text-emerald-500 shrink-0" />
+                                            {t("Map.FacilitySearch")}
+                                        </h2>
+                                        <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">{userLocation ? t("Map.SortedByDistance") : t("Map.EnableLocationForDistance")}</p>
                                     </div>
-                                    <span className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600/10 text-blue-700 dark:text-blue-300 font-bold">
+                                    <span className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400 shadow-inner">
                                         <MapPin size={18} />
                                     </span>
                                 </div>
 
-                                <div className="mt-4 space-y-3">
+                                <div className="mt-5 space-y-4">
                                     <div className="relative">
-                                        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                                         <input
                                             value={facilityQuery}
                                             onChange={(e) => setFacilityQuery(e.target.value)}
                                             placeholder={t("Map.SearchByNameOrAddress")}
-                                            className="w-full pl-10 pr-3 py-3 rounded-xl bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-slate-100 dark:border-gray-800 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm transition-all duration-200"
                                         />
                                     </div>
 
-                                    <div className="flex gap-2">
+                                    <div className="flex p-1 bg-slate-50 dark:bg-gray-900/60 border border-slate-100 dark:border-gray-800 rounded-xl gap-1">
                                         {[
                                             { value: "all", label: t("Map.All") },
                                             { value: "hospital", label: t("Map.Hospitals") },
@@ -209,12 +270,11 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                                                 key={opt.value}
                                                 type="button"
                                                 onClick={() => setFacilityType(opt.value)}
-                                                className={[
-                                                    "flex-1 px-3 py-2 rounded-xl border text-sm font-bold transition-colors",
+                                                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all duration-200 ${
                                                     facilityType === opt.value
-                                                        ? "bg-blue-600 text-white border-blue-600"
-                                                        : "bg-white dark:bg-gray-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-800/60",
-                                                ].join(" ")}
+                                                        ? "bg-emerald-600 text-white shadow-sm"
+                                                        : "text-slate-600 hover:text-slate-800 dark:text-gray-400 dark:hover:text-slate-200 bg-transparent"
+                                                }`}
                                             >
                                                 {opt.label}
                                             </button>
@@ -223,7 +283,7 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                                 </div>
 
                                 {geoError && (
-                                    <div className="mt-4 text-sm rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/40 p-4 text-rose-800 dark:text-rose-200">
+                                    <div className="mt-4 text-sm rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900/40 p-4 text-rose-800 dark:text-rose-200">
                                         <div className="flex items-start gap-3">
                                             <AlertCircle size={18} className="shrink-0 mt-0.5" />
                                             <div className="flex-1">
@@ -231,7 +291,7 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                                                 <p className="mt-1">{geoError}</p>
                                                 <button
                                                     onClick={handleGetLocation}
-                                                    className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-colors"
+                                                    className="mt-3 flex items-center gap-2 px-3 py-2 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 shadow-sm shadow-rose-600/10 transition-colors"
                                                 >
                                                     <MapPin size={12} />
                                                     {t("Map.RetryAccess")}
@@ -242,75 +302,87 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                                 )}
 
                                 {facilitiesError && (
-                                    <div className="mt-4 text-sm rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/40 p-3 text-rose-800 dark:text-rose-200">
+                                    <div className="mt-4 text-sm rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900/40 p-3 text-rose-800 dark:text-rose-200">
                                         {facilitiesError}
                                     </div>
                                 )}
 
-                                <div className="mt-4 space-y-2">
-                                    <div className="flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-300">
+                                <div className="mt-5 space-y-3">
+                                    <div className="flex items-center justify-between text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                                         <span>{t("Map.Results")}</span>
                                         <span>{facilitiesLoading ? t("Common.Loading") : `${filteredFacilities.length}`}</span>
                                     </div>
 
                                     {facilitiesLoading ? (
-                                        <div className="mt-4 text-sm text-slate-600 dark:text-gray-300">Loading facilities…</div>
+                                        <div className="mt-4 text-sm text-slate-500 dark:text-gray-400">Loading facilities…</div>
                                     ) : filteredFacilities.length === 0 ? (
-                                        <div className="border border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-4 text-center bg-slate-50 dark:bg-gray-900/40">
-                                            <p className="font-semibold">{t("Map.NoFacilitiesFound")}</p>
-                                            <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Map.TryDifferentKeyword")}</p>
+                                        <div className="border border-dashed border-slate-200 dark:border-gray-800 rounded-2xl py-8 px-4 text-center bg-slate-50/50 dark:bg-gray-900/10">
+                                            <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">{t("Map.NoFacilitiesFound")}</p>
+                                            <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">{t("Map.TryDifferentKeyword")}</p>
                                         </div>
                                     ) : (
-                                        <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+                                        <div className="space-y-3 max-h-[440px] overflow-y-auto pr-1">
                                             {filteredFacilities.slice(0, 10).map((f) => {
                                                 const distanceLabel = formatDistance(f.distanceMeters);
                                                 const fav = isFavorite?.(f);
                                                 return (
-                                                    <div key={`${f.type}:${String(f.id)}`} className="border border-slate-200 dark:border-gray-700 rounded-2xl p-3 bg-white dark:bg-gray-900/30">
-                                                        <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                                                    <div key={`${f.type}:${String(f.id)}`} className="group border border-slate-100 dark:border-gray-800/80 rounded-2xl p-4 bg-white dark:bg-gray-900/40 hover:bg-white dark:hover:bg-gray-900/60 transition-all duration-250 shadow-sm relative overflow-hidden">
+                                                        <div className="flex items-start justify-between gap-3 mb-3.5">
                                                             <button
                                                                 type="button"
                                                                 onClick={() => handleFacilityCardClick(f)}
                                                                 className="text-left flex-1 min-w-0"
                                                             >
-                                                                <p className="font-bold truncate">{f.name}</p>
-                                                                <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 truncate" >
-                                                                    {f.type === "hospital" ? t("Map.hospital") : t("Map.pharmacy")}
-                                                                    {distanceLabel ? ` · ${distanceLabel}` : ""}
-                                                                </p>
+                                                                <p className="font-bold text-slate-800 dark:text-white truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{f.name}</p>
+                                                                <div className="flex items-center gap-2 mt-1.5">
+                                                                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                                                        f.type === "hospital"
+                                                                            ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400"
+                                                                            : "bg-teal-500/10 text-teal-600 dark:bg-teal-500/15 dark:text-teal-400"
+                                                                    }`}>
+                                                                        {f.type === "hospital" ? t("Map.hospital") : t("Map.pharmacy")}
+                                                                    </span>
+                                                                    {distanceLabel && (
+                                                                        <span className="text-[11px] text-slate-400 dark:text-gray-500 flex items-center gap-0.5 font-medium">
+                                                                            <MapPin size={10} />
+                                                                            {distanceLabel}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
                                                             </button>
                                                             <button
                                                                 type="button"
                                                                 onClick={() => onToggleFavorite?.(f)}
-                                                                className={[
-                                                                    "shrink-0 p-2 rounded-xl transition-colors",
-                                                                    fav ? "bg-blue-600/10 text-blue-700 dark:text-blue-300" : "bg-slate-100 dark:bg-gray-700/60 text-slate-600 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-gray-700",
-                                                                ].join(" ")}
+                                                                className={`shrink-0 p-2 rounded-xl transition-all duration-200 shadow-sm ${
+                                                                    fav 
+                                                                        ? "bg-rose-50 dark:bg-rose-950/30 text-rose-500 hover:text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-900/40" 
+                                                                        : "bg-slate-50 dark:bg-gray-800/80 text-slate-500 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-700/80"
+                                                                }`}
                                                                 aria-label={t("Map.Save")}
                                                                 title={t("Map.Save")}
                                                             >
-                                                                <Heart size={16} className={fav ? "fill-current" : ""} />
+                                                                <Heart size={14} className={fav ? "fill-current" : ""} />
                                                             </button>
                                                         </div>
 
-                                                        <div className="flex gap-2 ">
+                                                        <div className="flex gap-2">
                                                             <button
                                                                 type="button"
                                                                 onClick={() => {
                                                                     handleOpenInMap(f);
                                                                     setOpenMap(true);
                                                                 }}
-                                                                className="flex-1 rounded-xl bg-blue-600 text-white py-2.5 font-bold text-xs hover:bg-blue-700 transition-colors"
+                                                                className="flex-1 rounded-xl bg-emerald-600 text-white py-2.5 font-bold text-[11px] hover:bg-emerald-700 shadow-sm shadow-emerald-600/10 hover:shadow-emerald-600/20 transition-all duration-200"
                                                             >
                                                                 {t("Map.OpenInMap")}
                                                             </button>
                                                             <button
                                                                 type="button"
                                                                 onClick={() => onRequestChat?.(f)}
-                                                                className="flex-1 rounded-xl bg-slate-100 dark:bg-gray-700/60 text-slate-700 dark:text-slate-200 py-2.5 px-2 font-bold text-xs hover:bg-slate-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-1"
+                                                                className="flex-1 rounded-xl bg-slate-50 dark:bg-gray-800/80 text-slate-700 dark:text-slate-200 py-2.5 px-2 font-bold text-[11px] hover:bg-slate-100 dark:hover:bg-gray-700 transition-all duration-200 flex items-center justify-center gap-1.5 border border-slate-100 dark:border-gray-850"
                                                                 title={f.type === "hospital" ? t("Map.MessageHospital") : t("Map.MessagePharmacy")}
                                                             >
-                                                                <MessageSquare size={14} />
+                                                                <MessageSquare size={12} className="text-slate-400" />
                                                                 {t("UserDashboard.Messages")}
                                                             </button>
                                                         </div>
@@ -323,10 +395,10 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                             </div>
                         </aside>
 
-                        {/* Map */}
+                        {/* Map Container */}
                         <div className={`${openMap ? 'block md:col-span-8 lg:col-span-7' : 'hidden md:block md:col-span-8 lg:col-span-7'} order-1 lg:order-2 z-20`}>
-                            <div className="rounded-2xl border border-slate-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800/40 shadow-md">
-                                <div className="p-4 border-b border-slate-200 dark:border-gray-700 flex flex-col items-center justify-between gap-3">
+                            <div className="rounded-2xl border border-slate-100 dark:border-gray-800/80 overflow-hidden bg-white dark:bg-gray-955/40 shadow-sm">
+                                <div className="p-4 border-b border-slate-100 dark:border-gray-900 flex flex-col items-center justify-between gap-3 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md">
                                     <div className="flex w-full justify-between items-center">
                                         <div className="min-w-0 flex justify-baseline items-center">
                                             <div className="flex items-center justify-start gap-2">
@@ -334,8 +406,8 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                                                     <ChevronLeft className="block md:hidden cursor-pointer text-slate-700 hover:text-slate-900 dark:text-slate-100 dark:hover:text-slate-50" />
                                                 </button>
                                                 <div className="flex flex-col items-start justify-start">
-                                                    <h2 className="font-semibold text-[10px] md:text-base truncate">{t("Map.LiveFacilitiesMap")}</h2>
-                                                    <p className="text-[9px] md:text-sm text-slate-600 dark:text-gray-300 mt-1">
+                                                    <h2 className="font-bold text-xs md:text-sm text-slate-800 dark:text-white truncate">{t("Map.LiveFacilitiesMap")}</h2>
+                                                    <p className="text-[10px] md:text-xs text-slate-500 dark:text-gray-400 mt-0.5">
                                                         {routeTo
                                                             ? `${t("Register.Location")}: ${routeTo.name} (${routeTo.type === "hospital" ? t("Map.hospital") : t("Map.pharmacy")})`
                                                             : t("Map.PickAFacility")}
@@ -351,12 +423,12 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                                                         setRouteTo(null);
                                                         setFollowUser(true);
                                                     }}
-                                                    className="px-2 md:px-3 py-1 md:py-2 rounded-xl bg-slate-100 dark:bg-gray-700/60 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-gray-700 transition-colors text-sm font-bold"
+                                                    className="px-3 py-2 rounded-xl bg-slate-55 dark:bg-gray-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-gray-700 transition-colors text-xs font-bold border border-slate-100 dark:border-gray-800 shadow-sm"
                                                 >
                                                     {t("Map.ClearRoute")}
                                                 </button>
                                             ) : (
-                                                <div className="text-[9px] md:text-xs text-slate-600 dark:text-gray-300">{userLocation ? t("Map.TrackingEnabled") : t("Map.TrackingUnavailable")}</div>
+                                                <div className="text-[10px] md:text-xs text-slate-400 dark:text-gray-500 font-semibold">{userLocation ? t("Map.TrackingEnabled") : t("Map.TrackingUnavailable")}</div>
                                             )}
                                         </div>
                                     </div>
@@ -381,34 +453,34 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                                                         icon={f.type === "pharmacy" ? pharmacyIcon : new L.Icon.Default()}
                                                     >
                                                         <Tooltip direction="top" offset={[0, -28]} opacity={1}>
-                                                            <span className="font-bold">{f.name}</span>
+                                                            <span className="font-bold text-slate-800">{f.name}</span>
                                                         </Tooltip>
                                                         <Popup>
                                                             <div className="p-1" style={{ minWidth: 220 }}>
-                                                                <h3 className="text-sm font-bold border-b pb-1 mb-1">{f.name}</h3>
-                                                                <p className="text-xs text-slate-600 dark:text-gray-300">
-                                                                    Type: <span className="font-semibold">{f.type === "hospital" ? "Hospital" : "Pharmacy"}</span>
+                                                                <h3 className="text-sm font-bold border-b border-slate-100 pb-1 mb-1.5 text-slate-800">{f.name}</h3>
+                                                                <p className="text-xs text-slate-550 mt-1">
+                                                                    Type: <span className="font-semibold text-emerald-600">{f.type === "hospital" ? "Hospital" : "Pharmacy"}</span>
                                                                 </p>
                                                                 {f.address ? (
-                                                                    <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">{f.address}</p>
+                                                                    <p className="text-xs text-slate-500 mt-1">{f.address}</p>
                                                                 ) : null}
 
                                                                 <div className="mt-3 grid grid-cols-2 gap-2">
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => handleOpenInMap(f)}
-                                                                        className="bg-blue-600 text-white text-[11px] py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors"
+                                                                        className="bg-emerald-600 text-white text-[11px] py-2 rounded-lg font-bold hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-600/10"
                                                                     >
                                                                         Open in Map
                                                                     </button>
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => onToggleFavorite?.(f)}
-                                                                        className="bg-slate-100 dark:bg-gray-700/60 text-slate-800 dark:text-slate-200 text-[11px] py-2 rounded-lg font-bold hover:bg-slate-200 dark:hover:bg-gray-700 transition-colors"
+                                                                        className="bg-slate-50 text-slate-700 text-[11px] py-2 rounded-lg font-bold hover:bg-slate-100 border border-slate-100 transition-colors"
                                                                     >
-                                                                        <span className="inline-flex items-center justify-center gap-2">
-                                                                            <Heart size={14} className={isFavorite?.(f) ? "fill-current" : ""} />
-                                                                            {isFavorite?.(f) ? "Saved" : "Save"}
+                                                                        <span className="inline-flex items-center justify-center gap-1.5 text-rose-500">
+                                                                            <Heart size={12} className={isFavorite?.(f) ? "fill-current text-rose-500" : "text-rose-450"} />
+                                                                            <span className="text-slate-700">{isFavorite?.(f) ? "Saved" : "Save"}</span>
                                                                         </span>
                                                                     </button>
                                                                 </div>
@@ -416,7 +488,7 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => onRequestChat?.(f)}
-                                                                    className="mt-2 w-full bg-slate-900 dark:bg-blue-600 text-white text-[11px] py-2 rounded-lg font-bold hover:opacity-90 transition-colors"
+                                                                    className="mt-2 w-full bg-emerald-600 text-white text-[11px] py-2 rounded-lg font-bold hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-600/10"
                                                                 >
                                                                     {f.type === "hospital" ? "Message hospital agent" : "Message pharmacy agent"}
                                                                 </button>
@@ -447,3 +519,4 @@ export default function MapView({ favorites, isFavorite, onToggleFavorite, onFac
         </div>
     );
 }
+
