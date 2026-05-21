@@ -52,8 +52,8 @@ export default function PrescriptionUploadZone({ onFileSelected, onBrowseClick, 
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       className={`group relative w-full rounded-2xl border-2 border-dashed px-6 py-14 text-center transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 ${isDragging
-          ? "border-emerald-500 bg-emerald-50/90 dark:border-emerald-400 dark:bg-emerald-950/50"
-          : "border-slate-300 bg-slate-50/50 hover:border-emerald-400 hover:bg-emerald-50/40 dark:border-slate-600 dark:bg-slate-900/50 dark:hover:border-emerald-600 dark:hover:bg-emerald-950/30"
+        ? "border-emerald-500 bg-emerald-50/90 dark:border-emerald-400 dark:bg-emerald-950/50"
+        : "border-slate-300 bg-slate-50/50 hover:border-emerald-400 hover:bg-emerald-50/40 dark:border-slate-600 dark:bg-slate-900/50 dark:hover:border-emerald-600 dark:hover:bg-emerald-950/30"
         } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
     >
       <div className="mx-auto flex max-w-md flex-col items-center gap-4">

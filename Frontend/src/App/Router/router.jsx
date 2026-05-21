@@ -2,7 +2,7 @@
  * Application Router Configuration
  * Defines all routes for the MedFinder application
  */
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate, useLocation, useRoutes, Outlet } from "react-router-dom";
 
 // Layouts
 import MainLayout from "../layout/MainLayout";
@@ -81,7 +81,8 @@ function NotFound() {
   );
 }
 
-export const router = createBrowserRouter([
+// Separate route configuration array for useRoutes matching
+const routesConfig = [
   // ==================== PUBLIC ROUTES (MainLayout) ====================
   {
     element: <>
@@ -116,6 +117,13 @@ export const router = createBrowserRouter([
       {
         path: "/auth/callback",
         element: <AuthCallback />
+      },
+      {
+        path: "/prescription-reader",
+        element: <ProtectedRoute />,
+        children: [
+          { index: true, element: <PrescriptionReader /> },
+        ],
       },
 
       // Login routes
@@ -253,7 +261,7 @@ export const router = createBrowserRouter([
         element: <FacilityDetailPage />,
         loader: async ({ params }) => {
           const res = await fetch(
-            `https://medfinder.com/api/pharmacies/${params.id}`
+            `/api/pharmacies/${params.id}`
           );
 
           if (!res.ok) {
@@ -273,7 +281,7 @@ export const router = createBrowserRouter([
         element: <FacilityDetailPage />,
         loader: async ({ params }) => {
           const res = await fetch(
-            `https://medfinder.com/api/hospitals/${params.id}`
+            `/api/hospitals/${params.id}`
           );
 
           if (!res.ok) {
@@ -301,7 +309,7 @@ export const router = createBrowserRouter([
         element: <FacilityDetailPage />,
         loader: async ({ params }) => {
           const res = await fetch(
-            `https://medfinder.com/api/hospitals/${params.id}`
+            `/api/hospitals/${params.id}`
           );
 
           if (!res.ok) {
@@ -315,10 +323,39 @@ export const router = createBrowserRouter([
     ],
   },
 
-
   {
     path: "*",
     element: <NotFound />,
+  },
+];
+
+function RootLayout() {
+  const location = useLocation();
+  const backgroundLocation = location.state?.backgroundLocation || location.state?.background;
+
+  // Match and render the background element tree using our routesConfig configuration
+  const backgroundElement = useRoutes(routesConfig, backgroundLocation);
+
+  return (
+    <>
+      {backgroundLocation ? (
+        <>
+          <div className="filter blur-[3px] pointer-events-none select-none transition-all duration-300">
+            {backgroundElement}
+          </div>
+          <Outlet />
+        </>
+      ) : (
+        <Outlet />
+      )}
+    </>
+  );
+}
+
+export const router = createBrowserRouter([
+  {
+    element: <RootLayout />,
+    children: routesConfig,
   },
 ]);
 

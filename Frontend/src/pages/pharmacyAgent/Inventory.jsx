@@ -2,8 +2,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     Calendar, Edit2, Loader2, Plus, Search, Trash2,
     AlertTriangle, Package, Clock, Ban, CheckCircle,
-    ChevronLeft, ChevronRight, Filter, MoreVertical,
-    Eye, EyeOff, TrendingDown, DollarSign, History, RotateCcw
+    ChevronLeft, ChevronRight, Filter, Eye, EyeOff,
+    TrendingDown, DollarSign, History, RotateCcw, X
 } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import toast from 'react-hot-toast';
@@ -11,8 +11,6 @@ import {
     apiGetInventory,
     apiAddDrug,
     apiDeleteDrug,
-    apiSearchDrugs,
-    apiGetDrug,
     apiUpdateDrug,
     apiGetAnalytics,
     apiToggleAvailability
@@ -21,11 +19,11 @@ import DrugInventoryModal from "./DrugInventoryModal";
 import InventoryHistory from "./components/InventoryHistory";
 import InventoryTrash from "./components/InventoryTrash";
 import { useTranslation } from "react-i18next";
-import Loading from "../../component/SupportiveComponent/Loading";
 
 export default function Inventory() {
     const { t } = useTranslation();
     const [subTab, setSubTab] = useState("active");
+    const [selectedAnalyticsType, setSelectedAnalyticsType] = useState(null);
 
     const [isLoadingInventory, setIsLoadingInventory] = useState(false);
     const [analytics, setAnalytics] = useState(null);
@@ -230,54 +228,143 @@ export default function Inventory() {
         setShowEditModal(true);
     };
 
+    const getCategoryBadgeStyles = (category) => {
+        const cat = String(category).toLowerCase();
+        if (cat.includes("antibiotic")) return "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-900/30";
+        if (cat.includes("pain") || cat.includes("relief")) return "bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 border border-orange-100/50 dark:border-orange-900/30";
+        if (cat.includes("cardio") || cat.includes("heart")) return "bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border border-purple-100/50 dark:border-purple-900/30";
+        if (cat.includes("vitamin") || cat.includes("supplement")) return "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-100/50 dark:border-emerald-900/30";
+        return "bg-slate-50 dark:bg-slate-800/40 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-800/30";
+    };
+
+    const rowContainerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.04
+            }
+        }
+    };
+
+    const rowItemVariants = {
+        hidden: { opacity: 0, y: 10 },
+        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+    };
+
     const renderMainInventory = () => (
         <div className="space-y-6">
             {/* Analytics Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                 <AnalyticsCard
                     title={t("inventory.analytics.totalItems")}
                     value={analytics?.total_items || 0}
-                    icon={<Package className="text-blue-500" />}
-                    bgColor="bg-blue-50 dark:bg-blue-900/20"
+                    icon={<Package className="text-emerald-500" />}
+                    bgColor="bg-emerald-50 dark:bg-emerald-950/40 border-emerald-100/20"
                     description={t("inventory.analytics.totalItemDesc")}
-
+                    active={selectedAnalyticsType === "drugs"}
+                    onClick={() => setSelectedAnalyticsType(selectedAnalyticsType === "drugs" ? null : "drugs")}
                 />
                 <AnalyticsCard
                     title={t("inventory.analytics.lowStock")}
                     value={analytics?.low_stock || 0}
-                    icon={<AlertTriangle className="text-orange-500" />}
-                    bgColor="bg-orange-50 dark:bg-orange-900/20"
+                    icon={<AlertTriangle className="text-amber-500" />}
+                    bgColor="bg-amber-50 dark:bg-amber-950/40 border-amber-100/20"
                     description={t("inventory.analytics.lowStockDesc")}
-
+                    active={selectedAnalyticsType === "low_stock_items"}
+                    onClick={() => setSelectedAnalyticsType(selectedAnalyticsType === "low_stock_items" ? null : "low_stock_items")}
                 />
                 <AnalyticsCard
                     title={t("inventory.analytics.outOfStock")}
                     value={analytics?.out_of_stock || 0}
-                    icon={<Ban className="text-red-500" />}
-                    bgColor="bg-red-50 dark:bg-red-900/20"
+                    icon={<Ban className="text-rose-500" />}
+                    bgColor="bg-rose-50 dark:bg-rose-950/40 border-rose-100/20"
                     description={t("inventory.analytics.outofStockDesc")}
+                    active={selectedAnalyticsType === "out_of_stock_items"}
+                    onClick={() => setSelectedAnalyticsType(selectedAnalyticsType === "out_of_stock_items" ? null : "out_of_stock_items")}
                 />
                 <AnalyticsCard
                     title={t("inventory.analytics.expiringSoon")}
                     value={analytics?.expiring_soon || 0}
                     icon={<Clock className="text-purple-500" />}
-                    bgColor="bg-purple-50 dark:bg-purple-900/20"
+                    bgColor="bg-purple-50 dark:bg-purple-950/40 border-purple-100/20"
                     description={t("inventory.analytics.expiringSoonDesc")}
+                    active={selectedAnalyticsType === "expiring_soon_items"}
+                    onClick={() => setSelectedAnalyticsType(selectedAnalyticsType === "expiring_soon_items" ? null : "expiring_soon_items")}
                 />
             </div>
 
+            {/* Expanded Analytics Details */}
+            <AnimatePresence>
+                {selectedAnalyticsType && analytics?.[selectedAnalyticsType] && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0, y: -10 }}
+                        animate={{ opacity: 1, height: 'auto', y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -10 }}
+                        className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200/60 dark:border-slate-800 rounded-3xl overflow-hidden shadow-inner"
+                    >
+                        <div className="px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-200/60 dark:border-slate-800 flex justify-between items-center">
+                            <div className="flex items-center gap-2 text-slate-800 dark:text-white">
+                                <Package size={18} className="text-emerald-500" />
+                                <h3 className="font-black text-sm uppercase tracking-wider">
+                                    {selectedAnalyticsType.replace(/_/g, ' ')}
+                                </h3>
+                            </div>
+                            <button 
+                                onClick={() => setSelectedAnalyticsType(null)} 
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                            >
+                                <X size={16}/>
+                            </button>
+                        </div>
+                        <div className="p-4 max-h-[300px] overflow-y-auto no-scrollbar grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {analytics[selectedAnalyticsType].length > 0 ? (
+                                analytics[selectedAnalyticsType].map(item => (
+                                    <div key={item.id} className="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm flex items-start gap-3 hover:border-emerald-200 dark:hover:border-emerald-800 transition-colors">
+                                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 shrink-0">
+                                            <Package size={16} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-bold text-xs text-slate-800 dark:text-white truncate">
+                                                {item.drug?.brand_name_en || item.brand_name_en || item.generic_name}
+                                            </p>
+                                            <div className="flex flex-wrap gap-2 mt-1">
+                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                                                    item.stock === 0 ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40' : 
+                                                    item.stock <= (item.low_stock_threshold || 10) ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/40' : 
+                                                    'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40'
+                                                }`}>
+                                                    Stock: {item.stock}
+                                                </span>
+                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                                                    Exp: {item.expire_date ? item.expire_date.split('T')[0] : 'N/A'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="col-span-full py-8 text-center text-sm font-bold text-slate-400 uppercase tracking-wider">
+                                    No items found.
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Controls Bar */}
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm space-y-4">
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 shadow-sm shadow-slate-100/50 dark:shadow-none space-y-4">
                 <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
                     {/* Search */}
                     <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                         <input
                             type="text"
                             placeholder={t("inventory.searchPlaceholder")}
                             value={params.search}
                             onChange={handleSearchChange}
-                            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-medium"
+                            className="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800 rounded-xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 dark:focus:border-emerald-500 transition-all font-bold text-sm tracking-wide dark:text-gray-200"
                         />
                     </div>
 
@@ -310,21 +397,21 @@ export default function Inventory() {
                                 resetDrugForm();
                                 setShowAddModal(true);
                             }}
-                            className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-md active:scale-95"
+                            className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 cursor-pointer"
                         >
-                            <Plus size={18} />
+                            <Plus size={16} />
                             {t("inventory.addDrug")}
                         </button>
                     </div>
                 </div>
             </div>
 
-            {/* Inventory Table */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left min-w-[1000px]">
-                        <thead className="bg-slate-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                            <tr className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">
+            {/* Inventory Table Container */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 overflow-hidden shadow-sm shadow-slate-100/50 dark:shadow-none">
+                <div className="overflow-x-auto no-scrollbar">
+                    <table className="w-full text-left min-w-[1000px] border-collapse">
+                        <thead>
+                            <tr className="bg-slate-50/50 dark:bg-slate-850/20 border-b border-slate-100 dark:border-slate-800/60 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
                                 <th className="px-6 py-4">{t("inventory.table.drugName")}</th>
                                 <th className="px-6 py-4">{t("inventory.table.category")}</th>
                                 <th className="px-6 py-4">{t("inventory.table.stock")}</th>
@@ -334,25 +421,28 @@ export default function Inventory() {
                                 <th className="px-6 py-4 text-center">{t("inventory.table.actions")}</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                        <motion.tbody
+                            variants={rowContainerVariants}
+                            initial="hidden"
+                            animate="show"
+                            className="divide-y divide-slate-100 dark:divide-slate-800/40"
+                        >
                             {isLoadingInventory ? (
                                 <tr>
                                     <td colSpan={7} className="px-6 py-20 text-center text-slate-400">
-                                        <div className="flex flex-col justify-center items-center gap-1.5">
-                                            <div className="flex items-center gap-2">
-                                                <span className="w-3 h-3 bg-blue-500 rounded-full animate-bounce px-1.5"></span>
-                                                <span className="w-3 h-3 bg-blue-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                                                <span className="w-3 h-3 bg-blue-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                                        <div className="flex flex-col justify-center items-center gap-3">
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-bounce"></span>
+                                                <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                                                <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
                                             </div>
-                                            <div>
-                                                <p className="text-gray-500 animate-pulse">{t("Common.Loading")}</p>
-                                            </div>
+                                            <p className="text-xs text-slate-400 font-bold tracking-wide animate-pulse">{t("Common.Loading")}</p>
                                         </div>
                                     </td>
                                 </tr>
                             ) : inventory.length === 0 ? (
                                 <tr>
-                                    <td colSpan={7} className="px-6 py-20 text-center text-slate-400">
+                                    <td colSpan={7} className="px-6 py-20 text-center text-slate-400 font-bold text-xs tracking-wider uppercase">
                                         {t("inventory.noDrugsFound")}
                                     </td>
                                 </tr>
@@ -363,116 +453,131 @@ export default function Inventory() {
                                     const isOut = inv.stock === 0;
 
                                     return (
-                                        <tr key={drug.id} className="hover:bg-slate-50 dark:hover:bg-gray-700/30 transition-colors">
-                                            <td className="px-6 py-4">
+                                        <motion.tr
+                                            key={drug.id}
+                                            variants={rowItemVariants}
+                                            className="hover:bg-slate-50/50 dark:hover:bg-slate-800/25 transition-colors group"
+                                        >
+                                            <td className="px-6 py-3.5">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600">
-                                                        <Package size={20} />
+                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-50 to-green-50 dark:from-slate-800 dark:to-slate-800/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100/20 dark:border-slate-800/30 group-hover:scale-105 transition-transform duration-300">
+                                                        <Package size={18} />
                                                     </div>
                                                     <div>
                                                         <p className="font-bold text-slate-800 dark:text-white leading-tight">
                                                             {drug.brand_name_en}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 truncate max-w-[150px]">
+                                                        <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold italic mt-0.5">
                                                             {drug.generic_name}
                                                         </p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-sm">
-                                                <span className="text-slate-600 dark:text-gray-400 font-medium">{inv.category || "—"}</span>
-                                                <p className="text-[10px] text-slate-400">{inv.dosage_form}</p>
-                                            </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-3.5">
                                                 <div className="flex flex-col">
-                                                    <span className={`font-bold ${isOut ? "text-red-500" : isLow ? "text-orange-500" : "text-emerald-500"}`}>
+                                                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black w-fit uppercase tracking-wider ${getCategoryBadgeStyles(inv.category)}`}>
+                                                        {inv.category || "—"}
+                                                    </span>
+                                                    <span className="text-[10px] text-slate-400 font-bold mt-1 pl-1">
+                                                        {inv.dosage_form}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-3.5">
+                                                <div className="flex flex-col">
+                                                    <span className={`font-black text-sm tracking-wide ${isOut ? "text-rose-500" : isLow ? "text-amber-500" : "text-emerald-500"}`}>
                                                         {inv.stock} {t("inventory.toast.units")}
                                                     </span>
                                                     {isLow && !isOut && (
-                                                        <div className="flex items-center gap-1 text-[10px] text-orange-500 font-bold">
+                                                        <div className="flex items-center gap-0.5 text-[10px] text-amber-500 font-bold mt-0.5">
                                                             <TrendingDown size={10} />
                                                             {t("inventory.filters.lowStock")}
                                                         </div>
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col text-sm">
-                                                    <span className="font-bold text-slate-700 dark:text-gray-200">
+                                            <td className="px-6 py-3.5">
+                                                <div className="flex flex-col">
+                                                    <span className="font-black text-slate-700 dark:text-slate-200">
                                                         {inv.price} {t("Common.Currency")}
                                                     </span>
                                                     {inv.cost_price && (
-                                                        <span className="text-[10px] text-slate-400 font-medium">
+                                                        <span className="text-[10px] text-slate-400 font-bold mt-0.5">
                                                             {t("inventory.table.costPrice")}: {inv.cost_price}
                                                         </span>
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                                                    <Calendar size={14} className="text-slate-400" />
+                                            <td className="px-6 py-3.5">
+                                                <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                                                    <Calendar size={14} className="text-slate-400 dark:text-slate-500" />
                                                     {inv.expire_date || "—"}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-3.5">
                                                 <StatusBadge inv={inv} t={t} />
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center justify-center gap-2">
+                                            <td className="px-6 py-3.5">
+                                                <div className="flex items-center justify-center gap-1.5">
                                                     <button
                                                         onClick={() => handleToggleAvailability(drug)}
-                                                        className={`p-2 rounded-lg transition-colors ${inv.is_available ? "text-emerald-500 hover:bg-emerald-50" : "text-slate-400 hover:bg-slate-100"}`}
+                                                        className={`p-2 rounded-xl transition-all duration-300 active:scale-90 cursor-pointer ${inv.is_available
+                                                                ? "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-500 hover:text-white"
+                                                                : "text-slate-400 bg-slate-50 dark:bg-slate-800 hover:bg-slate-500 hover:text-white"
+                                                            }`}
                                                         title={inv.is_available ? "Disable" : "Enable"}
                                                     >
-                                                        {inv.is_available ? <Eye size={18} /> : <EyeOff size={18} />}
+                                                        {inv.is_available ? <Eye size={16} /> : <EyeOff size={16} />}
                                                     </button>
                                                     <button
                                                         onClick={() => openEditModal(drug)}
-                                                        className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        className="p-2 text-blue-500 bg-blue-50 dark:bg-blue-950/40 rounded-xl hover:bg-blue-500 hover:text-white transition-all duration-300 active:scale-90 cursor-pointer"
+                                                        title="Edit"
                                                     >
-                                                        <Edit2 size={18} />
+                                                        <Edit2 size={16} />
                                                     </button>
                                                     <button
                                                         onClick={() => {
                                                             setSelectedDrug(drug);
                                                             setShowDeleteModal(true);
                                                         }}
-                                                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                        className="p-2 text-rose-500 bg-rose-50 dark:bg-rose-950/40 rounded-xl hover:bg-rose-500 hover:text-white transition-all duration-300 active:scale-90 cursor-pointer"
+                                                        title="Delete"
                                                     >
-                                                        <Trash2 size={18} />
+                                                        <Trash2 size={16} />
                                                     </button>
                                                 </div>
                                             </td>
-                                        </tr>
+                                        </motion.tr>
                                     );
                                 })
                             )}
-                        </tbody>
+                        </motion.tbody>
                     </table>
                 </div>
 
                 {/* Pagination */}
-                <div className="px-6 py-4 bg-slate-50 dark:bg-gray-900/30 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                    <p className="text-xs text-slate-500 font-bold">
+                <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/30 border-t border-slate-100 dark:border-slate-800/40 flex items-center justify-between">
+                    <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
                         {t("search.resultCount", { count: meta.total })}
                     </p>
                     <div className="flex items-center gap-2">
                         <button
                             disabled={params.page === 1}
                             onClick={() => handleFilterChange("page", params.page - 1)}
-                            className="p-2 rounded-lg hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-slate-200 disabled:opacity-30 transition-all font-bold shadow-sm"
+                            className="p-2 rounded-xl hover:bg-white dark:hover:bg-slate-850 border border-transparent hover:border-slate-200 dark:hover:border-slate-800 disabled:opacity-30 transition-all font-bold shadow-sm active:scale-90 cursor-pointer"
                         >
-                            <ChevronLeft size={18} />
+                            <ChevronLeft size={16} />
                         </button>
-                        <span className="text-xs font-bold w-32 text-center uppercase tracking-widest text-slate-400">
-                            Page {params.page} / {meta.last_page}
+                        <span className="text-[10px] font-black tracking-widest text-slate-400 uppercase w-28 text-center select-none">
+                            {params.page} / {meta.last_page}
                         </span>
                         <button
                             disabled={params.page === meta.last_page}
                             onClick={() => handleFilterChange("page", params.page + 1)}
-                            className="p-2 rounded-lg hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-slate-200 disabled:opacity-30 transition-all font-bold shadow-sm"
+                            className="p-2 rounded-xl hover:bg-white dark:hover:bg-slate-850 border border-transparent hover:border-slate-200 dark:hover:border-slate-800 disabled:opacity-30 transition-all font-bold shadow-sm active:scale-90 cursor-pointer"
                         >
-                            <ChevronRight size={18} />
+                            <ChevronRight size={16} />
                         </button>
                     </div>
                 </div>
@@ -483,29 +588,29 @@ export default function Inventory() {
     return (
         <motion.div
             key="inventory-container"
-            initial={{ opacity: 0, scale: 0.98 }}
+            initial={{ opacity: 0, scale: 0.99 }}
             animate={{ opacity: 1, scale: 1 }}
             className="space-y-6"
         >
-            {/* Header with Sub-Tabs */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-gray-800 p-2 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
-                <div className="flex flex-wrap items-center gap-1">
+            {/* Header with Sub-Tabs - Slider Design */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200/50 dark:border-slate-800/80 shadow-sm">
+                <div className="flex flex-wrap items-center gap-1.5 relative">
                     <TabButton
                         active={subTab === "active"}
                         onClick={() => setSubTab("active")}
-                        icon={<Package size={18} />}
+                        icon={<Package size={16} />}
                         label={t("inventory.tabs.active")}
                     />
                     <TabButton
                         active={subTab === "history"}
                         onClick={() => setSubTab("history")}
-                        icon={<History size={18} />}
+                        icon={<History size={16} />}
                         label={t("inventory.tabs.history")}
                     />
                     <TabButton
                         active={subTab === "trash"}
                         onClick={() => setSubTab("trash")}
-                        icon={<Trash2 size={18} />}
+                        icon={<Trash2 size={16} />}
                         label={t("inventory.tabs.trash")}
                     />
                 </div>
@@ -572,57 +677,64 @@ export default function Inventory() {
 const TabButton = ({ active, onClick, icon, label }) => (
     <button
         onClick={onClick}
-        className={`flex items-center gap-0.5 md:gap-2 px-2 md:px-6  py-2.5 rounded-xl font-bold transition-all duration-200 ${active
-            ? "bg-primary text-white shadow-lg shadow-primary/25"
-            : "text-slate-500 hover:bg-slate-50 dark:hover:bg-gray-700/50"
-            }`}
+        className="relative flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-wider transition-all duration-300 active:scale-95 cursor-pointer overflow-hidden"
     >
-        {icon}
-        <span className="text-[9px] md:text-sm">{label}</span>
+        {active && (
+            <motion.span
+                layoutId="activeSubTab"
+                className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-green-600 shadow-md shadow-emerald-500/15 rounded-xl"
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+            />
+        )}
+        <span className={`relative z-10 flex items-center gap-2 ${active ? "text-white" : "text-slate-500 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400"}`}>
+            {icon}
+            <span>{label}</span>
+        </span>
     </button>
 );
 
-
-const AnalyticsCard = ({ title, value, icon, bgColor, description }) => {
+const AnalyticsCard = ({ title, value, icon, bgColor, description, active, onClick }) => {
     return (
-        <div className="relative p-5 rounded-3xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden cursor-default">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            {/* FRONT (default) */}
+        <motion.div
+            whileHover={{ y: -6, scale: 1.02 }}
+            onClick={onClick}
+            className={`relative p-5 rounded-3xl border ${active ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200/50 dark:border-slate-800/80'} bg-white dark:bg-slate-900 shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 dark:hover:shadow-emerald-500/2 transition-all duration-300 group overflow-hidden ${onClick ? 'cursor-pointer' : 'cursor-default'}`}
+        >
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+            {/* FRONT */}
             <div className="flex items-center justify-between transition-all duration-300 group-hover:opacity-0 group-hover:-translate-y-3">
                 <div className="space-y-1">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
                         {title}
                     </p>
-                    <p className="text-3xl font-black text-slate-800 dark:text-white transition-transform origin-left group-hover:scale-105">
+                    <p className="text-3xl font-black text-slate-800 dark:text-white transition-transform origin-left group-hover:scale-105 leading-none mt-2">
                         {value}
                     </p>
                 </div>
 
-                <div
-                    className={`w-14 h-14 ${bgColor} rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:rotate-12`}
-                >
-                    {React.cloneElement(icon, { size: 28 })}
+                <div className={`w-14 h-14 ${bgColor} border rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:rotate-12`}>
+                    {React.cloneElement(icon, { size: 24 })}
                 </div>
             </div>
 
-            {/* BACK (hover content) */}
-            <div className="absolute inset-0 flex items-center justify-center text-center px-4 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+            {/* BACK */}
+            <div className="absolute inset-0 flex items-center justify-center text-center px-6 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 pointer-events-none">
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-wider">
                     {description}
                 </p>
             </div>
-        </div>
+        </motion.div>
     );
 };
 
-
 const FilterSelect = ({ value, onChange, options }) => (
     <div className="relative group">
-        <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
+        <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
         <select
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="pl-10 pr-8 py-2.5 bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-bold min-w-[160px] cursor-pointer appearance-none transition-all"
+            className="pl-10 pr-8 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800 rounded-xl outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 text-xs font-black uppercase tracking-wider min-w-[160px] cursor-pointer appearance-none transition-all dark:text-gray-200"
         >
             {options.map(opt => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -637,18 +749,18 @@ const StatusBadge = ({ inv, t }) => {
     const isLow = inv.stock <= (inv.low_stock_threshold || 10);
 
     if (!inv.is_available) {
-        return <span className="px-3 py-1 rounded-full text-[10px] font-black bg-slate-100 text-slate-400 dark:bg-gray-700 select-none uppercase tracking-wider border border-slate-200">Disabled</span>;
+        return <span className="px-3 py-1 rounded-full text-[9px] font-black bg-slate-100 text-slate-450 dark:bg-slate-800 border border-slate-200/60 select-none uppercase tracking-wider">Disabled</span>;
     }
 
     if (isOut) {
-        return <span className="px-3 py-1 rounded-full text-[10px] font-black bg-red-50 text-red-600 dark:bg-red-900/20 select-none uppercase tracking-wider border border-red-100">{t("inventory.filters.outOfStock")}</span>;
+        return <span className="px-3 py-1 rounded-full text-[9px] font-black bg-rose-50 text-rose-600 dark:bg-rose-950/40 border border-rose-100/50 select-none uppercase tracking-wider">{t("inventory.filters.outOfStock")}</span>;
     }
 
     if (isLow) {
-        return <span className="px-3 py-1 rounded-full text-[10px] font-black bg-orange-50 text-orange-600 dark:bg-orange-900/20 select-none uppercase tracking-wider border border-orange-100">{t("inventory.filters.lowStock")}</span>;
+        return <span className="px-3 py-1 rounded-full text-[9px] font-black bg-amber-50 text-amber-600 dark:bg-amber-950/40 border border-amber-100/50 select-none uppercase tracking-wider">{t("inventory.filters.lowStock")}</span>;
     }
 
-    return <span className="px-3 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 select-none uppercase tracking-wider border border-emerald-100">{t("inventory.filters.available")}</span>;
+    return <span className="px-3 py-1 rounded-full text-[9px] font-black bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 border border-emerald-100/50 select-none uppercase tracking-wider">{t("inventory.filters.available")}</span>;
 };
 
 const DeleteConfirmModal = ({ drugName, onConfirm, onClose, isSubmitting }) => {
@@ -656,37 +768,37 @@ const DeleteConfirmModal = ({ drugName, onConfirm, onClose, isSubmitting }) => {
     return (
         <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
             onClick={onClose}
         >
             <motion.div
-                initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                className="bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden border border-white/20"
+                initial={{ scale: 0.95, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.95, y: 20, opacity: 0 }}
+                className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-250/20"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="p-10 text-center space-y-6">
-                    <div className="w-24 h-24 mx-auto rounded-3xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center rotate-12 group hover:rotate-0 transition-transform duration-500">
-                        <Trash2 size={48} className="text-red-500" />
+                <div className="p-8 text-center space-y-6">
+                    <div className="w-20 h-20 mx-auto rounded-3xl bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center rotate-12 group hover:rotate-0 transition-transform duration-500 border border-rose-100/50">
+                        <Trash2 size={40} className="text-rose-500" />
                     </div>
-                    <div className="space-y-3">
-                        <h3 className="text-3xl font-black text-gray-900 dark:text-white">{t("modal.delete.title")}</h3>
-                        <p className="text-slate-500 dark:text-gray-400 leading-relaxed font-semibold italic">
+                    <div className="space-y-2">
+                        <h3 className="text-2xl font-black text-slate-800 dark:text-white leading-tight">{t("modal.delete.title")}</h3>
+                        <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-semibold italic text-xs">
                             {t("modal.delete.confirmMessage", { name: drugName })}
                         </p>
                     </div>
-                    <div className="flex gap-4 pt-4">
+                    <div className="flex gap-3 pt-2">
                         <button
                             onClick={onClose}
-                            className="flex-1 px-6 py-4 bg-slate-100 dark:bg-gray-700 rounded-2xl font-black hover:bg-slate-200 dark:hover:bg-gray-600 transition-all active:scale-95"
+                            className="flex-1 px-5 py-3 bg-slate-100 dark:bg-slate-800 rounded-2xl font-black text-xs uppercase tracking-wider text-slate-650 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all active:scale-95 cursor-pointer"
                         >
                             {t("modal.delete.cancel")}
                         </button>
                         <button
                             onClick={onConfirm}
                             disabled={isSubmitting}
-                            className="flex-1 px-6 py-4 bg-red-500 text-white rounded-2xl font-black hover:bg-red-600 transition-all shadow-lg shadow-red-200 dark:shadow-none flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+                            className="flex-1 px-5 py-3 bg-rose-500 text-white rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-rose-600 transition-all shadow-lg shadow-rose-200 dark:shadow-none flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 cursor-pointer"
                         >
-                            {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={20} />}
+                            {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                             {t("modal.delete.delete")}
                         </button>
                     </div>
@@ -694,5 +806,4 @@ const DeleteConfirmModal = ({ drugName, onConfirm, onClose, isSubmitting }) => {
             </motion.div>
         </motion.div>
     );
-
 };

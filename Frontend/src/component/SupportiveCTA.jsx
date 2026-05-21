@@ -68,9 +68,9 @@ export default function SupportiveCTA() {
           {cards.map((card, idx) => (
             <motion.div
               key={card.type}
-              initial={{ opacity: 0, x: idx === 0 ? -40 : 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
               whileHover={{ y: -10 }}
               transition={{ duration: 0.5, delay: idx * 0.2 }}
               className={`relative overflow-hidden group p-6 sm:p-10 lg:p-14 rounded-[40px] border border-slate-200 dark:border-gray-800 bg-slate-50 dark:bg-slate-900/50 shadow-2xl transition-all duration-300`}

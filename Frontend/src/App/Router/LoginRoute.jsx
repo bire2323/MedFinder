@@ -14,16 +14,23 @@ export default function LoginRoute() {
   const location = useLocation();
   const { t } = useTranslation();
 
+  const handleClose = () => {
+    const background = location.state?.backgroundLocation || location.state?.background;
+    if (background) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
+  };
+
   const isAmharic = localStorage.getItem("i18nextLng") === "am";
   return (
     <>
 
-      <Modal isOpen={true} onClose={() => navigate(-1)}>
+      <Modal isOpen={true} onClose={handleClose}>
         <div className="relative ">
           <button
-            onClick={() => {
-              navigate("/");
-            }}
+            onClick={handleClose}
             className="absolute right-3 top-3 text-slate-500 hover:text-slate-700"
           >
             ✕

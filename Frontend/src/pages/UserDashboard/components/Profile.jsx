@@ -1,7 +1,7 @@
-import { Camera, Lock, Save, User as UserIcon } from "lucide-react";
+import { Camera, Lock, Save, User as UserIcon, CheckCircle2, AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import useAuthStore from "../../../store/UserAuthStore";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { apiProfileUpdate } from "../../../api/Profile";
 import handleKeyDown from "../../../hooks/handleKeyDown";
 import { apiPasswordUpdate } from "../../../api/Profile";
@@ -34,11 +34,6 @@ export default function Profile() {
     newPassword_confirmation: "",
   });
 
-  const [profilePhotoFile, setProfilePhotoFile] = useState(null);
-  const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
-  const [updatingProfile, setUpdatingProfile] = useState(false);
-  const [updatingPassword, setUpdatingPassword] = useState(false);
-
   const [status, setStatus] = useState({ kind: "idle", message: "" });
   const [passwordStatus, setPasswordStatus] = useState({ kind: "idle", message: "" });
   const [viewTab, setViewTab] = useState("profile");
@@ -51,12 +46,6 @@ export default function Profile() {
       email: user?.Email ?? prev.email ?? "",
     }));
   }, [user]);
-
-  useEffect(() => {
-    return () => {
-      if (profilePhotoPreview) URL.revokeObjectURL(profilePhotoPreview);
-    };
-  }, [profilePhotoPreview]);
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
@@ -116,100 +105,111 @@ export default function Profile() {
   };
 
   return (
-    <div className="px-1 md:px-4 py-2 md:py-6">
+    <div className="px-4 py-6">
       <div className="max-w-4xl mx-auto">
-        <div className="space-y-4">
-          <div className="bg-white dark:bg-gray-800/40 border border-slate-200 dark:border-gray-700 rounded-2xl p-6 shadow-sm">
-            <div className="flex items-start justify-between gap-4">
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-gray-955/40 border border-slate-100 dark:border-gray-800/80 rounded-2xl p-6 shadow-sm">
+            <div className="flex items-start justify-between gap-4 pb-6 border-b border-slate-100 dark:border-gray-900">
               <div>
-                <h2 className="text-sm md:text-xl font-bold">{t("UserDashboard.Profile")}</h2>
-                <p className="text-[9px] md:text-sm text-slate-600 dark:text-gray-300 mt-1">{t("Profile.ManageYourPersonal")}</p>
-                <p className="text-[9px] md:text-xs text-slate-500 dark:text-gray-400 mt-2">
+                <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                  <UserIcon size={18} className="text-emerald-500" />
+                  {t("UserDashboard.Profile")}
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">{t("Profile.ManageYourPersonal")}</p>
+                <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-gray-500 mt-3 inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-slate-50 dark:bg-gray-900 border border-slate-100 dark:border-gray-800">
                   {t("Admin.Role")}: {Array.isArray(roles) && roles.length ? roles.join(", ") : t("Admin.Patient")}
                 </p>
               </div>
-              <div className="w-14 h-14 rounded-2xl bg-blue-600/10 text-blue-700 dark:text-blue-300 flex items-center justify-center">
-                <UserIcon size={22} />
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400 flex items-center justify-center shadow-inner">
+                <UserIcon size={20} />
               </div>
             </div>
 
-            {status.kind !== "idle" && (
-              <div className={[
-                "mt-4 rounded-xl border p-2 md:p-3 text-[9px] md:text-sm",
-                status.kind === "success" && "border-emerald-200 bg-emerald-50 text-emerald-800",
-                status.kind === "error" && "border-rose-200 bg-rose-50 text-rose-800",
-                status.kind === "warning" && "border-amber-200 bg-amber-50 text-amber-800",
-              ].join(" ")}>
-                {status.message}
-              </div>
-            )}
-
-            <div className="mt-4 flex items-center gap-2">
+            {/* Sliding Pill Tab Selector */}
+            <div className="mt-6 flex p-1 bg-slate-50 dark:bg-gray-900/50 border border-slate-100 dark:border-gray-900 rounded-xl max-w-md">
               <button
                 type="button"
                 onClick={() => setViewTab("profile")}
-                className={"px-1 md:px-3 py-1 md:py-2  rounded-full text-[9px] md:text-sm font-semibold " + (viewTab === "profile" ? "bg-blue-600 text-white" : "bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-slate-200")}
+                className={`flex-1 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 ${
+                  viewTab === "profile"
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-slate-200"
+                }`}
               >
                 {t("UserDashboard.Profile")}
               </button>
               <button
                 type="button"
                 onClick={() => setViewTab("password")}
-                className={"px-1 md:px-3 py-1 md:py-2 rounded-full text-[9px] md:text-sm font-semibold " + (viewTab === "password" ? "bg-blue-600 text-white" : "bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-slate-200")}
+                className={`flex-1 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 ${
+                  viewTab === "password"
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-slate-200"
+                }`}
               >
                 {t("Reset.ResetYourPassword")}
               </button>
             </div>
 
-            <div className="mt-2 grid grid-cols-1 lg:grid-cols-12">
-              <div className="lg:col-span-9">
+            <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="lg:col-span-12">
                 {viewTab === "profile" && (
-                  <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900/30 p-4">
-                    <h3 className="font-bold">{t("Profile.PersonalInformation")}</h3>
-                    <div className="mt-2 space-y-3">
-                      <form>
-                        <div>
-                          <label className="text-xs font-bold text-slate-600 dark:text-gray-300">{t("Register.Name")}</label>
-                          <input
-                            value={profile.name}
-                            onKeyDown={handleKeyDown}
-                            onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
-                            className="mt-1 w-full rounded-2xl bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-                            placeholder={t("Profile.YourFullName")}
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs font-bold text-slate-600 dark:text-gray-300">{t("Register.Phone")}</label>
-                          <input
-                            value={profile.phone}
-                            onKeyDown={handleKeyDown}
-                            onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))}
-                            className="mt-1 w-full rounded-2xl bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-                            placeholder={t("Profile.PhoneNumber")}
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs font-bold text-slate-600 dark:text-gray-300">{t("headingNav.location")}</label>
-                          <input
-                            type="email"
-                            onKeyDown={handleKeyDown}
-                            value={profile.email}
-                            onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))}
-                            className="mt-1 w-full rounded-2xl bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-                            placeholder={t("Profile.Email")}
-                            required
-                          />
-                        </div>
-                      </form>
-                    </div>
+                  <div className="rounded-2xl border border-slate-100 dark:border-gray-800/80 bg-white/50 dark:bg-gray-900/10 p-5 space-y-4">
+                    <h3 className="text-sm font-bold text-slate-850 dark:text-slate-200">{t("Profile.PersonalInformation")}</h3>
+                    
+                    {status.kind !== "idle" && (
+                      <div className={[
+                        "rounded-xl border p-3.5 text-xs md:text-sm flex items-center gap-2",
+                        status.kind === "success" && "border-emerald-100 bg-emerald-50/50 text-emerald-800 dark:border-emerald-950/20 dark:bg-emerald-950/20 dark:text-emerald-400",
+                        status.kind === "error" && "border-rose-100 bg-rose-50/50 text-rose-800 dark:border-rose-950/20 dark:bg-rose-950/20 dark:text-rose-400",
+                      ].join(" ")}>
+                        {status.kind === "success" ? <CheckCircle2 size={16} className="shrink-0" /> : <AlertCircle size={16} className="shrink-0" />}
+                        <span>{status.message}</span>
+                      </div>
+                    )}
 
-                    <div className="mt-5 flex gap-3">
+                    <form className="space-y-4">
+                      <div>
+                        <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wide">{t("Register.Name")}</label>
+                        <input
+                          value={profile.name}
+                          onKeyDown={handleKeyDown}
+                          onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
+                          className="mt-1.5 w-full rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-slate-100 dark:border-gray-800 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-sm transition-all duration-200 text-sm"
+                          placeholder={t("Profile.YourFullName")}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wide">{t("Register.Phone")}</label>
+                        <input
+                          value={profile.phone}
+                          onKeyDown={handleKeyDown}
+                          onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))}
+                          className="mt-1.5 w-full rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-slate-100 dark:border-gray-800 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-sm transition-all duration-200 text-sm"
+                          placeholder={t("Profile.PhoneNumber")}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wide">{t("headingNav.location")}</label>
+                        <input
+                          type="email"
+                          onKeyDown={handleKeyDown}
+                          value={profile.email}
+                          onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))}
+                          className="mt-1.5 w-full rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-slate-100 dark:border-gray-800 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-sm transition-all duration-200 text-sm"
+                          placeholder={t("Profile.Email")}
+                          required
+                        />
+                      </div>
+                    </form>
+
+                    <div className="pt-3">
                       <button
                         type="button"
                         onClick={handleSaveProfile}
-                        className="flex-1 rounded-2xl bg-blue-600 text-white py-1 md:py-3 font-semibold hover:bg-blue-700 transition-transform transform hover:-translate-y-0.5 flex items-center justify-center gap-2 shadow-md"
+                        className="w-full rounded-xl bg-emerald-600 text-white py-3.5 font-bold hover:bg-emerald-700 hover:scale-[1.01] transition-all duration-200 flex items-center justify-center gap-2 shadow-md shadow-emerald-600/10 hover:shadow-emerald-600/20 active:scale-[0.99]"
                       >
                         <Save size={16} />
                         {t("Common.Save")}
@@ -217,63 +217,67 @@ export default function Profile() {
                     </div>
                   </div>
                 )}
+                
                 {viewTab === "password" && (
-                  <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900/30 p-4 mt-2 shadow-sm">
-                    <h3 className="text-[9px] md:text-sm font-semibold flex items-center gap-2">
-                      <Lock size={18} />
+                  <div className="rounded-2xl border border-slate-100 dark:border-gray-800/80 bg-white/50 dark:bg-gray-900/10 p-5 space-y-4">
+                    <h3 className="text-sm font-bold text-slate-850 dark:text-slate-200 flex items-center gap-2">
+                      <Lock size={16} className="text-emerald-500" />
                       {t("Reset.ResetYourPassword")}
                     </h3>
+                    
                     {passwordStatus.kind !== "idle" && (
                       <div className={[
-                        "mt-2 rounded-xl border p-2 text-sm",
-                        passwordStatus.kind === "success" && "border-emerald-200 bg-emerald-50 text-emerald-800",
-                        passwordStatus.kind === "error" && "border-rose-200 bg-rose-50 text-rose-800",
+                        "rounded-xl border p-3.5 text-xs md:text-sm flex items-center gap-2",
+                        passwordStatus.kind === "success" && "border-emerald-100 bg-emerald-50/50 text-emerald-800 dark:border-emerald-950/20 dark:bg-emerald-950/20 dark:text-emerald-400",
+                        passwordStatus.kind === "error" && "border-rose-100 bg-rose-50/50 text-rose-800 dark:border-rose-950/20 dark:bg-rose-950/20 dark:text-rose-400",
                       ].join(" ")}>
-                        {passwordStatus.message}
+                        {passwordStatus.kind === "success" ? <CheckCircle2 size={16} className="shrink-0" /> : <AlertCircle size={16} className="shrink-0" />}
+                        <span>{passwordStatus.message}</span>
                       </div>
                     )}
-                    <form>
-                      <div className="mt-2 md:mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="sm:col-span-2">
-                          <label className="text=[10px] md:text-xs font-semibold text-slate-600 dark:text-gray-300">{t("Profile.CurrentPassword")}</label>
-                          <input
-                            type="password"
-                            onKeyDown={handleKeyDown}
-                            value={passwords.currentPassword}
-                            onChange={(e) => setPasswords((p) => ({ ...p, currentPassword: e.target.value }))}
-                            className="mt-1 w-full rounded-2xl bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-                            placeholder="••••••••"
-                          />
-                        </div>
+                    
+                    <form className="space-y-4">
+                      <div>
+                        <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wide">{t("Profile.CurrentPassword")}</label>
+                        <input
+                          type="password"
+                          onKeyDown={handleKeyDown}
+                          value={passwords.currentPassword}
+                          onChange={(e) => setPasswords((p) => ({ ...p, currentPassword: e.target.value }))}
+                          className="mt-1.5 w-full rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-slate-100 dark:border-gray-800 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-sm transition-all duration-200 text-sm"
+                          placeholder="••••••••"
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="text-[10px] md:text-xs font-semibold text-slate-600 dark:text-gray-300">{t("Profile.NewPassword")}</label>
+                          <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wide">{t("Profile.NewPassword")}</label>
                           <input
                             type="password"
                             onKeyDown={handleKeyDown}
                             value={passwords.newPassword}
                             onChange={(e) => setPasswords((p) => ({ ...p, newPassword: e.target.value }))}
-                            className="mt-1 w-full rounded-2xl bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                            className="mt-1.5 w-full rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-slate-100 dark:border-gray-800 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-sm transition-all duration-200 text-sm"
                             placeholder={t("Profile.PasswordPlaceholder")}
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] md:text-xs font-semibold text-slate-600 dark:text-gray-300">{t("Profile.ConfirmPassword")}</label>
+                          <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wide">{t("Profile.ConfirmPassword")}</label>
                           <input
                             type="password"
                             onKeyDown={handleKeyDown}
                             value={passwords.newPassword_confirmation}
                             onChange={(e) => setPasswords((p) => ({ ...p, newPassword_confirmation: e.target.value }))}
-                            className="mt-1 w-full rounded-2xl bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 px-3 py-3 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                            className="mt-1.5 w-full rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-slate-100 dark:border-gray-800 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-sm transition-all duration-200 text-sm"
                             placeholder={t("Profile.ConfirmPlaceholder")}
                           />
                         </div>
                       </div>
 
-                      <div className="mt-5">
+                      <div className="pt-3">
                         <button
                           type="button"
                           onClick={handleSavePassword}
-                          className="w-full rounded-2xl bg-slate-900 dark:bg-blue-600 text-white py-1 md:py-3 font-semibold hover:opacity-90 transition-transform hover:-translate-y-0.5 shadow-md"
+                          className="w-full rounded-xl bg-emerald-600 text-white py-3.5 font-bold hover:bg-emerald-700 hover:scale-[1.01] transition-all duration-200 shadow-md shadow-emerald-600/10 hover:shadow-emerald-600/20 active:scale-[0.99]"
                         >
                           {t("Reset.UpdatePassword")}
                         </button>

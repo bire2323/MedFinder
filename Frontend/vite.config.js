@@ -10,19 +10,31 @@ export default defineConfig({
     port: 5173,
 
     watch: {
-      usePolling: true,
+      usePolling: process.env.VITE_USE_POLLING === "true",
+      interval: 1000,
       ignored: [
         "**/node_modules/**",
         "**/.git/**",
         "**/dist/**",
         "**/build/**",
         "**/storage/**",
+        "**/.vscode/**",
+        "**/.gemini/**",
+        "**/eslint_output.json",
+        "**/package-lock.json",
+        "**/yarn.lock",
+        "**/pnpm-lock.yaml",
+        "**/*.log",
+        "**/.dockerignore",
+        "**/Dockerfile*",
+        "**/nginx.conf",
       ],
     },
 
     allowedHosts: [
       "localhost",
       "medfinder.com",
+      ".trycloudflare.com",
       "cellulolytic-nonshredding-kena.ngrok-free.dev",
     ],
 

@@ -52,17 +52,19 @@ export default function SearchResultsHomePage() {
 
   const initialQ = params.get("q") || "";
   const initialType = (params.get("type") || "all").toLowerCase();
-
   const [query, setQuery] = useState(initialQ);
   const debouncedQuery = useDebouncedValue(query, 250);
 
-  const [facilityType, setFacilityType] = useState(
-    initialType === "hospital" || initialType === "pharmacy" ? initialType : "all"
-  );
+  // Allow 'drug' as a valid incoming type from the URL so hero searches work
+  const validTypes = ["hospital", "pharmacy", "drug", "all"];
+  const initialFacilityType = validTypes.includes(initialType) ? initialType : "all";
+
+  const [facilityType, setFacilityType] = useState(initialFacilityType);
 
   const [filters, setFilters] = useState({
     distance: "any",
-    type: initialType === "hospital" || initialType === "pharmacy" ? initialType : "all",
+    // keep filters.type in sync with the initial URL; allow 'drug' here too
+    type: validTypes.includes(initialType) && initialType !== 'all' ? initialType : "all",
     openNow: false,
     department: "any",
   });
@@ -142,6 +144,7 @@ export default function SearchResultsHomePage() {
     const q = (debouncedQuery || "").trim();
     if (filters.type === "drug") {
       return facilitiesWithDistance
+        .filter((f) => matchesQuery(f, q))
         .filter((f) => {
           if (effectiveType === "all") return true;
           if (effectiveType === "drug") return f.type === "pharmacy";
@@ -210,14 +213,14 @@ export default function SearchResultsHomePage() {
   const paginatedResults = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const onSubmitSearch = () => {
-
     if (facilityType === "drug") {
+      const drugQuery = query.trim();
       setLoading(true);
       setError("");
       if (abortRef.current) abortRef.current.abort();
       const ac = new AbortController();
       abortRef.current = ac;
-      apiFetchDrugResults(debouncedQuery, { signal: ac.signal })
+      apiFetchDrugResults(drugQuery, { signal: ac.signal })
         .then((rows) => setAllFacilities(rows))
         .then((rows) => console.log(rows))
         .catch((e) => {
@@ -225,8 +228,6 @@ export default function SearchResultsHomePage() {
           setError(e?.message || t("search.errors.failedToLoad"));
         })
         .finally(() => setLoading(false));
-
-      return () => ac.abort();
     }
   };
 

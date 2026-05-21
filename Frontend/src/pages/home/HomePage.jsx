@@ -87,22 +87,22 @@ export default function HomePage() {
 
   const offerings = [
     {
-      bg: "bg-blue-50 dark:bg-gray-700",
+      bg: "bg-white dark:bg-gray-900",
       title: t("features.ai_chat.title"),
       desc: t("features.ai_chat.desc"),
-      icon: <FaRobot className="text-blue-500" />,
+      icon: <FaRobot className="text-emerald-600 dark:text-emerald-400" />,
     },
     {
-      bg: "bg-emerald-50 dark:bg-emerald-900/30",
+      bg: "bg-white dark:bg-gray-900",
       title: t("features.prescription.title"),
       desc: t("features.prescription.desc"),
-      icon: <FaFilePrescription className="text-emerald-500" />,
+      icon: <FaFilePrescription className="text-teal-605 dark:text-teal-400" />,
     },
     {
-      bg: "bg-yellow-50 dark:bg-yellow-900/30",
+      bg: "bg-white dark:bg-gray-900",
       title: t("features.navigation.title"),
       desc: t("features.navigation.desc"),
-      icon: <FaMapMarkedAlt className="text-orange-500" />,
+      icon: <FaMapMarkedAlt className="text-emerald-600 dark:text-emerald-400" />,
     },
   ];
 
@@ -139,11 +139,11 @@ export default function HomePage() {
         <HeroSection onSearch={handleHeroSearch} />
 
         {/* QUICK ACTIONS — nearest search & department/service discovery */}
-        <section className="border-b border-emerald-100/80 bg-gradient-to-b from-emerald-50/90 to-white py-12 dark:border-emerald-900/40 dark:from-emerald-950/40 dark:to-gray-900">
+        <section className="border-b border-slate-100 dark:border-gray-800/60 bg-slate-50/40 dark:bg-gray-950/20 py-20 transition-all duration-300">
           <div className="mx-auto max-w-7xl px-4">
-            <div className="mb-8 text-center">
-              <h2 className="text-xl font-black text-slate-800 dark:text-white sm:text-2xl">{t("home.quickLinks.sectionTitle")}</h2>
-              <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-emerald-500" />
+            <div className="mb-12 text-center">
+              <h2 className="text-xl font-black text-slate-800 dark:text-white sm:text-3xl tracking-tight">{t("home.quickLinks.sectionTitle")}</h2>
+              <div className="mx-auto mt-3.5 h-1.5 w-16 rounded-full bg-gradient-to-r from-emerald-500 to-teal-650" />
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               <HomeQuickLinkCard
@@ -169,7 +169,7 @@ export default function HomePage() {
         </section>
 
         {/* STATS SECTION */}
-        <section ref={ref} className="py-12 bg-white dark:bg-gray-950 border-slate-100 dark:border-gray-700">
+        <section ref={ref} className="py-20 bg-white dark:bg-gray-950 transition-colors duration-300">
           <div className="max-w-7xl mx-auto px-4">
             <motion.div
               variants={staggerContainer}
@@ -180,70 +180,78 @@ export default function HomePage() {
             >
               {stats == null ? (
                 Array.from({ length: 3 }).map((_, i) => (
-                  <div className="flex items-start gap-4" key={i}>
-                    <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-gray-700" />
+                  <div className="flex items-start gap-4 p-6 bg-slate-50/50 dark:bg-gray-900/30 rounded-2xl border border-slate-100 dark:border-gray-800" key={i}>
+                    <div className="w-14 h-14 rounded-2xl bg-slate-200 dark:bg-gray-700 animate-pulse" />
                     <div className="flex-1 space-y-3">
-                      <div className="h-6 w-1/4 bg-slate-200 dark:bg-gray-700 rounded" />
+                      <div className="h-6 w-1/4 bg-slate-200 dark:bg-gray-700 rounded animate-pulse" />
                       <div className="space-y-2">
-                        <div className="h-4 w-1/3 bg-slate-200 dark:bg-gray-700 rounded" />
+                        <div className="h-4 w-1/3 bg-slate-200 dark:bg-gray-700 rounded animate-pulse" />
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
                 stats.map((stat, i) => (
-                  <motion.div key={i} variants={fadeInUp} className="flex items-center justify-center gap-4 p-6">
-                    <div className="text-4xl text-blue-600 bg-blue-50 dark:bg-gray-700 p-4 rounded-2xl">
+                  <motion.div 
+                    key={i} 
+                    variants={fadeInUp} 
+                    whileHover={{ y: -3 }}
+                    className="flex items-center gap-5 p-6 bg-white dark:bg-gray-900/50 rounded-2xl border border-slate-100 dark:border-gray-850 shadow-sm hover:shadow-md transition-all duration-300"
+                  >
+                    <div className="text-3xl text-emerald-600 bg-emerald-50/60 dark:bg-emerald-950/30 dark:text-emerald-400 p-4.5 rounded-2xl shadow-inner shrink-0">
                       {stat.icon}
                     </div>
                     <div>
-                      <h3 className="text-3xl font-bold dark:text-white">{counts[i] || 0}+</h3>
-                      <p className="text-slate-500 dark:text-gray-400 font-medium">{stat.label}</p>
+                      <h3 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">{counts[i] || 0}+</h3>
+                      <p className="text-slate-500 dark:text-gray-400 font-semibold text-xs tracking-wider uppercase mt-0.5">{stat.label}</p>
                     </div>
                   </motion.div>
                 ))
               )}
             </motion.div>
           </div>
-        </section>
-
-        {/* WHAT WE OFFER SECTION */}
-        <section className="py-24 max-w-7xl mx-auto bg-white dark:bg-gray-900  px-4">
+        </section>        {/* WHAT WE OFFER SECTION */}
+        <section className="py-24 max-w-7xl mx-auto bg-white dark:bg-gray-900 px-4 transition-colors duration-300">
           <div className="text-center mb-16">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-400 dark:text-white mb-4">{t("features.header")}</h2>
-            <div className="w-20 h-1.5  mx-auto rounded-full" />
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white mb-4">{t("features.header")}</h2>
+            <div className="w-20 h-1.5 bg-gradient-to-r from-emerald-500 to-teal-650 mx-auto rounded-full mt-3" />
           </div>
-
+ 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {offerings.map((item, i) => (
-              <motion.div key={i} whileHover={{ y: -10 }} className={`${item.bg} dark:bg-gray-800 p-8 rounded-3xl shadow-xl border border-slate-100 dark:border-gray-700 hover:border hover:border-green-400 group transition-colors`}>
-                <div className="text-3xl mb-6 p-4 inline-block bg-slate-50 dark:bg-gray-700 rounded-2xl group-hover:scale-110 transition-transform">
-                  {item.icon}
+              <motion.div 
+                key={i} 
+                whileHover={{ y: -8 }} 
+                className={`${item.bg} p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-800 hover:border-emerald-500/35 dark:hover:border-emerald-500/30 group hover:shadow-md transition-all duration-300 flex flex-col justify-between`}
+              >
+                <div>
+                  <div className="text-3xl mb-6 p-4 inline-block bg-slate-50 dark:bg-gray-800 rounded-2xl group-hover:scale-105 transition-transform duration-300">
+                    {item.icon}
+                  </div>
+                  <h3 className="text-xl font-bold dark:text-white mb-4 text-slate-800">{item.title}</h3>
+                  <p className="text-slate-600 dark:text-gray-400 leading-relaxed mb-6 text-sm">{item.desc}</p>
                 </div>
-                <h3 className="text-xl font-bold dark:text-white mb-4">{item.title}</h3>
-                <p className="text-slate-600 dark:text-gray-400 leading-relaxed mb-6">{item.desc}</p>
-                <a href="#" className="flex items-center gap-2 text-blue-600 font-bold group-hover:gap-4 transition-all">
+                <a href="#" className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-bold group-hover:gap-3 transition-all text-sm shrink-0">
                   {t("features.learn_more")} <HiOutlineArrowNarrowRight />
                 </a>
               </motion.div>
             ))}
           </div>
         </section>
-
         {/* TOP FACILITIES SECTION */}
         <section className="py-24 bg-white dark:bg-gray-900 transition-colors duration-300 overflow-hidden">
           <div className="max-w-[1780px] mx-auto px-6 lg:px-12">
-
+ 
             {/* Hospitals Slider */}
             <div className="mb-20">
               <div className="flex justify-between items-center mb-8">
                 <div>
                   <h2 className="text-[14px] md:text-2xl lg:text-3xl font-black text-slate-700 dark:text-white tracking-tight">{t("home.topHospitals")}</h2>
-                  <div className="w-12 h-1 bg-blue-400 rounded-full mt-2" />
+                  <div className="w-14 h-1.5 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full mt-2" />
                 </div>
                 <button
                   onClick={() => navigate('/home/search?type=hospital')}
-                  className="group flex text-[13px] md:text-base items-center gap-2 text-blue-600 font-bold hover:text-blue-700 transition-colors"
+                  className="group flex text-[13px] md:text-base items-center gap-2 text-emerald-600 font-bold hover:text-emerald-700 transition-colors"
                 >
                   {t("home.viewAll")}
                   <HiOutlineArrowNarrowRight className="group-hover:translate-x-1 transition-transform" />
@@ -251,13 +259,13 @@ export default function HomePage() {
               </div>
               <FacilitySlider facilities={hospitals} loading={loading} onCardClick={handleDetailView} />
             </div>
-
+ 
             {/* Pharmacies Slider */}
             <div>
               <div className="flex justify-between items-center mb-8">
                 <div>
                   <h2 className="text-[14px] md:text-2xl lg:text-3xl font-black text-slate-700 dark:text-white tracking-tight">{t("home.topPharmacies")}</h2>
-                  <div className="w-12 h-1 bg-emerald-500 rounded-full mt-2" />
+                  <div className="w-14 h-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mt-2" />
                 </div>
                 <button
                   onClick={() => navigate('/home/search?type=pharmacy')}
@@ -315,14 +323,14 @@ function FacilitySlider({ facilities, loading, onCardClick }) {
       <button
         type='button'
         onClick={() => scroll('left')}
-        className='absolute left-[-20px] top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-gray-700 flex items-center justify-center text-slate-600 dark:text-gray-300 opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-blue-600 hover:text-white hidden lg:flex'
+        className='absolute left-[-20px] top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-gray-700 flex items-center justify-center text-slate-600 dark:text-gray-300 opacity-0 group-hover/slider:opacity-100 transition-all duration-300 hover:bg-emerald-600 hover:shadow-emerald-500/20 hover:text-white hidden lg:flex'
       >
         <FaChevronLeft size={14} />
       </button>
       <button
         type='button'
         onClick={() => scroll('right')}
-        className='absolute right-[-20px] top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-gray-700 flex items-center justify-center text-slate-600 dark:text-gray-300 opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-blue-600 hover:text-white hidden lg:flex'
+        className='absolute right-[-20px] top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-gray-700 flex items-center justify-center text-slate-600 dark:text-gray-300 opacity-0 group-hover/slider:opacity-100 transition-all duration-300 hover:bg-emerald-600 hover:shadow-emerald-500/20 hover:text-white hidden lg:flex'
       >
         <FaChevronRight size={14} />
       </button>
@@ -337,10 +345,10 @@ function FacilitySlider({ facilities, loading, onCardClick }) {
           <motion.div
             key={`${f.type}-${f.id}`}
             className='min-w-[300px] sm:min-w-[380px] scroll-snap-align-start transition-transform duration-300 hover:scale-[1.02]'
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-20px" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
           >
             <ResultCard facility={f} onClick={() => onCardClick(f)} />
           </motion.div>

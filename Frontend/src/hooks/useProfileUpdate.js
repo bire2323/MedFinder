@@ -6,6 +6,7 @@ const useProfileUpdate = (type, id) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [message, setMessage] = useState("");
 
   const updateProfile = async (data, files = {}) => {
     // console.log("data passed to userprofileupdate", data);
@@ -19,12 +20,14 @@ const useProfileUpdate = (type, id) => {
     if (!validation.isValid) {
       // console.log("validation error");
       setError(validation.errors);
+      setMessage("");
       setLoading(false);
-      return false;
+      return { ok: false, message: "Validation failed." };
     } else if (data.approved_by === null) {
       setError("Your profile is not approved yet. Wait the administrator review.");
+      setMessage("");
       setLoading(false);
-      return false;
+      return { ok: false, message: "Your profile is not approved yet. Wait for administrator review." };
     }
 
     try {
@@ -39,7 +42,8 @@ const useProfileUpdate = (type, id) => {
         }
 
         // Skip file-related fields that are URLs (not actual files)
-        if ((key === 'logo' || key === 'pharmacy_license_upload') &&
+        const skipFileUrlKeys = ['logo', 'pharmacy_license_upload', 'official_license_upload'];
+        if (skipFileUrlKeys.includes(key) &&
           typeof value === 'string' &&
           (value.startsWith('http') || value.startsWith('/storage'))) {
           return;
@@ -141,30 +145,37 @@ const useProfileUpdate = (type, id) => {
       });
 
       if (response.success) {
+        const successMessage = response.message || "Profile updated successfully.";
         setSuccess(true);
-        return true;
+        setMessage(successMessage);
+        return { ok: true, message: successMessage, data: response.data };
       } else {
-        setError(response.message || "Failed to update profile.");
-        return false;
+        const failureMessage = response.message || "Failed to update profile.";
+        setError(failureMessage);
+        setMessage(failureMessage);
+        return { ok: false, message: failureMessage };
       }
     } catch (err) {
       console.error("Update error:", err);
+      setMessage("");
 
       // Handle validation errors from backend
       if (err.response?.data?.errors) {
         setError(err.response.data.errors);
+        return { ok: false, message: err.response.data.message || "Validation failed." };
       } else if (err.response?.data?.message) {
         setError(err.response.data.message);
+        return { ok: false, message: err.response.data.message };
       } else {
         setError("An unexpected error occurred.");
+        return { ok: false, message: "An unexpected error occurred." };
       }
-      return false;
     } finally {
       setLoading(false);
     }
   };
 
-  return { updateProfile, loading, error, success };
+  return { updateProfile, loading, error, success, message };
 };
 
 export default useProfileUpdate;

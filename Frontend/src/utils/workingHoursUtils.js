@@ -7,43 +7,78 @@
  * @param {Object|string} workingHour - Working hours object or JSON string
  * @returns {string} Formatted working hours string
  */
-export const formatWorkingHours = (workingHour) => {
-    const isEng = localStorage.getItem("i18nextLng") === "en";
-    if (!workingHour) return isEng ? 'Not set' : "አልተቀመጠም";
+const DAY_ORDER = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const DAY_NAMES = {
+    Mon: 'Monday',
+    Tue: 'Tuesday',
+    Wed: 'Wednesday',
+    Thu: 'Thursday',
+    Fri: 'Friday',
+    Sat: 'Saturday',
+    Sun: 'Sunday'
+};
 
-    let parsed;
+const parseWorkingHour = (workingHour) => {
+    if (!workingHour) return {};
     if (typeof workingHour === 'string') {
         try {
-            parsed = JSON.parse(workingHour);
+            return JSON.parse(workingHour) || {};
         } catch (e) {
-            return 'Invalid format';
+            return {};
         }
-    } else if (typeof workingHour === 'object') {
-        parsed = workingHour;
-    } else {
-        return isEng ? 'Not set' : "አልተቀመጠም";
+    }
+    if (typeof workingHour === 'object') {
+        return workingHour;
+    }
+    return {};
+};
+
+const normalizeDayHours = (hours) => {
+    if (!Array.isArray(hours)) return [];
+    return Array.from(
+        new Set(
+            hours
+                .map((hour) => Number(hour))
+                .filter((hour) => Number.isInteger(hour) && hour >= 0 && hour <= 23)
+        )
+    ).sort((a, b) => a - b);
+};
+
+const getDaySegments = (hours = []) => {
+    const normalized = normalizeDayHours(hours);
+    if (!normalized.length) return [];
+
+    const segments = [];
+    let current = { start: normalized[0], end: normalized[0] };
+
+    for (let index = 1; index < normalized.length; index += 1) {
+        const hour = normalized[index];
+        if (hour === current.end + 1) {
+            current.end = hour;
+        } else {
+            segments.push(current);
+            current = { start: hour, end: hour };
+        }
     }
 
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const dayNames = {
-        Mon: 'Monday',
-        Tue: 'Tuesday',
-        Wed: 'Wednesday',
-        Thu: 'Thursday',
-        Fri: 'Friday',
-        Sat: 'Saturday',
-        Sun: 'Sunday'
-    };
+    segments.push(current);
+    return segments;
+};
 
-    const formatted = days.map(day => {
-        const hours = parsed[day] || [];
-        if (hours.length === 0) return `${dayNames[day]}: Closed`;
-        const start = Math.min(...hours);
-        const end = Math.max(...hours) + 1;
-        return `${dayNames[day]}: ${start}:00 - ${end}:00`;
-    });
+const formatSegments = (segments) =>
+    segments.map(({ start, end }) => `${start}:00 - ${end + 1}:00`).join(', ');
 
-    return formatted.join(', ');
+export const formatWorkingHours = (workingHour) => {
+    const isEng = localStorage.getItem('i18nextLng') === 'en';
+    const parsed = parseWorkingHour(workingHour);
+
+    return DAY_ORDER.map((day) => {
+        const segments = getDaySegments(parsed[day]);
+        if (!segments.length) {
+            return `${DAY_NAMES[day]}: ${isEng ? 'Closed' : 'ዝግ ነው'}`;
+        }
+        return `${DAY_NAMES[day]}: ${formatSegments(segments)}`;
+    }).join(', ');
 };
 
 /**
@@ -72,17 +107,14 @@ export const getTodayHours = (workingHour) => {
     }
 
     const today = new Date().toLocaleString('en-US', { weekday: 'short' });
-    // console.log("today", today);
-    const dayKey = today.charAt(0).toUpperCase() + today.slice(1, 3); // Mon, Tue, etc.
-    // console.log("daykey", dayKey);
+    const dayKey = today.charAt(0).toUpperCase() + today.slice(1, 3);
+    const segments = getDaySegments(parsed[dayKey]);
 
+    if (!segments.length) return isEng ? 'Closed' : 'ዝግ ነው!';
+    return formatSegments(segments);
+};
 
-    const hours = parsed[dayKey] || [];
-    // console.log("hours", hours);
-
-    if (hours.length === 0) return 'Closed';
-
-    const start = Math.min(...hours);
-    const end = Math.max(...hours) + 1;
-    return `${start}:00 - ${end}:00`;
+export const formatDayWorkingHours = (hours) => {
+    const segments = getDaySegments(hours);
+    return segments.length ? formatSegments(segments) : null;
 };

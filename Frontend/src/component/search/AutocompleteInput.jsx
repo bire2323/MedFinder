@@ -4,15 +4,23 @@ import { Search, Loader2, X } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://medfinder.com/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 export default function AutocompleteInput({
   placeholder,
   onSearch,
+  onChange,
+  value,
   className = ""
 }) {
   const { t } = useTranslation();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(value ?? "");
+
+  useEffect(() => {
+    if (value !== undefined && value !== query) {
+      setQuery(value);
+    }
+  }, [value, query]);
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -61,14 +69,19 @@ export default function AutocompleteInput({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const updateQuery = (next) => {
+    setQuery(next);
+    onChange?.(next);
+  };
+
   const handleSelect = (suggestion) => {
-    setQuery(suggestion);
+    updateQuery(suggestion);
     setIsOpen(false);
-    onSearch(suggestion);
+    onSearch?.(suggestion);
   };
 
   const handleClear = () => {
-    setQuery("");
+    updateQuery("");
     setSuggestions([]);
     setIsOpen(false);
   };
@@ -82,13 +95,14 @@ export default function AutocompleteInput({
         <input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => updateQuery(e.target.value)}
           placeholder={placeholder || t("search.drug_placeholder")}
           className="w-full pl-12 pr-12 py-4 bg-white dark:bg-gray-800 border-none rounded-2xl shadow-xl focus:ring-2 focus:ring-slate-500 text-slate-900 dark:text-white placeholder:text-slate-400 transition-all outline-none"
           onFocus={() => query.length >= 2 && setIsOpen(true)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              onSearch(query);
+              e.preventDefault();
+              onSearch?.(query);
               setIsOpen(false);
             }
           }}

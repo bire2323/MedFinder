@@ -1,19 +1,22 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { FaHospital } from "react-icons/fa";
+import am_white from "../assets/am_white.png";
+import en_white from "../assets/en_white.png";
 
 export default function Footer() {
 
     const { t } = useTranslation();
+    const isAmharic = useTranslation().i18n.language === "am";
     return (
         <footer className="bg-slat-50 dark:bg-gray-900 border-t border-slate-100 dark:border-gray-800 pt-16 pb-8">
             <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                 <div className="col-span-1 md:col-span-1">
                     <div className="flex items-center gap-2 mb-6">
-                        <div className="bg-blue-600 p-2 rounded-lg">
-                            <FaHospital className="text-white text-xl" />
+                        <div className="p-1 rounded-lg">
+                            <img src={isAmharic ? am_white : en_white} alt="logo" className="w-14 h-14" />
                         </div>
-                        <span className="text-xl font-bold text-slate-900 dark:text-white">Med<span className="text-blue-500">Fi</span>nder</span>
+                        {/* / <span className="text-xl font-bold text-slate-900 dark:text-white">Med<span className="text-blue-500">Fi</span>nder</span> */}
                     </div>
                     <p className="text-slate-500 dark:text-gray-400 text-sm leading-relaxed">{t("footer.tagline")}</p>
                 </div>

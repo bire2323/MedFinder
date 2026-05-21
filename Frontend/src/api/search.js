@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || "https://medfinder.com";
+const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 function safeFloat(v) {
   const n = typeof v === "string" ? parseFloat(v) : typeof v === "number" ? v : NaN;
@@ -61,7 +61,7 @@ export async function apiFetchFacilities({ signal } = {}) {
 }
 
 export async function apiFetchDrugResults(medicineName, { signal } = {}) {
-  const res = await fetch(`${API_BASE}/api/pharmacy/inventory/medicines/search?query=${medicineName}`, {
+  const res = await fetch(`${API_BASE}/api/pharmacy/inventory/medicines/search?query=${encodeURIComponent(medicineName)}`, {
     method: "GET",
     headers: { Accept: "application/json" },
     signal,
@@ -74,15 +74,15 @@ export async function apiFetchDrugResults(medicineName, { signal } = {}) {
 
   const data = await res.json();
   return data.map(item => {
-    // Normalize the pharmacy facility object so that lat, lng, name, address, etc. exist
     const normalized = normalizeFacility(item);
+    const drugName = item.drugName || item.drug_name || item.brand_name_en || item.generic_name || item.name;
 
     return {
       ...normalized,
-      drugPrice: item.drugPrice,
+      drugPrice: item.drugPrice ?? item.drug_price ?? item.price,
       expire_date: item.expire_date,
-      drugAvailability: item.drugAvailability,
-      drugName: item.drugName
+      drugAvailability: item.drugAvailability ?? item.drug_availability,
+      drugName,
     };
   });
 }

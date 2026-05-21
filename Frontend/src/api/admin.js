@@ -1,4 +1,5 @@
-import { apiFetch, ensureCsrfCookie } from "./client";
+import { apiFetch, ensureCsrfCookie, getXsrfToken } from "./client";
+import axios from "axios";
 
 export async function getAllUsers(_token, params = {}) {
   const query = new URLSearchParams(params).toString();
@@ -10,7 +11,7 @@ export async function getUsers(page) {
 }
 
 export async function updateUser(_token, userId, payload) {
-  console.log(payload);
+  // console.log(payload);
   await ensureCsrfCookie();
   return apiFetch(`/api/admin/users/${userId}`, {
     method: "PUT",
@@ -55,6 +56,15 @@ export async function markNotificationRead(user, notificationId) {
   return apiFetch(`/api/admin/notifications/${notificationId}/read`, { method: "POST" });
 }
 
+export async function deleteOldNotifications(user, duration) {
+  await ensureCsrfCookie();
+  return apiFetch(`/api/admin/notifications/old`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ duration }),
+  });
+}
+
 // presidence: unused API (temporarily disabled, do not delete)
 // export async function logAdminEvent(user, payload) {
 //   await ensureCsrfCookie();
@@ -82,5 +92,31 @@ export async function AllAuditLog(
   }).toString();
 
   return apiFetch(`/api/admin/audit-logs?${qs}`, { method: "GET" });
+}
+
+export async function ClearOldAuditLogs(period, token = null) {
+  try {
+    await ensureCsrfCookie();
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    const xsrf = getXsrfToken();
+    if (xsrf) {
+      headers["X-XSRF-TOKEN"] = xsrf;
+    }
+    const API_BASE = import.meta.env.VITE_API_BASE || "";
+    const response = await axios.delete(`${API_BASE}/api/admin/audit-logs/clear`, {
+      data: { period },
+      headers,
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("ClearOldAuditLogs failed:", error);
+    throw error;
+  }
 }
 

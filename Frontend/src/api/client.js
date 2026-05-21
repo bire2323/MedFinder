@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || "https://medfinder.com";
+const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 function getCookie(name) {
   const cookies = document.cookie ? document.cookie.split("; ") : [];

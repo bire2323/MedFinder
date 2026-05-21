@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || "https://medfinder.com";
+const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 function safeFloat(v) {
   const n = typeof v === "string" ? parseFloat(v) : typeof v === "number" ? v : NaN;

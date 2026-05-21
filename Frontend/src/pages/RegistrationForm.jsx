@@ -101,7 +101,7 @@ export default function RegisterationForm() {
     return mapping[errorKey] || errorKey; // fallback
   }
   function openLoginRoute() {
-    navigate("/login", { state: { background: location } });
+    navigate("/login", { state: { background: location.state?.background || location.state?.backgroundLocation || location } });
   }
 
 
@@ -211,7 +211,7 @@ export default function RegisterationForm() {
                 dark:hover:bg-gray-400 transition-all duration-500 shadow-black rounded-2xl cursor-pointer"
         onClick={() =>
         (window.location.href =
-          "https://medfinder.com/api/auth/google/redirect")
+          "/api/auth/google/redirect")
         }
       >
         <FcGoogle className="w-6 h-6" />

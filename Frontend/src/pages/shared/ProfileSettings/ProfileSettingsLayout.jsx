@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { Save, AlertTriangle, Loader2 } from "lucide-react";
@@ -32,6 +32,8 @@ const ProfileSettingsLayout = ({ type = "hospital" }) => {
   // console.log("initialData in layout", pharmacyProfile);
   // Flat Data State
   const [formData, setFormData] = useState(initialData || {});
+  const [baselineData, setBaselineData] = useState(initialData || {});
+  const [successMessage, setSuccessMessage] = useState("");
 
   // File State
   const [files, setFiles] = useState({});
@@ -42,15 +44,21 @@ const ProfileSettingsLayout = ({ type = "hospital" }) => {
   // Hook for API handling
   const { updateProfile, loading, error, success } = useProfileUpdate(type, initialData?.id);
 
+  useEffect(() => {
+    setFormData(initialData || {});
+    setBaselineData(initialData || {});
+    setSuccessMessage("");
+  }, [initialData]);
+
   // Dirty State Calculation
   const isDirty = useMemo(() => {
     // Only highly dynamic fields that change often
     const flatFormObj = { ...formData, previewLogo: undefined };
-    const flatInitialObj = { ...initialData, previewLogo: undefined };
+    const flatBaselineObj = { ...baselineData, previewLogo: undefined };
 
-    return JSON.stringify(flatFormObj) !== JSON.stringify(flatInitialObj) ||
+    return JSON.stringify(flatFormObj) !== JSON.stringify(flatBaselineObj) ||
       Object.keys(files).length > 0;
-  }, [formData, files, initialData]);
+  }, [formData, files, baselineData]);
 
   // Handle flat field changes
   const handleChange = (field, value) => {
@@ -59,10 +67,19 @@ const ProfileSettingsLayout = ({ type = "hospital" }) => {
 
   // Handle nested object changes (address / working_hour)
   const handleNestedChange = (parentKey, field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [parentKey]: { ...prev[parentKey], [field]: value }
-    }));
+    setFormData(prev => {
+      const parentValue = prev[parentKey];
+      if (Array.isArray(parentValue)) {
+        const nextArray = [...parentValue];
+        nextArray[0] = { ...nextArray[0], [field]: value };
+        return { ...prev, [parentKey]: nextArray };
+      }
+
+      return {
+        ...prev,
+        [parentKey]: { ...parentValue, [field]: value }
+      };
+    });
   };
 
   // Handle specific File additions
@@ -80,16 +97,16 @@ const ProfileSettingsLayout = ({ type = "hospital" }) => {
     // Note: The preparePayload function logic is handled inside useProfileUpdate hook
     // It automatically stringifies `address` and `working_hour` and appends Files
 
-    // console.log("Submitting with formData:", formData, "and files:", files);
-
-    const ok = await updateProfile(formData, files);
-    if (ok) {
-      console.log("ok");
-
-      // if (onUpdateSuccess) onUpdateSuccess();
+    const result = await updateProfile(formData, files);
+    if (result.ok) {
+      setBaselineData(formData);
+      setFiles({});
+      setSuccessMessage(result.message || t("Common.UpdatedSuccessfully", { defaultValue: "Profile updated successfully." }));
+      toast.success(result.message || t("Common.UpdatedSuccessfully", { defaultValue: "Profile updated successfully." }));
+      setTimeout(() => setSuccessMessage(""), 6000);
     } else {
-      console.log(ok);
-      toast.error(t("Common.UpdateFailed", { defaultValue: "Failed to update profile." }));
+      setSuccessMessage("");
+      toast.error(result.message || t("Common.UpdateFailed", { defaultValue: "Failed to update profile." }));
     }
   };
 
@@ -146,20 +163,26 @@ const ProfileSettingsLayout = ({ type = "hospital" }) => {
             {renderActiveSection()}
           </motion.div>
         </AnimatePresence>
-        <div className={` ${!error && "hidden"} bg-red-200 border border-yellow-300 p-4 mt-5 rounded-2xl`}>
-          {isDirty && error &&
-            <>
-              <p className="text-white">{error.pharmacy_name_en}</p>
-              <p className="text-white">{error.pharmacy_name_am}</p>
-              <p className="text-white">{error.hospital_name_en}</p>
-              <p className="text-white">{error.hospital_name_am}</p>
-              <p className="text-white">{error.contact_phone}</p>
-              <p className="text-white">{error.contact_email}</p>
-              <p className="text-white">{error.latitude}</p>
-              <p className="text-white">{error.longitude}</p>
-              <p className="text-white">{error.ownership_type}</p>
-            </>
-          }
+        <div className={`${!error ? "hidden" : "block"} bg-rose-50/90 dark:bg-rose-950/95 border border-rose-200 dark:border-rose-900/50 p-4 mt-5 rounded-3xl shadow-xl shadow-rose-500/10`}>
+          {error && (
+            <div className="space-y-2 text-sm font-semibold text-rose-700 dark:text-rose-300">
+              {typeof error === "string" ? (
+                <p>{error}</p>
+              ) : (
+                <>
+                  {error.pharmacy_name_en && <p>{error.pharmacy_name_en}</p>}
+                  {error.pharmacy_name_am && <p>{error.pharmacy_name_am}</p>}
+                  {error.hospital_name_en && <p>{error.hospital_name_en}</p>}
+                  {error.hospital_name_am && <p>{error.hospital_name_am}</p>}
+                  {error.contact_phone && <p>{error.contact_phone}</p>}
+                  {error.contact_email && <p>{error.contact_email}</p>}
+                  {error.latitude && <p>{error.latitude}</p>}
+                  {error.longitude && <p>{error.longitude}</p>}
+                  {error.ownership_type && <p>{error.ownership_type}</p>}
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -173,6 +196,14 @@ const ProfileSettingsLayout = ({ type = "hospital" }) => {
         }}
       />
 
+      {successMessage && (
+        <div className="fixed left-1/2 top-24 z-50 w-full max-w-3xl -translate-x-1/2 px-4 pointer-events-none">
+          <div className="pointer-events-auto rounded-3xl border border-emerald-200 bg-emerald-50/95 p-4 shadow-2xl shadow-emerald-500/10 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950/95 dark:text-emerald-100">
+            <p className="text-sm font-bold">{successMessage}</p>
+          </div>
+        </div>
+      )}
+
       {/* Floating Save Footer */}
       <AnimatePresence>
         {isDirty && (
@@ -180,43 +211,42 @@ const ProfileSettingsLayout = ({ type = "hospital" }) => {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-[80%] sm:w-full min-w-xl px-4 pointer-events-auto"
+            transition={{ type: "spring", stiffness: 260, damping: 24 }}
+            className="fixed bottom-6 left-1/2 z-50 w-full max-w-3xl px-4 pointer-events-none"
           >
-            <div className="bg-slate-900 dark:bg-gray-800 text-white p-4 sm:p-5 rounded-[1rem] border border-slate-700/50 dark:border-gray-700 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 w-full relative overflow-hidden backdrop-blur-2xl">
-              {/* Glass Shimmer Effect */}
-              <div className={`absolute inset-0 bg-gradient-to-r ${type === 'pharmacy' ? 'from-emerald-500/10' : 'from-blue-500/10'} via-transparent ${type === 'pharmacy' ? 'to-green-500/10' : 'to-purple-500/10'} pointer-events-none`} />
-
-              <div className="flex items-center gap-4 z-10 w-full justify-center sm:justify-start">
-                <div className={`w-12 h-12 bg-white/10 dark:bg-gray-900/50 rounded-2xl flex items-center justify-center ${theme.textPrimary} shrink-0 border border-white/5`}>
-                  <AlertTriangle size={20} className="animate-pulse" />
+            <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/95 shadow-2xl shadow-slate-950/40 backdrop-blur-xl py-4 px-5 text-white pointer-events-auto">
+              <div className={`absolute inset-0 bg-gradient-to-r ${type === 'pharmacy' ? 'from-emerald-500/20 via-transparent to-green-500/5' : 'from-blue-500/20 via-transparent to-purple-500/10'} pointer-events-none`} />
+              <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-white/80 to-transparent opacity-20 pointer-events-none" />
+              <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-white/10 ring-1 ring-white/10">
+                    <AlertTriangle size={20} className="text-amber-200 animate-pulse" />
+                  </div>
+                  <div>
+                    <p className="text-base font-black tracking-tight text-white">{t("Settings.UnsavedChanges")}</p>
+                    <p className="text-xs uppercase tracking-[0.24em] text-slate-300">{t("Settings.YouHavePendingChanges", { defaultValue: "Save your changes before leaving." })}</p>
+                  </div>
                 </div>
-                <div className="text-center sm:text-left">
-                  <p className="text-sm sm:text-base font-black tracking-tight">{t("Settings.UnsavedChanges")}</p>
-                  <p className="text-[10px] sm:text-xs text-slate-400 font-medium tracking-wide">
-                    You have modified your profile settings.
-                  </p>
-                </div>
-              </div>
 
-              <div className="flex items-center gap-3 w-full sm:w-auto z-10">
-                <button
-                  onClick={() => {
-                    setFormData(initialData);
-                    setFiles({});
-                  }}
-                  className="flex-1 sm:flex-none px-6 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
-                >
-                  {t("Common.Discard")}
-                </button>
-                <button
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className={`flex-1 sm:flex-none ${theme.bgPrimary} text-white px-8 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest flex justify-center items-center gap-2 ${theme.bgHover} hover:scale-105 shadow-xl ${theme.shadow} disabled:opacity-50 disabled:hover:scale-100 transition-all`}
-                >
-                  {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                  {t("Common.SaveUpdated")}
-                </button>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <button
+                    onClick={() => {
+                      setFormData(initialData);
+                      setFiles({});
+                    }}
+                    className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-100 transition hover:bg-white/10"
+                  >
+                    {t("Common.Discard")}
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className={`inline-flex items-center justify-center rounded-2xl px-4 py-3 text-xs font-black uppercase tracking-wider text-white transition ${theme.bgPrimary} ${theme.bgHover} shadow-xl ${theme.shadow} disabled:opacity-50 disabled:pointer-events-none`}
+                  >
+                    {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                    <span>{t("Common.SaveUpdated")}</span>
+                  </button>
+                </div>
               </div>
             </div>
           </motion.div>

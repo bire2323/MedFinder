@@ -16,18 +16,19 @@ window.Pusher = Pusher;
   } catch (e) {
     console.warn('Failed to fetch CSRF cookie before Echo init', e);
   }
+  const isSecure = window.location.protocol === 'https:';
   window.Echo = new Echo({
     broadcaster: 'reverb',
     key: import.meta.env.VITE_REVERB_APP_KEY,
-    wsHost: 'medfinder.com',
-    wsPort: 443,
-    wssPort: 443,
-    forceTLS: true,
+    wsHost: import.meta.env.VITE_REVERB_HOST || window.location.hostname,
+    wsPort: isSecure ? 443 : 80,
+    wssPort: isSecure ? 443 : 80,
+    forceTLS: isSecure,
     enabledTransports: ['ws', 'wss'],
 
     authEndpoint: '/broadcasting/auth',
 
-    wsPath: '/reverb',
+    wsPath: import.meta.env.VITE_REVERB_PATH || '/reverb',
 
     auth: {
       withCredentials: true,

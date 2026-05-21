@@ -75,7 +75,7 @@ export default function LoginForm() {
   }
 
   function openRegisterRoute() {
-    navigate("/register", { state: { background: location } });
+    navigate("/register", { state: { background: location.state?.background || location.state?.backgroundLocation || location } });
   }
   return (
 
@@ -161,7 +161,7 @@ export default function LoginForm() {
                   dark:hover:bg-gray-400 transform transition-all duration-500 shadow-black rounded-2xl cursor-pointer"
         onClick={() =>
         (window.location.href =
-          "https://medfinder.com/api/auth/google/redirect")
+          "/api/auth/google/redirect")
         }
       >
         <FcGoogle className="w-6 h-6" />
