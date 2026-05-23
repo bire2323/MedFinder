@@ -261,6 +261,10 @@ class PharmacyDrugInventoryController extends Controller
                     'brand_name_en' => $validated['brand_name_en'],
                     'brand_name_am' => $validated['brand_name_am'] ?? null,
                 ]);
+            } else {
+                $drug->update([
+                    'brand_name_am' => $validated['brand_name_am'] ?? $drug->brand_name_am,
+                ]);
             }
 
             $batchNumber = $validated['batch_number'] ?: 'BATCH-' . now()->format('YmdHis');
@@ -324,6 +328,9 @@ class PharmacyDrugInventoryController extends Controller
     public function update($id, Request $request)
     {
         $validated = $request->validate([
+            'brand_name_en' => 'required|string|max:255',
+            'brand_name_am' => 'nullable|string|max:255',
+            'genericName' => 'required|string|max:255',
             'about_drug_en' => 'required|string',
             'about_drug_am' => 'nullable|string',
             'stock' => 'required|integer|min:0',
@@ -397,6 +404,14 @@ class PharmacyDrugInventoryController extends Controller
                         'performed_by' => Auth::id(),
                     ]);
                 }
+            }
+
+            if ($inventory->drug) {
+                $inventory->drug->update([
+                    'brand_name_en' => $validated['brand_name_en'] ?? $inventory->drug->brand_name_en,
+                    'brand_name_am' => $validated['brand_name_am'] ?? $inventory->drug->brand_name_am,
+                    'generic_name' => $validated['genericName'] ?? $inventory->drug->generic_name,
+                ]);
             }
 
             $inventory = $this->inventory->syncSummaryInventory($pharmacy, $inventory->drug);

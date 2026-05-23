@@ -263,8 +263,9 @@ class InventoryRepository
             'supplier_name' => $batchData['supplier_name'] ?? null,
             'category' => $batchData['category'] ?? null,
             'dosage_form' => $batchData['dosage_form'] ?? null,
+            'description_en' => $batchData['description_en'] ?? null,
+            'description_am' => $batchData['description_am'] ?? null,
             'status' => 'ACTIVE',
-            'notes' => $batchData['notes'] ?? null,
         ]);
     }
 
@@ -396,6 +397,8 @@ class InventoryRepository
             'manufacturer' => $drugBatch?->manufacturer,
             'category' => $drugBatch?->category,
             'dosage_form' => $drugBatch?->dosage_form,
+            'description_en' => $drugBatch?->description_en,
+            'description_am' => $drugBatch?->description_am,
             'low_stock_threshold' => $batch->resolveLowStockThreshold(),
             'batch_low_stock_threshold' => $batch->low_stock_threshold,
             'is_low_stock' => $batch->isLowStock(),

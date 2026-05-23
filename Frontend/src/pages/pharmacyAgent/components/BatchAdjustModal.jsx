@@ -1,14 +1,20 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Package, Plus, Minus, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function BatchAdjustModal({ batch, onClose, onSubmit, isSubmitting }) {
-  const [mode, setMode] = useState("add");
+export default function BatchAdjustModal({ batch, initialMode = "add", onClose, onSubmit, isSubmitting }) {
+  const [mode, setMode] = useState(initialMode);
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
   const [batchThreshold, setBatchThreshold] = useState(
     String(batch?.batch_low_stock_threshold ?? batch?.low_stock_threshold ?? 10)
   );
+
+  useEffect(() => {
+    setMode(initialMode);
+    setAmount("");
+    setReason("");
+  }, [initialMode, batch]);
 
   const current = batch?.available ?? 0;
   const parsed = parseInt(amount, 10) || 0;

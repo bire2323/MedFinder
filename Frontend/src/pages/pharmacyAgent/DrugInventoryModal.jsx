@@ -28,6 +28,15 @@ export default function DrugInventoryModal({
     const { t } = useTranslation();
     const [errors, setErrors] = useState({});
 
+    const getExpireMin = (manufactureDate) => {
+        if (!manufactureDate) {
+            return "";
+        }
+        const date = new Date(manufactureDate);
+        date.setDate(date.getDate() + 1);
+        return date.toISOString().split("T")[0];
+    };
+
     useEffect(() => {
         document.body.style.overflow = "hidden";
         return () => {
@@ -64,6 +73,21 @@ export default function DrugInventoryModal({
             }
             return;
         }
+
+        if (field === "manufacture_date") {
+            const dateValue = value;
+            const nextExpire = drugForm.expire_date && drugForm.expire_date <= dateValue ? "" : drugForm.expire_date;
+            setDrugForm((prev) => ({
+                ...prev,
+                manufacture_date: dateValue,
+                expire_date: nextExpire,
+            }));
+            if (errors.manufacture_date || errors.expire_date) {
+                setErrors((prev) => ({ ...prev, manufacture_date: undefined, expire_date: undefined }));
+            }
+            return;
+        }
+
         setDrugForm({ ...drugForm, [field]: value });
 
         if (errors[field]) {
@@ -89,6 +113,14 @@ export default function DrugInventoryModal({
         }
         if (!drugForm.category) {
             newErrors.category = t("modal.drugInventory.error.required");
+            isValid = false;
+        }
+        if (!drugForm.expire_date) {
+            newErrors.expire_date = t("modal.drugInventory.error.required");
+            isValid = false;
+        }
+        if (drugForm.manufacture_date && drugForm.expire_date && drugForm.expire_date <= drugForm.manufacture_date) {
+            newErrors.expire_date = "Expiry date must be after manufacture date";
             isValid = false;
         }
 
@@ -147,7 +179,17 @@ export default function DrugInventoryModal({
                                 <Info size={16} />
                                 <h4 className="text-[10px] font-black uppercase tracking-widest">{t("modal.drugInventory.basicInfo")}</h4>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <FormField label="Batch Number">
+                                    <input
+                                        type="text"
+                                        value={drugForm.batch_number}
+                                        onChange={handleChange("batch_number")}
+                                        placeholder="BATCH-123456"
+                                        className="form-input-premium font-bold tracking-wide"
+                                        onKeyDown={handleKeyDown}
+                                    />
+                                </FormField>
                                 <FormField label={t("modal.drugInventory.drugNameEnglish")} error={errors.brand_name_en}>
                                     <input
                                         type="text"
@@ -168,7 +210,7 @@ export default function DrugInventoryModal({
                                         onKeyDown={handleKeyDown}
                                     />
                                 </FormField>
-                                <div className="md:col-span-2">
+                                <div className="md:col-span-3">
                                     <FormField label={t("modal.drugInventory.genericName")} error={errors.genericName}>
                                         <input
                                             type="text"
@@ -212,22 +254,13 @@ export default function DrugInventoryModal({
                                         onKeyDown={handleKeyDown}
                                     />
                                 </FormField>
-                                <FormField label="Batch Number">
-                                    <input
-                                        type="text"
-                                        value={drugForm.batch_number}
-                                        onChange={handleChange("batch_number")}
-                                        placeholder="BATCH-123456"
-                                        className="form-input-premium font-bold tracking-wide"
-                                        onKeyDown={handleKeyDown}
-                                    />
-                                </FormField>
                                 <FormField label="Manufacture Date">
                                     <input
                                         type="date"
                                         value={drugForm.manufacture_date || ""}
                                         onChange={handleChange("manufacture_date")}
                                         className="form-input-premium font-bold tracking-wide cursor-pointer"
+                                        max={drugForm.expire_date || undefined}
                                     />
                                 </FormField>
                             </div>
@@ -316,13 +349,14 @@ export default function DrugInventoryModal({
                                 </FormField>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                                <FormField label="Expiry Date">
+                                <FormField label="Expiry Date" error={errors.expire_date}>
                                     <input
                                         type="date"
                                         value={drugForm.expire_date}
                                         onChange={handleChange("expire_date")}
                                         className="form-input-premium font-bold tracking-wide cursor-pointer"
                                         onKeyDown={handleKeyDown}
+                                        min={getExpireMin(drugForm.manufacture_date) || undefined}
                                     />
                                 </FormField>
                                 <div className="flex items-center h-full pt-6">

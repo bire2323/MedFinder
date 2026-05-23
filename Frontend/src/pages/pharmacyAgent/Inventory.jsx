@@ -62,6 +62,7 @@ export default function Inventory() {
     const [selectedDrug, setSelectedDrug] = useState(null);
     const [dispenseDrug, setDispenseDrug] = useState(null);
     const [adjustBatch, setAdjustBatch] = useState(null);
+    const [adjustBatchMode, setAdjustBatchMode] = useState("add");
     const [expandedRows, setExpandedRows] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [drugForm, setDrugForm] = useState({ ...EMPTY_DRUG_FORM });
@@ -639,7 +640,13 @@ export default function Inventory() {
                                         {isExpanded && batches.length > 0 && (
                                             <tr className="bg-slate-50/80 dark:bg-slate-850/20">
                                                 <td colSpan={7} className="px-6 py-4">
-                                                    <BatchTable batches={batches} onAdjustStock={(b) => setAdjustBatch(b)} />
+                                                    <BatchTable
+                                                        batches={batches}
+                                                        onAdjustStock={(b, mode) => {
+                                                            setAdjustBatch(b);
+                                                            setAdjustBatchMode(mode || "add");
+                                                        }}
+                                                    />
                                                 </td>
                                             </tr>
                                         )}
@@ -777,7 +784,11 @@ export default function Inventory() {
                 {adjustBatch && (
                     <BatchAdjustModal
                         batch={adjustBatch}
-                        onClose={() => setAdjustBatch(null)}
+                        initialMode={adjustBatchMode}
+                        onClose={() => {
+                            setAdjustBatch(null);
+                            setAdjustBatchMode("add");
+                        }}
                         onSubmit={handleBatchAdjust}
                         isSubmitting={isSubmitting}
                     />

@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, Layers, Plus, AlertTriangle } from "lucide-react";
+import { Calendar, Layers, Plus, Minus, AlertTriangle } from "lucide-react";
 import { formatInventoryDate } from "../../../utils/inventoryHelpers";
 
 export default function BatchTable({ batches, compact = false, onAdjustStock }) {
@@ -43,7 +43,7 @@ export default function BatchTable({ batches, compact = false, onAdjustStock }) 
             <th className="px-3 py-2">Available</th>
             <th className="px-3 py-2">Alert at</th>
             <th className="px-3 py-2">Price</th>
-            {onAdjustStock && <th className="px-3 py-2 text-right">Stock</th>}
+            {onAdjustStock && <th className="px-3 py-2 text-right">Actions</th>}
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40">
@@ -78,14 +78,24 @@ export default function BatchTable({ batches, compact = false, onAdjustStock }) 
                 <td className="px-3 py-2 font-bold">{b.price}</td>
                 {onAdjustStock && (
                   <td className="px-3 py-2 text-right">
-                    <button
-                      type="button"
-                      onClick={() => onAdjustStock(b)}
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase hover:bg-emerald-500 hover:text-white transition-all"
-                    >
-                      <Plus size={12} />
-                      Adjust
-                    </button>
+                    <div className="inline-flex items-center gap-2 justify-end">
+                      <button
+                        type="button"
+                        onClick={() => onAdjustStock(b, "remove")}
+                        title="Remove stock"
+                        className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-300 hover:bg-rose-500 hover:text-white transition-all"
+                      >
+                        <Minus size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onAdjustStock(b, "add")}
+                        title="Add stock"
+                        className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300 hover:bg-emerald-500 hover:text-white transition-all"
+                      >
+                        <Plus size={14} />
+                      </button>
+                    </div>
                   </td>
                 )}
               </tr>

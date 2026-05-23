@@ -22,8 +22,9 @@ class DrugBatch extends Model
         'dosage_form',
         'certification_number',
         'lot_number',
+        'description_en',
+        'description_am',
         'status',
-        'notes',
     ];
 
     protected $casts = [
