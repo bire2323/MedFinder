@@ -2,6 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { apiGetStockHistory } from "../../../api/inventory";
 import {
+  getPerformerName,
+  getHistoryDrugName,
+  getHistoryBatchNumber,
+  getHistoryQuantities,
+} from "../../../utils/inventoryHelpers";
+import {
   History,
   ArrowUpRight,
   ArrowDownRight,
@@ -134,6 +140,7 @@ const InventoryHistory = () => {
                   <tr className="border-b border-slate-100 dark:border-slate-800/60 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
                     <th className="px-6 py-4">{t("inventory.history.column.date")}</th>
                     <th className="px-6 py-4">{t("inventory.history.column.drug")}</th>
+                    <th className="px-6 py-4">Batch</th>
                     <th className="px-6 py-4">{t("inventory.history.column.change")}</th>
                     <th className="px-6 py-4 text-center">{t("Common.Status")}</th>
                     <th className="px-6 py-4">{t("inventory.history.column.performedBy")}</th>
@@ -142,7 +149,10 @@ const InventoryHistory = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40">
                   <AnimatePresence mode="popLayout">
-                    {historyItems.map((log, index) => (
+                    {historyItems.map((log, index) => {
+                      const { oldQ, newQ } = getHistoryQuantities(log);
+                      const batchNum = getHistoryBatchNumber(log);
+                      return (
                       <motion.tr
                         key={log.id}
                         initial={{ opacity: 0, y: 10 }}
@@ -157,14 +167,17 @@ const InventoryHistory = () => {
                           </div>
                         </td>
                         <td className="px-6 py-3.5 font-bold text-slate-850 dark:text-white">
-                          {log.inventory?.drug?.brand_name_en || "Deleted Drug"}
+                          {getHistoryDrugName(log)}
+                        </td>
+                        <td className="px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400">
+                          {batchNum || "—"}
                         </td>
                         <td className="px-6 py-3.5">
                           <div className={`flex items-center gap-1 font-black ${log.change_amount > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                             {log.change_amount > 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                             {Math.abs(log.change_amount)} {t("inventory.toast.units")}
                             <span className="text-[10px] text-slate-400 font-semibold ml-1">
-                              ({log.old_stock} → {log.new_stock})
+                              ({oldQ} → {newQ})
                             </span>
                           </div>
                         </td>
@@ -176,7 +189,7 @@ const InventoryHistory = () => {
                             <div className="w-6 h-6 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center border border-slate-200/50 dark:border-slate-800">
                               <User className="w-3 h-3 text-slate-500" />
                             </div>
-                            <span className="font-bold">{log.performer?.name || t("Common.NoData")}</span>
+                            <span className="font-bold">{getPerformerName(log)}</span>
                           </div>
                         </td>
                         <td className="px-6 py-3.5">
@@ -185,7 +198,7 @@ const InventoryHistory = () => {
                           </p>
                         </td>
                       </motion.tr>
-                    ))}
+                    );})}
                   </AnimatePresence>
                 </tbody>
               </table>
@@ -194,7 +207,9 @@ const InventoryHistory = () => {
             {/* Mobile Cards Grid View */}
             <div className="block md:hidden p-4 space-y-4">
               <AnimatePresence mode="popLayout">
-                {historyItems.map((log, index) => (
+                {historyItems.map((log, index) => {
+                  const { oldQ, newQ } = getHistoryQuantities(log);
+                  return (
                   <motion.div
                     key={log.id}
                     initial={{ opacity: 0, y: 15 }}
@@ -205,8 +220,13 @@ const InventoryHistory = () => {
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="font-black text-slate-800 dark:text-white leading-tight">
-                          {log.inventory?.drug?.brand_name_en || "Deleted Drug"}
+                          {getHistoryDrugName(log)}
                         </p>
+                        {getHistoryBatchNumber(log) && (
+                          <p className="text-[10px] text-emerald-600 font-bold mt-0.5">
+                            Batch: {getHistoryBatchNumber(log)}
+                          </p>
+                        )}
                         <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-1 flex items-center gap-1">
                           <Calendar className="w-3 h-3 text-slate-450" />
                           {new Date(log.created_at).toLocaleString()}
@@ -226,7 +246,7 @@ const InventoryHistory = () => {
                       <div>
                         <span className="text-[9px] text-slate-400 font-black uppercase">Performed By</span>
                         <p className="text-xs font-bold text-slate-650 dark:text-slate-350 mt-0.5 truncate">
-                          {log.performer?.name || "System"}
+                          {getPerformerName(log)}
                         </p>
                       </div>
                     </div>
@@ -240,7 +260,7 @@ const InventoryHistory = () => {
                       </div>
                     )}
                   </motion.div>
-                ))}
+                );})}
               </AnimatePresence>
             </div>
           </>

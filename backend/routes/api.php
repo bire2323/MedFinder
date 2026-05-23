@@ -233,16 +233,36 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('pharmacy/inventory')->middleware(\App\Http\Middleware\EnsureFacilityApproved::class)->group(function () {
 
         Route::get('/', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getInventory']);
-
         Route::get('analytics', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getAnalytics']);
         Route::get('trash', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getTrash']);
         Route::get('history', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getStockHistory']);
+
+        // Batch inventory endpoints (must be before {inventory} routes)
+        Route::get('batches/expiring', [\App\Http\Controllers\BatchInventoryController::class, 'expiring']);
+        Route::get('batches/low-stock', [\App\Http\Controllers\BatchInventoryController::class, 'lowStock']);
+        Route::get('batches/alerts', [\App\Http\Controllers\BatchInventoryController::class, 'alerts']);
+        Route::post('batches/alerts/check', [\App\Http\Controllers\BatchInventoryController::class, 'runAlertCheck']);
+        Route::post('batches/alerts/{alert}/acknowledge', [\App\Http\Controllers\BatchInventoryController::class, 'acknowledgeAlert']);
+        Route::post('batches/alerts/{alert}/resolve', [\App\Http\Controllers\BatchInventoryController::class, 'resolveAlert']);
+        Route::post('batches/dispense', [\App\Http\Controllers\BatchInventoryController::class, 'dispense']);
+        Route::post('batches/{batchInventory}/adjust', [\App\Http\Controllers\BatchInventoryController::class, 'adjustBatch']);
+        Route::get('batches/drug/{drug}', [\App\Http\Controllers\BatchInventoryController::class, 'index']);
+        Route::get('batches/drug/{drug}/history', [\App\Http\Controllers\BatchInventoryController::class, 'history']);
+        Route::put('batches/{batchInventory}', [\App\Http\Controllers\BatchInventoryController::class, 'updateBatch']);
+
         Route::get('{drug}', [DrugController::class, 'show']);
         Route::post('/', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'addDrug']);
         Route::put('{inventory}', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'update']);
         Route::delete('{inventory}', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'deleteDrug']);
         Route::post('{inventory}/restore', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'restoreDrug']);
-        Route::Patch('{inventory}/toggle-availability', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'toggleAvailability']);
+        Route::patch('{inventory}/toggle-availability', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'toggleAvailability']);
+    });
+
+    Route::prefix('pharmacy/purchase-orders')->middleware(\App\Http\Middleware\EnsureFacilityApproved::class)->group(function () {
+        Route::get('/', [\App\Http\Controllers\DrugPurchaseOrderController::class, 'index']);
+        Route::post('/', [\App\Http\Controllers\DrugPurchaseOrderController::class, 'store']);
+        Route::get('{order}', [\App\Http\Controllers\DrugPurchaseOrderController::class, 'show']);
+        Route::post('{order}/receive', [\App\Http\Controllers\DrugPurchaseOrderController::class, 'receive']);
     });
 
 

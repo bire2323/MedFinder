@@ -1,8 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Pill, Package, AlertCircle, Activity, Calendar, TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
+import { Pill, Package, AlertCircle, Activity, Calendar, TrendingUp, TrendingDown, ArrowRight, Layers } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useOutletContext, useNavigate } from "react-router-dom";
+import { getInv, formatInventoryDate } from "../../../utils/inventoryHelpers";
 
 export const StatCard = ({ title, value, trend, icon, color, index }) => {
     const colorVariants = {
@@ -118,9 +119,9 @@ export default function OverviewTab() {
                     index={2}
                 />
                 <StatCard
-                    title={t("PharmacyDashboard.USERSESSIONS")}
-                    value={analytics?.user_sessions?.toString() || "0"}
-                    trend="Active sessions"
+                    title={t("inventory.analytics.expiringSoon")}
+                    value={analytics?.expiring_soon?.toString() || "0"}
+                    trend="Batches expiring"
                     icon={<Activity />}
                     color="purple"
                     index={3}
@@ -161,11 +162,12 @@ export default function OverviewTab() {
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40">
                             {inventory?.slice(0, 5).map((drug) => {
-                                const inv = drug.pivot || drug.inventory || {};
+                                const inv = getInv(drug);
+                                const batches = drug.batches || [];
                                 const isLow = inv.stock <= (inv.low_stock_threshold || 10);
                                 const isOut = inv.stock === 0;
                                 return (
-                                    <tr key={drug.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/25 transition-colors group">
+                                    <tr key={inv.id || drug.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/25 transition-colors group">
                                         <td className="py-3.5 pl-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-50 to-green-50 dark:from-slate-800 dark:to-slate-800/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100/20 dark:border-slate-700/30 transition-transform group-hover:scale-105">
@@ -178,6 +180,12 @@ export default function OverviewTab() {
                                                     <p className="text-xs text-slate-400 dark:text-slate-500 font-medium italic mt-0.5">
                                                         {drug.generic_name}
                                                     </p>
+                                                    {batches.length > 0 && (
+                                                        <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5 inline-flex items-center gap-0.5">
+                                                            <Layers size={10} />
+                                                            {batches.length} batch{batches.length > 1 ? "es" : ""}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
                                         </td>
@@ -219,7 +227,7 @@ export default function OverviewTab() {
                                         <td className="py-3.5 pr-4">
                                             <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
                                                 <Calendar size={14} className="text-slate-400 dark:text-slate-500" />
-                                                {inv.expire_date || "—"}
+                                                {formatInventoryDate(inv.expire_date)}
                                             </div>
                                         </td>
                                     </tr>
@@ -237,13 +245,14 @@ export default function OverviewTab() {
                     className="block md:hidden space-y-4"
                 >
                     {inventory?.slice(0, 5).map((drug) => {
-                        const inv = drug.pivot || drug.inventory || {};
+                        const inv = getInv(drug);
+                        const batches = drug.batches || [];
                         const isLow = inv.stock <= (inv.low_stock_threshold || 10);
                         const isOut = inv.stock === 0;
 
                         return (
                             <motion.div
-                                key={drug.id}
+                                key={inv.id || drug.id}
                                 variants={itemVariants}
                                 className="p-4 bg-slate-50/60 dark:bg-slate-800/30 rounded-2xl border border-slate-100 dark:border-slate-800/80 space-y-4 shadow-sm"
                             >
@@ -282,7 +291,8 @@ export default function OverviewTab() {
                                     <div className="flex flex-col items-center">
                                         <span className="text-[10px] text-slate-400 font-bold uppercase">Expires</span>
                                         <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 truncate max-w-full">
-                                            {inv.expire_date || "—"}
+                                            {formatInventoryDate(inv.expire_date)}
+                                            {batches.length > 1 ? ` · ${batches.length} batches` : ""}
                                         </span>
                                     </div>
                                 </div>

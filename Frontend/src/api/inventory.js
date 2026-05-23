@@ -1,101 +1,188 @@
 /**
- * API functions for pharmacy inventory management
+ * Pharmacy batch inventory API
  */
 import { apiFetch, ensureCsrfCookie } from "./client";
 
-/**
- * Get all drugs in pharmacy inventory with filtering and pagination
- * @param {Object} params - Search, category, status, per_page
- */
-export async function apiGetInventory(params = {}) {
-  const query = new URLSearchParams(params).toString();
-  return apiFetch(`/api/pharmacy/inventory${query ? `?${query}` : ""}`, { method: "GET" });
-}
+const BASE = "/api/pharmacy/inventory";
 
-export async function apiGetDrug(id) {
-  return apiFetch(`/api/pharmacy/inventory/${id}`, { method: "GET" });
+// ——— Summary inventory (per drug) ———
+
+export async function apiGetInventory(params = {}) {
+  const query = new URLSearchParams(
+    Object.entries(params).filter(([, v]) => v !== undefined && v !== "")
+  ).toString();
+  return apiFetch(`${BASE}${query ? `?${query}` : ""}`, { method: "GET" });
 }
 
 export async function apiGetAnalytics() {
-  return apiFetch("/api/pharmacy/inventory/analytics", { method: "GET" });
+  return apiFetch(`${BASE}/analytics`, { method: "GET" });
 }
 
 export async function apiGetTrash() {
-  return apiFetch("/api/pharmacy/inventory/trash", { method: "GET" });
+  return apiFetch(`${BASE}/trash`, { method: "GET" });
 }
 
-export async function apiRestoreDrug(id) {
-  await ensureCsrfCookie();
-  return apiFetch(`/api/pharmacy/inventory/${id}/restore`, { method: "POST" });
+export async function apiGetStockHistory(params = {}) {
+  const query = new URLSearchParams(
+    Object.entries(params).filter(([, v]) => v !== undefined && v !== "")
+  ).toString();
+  return apiFetch(`${BASE}/history${query ? `?${query}` : ""}`, { method: "GET" });
 }
 
-export async function apiToggleAvailability(id) {
-  await ensureCsrfCookie();
-  return apiFetch(`/api/pharmacy/inventory/${id}/toggle-availability`, { method: "PATCH" });
-}
-
-/**
- * Add a new drug to inventory
- * @param {Object} drugData - The drug data to add
- */
 export async function apiAddDrug(drugData) {
-  console.log(drugData);
   await ensureCsrfCookie();
-
-  return apiFetch("/api/pharmacy/inventory", {
+  return apiFetch(BASE, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(drugData),
   });
 }
 
-/**
- * Update an existing drug in inventory
- * @param {number} drugId - The drug ID to update
- * @param {Object} drugData - The updated drug data
- */
-export async function apiUpdateDrug(drugId, drugData) {
+/** @param {number} inventoryId pharmacy_drug_inventories id */
+export async function apiUpdateDrug(inventoryId, drugData) {
   await ensureCsrfCookie();
-  return apiFetch(`/api/pharmacy/inventory/${drugId}`, {
+  return apiFetch(`${BASE}/${inventoryId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(drugData),
   });
 }
 
-/**
- * Delete a drug from inventory
- * @param {number} drugId - The drug ID to delete
- */
-export async function apiDeleteDrug(drugId) {
+export async function apiDeleteDrug(inventoryId) {
   await ensureCsrfCookie();
-  return apiFetch(`/api/pharmacy/inventory/${drugId}`, { method: "DELETE" });
+  return apiFetch(`${BASE}/${inventoryId}`, { method: "DELETE" });
 }
 
-/**
- * Search drugs in inventory
- * @param {string} query - Search query
- */
+export async function apiRestoreDrug(inventoryId) {
+  await ensureCsrfCookie();
+  return apiFetch(`${BASE}/${inventoryId}/restore`, { method: "POST" });
+}
+
+export async function apiToggleAvailability(inventoryId) {
+  await ensureCsrfCookie();
+  return apiFetch(`${BASE}/${inventoryId}/toggle-availability`, { method: "PATCH" });
+}
+
 export async function apiSearchDrugs(query) {
   return apiGetInventory({ search: query });
 }
 
-export async function apiGetStockHistory(params = {}) {
-  const query = new URLSearchParams(params).toString();
+// ——— Batch-level ———
 
-  return apiFetch(`/api/pharmacy/inventory/history`, { method: "GET" });
+export async function apiGetDrugBatches(drugId) {
+  return apiFetch(`${BASE}/batches/drug/${drugId}`, { method: "GET" });
 }
-//${query ? `?${query}` : ""}
+
+export async function apiGetExpiringBatches(days = 90) {
+  return apiFetch(`${BASE}/batches/expiring?days=${days}`, { method: "GET" });
+}
+
+export async function apiGetLowStockBatches() {
+  return apiFetch(`${BASE}/batches/low-stock`, { method: "GET" });
+}
+
+export async function apiUpdateBatchInventory(batchInventoryId, data) {
+  await ensureCsrfCookie();
+  return apiFetch(`${BASE}/batches/${batchInventoryId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+/** Add or remove units from a batch (no manual total calculation). quantity_change: +10 or -5 */
+export async function apiAdjustBatchStock(batchInventoryId, { quantity_change, reason, low_stock_threshold }) {
+  await ensureCsrfCookie();
+  return apiFetch(`${BASE}/batches/${batchInventoryId}/adjust`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ quantity_change, reason, low_stock_threshold }),
+  });
+}
+
+export async function apiDispenseFifo({ drug_id, quantity, reason }) {
+  await ensureCsrfCookie();
+  return apiFetch(`${BASE}/batches/dispense`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ drug_id, quantity, reason }),
+  });
+}
+
+export async function apiGetBatchAlerts(status) {
+  const query = status ? `?status=${status}` : "";
+  return apiFetch(`${BASE}/batches/alerts${query}`, { method: "GET" });
+}
+
+export async function apiAcknowledgeAlert(alertId) {
+  await ensureCsrfCookie();
+  return apiFetch(`${BASE}/batches/alerts/${alertId}/acknowledge`, { method: "POST" });
+}
+
+export async function apiResolveAlert(alertId) {
+  await ensureCsrfCookie();
+  return apiFetch(`${BASE}/batches/alerts/${alertId}/resolve`, { method: "POST" });
+}
+
+export async function apiRunAlertCheck() {
+  await ensureCsrfCookie();
+  return apiFetch(`${BASE}/batches/alerts/check`, { method: "POST" });
+}
+
+// ——— Purchase orders ———
+
+const PO_BASE = "/api/pharmacy/purchase-orders";
+
+export async function apiGetPurchaseOrders(params = {}) {
+  const query = new URLSearchParams(params).toString();
+  return apiFetch(`${PO_BASE}${query ? `?${query}` : ""}`, { method: "GET" });
+}
+
+export async function apiCreatePurchaseOrder(payload) {
+  await ensureCsrfCookie();
+  return apiFetch(PO_BASE, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function apiGetPurchaseOrder(id) {
+  return apiFetch(`${PO_BASE}/${id}`, { method: "GET" });
+}
+
+export async function apiReceivePurchaseOrder(id, items) {
+  await ensureCsrfCookie();
+  return apiFetch(`${PO_BASE}/${id}/receive`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ items }),
+  });
+}
 
 export default {
   apiGetInventory,
   apiGetAnalytics,
   apiGetTrash,
   apiGetStockHistory,
-  apiRestoreDrug,
-  apiToggleAvailability,
   apiAddDrug,
   apiUpdateDrug,
   apiDeleteDrug,
-  apiSearchDrugs
+  apiRestoreDrug,
+  apiToggleAvailability,
+  apiSearchDrugs,
+  apiGetDrugBatches,
+  apiGetExpiringBatches,
+  apiGetLowStockBatches,
+  apiUpdateBatchInventory,
+  apiAdjustBatchStock,
+  apiDispenseFifo,
+  apiGetBatchAlerts,
+  apiAcknowledgeAlert,
+  apiResolveAlert,
+  apiRunAlertCheck,
+  apiGetPurchaseOrders,
+  apiCreatePurchaseOrder,
+  apiGetPurchaseOrder,
+  apiReceivePurchaseOrder,
 };

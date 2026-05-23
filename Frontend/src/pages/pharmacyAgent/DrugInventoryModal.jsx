@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, Loader2, Pill, X, Info, AlertCircle } from "lucide-react";
 import handleKeyDown from "../../hooks/handleKeyDown";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { formatInventoryDate } from "../../utils/inventoryHelpers";
 import { useTranslation } from "react-i18next";
 
 const CATEGORIES = [
@@ -21,6 +22,8 @@ export default function DrugInventoryModal({
     onClose,
     isSubmitting,
     submitLabel,
+    mode = "add",
+    batches = [],
 }) {
     const { t } = useTranslation();
     const [errors, setErrors] = useState({});
@@ -32,8 +35,35 @@ export default function DrugInventoryModal({
         };
     }, []);
 
+    const applyBatchToForm = useCallback((batchId) => {
+        if (!batchId || !batches?.length) return;
+        const b = batches.find((x) => String(x.batch_inventory_id) === String(batchId));
+        if (!b) return;
+        setDrugForm((prev) => ({
+            ...prev,
+            batch_inventory_id: b.batch_inventory_id,
+            stock: b.available,
+            price: b.price,
+            cost_price: b.cost ?? prev.cost_price,
+            expire_date: formatInventoryDate(b.expiration_date),
+            manufacture_date: b.manufacture_date ? formatInventoryDate(b.manufacture_date) : "",
+            batch_number: b.batch_number,
+            manufacturer: b.manufacturer ?? prev.manufacturer,
+            category: b.category ?? prev.category,
+            dosage_form: b.dosage_form ?? prev.dosage_form,
+        }));
+    }, [batches, setDrugForm]);
+
     const handleChange = (field) => (e) => {
         const value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
+        if (field === "batch_inventory_id") {
+            if (!value) {
+                setDrugForm((prev) => ({ ...prev, batch_inventory_id: null }));
+            } else {
+                applyBatchToForm(value);
+            }
+            return;
+        }
         setDrugForm({ ...drugForm, [field]: value });
 
         if (errors[field]) {
@@ -95,7 +125,14 @@ export default function DrugInventoryModal({
                             <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-600 dark:text-emerald-450 border border-emerald-500/10">
                                 <Pill size={22} className="animate-pulse" />
                             </div>
-                            <h3 className="text-lg font-black text-slate-800 dark:text-white uppercase tracking-tight">{title}</h3>
+                            <div>
+                                <h3 className="text-lg font-black text-slate-800 dark:text-white uppercase tracking-tight">{title}</h3>
+                                {mode === "add" && (
+                                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5">
+                                        Creates a new batch — existing batches stay separate
+                                    </p>
+                                )}
+                            </div>
                         </div>
                         <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors cursor-pointer">
                             <X size={20} className="text-slate-400 dark:text-slate-500" />
@@ -185,8 +222,36 @@ export default function DrugInventoryModal({
                                         onKeyDown={handleKeyDown}
                                     />
                                 </FormField>
+                                <FormField label="Manufacture Date">
+                                    <input
+                                        type="date"
+                                        value={drugForm.manufacture_date || ""}
+                                        onChange={handleChange("manufacture_date")}
+                                        className="form-input-premium font-bold tracking-wide cursor-pointer"
+                                    />
+                                </FormField>
                             </div>
                         </div>
+
+                        {mode === "edit" && batches.length > 1 && (
+                            <div className="space-y-2 p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/20 border border-amber-100/50 dark:border-amber-900/30">
+                                <label className="text-[10px] font-black uppercase text-amber-700 dark:text-amber-400 tracking-widest">
+                                    Edit which batch?
+                                </label>
+                                <select
+                                    value={drugForm.batch_inventory_id || ""}
+                                    onChange={handleChange("batch_inventory_id")}
+                                    className="form-input-premium w-full font-bold text-xs"
+                                >
+                                    <option value="">Summary only (threshold, descriptions)</option>
+                                    {batches.map((b) => (
+                                        <option key={b.batch_inventory_id} value={b.batch_inventory_id}>
+                                            {b.batch_number} — {b.available} units (exp {b.expiration_date})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
 
                         {/* Section 3: Pricing & Inventory */}
                         <div className="space-y-4">
@@ -215,7 +280,8 @@ export default function DrugInventoryModal({
                                         onKeyDown={handleKeyDown}
                                     />
                                 </FormField>
-                                <FormField label="Current Stock">
+                                {mode === "add" ? (
+                                <FormField label="Batch quantity">
                                     <input
                                         type="number"
                                         value={drugForm.stock}
@@ -225,6 +291,19 @@ export default function DrugInventoryModal({
                                         onKeyDown={handleKeyDown}
                                     />
                                 </FormField>
+                                ) : (
+                                <FormField label="Batch stock (use Adjust on batch list to add/remove)">
+                                    <input
+                                        type="number"
+                                        value={drugForm.stock}
+                                        onChange={handleChange("stock")}
+                                        placeholder="0"
+                                        className="form-input-premium font-bold tracking-wide opacity-70"
+                                        onKeyDown={handleKeyDown}
+                                        title="Prefer Adjust button in expanded batches for +/- stock"
+                                    />
+                                </FormField>
+                                )}
                                 <FormField label="Low Stock Alert">
                                     <input
                                         type="number"

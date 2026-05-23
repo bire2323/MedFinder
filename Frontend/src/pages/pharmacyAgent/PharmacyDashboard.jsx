@@ -127,13 +127,12 @@ const PharmacyDashboard = () => {
     const fetchInv = async () => {
       try {
         const response = await apiGetInventory(params);
-        if (response) {
-          const inventoryData = response.data || response;
-          setInventory(inventoryData.drugs || (Array.isArray(inventoryData) ? inventoryData : []));
+        if (response?.success) {
+          setInventory(Array.isArray(response.data) ? response.data : []);
         }
 
         const analyticsRes = await apiGetAnalytics();
-        if (analyticsRes.success) {
+        if (analyticsRes?.success) {
           setAnalytics(analyticsRes.data);
         }
       } catch (error) {

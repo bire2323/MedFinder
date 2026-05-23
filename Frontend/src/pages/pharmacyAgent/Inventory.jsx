@@ -3,7 +3,8 @@ import {
     Calendar, Edit2, Loader2, Plus, Search, Trash2,
     AlertTriangle, Package, Clock, Ban, CheckCircle,
     ChevronLeft, ChevronRight, Filter, Eye, EyeOff,
-    TrendingDown, DollarSign, History, RotateCcw, X
+    TrendingDown, History, RotateCcw, X, Bell, MinusCircle,
+    ChevronDown, ChevronUp, Layers
 } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import toast from 'react-hot-toast';
@@ -13,11 +14,24 @@ import {
     apiDeleteDrug,
     apiUpdateDrug,
     apiGetAnalytics,
-    apiToggleAvailability
+    apiToggleAvailability,
+    apiDispenseFifo,
+    apiAdjustBatchStock,
 } from "../../api/inventory";
 import DrugInventoryModal from "./DrugInventoryModal";
 import InventoryHistory from "./components/InventoryHistory";
 import InventoryTrash from "./components/InventoryTrash";
+import BatchAlertsTab from "./components/BatchAlertsTab";
+import BatchTable from "./components/BatchTable";
+import DispenseModal from "./components/DispenseModal";
+import BatchAdjustModal from "./components/BatchAdjustModal";
+import {
+    EMPTY_DRUG_FORM,
+    getInv,
+    getInventoryRowId,
+    normalizeInventoryList,
+    formatInventoryDate,
+} from "../../utils/inventoryHelpers";
 import { useTranslation } from "react-i18next";
 
 export default function Inventory() {
@@ -44,27 +58,13 @@ export default function Inventory() {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showDispenseModal, setShowDispenseModal] = useState(false);
     const [selectedDrug, setSelectedDrug] = useState(null);
+    const [dispenseDrug, setDispenseDrug] = useState(null);
+    const [adjustBatch, setAdjustBatch] = useState(null);
+    const [expandedRows, setExpandedRows] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Form state
-    const [drugForm, setDrugForm] = useState({
-        brand_name_en: "",
-        brand_name_am: "",
-        genericName: "",
-        about_drug_en: "",
-        about_drug_am: "",
-        stock: "",
-        low_stock_threshold: 10,
-        price: "",
-        cost_price: "",
-        manufacturer: "",
-        category: "",
-        dosage_form: "",
-        expire_date: "",
-        batch_number: "",
-        rxRequired: false,
-    });
+    const [drugForm, setDrugForm] = useState({ ...EMPTY_DRUG_FORM });
 
     const fetchAnalytics = async () => {
         try {
@@ -80,10 +80,9 @@ export default function Inventory() {
         setInventoryError(null);
         try {
             const response = await apiGetInventory(params);
-            if (response.success) {
-                setInventory(response.data || []);
-                setMeta(response.meta || { current_page: 1, last_page: 1, total: 0 });
-            }
+            const { items, meta: pageMeta } = normalizeInventoryList(response);
+            setInventory(items);
+            setMeta(pageMeta);
         } catch (error) {
             console.error("Error fetching inventory:", error);
             setInventoryError(t("inventory.toast.loadFailed"));
@@ -127,7 +126,15 @@ export default function Inventory() {
         setIsSubmitting(true);
 
         try {
-            const response = await apiUpdateDrug(selectedDrug.pivot?.id || selectedDrug.inventory?.id, drugForm);
+            const inventoryId = getInventoryRowId(selectedDrug);
+            const payload = {
+                ...drugForm,
+                batch_inventory_id: drugForm.batch_inventory_id
+                    ? Number(drugForm.batch_inventory_id)
+                    : undefined,
+                prescription_required: drugForm.rxRequired,
+            };
+            const response = await apiUpdateDrug(inventoryId, payload);
             if (response.success) {
                 toast.success(t("inventory.toast.drugUpdated"));
                 fetchInventory();
@@ -148,7 +155,7 @@ export default function Inventory() {
 
     const handleToggleAvailability = async (drug) => {
         try {
-            const res = await apiToggleAvailability(drug.pivot?.id || drug.inventory?.id);
+            const res = await apiToggleAvailability(getInventoryRowId(drug));
             if (res.success) {
                 toast.success(res.is_available ? t("inventory.filters.available") : t("inventory.filters.unavailable"));
                 fetchInventory();
@@ -159,30 +166,67 @@ export default function Inventory() {
     };
 
     const resetDrugForm = () => {
-        setDrugForm({
-            brand_name_en: "",
-            brand_name_am: "",
-            genericName: "",
-            about_drug_en: "",
-            about_drug_am: "",
-            stock: "",
-            low_stock_threshold: 10,
-            price: "",
-            cost_price: "",
-            manufacturer: "",
-            category: "",
-            dosage_form: "",
-            expire_date: "",
-            batch_number: "",
-            rxRequired: false,
-        });
+        setDrugForm({ ...EMPTY_DRUG_FORM });
+    };
+
+    const handleBatchAdjust = async ({ quantity_change, reason, low_stock_threshold }) => {
+        if (!adjustBatch) return;
+        setIsSubmitting(true);
+        try {
+            const res = await apiAdjustBatchStock(adjustBatch.batch_inventory_id, {
+                quantity_change,
+                reason,
+                low_stock_threshold,
+            });
+            if (res.success) {
+                toast.success(res.message || "Batch updated");
+                setAdjustBatch(null);
+                fetchInventory();
+                fetchAnalytics();
+            } else {
+                toast.error(res.message || "Update failed");
+            }
+        } catch {
+            toast.error("Failed to adjust batch stock");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleDispense = async ({ quantity, reason }) => {
+        if (!dispenseDrug) return;
+        setIsSubmitting(true);
+        try {
+            const res = await apiDispenseFifo({
+                drug_id: dispenseDrug.id,
+                quantity,
+                reason: reason || "FIFO dispense",
+            });
+            if (res.success) {
+                toast.success("Dispensed using FIFO");
+                setShowDispenseModal(false);
+                setDispenseDrug(null);
+                fetchInventory();
+                fetchAnalytics();
+            } else {
+                toast.error(res.message || "Insufficient stock");
+            }
+        } catch {
+            toast.error("Dispense failed");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const toggleExpandRow = (rowKey) => {
+        setExpandedRows((prev) => ({ ...prev, [rowKey]: !prev[rowKey] }));
     };
 
     const handleDeleteDrug = async () => {
         if (!selectedDrug) return;
         setIsSubmitting(true);
         try {
-            const response = await apiDeleteDrug(selectedDrug.pivot?.id || selectedDrug.inventory?.id);
+            const response = await apiDeleteDrug(getInventoryRowId(selectedDrug));
             if (response.success) {
                 toast.success("deleted!");
                 fetchInventory();
@@ -207,22 +251,26 @@ export default function Inventory() {
 
     const openEditModal = (drug) => {
         setSelectedDrug(drug);
-        const inv = drug.pivot || drug.inventory || {};
+        const inv = getInv(drug);
+        const batches = drug.batches || [];
+        const batch = batches[0];
         setDrugForm({
             brand_name_en: drug.brand_name_en || "",
             brand_name_am: drug.brand_name_am || "",
             genericName: drug.generic_name || "",
             about_drug_en: inv.about_drug_en || "",
             about_drug_am: inv.about_drug_am || "",
-            stock: inv.stock || 0,
+            stock: batch?.available ?? inv.stock ?? 0,
             low_stock_threshold: inv.low_stock_threshold || 10,
-            price: inv.price || "",
-            cost_price: inv.cost_price || "",
-            manufacturer: inv.manufacturer || "",
-            category: inv.category || "",
-            dosage_form: inv.dosage_form || "",
-            expire_date: inv.expire_date || "",
-            batch_number: inv.batch_number || "",
+            price: batch?.price ?? inv.price ?? "",
+            cost_price: batch?.cost ?? inv.cost_price ?? "",
+            manufacturer: batch?.manufacturer ?? inv.manufacturer ?? "",
+            category: batch?.category ?? inv.category ?? "",
+            dosage_form: batch?.dosage_form ?? inv.dosage_form ?? "",
+            expire_date: formatInventoryDate(batch?.expiration_date || inv.expire_date),
+            manufacture_date: formatInventoryDate(batch?.manufacture_date) === "—" ? "" : formatInventoryDate(batch?.manufacture_date),
+            batch_number: batch?.batch_number ?? inv.batch_number ?? "",
+            batch_inventory_id: batch?.batch_inventory_id ?? null,
             rxRequired: inv.prescription_required || false,
         });
         setShowEditModal(true);
@@ -327,17 +375,20 @@ export default function Inventory() {
                                         <div className="flex-1 min-w-0">
                                             <p className="font-bold text-xs text-slate-800 dark:text-white truncate">
                                                 {item.drug?.brand_name_en || item.brand_name_en || item.generic_name}
+                                                {item.batch_number && (
+                                                    <span className="text-slate-400 font-semibold"> · {item.batch_number}</span>
+                                                )}
                                             </p>
                                             <div className="flex flex-wrap gap-2 mt-1">
                                                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-                                                    item.stock === 0 ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40' : 
-                                                    item.stock <= (item.low_stock_threshold || 10) ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/40' : 
+                                                    (item.stock ?? item.available) === 0 ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40' : 
+                                                    (item.stock ?? item.available) <= (item.low_stock_threshold || 10) ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/40' : 
                                                     'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40'
                                                 }`}>
-                                                    Stock: {item.stock}
+                                                    Stock: {item.stock ?? item.available ?? 0}
                                                 </span>
                                                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-                                                    Exp: {item.expire_date ? item.expire_date.split('T')[0] : 'N/A'}
+                                                    Exp: {(item.expire_date || item.expiration_date || '').toString().split('T')[0] || 'N/A'}
                                                 </span>
                                             </div>
                                         </div>
@@ -389,7 +440,9 @@ export default function Inventory() {
                                 { label: t("inventory.filters.available"), value: "available" },
                                 { label: t("inventory.filters.lowStock"), value: "low_stock" },
                                 { label: t("inventory.filters.outOfStock"), value: "out_of_stock" },
-                                { label: t("inventory.filters.expiring"), value: "expiring" }
+                                { label: t("inventory.filters.expiring"), value: "expiring" },
+                                { label: "Expiring ≤ 3 months", value: "expiring_3m" },
+                                { label: "Expiring ≤ 6 months", value: "expiring_6m" },
                             ]}
                         />
                         <button
@@ -448,13 +501,16 @@ export default function Inventory() {
                                 </tr>
                             ) : (
                                 inventory.map((drug) => {
-                                    const inv = drug.pivot || drug.inventory || {};
+                                    const inv = getInv(drug);
+                                    const batches = drug.batches || [];
+                                    const rowKey = getInventoryRowId(drug);
+                                    const isExpanded = expandedRows[rowKey];
                                     const isLow = inv.stock <= (inv.low_stock_threshold || 10);
                                     const isOut = inv.stock === 0;
 
                                     return (
+                                        <React.Fragment key={rowKey}>
                                         <motion.tr
-                                            key={drug.id}
                                             variants={rowItemVariants}
                                             className="hover:bg-slate-50/50 dark:hover:bg-slate-800/25 transition-colors group"
                                         >
@@ -470,6 +526,17 @@ export default function Inventory() {
                                                         <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold italic mt-0.5">
                                                             {drug.generic_name}
                                                         </p>
+                                                        {batches.length > 0 && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => toggleExpandRow(rowKey)}
+                                                                className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-1 inline-flex items-center gap-0.5 hover:underline"
+                                                            >
+                                                                <Layers size={10} />
+                                                                {batches.length} batch{batches.length > 1 ? "es" : ""}
+                                                                {isExpanded ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </td>
@@ -509,9 +576,16 @@ export default function Inventory() {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-3.5">
-                                                <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
-                                                    <Calendar size={14} className="text-slate-400 dark:text-slate-500" />
-                                                    {inv.expire_date || "—"}
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                                                        <Calendar size={14} className="text-slate-400 dark:text-slate-500" />
+                                                        {(inv.expire_date || "").toString().split("T")[0] || "—"}
+                                                    </div>
+                                                    {batches.length > 1 && (
+                                                        <span className="text-[10px] text-purple-500 font-bold">
+                                                            +{batches.length - 1} more expiry date{batches.length > 2 ? "s" : ""}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-3.5">
@@ -519,6 +593,19 @@ export default function Inventory() {
                                             </td>
                                             <td className="px-6 py-3.5">
                                                 <div className="flex items-center justify-center gap-1.5">
+                                                    {inv.stock > 0 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setDispenseDrug({ ...drug, total_stock: inv.stock });
+                                                                setShowDispenseModal(true);
+                                                            }}
+                                                            className="p-2 text-violet-500 bg-violet-50 dark:bg-violet-950/40 rounded-xl hover:bg-violet-500 hover:text-white transition-all duration-300 active:scale-90 cursor-pointer"
+                                                            title="FIFO dispense"
+                                                        >
+                                                            <MinusCircle size={16} />
+                                                        </button>
+                                                    )}
                                                     <button
                                                         onClick={() => handleToggleAvailability(drug)}
                                                         className={`p-2 rounded-xl transition-all duration-300 active:scale-90 cursor-pointer ${inv.is_available
@@ -549,6 +636,14 @@ export default function Inventory() {
                                                 </div>
                                             </td>
                                         </motion.tr>
+                                        {isExpanded && batches.length > 0 && (
+                                            <tr className="bg-slate-50/80 dark:bg-slate-850/20">
+                                                <td colSpan={7} className="px-6 py-4">
+                                                    <BatchTable batches={batches} onAdjustStock={(b) => setAdjustBatch(b)} />
+                                                </td>
+                                            </tr>
+                                        )}
+                                        </React.Fragment>
                                     );
                                 })
                             )}
@@ -613,6 +708,12 @@ export default function Inventory() {
                         icon={<Trash2 size={16} />}
                         label={t("inventory.tabs.trash")}
                     />
+                    <TabButton
+                        active={subTab === "alerts"}
+                        onClick={() => setSubTab("alerts")}
+                        icon={<Bell size={16} />}
+                        label="Alerts"
+                    />
                 </div>
             </div>
 
@@ -628,6 +729,7 @@ export default function Inventory() {
                     {subTab === "active" && renderMainInventory()}
                     {subTab === "history" && <InventoryHistory />}
                     {subTab === "trash" && <InventoryTrash />}
+                    {subTab === "alerts" && <BatchAlertsTab />}
                 </motion.div>
             </AnimatePresence>
 
@@ -635,6 +737,7 @@ export default function Inventory() {
             <AnimatePresence>
                 {showAddModal && (
                     <DrugInventoryModal
+                        mode="add"
                         title={t("modal.drugInventory.titleAdd")}
                         drugForm={drugForm}
                         setDrugForm={setDrugForm}
@@ -646,6 +749,8 @@ export default function Inventory() {
                 )}
                 {showEditModal && (
                     <DrugInventoryModal
+                        mode="edit"
+                        batches={selectedDrug?.batches || []}
                         title={t("modal.drugInventory.titleEdit")}
                         drugForm={drugForm}
                         setDrugForm={setDrugForm}
@@ -656,6 +761,25 @@ export default function Inventory() {
                         }}
                         isSubmitting={isSubmitting}
                         submitLabel={t("modal.drugInventory.actions.submitEdit")}
+                    />
+                )}
+                {showDispenseModal && dispenseDrug && (
+                    <DispenseModal
+                        drug={dispenseDrug}
+                        onClose={() => {
+                            setShowDispenseModal(false);
+                            setDispenseDrug(null);
+                        }}
+                        onSubmit={handleDispense}
+                        isSubmitting={isSubmitting}
+                    />
+                )}
+                {adjustBatch && (
+                    <BatchAdjustModal
+                        batch={adjustBatch}
+                        onClose={() => setAdjustBatch(null)}
+                        onSubmit={handleBatchAdjust}
+                        isSubmitting={isSubmitting}
                     />
                 )}
                 {showDeleteModal && selectedDrug && (
