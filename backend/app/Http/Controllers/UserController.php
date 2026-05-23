@@ -34,7 +34,7 @@ public function forgotPassword(Request $request){
       $otp = rand(1000, 9999);
       $expiresAt = now()->addMinutes(5);
        // Save pending user
-  
+
 
     // Save OTP
     OtpVerification::updateOrCreate(
@@ -47,10 +47,32 @@ public function forgotPassword(Request $request){
     );
 
 
-     // Send OTP via SMS or email (implementation depends on your setup)
+  $response = Http::withBasicAuth(env('TELERIVET_API_KEY'), '')
+    ->asJson()
+    ->post(
+        'https://api.telerivet.com/v1/projects/' . env('TELERIVET_PROJECT_ID') . '/messages/send',
+        [
+            'to_number' => $request->phone,
+            'content' => "Your OTP is $otp",
+        ]
+    );
 
-     return response()->json(['success'=>true, 'message' => $otp.'OTP sent successfully to- '.$request->phone]);
-}
+ if ($response->successful()) {
+    $data = $response->json();
+
+    $messageId = $data['id'];
+    $status = $data['status'];
+    $message = $data['content'];
+    Log::info("message");
+    // Save to DB or log
+    // Save to DB or log
+ } else {
+    // Handle error
+    logger()->error($response->body());
+ }
+
+     return response()->json(['success'=>true, 'message' => 'OTP sent successfully to- '.$request->phone]);
+ }
 
 public function resetPassword(Request $request){
     $request->validate([
@@ -66,7 +88,7 @@ public function resetPassword(Request $request){
     $pendingUser = PendingUser::where("phone",$request->phone)->first();
 
     $otpRow = OtpVerification::where('phone', $request->phone)->first();
-   
+
     if (!$user) {
         return response()->json(['success'=>false, 'message' => 'User_not_found'], 404);
     }
@@ -77,9 +99,9 @@ public function resetPassword(Request $request){
     if (!Hash::check($request->token,$pendingUser->reset_token)){
         return response()->json(["success"=>false,"message"=>"invalid_token"]);
     }
-   
 
-   
+
+
     $user->update(['Password' => bcrypt($request->new_password)]);
     $otpRow->delete();
 
@@ -105,7 +127,7 @@ public function verifyUserResttingPasswordOtp(Request $request)
     $otpRow = OtpVerification::where('phone', $request->phone)->first();
     $pendingUser = PendingUser::where("phone",$request->phone)->first();
     $user = User::where("Phone",$request->phone)->first();
- 
+
 
     if (!$otpRow) {
         return response()->json(["success" => false, 'message' => 'OTP expired']);
@@ -139,7 +161,7 @@ public function verifyUserResttingPasswordOtp(Request $request)
     $otpRow->delete();
     $pendingUser->delete();
     */
- 
+
 
 
 $token = Str::random(64);
@@ -147,7 +169,7 @@ $token = Str::random(64);
  PendingUser::updateOrCreate(
     ['phone' => $user->Phone],
     [
-        
+
         'reset_token' => Hash::make($token),
         'created_at' => now(),
         'expires_at' => now()->addMinutes(10),
@@ -160,7 +182,7 @@ $token = Str::random(64);
          "phone"=>$user->Phone
     ]);
     }
-  
+
 
        public function auditLogs(Request $request)
       {
@@ -171,7 +193,7 @@ $token = Str::random(64);
           }
           if ($user->hasRole('admin')) {
               $query = AuditLog::query();
-    
+
               if ($request->search) {
                   $query->where(function ($q) use ($request) {
                       $q->where('event', 'like', "%{$request->search}%")
@@ -192,11 +214,11 @@ $token = Str::random(64);
               if ($request->category && $request->category !== 'ALL') {
                   $query->where('category', $request->category);
               }
-    
+
               $auditLogs = $query->orderBy('id', 'desc')->paginate(10);
               return response()->json(['ok' => true, 'data' => $auditLogs]);
           }
-    
+
           return response()->json(['ok' => false, 'message' => 'Unauthorized'], 403);
       }
 

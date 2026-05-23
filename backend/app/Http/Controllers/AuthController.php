@@ -10,6 +10,8 @@ use App\Models\OtpVerification;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
+
 
 use Illuminate\Support\Facades\Log;
 
@@ -96,12 +98,35 @@ class AuthController extends Controller
 
         // TODO: Send OTP via SMS provider
         // sendOtpSms($validated['phone'], $otp);
+ $response = Http::withBasicAuth(env('TELERIVET_API_KEY'), '')
+    ->asJson()
+    ->post(
+        'https://api.telerivet.com/v1/projects/' . env('TELERIVET_PROJECT_ID') . '/messages/send',
+        [
+            'to_number' => $validated['phone'],
+            'content' => "Your OTP is $otp",
+        ]
+    );
+
+ if ($response->successful()) {
+    $data = $response->json();
+
+    $messageId = $data['id'];
+    $status = $data['status'];
+    $message = $data['content'];
+    Log::info("message");
+
+ } else {
+    // Handle error
+    logger()->error($response->body());
+ }
+
 
         $this->logAudit($request, 'REGISTER_REQUEST', "OTP sent for phone {$validated['phone']}", 'success', 'auth', ['phone' => $validated['phone']]);
 
         return response()->json([
             'success' => true,
-            'message' => $otp . " OTP sent to your phone" . $request->phone,
+            'message' => " OTP sent to your phone",
         ]);
 
     }    public function verifyOtp(Request $request)    {

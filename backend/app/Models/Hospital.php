@@ -20,8 +20,7 @@ class Hospital extends Model
         "logo",
         "emergency_contact",
         "contact_email",
-        "address_description_en",
-        "address_description_am",
+    
         "status",
         "rejection_reason",
         "approved_by"
@@ -69,7 +68,7 @@ protected $appends = ['logo_url', 'official_license_upload_url'];
 
     public function departments()
     {
-        
+
         return $this->belongsToMany(Department::class, 'hospital_departments', 'hospital_id', 'department_id');
     }
 }

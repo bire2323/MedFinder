@@ -19,8 +19,7 @@ class Pharmacy extends Model
         "contact_email",
         "contact_phone",
         "logo",
-        "address_description_en",
-        "address_description_am",
+
         "status",
         "rejection_reason",
         "approved_by"
@@ -60,7 +59,7 @@ protected $appends = ['logo_url', 'license_document_url'];
         return $this->belongsTo(User::class, 'pharmacy_agent_id');
     }
 
-  
+
      public function drugs(): BelongsToMany
     {
         return $this->belongsToMany(Drug::class,'pharmacy_drug_inventories')
@@ -69,6 +68,6 @@ protected $appends = ['logo_url', 'license_document_url'];
                     ->using(PharmacyDrugInventory::class)
             ->as('inventory');
     }
-   
+
 
 }

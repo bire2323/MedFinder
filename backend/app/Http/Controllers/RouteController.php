@@ -39,7 +39,11 @@ class RouteController extends Controller
         $cacheKey = "route_{$request->query('from')}_{$request->query('to')}";
 
         return Cache::remember($cacheKey, 3600, function () use ($from, $to) {
-            return $this->fetchRouteFromORS($from, $to);
+            // [SELF-HOSTED/ORS] OpenRouteService API — uncomment to revert (requires ORS_API_KEY)
+            // return $this->fetchRouteFromORS($from, $to);
+
+            // [FREE-TEST] Public OSRM — no signup, no card required
+            return $this->fetchRouteFromPublicOSRM($from, $to);
         });
     }
 
@@ -111,7 +115,11 @@ class RouteController extends Controller
         $best = $ranked->first();
         $targetPos = [$best['lat'], $best['lng']];
 
-        $route = $this->fetchRouteFromORS($userPos, $targetPos);
+        // [SELF-HOSTED/ORS] OpenRouteService API — uncomment to revert (requires ORS_API_KEY)
+        // $route = $this->fetchRouteFromORS($userPos, $targetPos);
+
+        // [FREE-TEST] Public OSRM — no signup, no card required
+        $route = $this->fetchRouteFromPublicOSRM($userPos, $targetPos);
 
         return response()->json([
             'success' => true,
@@ -121,7 +129,71 @@ class RouteController extends Controller
     }
 
     /**
-     * Fetch route safely from ORS
+     * [FREE-TEST] Fetch route from Public OSRM — No signup, no card required.
+     * Rate-limited — for testing only.
+     * To revert: comment this method's calls and uncomment fetchRouteFromORS() calls above.
+     */
+    private function fetchRouteFromPublicOSRM($start, $end)
+    {
+        try {
+            $startLng = (float)$start[1];
+            $startLat = (float)$start[0];
+            $endLng   = (float)$end[1];
+            $endLat   = (float)$end[0];
+
+            $url = "https://router.project-osrm.org/route/v1/driving/{$startLng},{$startLat};{$endLng},{$endLat}";
+
+            $response = Http::timeout(15)->get($url, [
+                'overview'   => 'full',
+                'geometries' => 'geojson',
+                'steps'      => 'true',
+            ]);
+
+            if ($response->failed()) {
+                \Log::error('Public OSRM request failed', [
+                    'status' => $response->status(),
+                    'body'   => $response->body(),
+                ]);
+                return $this->fallbackRoute($start, $end, 'Public OSRM request failed');
+            }
+
+            $data  = $response->json();
+            $route = $data['routes'][0] ?? null;
+
+            if (!$route) {
+                return $this->fallbackRoute($start, $end, 'No route returned from public OSRM');
+            }
+
+            // Build steps from OSRM legs
+            $steps = [];
+            foreach ($route['legs'][0]['steps'] ?? [] as $step) {
+                $loc = $step['maneuver']['location'] ?? [0, 0];
+                $steps[] = [
+                    'instruction' => $step['maneuver']['instruction'] ?? ($step['name'] ?? 'Continue'),
+                    'distance'    => $step['distance'] ?? 0,
+                    'duration'    => $step['duration'] ?? 0,
+                    'type'        => $step['maneuver']['type'] ?? '',
+                    'lat'         => $loc[1],
+                    'lng'         => $loc[0],
+                ];
+            }
+
+            return [
+                'geometry' => $route['geometry'],   // already GeoJSON LineString
+                'distance' => $route['distance'] ?? 0,
+                'duration' => $route['duration'] ?? 0,
+                'steps'    => $steps,
+            ];
+
+        } catch (\Exception $e) {
+            \Log::error('Public OSRM exception', ['error' => $e->getMessage()]);
+            return $this->fallbackRoute($start, $end, 'Exception: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * [SELF-HOSTED/ORS] Fetch route safely from ORS
+     * Uncomment calls to this method above and comment fetchRouteFromPublicOSRM() calls to revert.
      */
     private function fetchRouteFromORS($start, $end)
     {

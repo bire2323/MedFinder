@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
      ->withMiddleware(function (Middleware $middleware) {
         $middleware->statefulApi(); // Enables session and CSRF for first-party SPAs
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        ]);
     })
    ->withBroadcasting(
    __DIR__.'/../routes/channels.php',

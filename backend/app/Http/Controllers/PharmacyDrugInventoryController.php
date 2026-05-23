@@ -457,24 +457,41 @@ public function botSearchMedicine(Request $request)
         if (!$pharmacy) return response()->json(['success' => false], 200);
 
         $totalItems = PharmacyDrugInventory::where('pharmacy_id', $pharmacy->id)->count();
+        $drugs = PharmacyDrugInventory::where('pharmacy_id', $pharmacy->id)->with('drug')->get();
         $lowStock = PharmacyDrugInventory::where('pharmacy_id', $pharmacy->id)
             ->whereRaw('stock <= low_stock_threshold')
             ->count();
+        $lowStockItems = PharmacyDrugInventory::where('pharmacy_id', $pharmacy->id)
+            ->whereRaw('stock <= low_stock_threshold')
+            ->with('drug')
+            ->get();
         $outOfStock = PharmacyDrugInventory::where('pharmacy_id', $pharmacy->id)
             ->where('stock', 0)
             ->count();
+        $outOfStockItems = PharmacyDrugInventory::where('pharmacy_id', $pharmacy->id)
+            ->where('stock', 0)
+            ->with('drug')
+            ->get();
         $expiringSoon = PharmacyDrugInventory::where('pharmacy_id', $pharmacy->id)
             ->where('expire_date', '<=', now()->addMonths(3))
             ->count();
+        $expiringSoonItems = PharmacyDrugInventory::where('pharmacy_id', $pharmacy->id)
+            ->where('expire_date', '<=', now()->addMonths(3))
+            ->with('drug')
+            ->get();
         $userSession = ChatSession::where("pharmacy_id", $pharmacy->id)->count();
 
         return response()->json([
             'success' => true,
             'data' => [
                 'total_items' => $totalItems,
+                "drugs" => $drugs,
                 'low_stock' => $lowStock,
                 'out_of_stock' => $outOfStock,
+                'low_stock_items' => $lowStockItems,
+                'out_of_stock_items' => $outOfStockItems,
                 'expiring_soon' => $expiringSoon,
+                'expiring_soon_items' => $expiringSoonItems,
                 'user_sessions' => $userSession,
             ]
         ]);

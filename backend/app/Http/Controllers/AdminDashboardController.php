@@ -124,6 +124,34 @@ class AdminDashboardController extends Controller
     }
 
     /**
+     * Delete old, read notifications based on a given duration.
+     */
+    public function deleteOldNotifications(Request $request)
+    {
+        $validated = $request->validate([
+            'duration' => 'required|string|in:7_days,30_days,6_months,1_year',
+        ]);
+
+        $duration = $validated['duration'];
+        $thresholdDate = match ($duration) {
+            '7_days' => now()->subDays(7),
+            '30_days' => now()->subDays(30),
+            '6_months' => now()->subMonths(6),
+            '1_year' => now()->subYear(),
+        };
+
+        $deletedCount = Notification::whereNotNull('read_at')
+                                    ->where('created_at', '<', $thresholdDate)
+                                    ->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Successfully deleted {$deletedCount} old notifications.",
+            'deleted_count' => $deletedCount,
+        ]);
+    }
+
+    /**
      * List audit logs for admin.
      */
     public function auditLogs(Request $request)
@@ -273,6 +301,44 @@ class AdminDashboardController extends Controller
                 'avgResponseTime' => $avgResponseTime,
                 'userSatisfaction' => $userSatisfaction,
             ],
+        ]);
+    }
+
+    /**
+     * Clear audit logs older than a given period.
+     */
+    public function clearOldAuditLogs(Request $request)
+    {
+        // 1. Ensure only admins can access this endpoint
+        if (!$request->user() || !$request->user()->hasRole('admin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. Only administrators can perform this action.'
+            ], 403);
+        }
+
+        // 2. Validate the retention period input
+        $validated = $request->validate([
+            'period' => 'required|string|in:1_month,6_months,1_year',
+        ]);
+
+        $period = $validated['period'];
+
+        // 3. Calculate threshold date using Carbon
+        $thresholdDate = match ($period) {
+            '1_month' => now()->subMonth(),
+            '6_months' => now()->subMonths(6),
+            '1_year' => now()->subYear(),
+        };
+
+        // 4. Delete matching logs using forceDelete (hard delete)
+        $deletedCount = AuditLog::where('created_at', '<', $thresholdDate)->forceDelete();
+
+        // 5. Return success JSON response
+        return response()->json([
+            'success' => true,
+            'message' => 'Old logs deleted successfully',
+            'deleted_count' => $deletedCount,
         ]);
     }
 }

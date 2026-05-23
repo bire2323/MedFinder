@@ -19,6 +19,11 @@ class HospitalPharmacySeeder extends Seeder
             'password' => Hash::make('admin123'),
         ]);
 
+        $amhara = \App\Models\Region::where('name_en', 'Amhara')->first();
+        $gonder = \App\Models\City::where('name_en', 'Gonder')->first();
+        $regionId = $amhara ? $amhara->id : null;
+        $cityId = $gonder ? $gonder->id : null;
+
         // 2. SEED HOSPITALS (6 Locations in Gondar)
         $hospitalsData = [
             [
@@ -99,11 +104,13 @@ class HospitalPharmacySeeder extends Seeder
                 'contact_email' => $h["EMAIL_ADDRESS"],
                 'status' => 'APPROVED',
             ])->addresses()->create([
-                'region_en' => 'Amhara', 'region_am' => 'አማራ',
-                'zone_en' => 'Central Gondar', 'zone_am' => 'ማዕከላዊ ጎንደር',
-                'sub_city_en' => $h['sub_city'], 'sub_city_am' => $h['sub_city'],
-                'kebele'=>rand(1,20),
-                'latitude' => $h['lat'], 'longitude' => $h['long'],
+                'region_id' => $regionId,
+                'city_id' => $cityId,
+                'description_en' => 'Central Gondar market area',
+                'description_am' => 'ማዕከላዊ ጎንደር',
+                'kebele' => $h['sub_city'] . ', Kebele ' . rand(1, 20),
+                'latitude' => $h['lat'],
+                'longitude' => $h['long'],
                 'address_type' => 'Physical',
             ]);
         }
@@ -145,10 +152,11 @@ class HospitalPharmacySeeder extends Seeder
                 ]),
                 'status' => 'APPROVED',
             ])->addresses()->create([
-                'region_en' => 'Amhara', 'region_am' => 'አማራ',
-                'zone_en' => 'Central Gondar', 'zone_am' => 'ማዕከላዊ ጎንደር',
-                'sub_city_en' => $p['sub'], 'sub_city_am' => $p['sub'],
-                'kebele'=>rand(1,20),
+                'region_id' => $regionId,
+                'city_id' => $cityId,
+                'description_en' => 'Central Gondar',
+                'description_am' => 'ማዕከላዊ ጎንደር',
+                'kebele' => $p['sub'] . ', Kebele ' . rand(1, 20),
                 'latitude' => 12.6000 + (rand(-100, 100) / 10000), 
                 'longitude' => 37.4500 + (rand(-100, 100) / 10000),
                 'address_type' => 'Retail Shop',

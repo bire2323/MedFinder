@@ -9,7 +9,12 @@ class OSRMServices
 
     public function __construct()
     {
-        $this->baseUrl = config('services.OSRM.base_url');
+        // [SELF-HOSTED] Self-hosted OSRM Docker container — uncomment to revert
+        // $this->baseUrl = config('services.OSRM.base_url');
+
+        // [FREE-TEST] Public OSRM instance — no signup, no card required
+        // Rate-limited, for testing only. Switch back to self-hosted for production.
+        $this->baseUrl = 'https://router.project-osrm.org';
     }
 
   public function getRoute($startLat, $startLng, $endLat, $endLng, $withSteps = false)

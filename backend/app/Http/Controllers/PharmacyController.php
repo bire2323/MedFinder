@@ -20,7 +20,7 @@ class PharmacyController extends Controller
      */
     public function index()
     {
-        $pharmacies = Pharmacy::with('addresses')
+        $pharmacies = Pharmacy::with(['addresses.region', 'addresses.city'])
             ->where('status', 'APPROVED')
             ->get();
         $pharmacies =  $pharmacies->map(function ($pharmacy) {
@@ -37,25 +37,17 @@ class PharmacyController extends Controller
 
     public function getPharmaProfile()
     {
-        $pharmacy = auth('sanctum')->user()->pharmacy->load('addresses');
+        $pharmacy = auth('sanctum')->user()->pharmacy->load(['addresses.region', 'addresses.city']);
 
         return response()->json([
             'success' => true,
             'data' => $pharmacy,
         ], 200);
     }
- public function updateProfile(Request $request, $id)
+ public function updateProfile(Request $request, Pharmacy $pharmacy)
 {
     try {
         DB::beginTransaction();
-
-        $pharmacy = Pharmacy::find($id);
-        if (!$pharmacy) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pharmacy not found',
-            ], 404);
-        }
 
         // Fix boolean fields
         if ($request->has('is_full_time_service')) {
@@ -74,8 +66,8 @@ class PharmacyController extends Controller
             'pharmacy_license_category' => 'sometimes|string|max:255',
             'contact_phone' => 'sometimes|string|max:20',
             'contact_email' => 'sometimes|email|max:255',
-            'address_description_en' => 'sometimes|string|nullable',
-            'address_description_am' => 'sometimes|string|nullable',
+            'description_en' => 'sometimes|string|nullable',
+            'description_am' => 'sometimes|string|nullable',
             'is_full_time_service' => 'sometimes|boolean',
             'working_hour' => 'sometimes|nullable',
         ];
@@ -152,6 +144,21 @@ class PharmacyController extends Controller
 
             // ONLY unset if it's an array
             if (is_array($addressData)) {
+                // Validate region_id and city_id if present
+                if (isset($addressData['region_id']) || isset($addressData['city_id'])) {
+                    $regId = $addressData['region_id'] ?? ($pharmacy->addresses()->first()->region_id ?? null);
+                    $cId = $addressData['city_id'] ?? ($pharmacy->addresses()->first()->city_id ?? null);
+                    if ($regId && $cId) {
+                        $cityExists = \App\Models\City::where('id', $cId)->where('region_id', $regId)->exists();
+                        if (!$cityExists) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'The selected city does not belong to the selected region.'
+                            ], 422);
+                        }
+                    }
+                }
+
                 // Remove fields that shouldn't be updated
                 unset($addressData['id']);
                 unset($addressData['addressable_id']);
@@ -194,7 +201,7 @@ class PharmacyController extends Controller
         DB::commit();
 
         // Load relationships for response
-        $pharmacy->load('addresses');
+        $pharmacy->load(['addresses.region', 'addresses.city']);
 
         return response()->json([
             'success' => true,
@@ -230,7 +237,7 @@ class PharmacyController extends Controller
         $lng = $request->query('lng');
         $radius = $request->query('radius', 10); // Default 10km
 
-        $query = Pharmacy::with('addresses')
+        $query = Pharmacy::with(['addresses.region', 'addresses.city'])
             ->where('status', 'APPROVED');
 
         if ($lat && $lng) {
@@ -256,37 +263,41 @@ class PharmacyController extends Controller
             // Basic Info
             'facilityNameEn' => 'required|string|min:3|max:255',
             'facilityNameAm' => 'required|string|min:3|max:255',
-
             'contact_email' => 'nullable|email|unique:users,email',
 
-
             // Location Info
-            'region_en' => 'required|string|max:255',
-            'region_am' => 'required|string|max:255',
+            'region_id' => 'required|exists:regions,id',
+            'city_id' => [
+                'required',
+                'exists:cities,id',
+                function ($attribute, $value, $fail) use ($request) {
+                    $cityExists = \App\Models\City::where('id', $value)
+                        ->where('region_id', $request->input('region_id'))
+                        ->exists();
+                    if (!$cityExists) {
+                        $fail('The selected city does not belong to the selected region.');
+                    }
+                }
+            ],
             'zone_en' => 'required|string|max:255',
             'zone_am' => 'required|string|max:255',
-            'sub_city_en' => 'required|string|max:255',
-            'sub_city_am' => 'required|string|max:255',
             'kebele' => 'nullable|string|max:100',
-            'detailed_address_en' => 'nullable|string|max:500',
-            'detailed_address_am' => 'nullable|string|max:500',
-            'latitude' => 'required|numeric|between:-90,90',
-            'longitude' => 'required|numeric|between:-180,180',
+            'description_en' => 'nullable|string|max:500',
+            'description_am' => 'nullable|string|max:500',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
             'working_hour' => 'required|string',
-             'contact_phone' => 'nullable|string',
+            'contact_phone' => 'nullable|string',
 
-            // Hospital Verification
+            // Pharmacy Verification
             'license_number' => 'required|string|max:100',
             'pharmacy_type' => 'required|string|max:100',
-
-
 
             // Files
             'license_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
             'logo' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // 2MB max
         ],[
             'contact_email.unique' => 'Email already exists',
-
         ]);
 
         try {
@@ -330,8 +341,6 @@ class PharmacyController extends Controller
                 'working_hour' => $workingHour,
                 'contact_phone' => $validated["contact_phone"], // Can be updated later
                 'contact_email' => $validated["contact_email"], // Can be updated later
-                "address_description_en" => $validated['detailed_address_en'] ?? null,
-                "address_description_am" => $validated['detailed_address_am'] ?? null,
                 'logo' => $logoPath, // 2MB max
 
                 'status' => 'PENDING',
@@ -341,15 +350,13 @@ class PharmacyController extends Controller
             Location::create([
                 'addressable_id' => $pharmacy->id,
                 'addressable_type' => Pharmacy::class,
-                'region_en' => $validated['region_en'],
-                'region_am' => $validated['region_am'],
-                'zone_en' => $validated['zone_en'],
-                'zone_am' => $validated['zone_am'],
-                'sub_city_en' => $validated['sub_city_en'],
-                'sub_city_am' => $validated['sub_city_am'],
+                'region_id' => $validated['region_id'],
+                'city_id' => $validated['city_id'],
+                'description_en' => $validated['description_en'],
+                'description_am' => $validated['description_am'],
                 'kebele' => $validated['kebele'] ?? null,
-                'latitude' => $validated['latitude'],
-                'longitude' => $validated['longitude'],
+                'latitude' => $validated['latitude'] ?? null,
+                'longitude' => $validated['longitude'] ?? null,
                 'address_type' => 'main',
             ]);
             $user->syncRoles('pharmacyAgent');
@@ -389,15 +396,14 @@ class PharmacyController extends Controller
      */
     public function show(Pharmacy $pharmacy)
     {
-        $pharmacy = Pharmacy::with(['addresses','drugs'])->find($pharmacy->id);
-
+        $pharmacy = Pharmacy::with(['addresses.region', 'addresses.city', 'drugs'])->find($pharmacy->id);
 
         return response()->json(["success" => true, "data" => $pharmacy]);
     }
 
 public function botIndex(Request $request)
     {
-        $query = Pharmacy::with(['addresses', 'drugs.inventory'])
+        $query = Pharmacy::with(['addresses.region', 'addresses.city', 'drugs.inventory'])
             ->where('status', 'APPROVED');
 
         // 🔍 Filter by pharmacy name
@@ -411,9 +417,14 @@ public function botIndex(Request $request)
         // 📍 Filter by location (from addresses relation)
         if ($request->location) {
             $query->whereHas('addresses', function ($q) use ($request) {
-                $q->where('region_en', 'LIKE', "%{$request->location}%")
-                  ->orWhere('zone_en', 'LIKE', "%{$request->location}%")
-                  ->orWhere('sub_city_en', 'LIKE', "%{$request->location}%");
+                $q->whereHas('region', function ($r) use ($request) {
+                    $r->where('name_en', 'LIKE', "%{$request->location}%")
+                      ->orWhere('name_am', 'LIKE', "%{$request->location}%");
+                })->orWhereHas('city', function ($c) use ($request) {
+                    $c->where('name_en', 'LIKE', "%{$request->location}%")
+                      ->orWhere('name_am', 'LIKE', "%{$request->location}%");
+                })->orWhere('zone_en', 'LIKE', "%{$request->location}%")
+                  ->orWhere('zone_am', 'LIKE', "%{$request->location}%");
             });
         }
 
@@ -421,13 +432,14 @@ public function botIndex(Request $request)
 
         // ✅ Transform response for Rasa
         $result = $pharmacies->map(function ($p) {
-
             $address = $p->addresses->first();
+            $regionName = $address && $address->region ? $address->region->name_en : '';
+            $cityName = $address && $address->city ? $address->city->name_en : '';
 
             return [
                 "pharmacy" => $p->pharmacy_name_en,
                 "location" => $address
-                    ? "{$address->region_en}, {$address->zone_en}, {$address->sub_city_en}"
+                    ? trim("{$regionName}, {$cityName}, " . ($address->zone_en ? "{$address->zone_en}, " : "") . "{$address->kebele}", ", ")
                     : "Unknown",
                 "working_hours" => $p->working_hour,
                 "phone" => $p->contact_phone,

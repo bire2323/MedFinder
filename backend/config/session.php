@@ -17,7 +17,7 @@ return [
     'cookie' => env('SESSION_COOKIE', 'laravel_session'), // Changed from dynamic slug
     
     'path' => env('SESSION_PATH', '/'),
-    'domain' => env('SESSION_DOMAIN', '.medfinder.com'),
+    'domain' => env('SESSION_DOMAIN', null),
     'secure' => env('SESSION_SECURE_COOKIE', true),
     'http_only' => env('SESSION_HTTP_ONLY', true),
     'same_site' => env('SESSION_SAME_SITE', 'none'),

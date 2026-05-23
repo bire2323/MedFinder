@@ -18,7 +18,7 @@ class HospitalController extends Controller
      */
     public function index()
     {
-        $hospitals = Hospital::with('addresses')
+        $hospitals = Hospital::with(['addresses.region', 'addresses.city'])
             ->where('status', 'APPROVED')
             ->get();
 
@@ -37,7 +37,7 @@ class HospitalController extends Controller
         $lng = $request->query('lng');
         $radius = $request->query('radius', 10); // Default 10km
 
-        $query = Hospital::with('addresses')
+        $query = Hospital::with(['addresses.region', 'addresses.city'])
             ->where('status', 'APPROVED');
 
         if ($lat && $lng) {
@@ -67,20 +67,27 @@ class HospitalController extends Controller
             // Basic Info
             'facilityNameEn' => 'required|string|min:3|max:255',
             'facilityNameAm' => 'required|string|min:3|max:255',
-
             'contact_email' => 'nullable|email|unique:users,email',
 
-
             // Location Info
-            'region_en' => 'required|string|max:255',
-            'region_am' => 'required|string|max:255',
-            'zone_en' => 'required|string|max:255',
-            'zone_am' => 'required|string|max:255',
-            'sub_city_en' => 'required|string|max:255',
-            'sub_city_am' => 'required|string|max:255',
+            'region_id' => 'required|exists:regions,id',
+            'city_id' => [
+                'required',
+                'exists:cities,id',
+                function ($attribute, $value, $fail) use ($request) {
+                    $cityExists = \App\Models\City::where('id', $value)
+                        ->where('region_id', $request->input('region_id'))
+                        ->exists();
+                    if (!$cityExists) {
+                        $fail('The selected city does not belong to the selected region.');
+                    }
+                }
+            ],
+
             'kebele' => 'nullable|string|max:100',
-            'detailed_address_en' => 'nullable|string|max:500',
-            'detailed_address_am' => 'nullable|string|max:500',
+
+            'description_en' => 'nullable|string|max:255',
+            'description_am' => 'nullable|string|max:255',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
             'working_hour' => 'required|string',
@@ -96,24 +103,18 @@ class HospitalController extends Controller
             'license_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
             'logo' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // 2MB max
         ],[
-             'facilityNameEn' => 'FACILITY_NAME_REQ',
+            'facilityNameEn' => 'FACILITY_NAME_REQ',
             'facilityNameAm' => 'FACILITY_NAME_AM_REQ',
-
             'contact_email' => 'CONTACT_EMAIL_REQ',
 
-
             // Location Info
-            'region_en' => 'REGION_EN_REQ',
-            'region_am' => 'REGION_AM_REQ',
+            'region_id' => 'REGION_ID_REQ',
+            'city_id' => 'CITY_ID_REQ',
             'zone_en' => 'ZONE_EN_REQ',
             'zone_am' => 'ZONE_AM_REQ',
-            'sub_city_en' => 'SUB_CITY_EN_REQ',
-            'sub_city_am' => 'SUB_CITY_AM_REQ',
             'kebele' => 'KEBELE_REQ',
-            'detailed_address_en' => 'DETAILED_ADDRESS_EN_REQ',
-            'detailed_address_am' => 'DETAILED_ADDRESS_AM_REQ',
-            'latitude' => 'LATITUDE_REQ',
-            'longitude' => 'LONGITUDE_REQ',
+            'description_en' => 'DESCRIPTION_EN_REQ',
+            'description_am' => 'DESCRIPTION_AM_REQ',
             'working_hour' => 'WORKING_HOUR_REQ',
             'contact_phone' => 'CONTACT_PHONE_REQ',
 
@@ -185,8 +186,7 @@ class HospitalController extends Controller
                 'hospital_ownership_type' => $validated['hospital_ownership_type'],
                 'official_license_upload' => $licensePath,
                 'working_hour' => $workingHour,
-                "address_description_en"=>$validated["detailed_address_en"],
-                "address_description_am"=>$validated["detailed_address_am"],
+
                 'logo' => $logoPath,
                 'is_full_time_service' => $validated['operates_24_hours'],
                 'contact_email' => $validated['contact_email'],
@@ -198,16 +198,14 @@ class HospitalController extends Controller
             Location::create([
                 'addressable_id' => $hospital->id,
                 'addressable_type' => Hospital::class,
-                'region_en' => $validated['region_en'],
-                'region_am' => $validated['region_am'],
-                'zone_en' => $validated['zone_en'],
-                'zone_am' => $validated['zone_am'],
-                'sub_city_en' => $validated['sub_city_en'],
-                'sub_city_am' => $validated['sub_city_am'],
+                'region_id' => $validated['region_id'],
+                'city_id' => $validated['city_id'],
+                "description_en"=>$validated["description_en"],
+                "description_am"=>$validated["description_am"],
                 'kebele' => $validated['kebele'] ?? null,
-                'latitude' => $validated['latitude'],
-                'longitude' => $validated['longitude'],
-                'address_type' => 'main', // or 'branch' if you support multiple
+                'latitude' => $validated['latitude'] ?? null,
+                'longitude' => $validated['longitude'] ?? null,
+                'address_type' => 'main',
             ]);
             $user->syncRoles('hospitalAgent');
           Log::info('User booked hospital', ['user_id' => auth('sanctum')->id()]);
@@ -247,7 +245,7 @@ class HospitalController extends Controller
      */
    public function show(Hospital $hospital)
 {
-    $hospital->load(['addresses', 'departments', 'services.service']);
+    $hospital->load(['addresses.region', 'addresses.city', 'departments', 'services.service']);
 
     return response()->json([
         "success" => true,
@@ -261,14 +259,6 @@ class HospitalController extends Controller
     {
     try {
         DB::beginTransaction();
-
-        $hospital = Hospital::find($id);
-        if (!$hospital) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Hospital not found',
-            ], 404);
-        }
 
         // Fix boolean fields
         if ($request->has('is_full_time_service')) {
@@ -365,6 +355,21 @@ class HospitalController extends Controller
 
             // ONLY unset if it's an array
             if (is_array($addressData)) {
+                // Validate region_id and city_id if present
+                if (isset($addressData['region_id']) || isset($addressData['city_id'])) {
+                    $regId = $addressData['region_id'] ?? ($hospital->addresses()->first()->region_id ?? null);
+                    $cId = $addressData['city_id'] ?? ($hospital->addresses()->first()->city_id ?? null);
+                    if ($regId && $cId) {
+                        $cityExists = \App\Models\City::where('id', $cId)->where('region_id', $regId)->exists();
+                        if (!$cityExists) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'The selected city does not belong to the selected region.'
+                            ], 422);
+                        }
+                    }
+                }
+
                 // Remove fields that shouldn't be updated
                 unset($addressData['id']);
                 unset($addressData['addressable_id']);
@@ -407,7 +412,7 @@ class HospitalController extends Controller
         DB::commit();
 
         // Load relationships for response
-        $hospital->load('addresses');
+        $hospital->load(['addresses.region', 'addresses.city']);
 
         return response()->json([
             'success' => true,
@@ -441,7 +446,8 @@ class HospitalController extends Controller
     public function publicCapabilities()
     {
         $hospitals = Hospital::with([
-            'addresses',
+            'addresses.region',
+            'addresses.city',
             'departments',
             'services.service',
         ])
@@ -456,7 +462,7 @@ class HospitalController extends Controller
 
    public function botIndex(Request $request)
 {
-    $query = Hospital::with(['addresses'])
+    $query = Hospital::with(['addresses.region', 'addresses.city'])
         ->where('status', 'APPROVED');
 
     // ✅ FIXED name filter
@@ -470,22 +476,28 @@ class HospitalController extends Controller
     // ✅ Location filter
     if ($request->location) {
         $query->whereHas('addresses', function ($q) use ($request) {
-            $q->where('region_en', 'LIKE', "%{$request->location}%")
-              ->orWhere('zone_en', 'LIKE', "%{$request->location}%")
-              ->orWhere('sub_city_en', 'LIKE', "%{$request->location}%");
+            $q->whereHas('region', function ($r) use ($request) {
+                $r->where('name_en', 'LIKE', "%{$request->location}%")
+                  ->orWhere('name_am', 'LIKE', "%{$request->location}%");
+            })->orWhereHas('city', function ($c) use ($request) {
+                $c->where('name_en', 'LIKE', "%{$request->location}%")
+                  ->orWhere('name_am', 'LIKE', "%{$request->location}%");
+            })->orWhere('zone_en', 'LIKE', "%{$request->location}%")
+              ->orWhere('zone_am', 'LIKE', "%{$request->location}%");
         });
     }
 
     $hospitals = $query->limit(5)->get();
 
     $result = $hospitals->map(function ($h) {
-
         $address = $h->addresses->first();
+        $regionName = $address && $address->region ? $address->region->name_en : '';
+        $cityName = $address && $address->city ? $address->city->name_en : '';
 
         return [
-            "name" => $h->hospital_name_en, // ✅ FIXED
+            "name" => $h->hospital_name_en,
             "location" => $address
-                ? "{$address->region_en}, {$address->zone_en}, {$address->sub_city_en}"
+                ? trim("{$regionName}, {$cityName}, " . ($address->zone_en ? "{$address->zone_en}, " : "") . "{$address->kebele}", ", ")
                 : "Unknown",
             "phone" => $h->contact_phone,
             "latitude" => $address->latitude ?? null,
@@ -501,7 +513,7 @@ class HospitalController extends Controller
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
-        $hospital = Hospital::with('addresses')->where('hospital_agent_id', $user->id)->first();
+        $hospital = Hospital::with(['addresses.region', 'addresses.city'])->where('hospital_agent_id', $user->id)->first();
         // Return 200 with null if not found, to avoid breaking the dashboard on new accounts
         return response()->json(['success' => true, 'data' => $hospital]);
     }

@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\EnsureFacilityApproved;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\HospitalController;
@@ -98,7 +99,7 @@ Route::get('/medical-facilities', function () {
     ]);
 });
 Route::get('/top-medical-facilities', function () {
-    $hospitals = Hospital::with('addresses')->where('status', 'APPROVED')->limit(6)->get()->map(function ($item) {
+    $hospitals = Hospital::with('addresses')->where('status', 'APPROVED')->limit(6)->latest()->get()->map(function ($item) {
         $item->type = 'hospital';
         $item->global_id = 'h-' . $item->id;
         $item->working_hour = $item->working_hour; // Include working hours
@@ -106,7 +107,7 @@ Route::get('/top-medical-facilities', function () {
         return $item;
     });
 
-    $pharmacies = Pharmacy::with('addresses')->where('status', 'APPROVED')->limit(6)->get()->map(function ($item) {
+    $pharmacies = Pharmacy::with('addresses')->where('status', 'APPROVED')->limit(6)->latest()->get()->map(function ($item) {
         $item->type = 'pharmacy';
         $item->global_id = 'p-' . $item->id;
         $item->working_hour = $item->working_hour; // Include working hours
@@ -126,10 +127,13 @@ Route::get('drugs', [DrugController::class, 'index']);
 Route::get('drugs/{drug}', [DrugController::class, 'show']);
 Route::get('pharmacy/inventory/medicines/search', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'searchMedicine']);
 
+// Public location endpoints (for dropdowns in registration forms)
+Route::get('regions', [\App\Http\Controllers\AdminRegionController::class, 'getActiveRegions']);
+Route::get('regions/{region}/cities', [\App\Http\Controllers\AdminCityController::class, 'getCitiesByRegion']);
 
 Route::get('/pharmacies', [PharmacyController::class, 'botIndex']);
 Route::get('/hospitals', [HospitalController::class, 'botIndex']);
-Route::middleware("auth:sanctum")->group(function () {
+Route::middleware(['auth:sanctum', \App\Http\Middleware\EnsureFacilityApproved::class])->group(function () {
     Route::post('pharmacy/profile/{pharmacy}', [PharmacyController::class, 'updateProfile']);
     Route::post('hospital/profile/{hospital}', [HospitalController::class, 'updateProfile']);
 
@@ -182,7 +186,7 @@ Route::prefix('ai')->middleware('auth:sanctum')->group(function () {
     });
 });
 Route::get('/whoami', fn() => gethostname());
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', \App\Http\Middleware\EnsureFacilityApproved::class])->group(function () {
     Route::get('pharmacy-agent/profile', [PharmacyController::class, 'getPharmaProfile']);
     Route::post('profile/update', [AuthController::class, 'updateProfile']);
     Route::post('profile/password-update', [AuthController::class, 'updatePassword']);
@@ -196,7 +200,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('chat/sessions/{session}/read', [ChatMessageController::class, 'markAsRead']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', \App\Http\Middleware\EnsureFacilityApproved::class])->group(function () {
     Route::post('/chat/sessions/{sessionId}/mark-delivered', [MessageStatusController::class, 'markDelivered']);
     Route::post('/chat/sessions/{sessionId}/mark-read', [MessageStatusController::class, 'markRead']);
 });
@@ -226,7 +230,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('drugs/{drug}', [DrugController::class, 'update']);
     Route::delete('drugs/{drug}', [DrugController::class, 'destroy']);
 
-    Route::prefix('pharmacy/inventory')->group(function () {
+    Route::prefix('pharmacy/inventory')->middleware(\App\Http\Middleware\EnsureFacilityApproved::class)->group(function () {
 
         Route::get('/', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getInventory']);
 
@@ -291,7 +295,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('detectIntent', [UserController::class, 'detectIntent']);
 
     // Hospital Agent Dashboard Routes
-    Route::prefix('hospital')->group(function () {
+    Route::prefix('hospital')->middleware(\App\Http\Middleware\EnsureFacilityApproved::class)->group(function () {
         Route::get('/', [HospitalController::class, 'getAgentHospital']);
         Route::get('departments', [DepartmentController::class, 'index']);
         Route::post('departments', [DepartmentController::class, 'store']);
@@ -307,11 +311,28 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Admin Approval & Management Routes
-    Route::prefix('admin')->group(function () {
+    Route::prefix('admin')->middleware('admin')->group(function () {
         // Approvals (Facilities)
         Route::get('approvals', [\App\Http\Controllers\AdminApprovalController::class, 'index']);
         Route::post('approvals/{id}', [\App\Http\Controllers\AdminApprovalController::class, 'decide']);
 
+        // Regions Management
+        Route::get('regions', [\App\Http\Controllers\AdminRegionController::class, 'index']);
+        Route::post('regions', [\App\Http\Controllers\AdminRegionController::class, 'store']);
+        Route::get('regions/{region}', [\App\Http\Controllers\AdminRegionController::class, 'show']);
+        Route::put('regions/{region}', [\App\Http\Controllers\AdminRegionController::class, 'update']);
+        Route::patch('regions/{region}', [\App\Http\Controllers\AdminRegionController::class, 'update']);
+        Route::delete('regions/{region}', [\App\Http\Controllers\AdminRegionController::class, 'destroy']);
+        Route::post('regions/{region}/toggle-status', [\App\Http\Controllers\AdminRegionController::class, 'toggleStatus']);
+
+        // Cities Management
+        Route::get('cities', [\App\Http\Controllers\AdminCityController::class, 'index']);
+        Route::post('cities', [\App\Http\Controllers\AdminCityController::class, 'store']);
+        Route::get('cities/{city}', [\App\Http\Controllers\AdminCityController::class, 'show']);
+        Route::put('cities/{city}', [\App\Http\Controllers\AdminCityController::class, 'update']);
+        Route::patch('cities/{city}', [\App\Http\Controllers\AdminCityController::class, 'update']);
+        Route::delete('cities/{city}', [\App\Http\Controllers\AdminCityController::class, 'destroy']);
+        Route::post('cities/{city}/toggle-status', [\App\Http\Controllers\AdminCityController::class, 'toggleStatus']);
 
         // Dashboard Stats & Management
         Route::get('all/users', [\App\Http\Controllers\AdminDashboardController::class, 'index']);
@@ -319,8 +340,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('users/{user}', [\App\Http\Controllers\AdminDashboardController::class, 'updateUser']);
         Route::get('notifications', [\App\Http\Controllers\AdminDashboardController::class, 'notifications']);
         Route::post('notifications/{notification}/read', [\App\Http\Controllers\AdminDashboardController::class, 'markRead']);
+        Route::delete('notifications/old', [\App\Http\Controllers\AdminDashboardController::class, 'deleteOldNotifications']);
         Route::get('analytics', [\App\Http\Controllers\AdminDashboardController::class, 'analytics']);
         Route::get('audit-logs', [\App\Http\Controllers\AdminDashboardController::class, 'auditLogs']);
+        Route::delete('audit-logs/clear', [\App\Http\Controllers\AdminDashboardController::class, 'clearOldAuditLogs']);
     });
 
     // Auth actions

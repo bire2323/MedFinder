@@ -18,27 +18,28 @@ return new class extends Migration
             $table->unsignedBigInteger('addressable_id');
             $table->string('addressable_type');
 
+            // Normalized region and city references
+            $table->foreignId('region_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('city_id')->constrained()->cascadeOnDelete();
+
             // Address details
-            $table->string('region_en');
-            $table->string('region_am');
-            $table->string('zone_en');
-            $table->string('zone_am');
-             
-            $table->string('sub_city_en');
-            $table->string('sub_city_am');
+            $table->string('description_en')->nullable();
+            $table->string('description_am')->nullable();
             $table->string('kebele');
 
             // Coordinates
-            $table->decimal('latitude', 10, 7);
-            $table->decimal('longitude', 10, 7);
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
 
             $table->string('address_type');
 
             $table->softDeletes();
             $table->timestamps();
 
-            // Polymorphic index
+            // Indexes
             $table->index(['addressable_id', 'addressable_type']);
+            $table->index('region_id');
+            $table->index('city_id');
         });
     }
 
