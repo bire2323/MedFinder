@@ -7,7 +7,7 @@ import { useActiveRegions, useCitiesByRegion } from "../../hooks/useLocationData
 import SelectInput from "../../components/common/SelectInput";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import WorkingHoursPicker from "../shared/WorkingHoursPicker";
-
+import handleKeyDown from "../../hooks/handleKeyDown";
 export default function Step2Location() {
   const navigate = useNavigate();
   const { type } = useParams();
@@ -86,6 +86,8 @@ export default function Step2Location() {
     const normalized = {
       region_id: values.region_id ? Number(values.region_id) : "",
       city_id: values.city_id ? Number(values.city_id) : "",
+      description_en: values.description_en || "",
+      description_am: values.description_am || "",
       kebele: values.kebele || "",
       latitude: values.latitude || "",
       longitude: values.longitude || "",
@@ -167,9 +169,10 @@ export default function Step2Location() {
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Address discription</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Address description</label>
             <input
               type="text"
+              onKeyDown={handleKeyDown}
               className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm text-gray-900 outline-none ring-blue-500/30 focus:ring-4 dark:bg-gray-800 dark:text-white ${fieldError("description_en") ? "border-red-400" : "border-gray-300 dark:border-gray-600"
                 }`}
               {...register("description_en")}
@@ -180,6 +183,7 @@ export default function Step2Location() {
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Address Description (Amharic)</label>
             <input
               type="text"
+              onKeyDown={handleKeyDown}
               className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm text-gray-900 outline-none ring-blue-500/30 focus:ring-4 dark:bg-gray-800 dark:text-white ${fieldError("description_am") ? "border-red-400" : "border-gray-300 dark:border-gray-600"
                 }`}
               {...register("description_am")}

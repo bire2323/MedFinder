@@ -1,13 +1,37 @@
-import React, { useState } from "react";
-import { MapPin, Navigation, Info } from "lucide-react";
+
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { MapPin, Navigation, Info, ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SectionWrapper, InputField } from "../components/FormFields";
 import { motion, AnimatePresence } from "framer-motion";
 
+
+import { useNavigate, useParams } from "react-router-dom";
+import { Controller, useForm } from "react-hook-form";
+
+import { useRegistrationStore } from "../../../../store/registrationStore";
+import { useActiveRegions, useCitiesByRegion } from "../../../../hooks/useLocationData";
+import SelectInput from "../../../../components/common/SelectInput";
+import LoadingSpinner from "../../../../components/common/LoadingSpinner";
+import WorkingHoursPicker from "../../WorkingHoursPicker";
+import handleKeyDown from "../../../../hooks/handleKeyDown";
+
+
 const LocationSection = ({ addressData = {}, onChange, error, theme }) => {
    const { t } = useTranslation();
+   console.log("LocationSection render with addressData:", addressData);
    const [detecting, setDetecting] = useState(false);
-
+   const { formData: storeFormData, errors: storeErrors } =
+      useRegistrationStore();
+   const {
+      register,
+      watch,
+      setValue,
+      formState,
+   } = useForm();
+   const cityId = watch("city_id");
+   const fieldError = (name) =>
+      formState.errors?.[name]?.message || storeErrors?.[name];
    const handleLocationDetect = () => {
       setDetecting(true);
       if (!navigator.geolocation) {
@@ -15,6 +39,7 @@ const LocationSection = ({ addressData = {}, onChange, error, theme }) => {
          setDetecting(false);
          return;
       }
+
       navigator.geolocation.getCurrentPosition(
          (pos) => {
             onChange("latitude", pos.coords.latitude);
@@ -29,36 +54,75 @@ const LocationSection = ({ addressData = {}, onChange, error, theme }) => {
       );
    };
 
+   const { regions, loading: regionsLoading, error: regionsError } = useActiveRegions();
+
+   const regionOptions = useMemo(
+      () => regions.map((r) => ({ value: String(r.id), label: r.name_en })),
+      [regions]
+   );
+   const regionId = watch("region_id");
+   const prevRegionIdRef = useRef(storeFormData.region_id ? String(storeFormData.region_id) : "");
+   const { cities, loading: citiesLoading, error: citiesError } = useCitiesByRegion(regionId ? Number(regionId) : null);
+   const cityOptions = useMemo(
+      () => cities.map((c) => ({ value: String(c.id), label: c.name_en })),
+      [cities]
+   );
+   useEffect(() => {
+      if (prevRegionIdRef.current === null || prevRegionIdRef.current === "") {
+         prevRegionIdRef.current = regionId;
+         return;
+      }
+      if (prevRegionIdRef.current !== regionId) {
+         setValue("city_id", "");
+      }
+      prevRegionIdRef.current = regionId;
+   }, [regionId, setValue]);
+   useEffect(() => {
+      if (regionId) {
+         onChange("region_id", Number(regionId));
+      }
+   }, [regionId]);
+
+   useEffect(() => {
+      if (cityId) {
+         onChange("city_id", Number(cityId));
+      }
+   }, [cityId]);
    return (
       <SectionWrapper id="location" title={t("Settings.LocationAddress")} theme={theme}>
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <InputField
-               label={t("Settings.RegionEN")}
-               value={addressData[0]?.region_en}
-               onChange={(v) => onChange("region_en", v)}
-               placeholder="e.g. Addis Ababa"
-               theme={theme}
+         {regionsError ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{regionsError}</div>
+         ) : null}
+         {citiesError ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{citiesError}</div>
+         ) : null}
+
+         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <SelectInput
+               label="Region"
+               name="region_id"
+               register={register}
+               required="Region is required"
+               placeholder={regionsLoading ? "Loading regions..." : addressData?.region?.name_en || "Select a region"}
+               value={addressData?.region_id ? String(addressData.region_id) : ""}
+               options={regionOptions}
+               disabled={regionsLoading}
+               error={fieldError("region_id")}
             />
-            <InputField
-               label={t("Settings.RegionAM")}
-               value={addressData[0]?.region_am}
-               onChange={(v) => onChange("region_am", v)}
-               placeholder="አዲስ አበባ"
-               theme={theme}
-            />
-            <InputField
-               label={t("Settings.ZoneSubCity")}
-               value={addressData[0]?.zone_en || addressData[0]?.sub_city_en}
-               onChange={(v) => onChange("zone_en", v)}
-               placeholder="Bole Subcity"
-               theme={theme}
-            />
-            <InputField
-               label={t("Settings.Kebele")}
-               value={addressData[0]?.kebele}
-               onChange={(v) => onChange("kebele", v)}
-               placeholder="03"
-               theme={theme}
+
+            <SelectInput
+               label="City"
+               name="city_id"
+               register={register}
+               required="City is required"
+               placeholder={
+                  !regionId ? addressData?.city?.name_en : citiesLoading ? "Loading cities..." : cityOptions.length ? "Select a city" : "No cities available"
+               }
+               value={addressData?.city_id ? String(addressData.city_id) : ""}
+               options={cityOptions}
+               disabled={!regionId || citiesLoading || cityOptions.length === 0}
+               error={fieldError("city_id")}
+
             />
          </div>
 
@@ -88,7 +152,7 @@ const LocationSection = ({ addressData = {}, onChange, error, theme }) => {
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         className={`${theme?.textPrimary || 'text-emerald-500'} drop-shadow-xl`}
-                      >
+                     >
                         <MapPin size={40} className="mx-auto animate-bounce" />
                      </motion.div>
                      <p className="text-xs font-black mt-2 font-mono text-slate-600 dark:text-gray-400">

@@ -141,8 +141,8 @@ const ProfileSettingsLayout = ({ type = "hospital" }) => {
   };
 
   return (
-    <div className="flex   sticky top-0 lg:flex-row gap-8 w-full pb-32">
-      <div className="lg:w-72 shrink-0">
+    <div className="flex flex-col lg:flex-row gap-8 w-full pb-32">
+      <div className="lg:w-72 shrink-0 lg:sticky lg:top-4 h-fit">
         <SidebarNavigation
           activeSection={activeSection}
           onSectionClick={setActiveSection}
@@ -212,8 +212,7 @@ const ProfileSettingsLayout = ({ type = "hospital" }) => {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 24 }}
-            className="fixed bottom-6 left-1/2 z-50 w-full max-w-3xl px-4 pointer-events-none"
-          >
+            className="fixed bottom-4 inset-x-0 z-50 flex justify-center px-3 sm:px-4 pointer-events-none">
             <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/95 shadow-2xl shadow-slate-950/40 backdrop-blur-xl py-4 px-5 text-white pointer-events-auto">
               <div className={`absolute inset-0 bg-gradient-to-r ${type === 'pharmacy' ? 'from-emerald-500/20 via-transparent to-green-500/5' : 'from-blue-500/20 via-transparent to-purple-500/10'} pointer-events-none`} />
               <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-white/80 to-transparent opacity-20 pointer-events-none" />

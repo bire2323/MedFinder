@@ -259,53 +259,46 @@ class PharmacyController extends Controller
     public function store(Request $request)
     {
         // 1. Validate all incoming data
-        try {
-            $validated = $request->validate([
-                // Basic Info
-                'facilityNameEn' => 'required|string|min:3|max:255',
-                'facilityNameAm' => 'required|string|min:3|max:255',
-                'contact_email' => 'nullable|email|unique:pharmacies,contact_email',
+        $validated = $request->validate([
+            // Basic Info
+            'facilityNameEn' => 'required|string|min:3|max:255',
+            'facilityNameAm' => 'required|string|min:3|max:255',
+            'contact_email' => 'nullable|email|unique:users,email',
 
-                // Location Info
-                'region_id' => 'required|exists:regions,id',
-                'city_id' => [
-                    'required',
-                    'exists:cities,id',
-                    function ($attribute, $value, $fail) use ($request) {
-                        $cityExists = \App\Models\City::where('id', $value)
-                            ->where('region_id', $request->input('region_id'))
-                            ->exists();
-                        if (!$cityExists) {
-                            $fail('The selected city does not belong to the selected region.');
-                        }
+            // Location Info
+            'region_id' => 'required|exists:regions,id',
+            'city_id' => [
+                'required',
+                'exists:cities,id',
+                function ($attribute, $value, $fail) use ($request) {
+                    $cityExists = \App\Models\City::where('id', $value)
+                        ->where('region_id', $request->input('region_id'))
+                        ->exists();
+                    if (!$cityExists) {
+                        $fail('The selected city does not belong to the selected region.');
                     }
-                ],
-                'kebele' => 'nullable|string|max:100',
-                'description_en' => 'nullable|string|max:500',
-                'description_am' => 'nullable|string|max:500',
-                'latitude' => 'nullable|numeric|between:-90,90',
-                'longitude' => 'nullable|numeric|between:-180,180',
-                'working_hour' => 'required|string',
-                'contact_phone' => 'nullable|string',
+                }
+            ],
+            'description_en' => 'nullable|string|max:500',
+            'description_am' => 'nullable|string|max:500',
+            'kebele' => 'nullable|string|max:100',
+            'description_en' => 'nullable|string|max:500',
+            'description_am' => 'nullable|string|max:500',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'working_hour' => 'required|string',
+            'contact_phone' => 'nullable|string',
 
-                // Pharmacy Verification
-                'license_number' => 'required|string|max:100',
-                'pharmacy_type' => 'required|string|max:100',
+            // Pharmacy Verification
+            'license_number' => 'required|string|max:100',
+            'pharmacy_type' => 'required|string|max:100',
 
-                // Files
-                'license_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
-                'logo' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // 2MB max
-            ],[
-                'contact_email.unique' => 'Email already exists',
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'code' => 'VALIDATION_FAILED',
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
-        }
+            // Files
+            'license_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
+            'logo' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // 2MB max
+        ],[
+            'contact_email.unique' => 'Email already exists',
+        ]);
 
         try {
             $user = auth('sanctum')->user();

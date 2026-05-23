@@ -211,7 +211,10 @@ const Step4ReviewAndSubmit = () => {
               icon={Globe}
             />
             <InfoItem label={t('review.location.kebele')} value={formData.kebele} icon={MapPin} />
-            <InfoItem label="Address Type" value={formData.address_type} icon={MapPin} />
+            <InfoItem label={t('review.location.addressType')} value={formData.address_type} icon={MapPin} />
+            <InfoItem label={t('review.location.descriptionEn')} value={formData.description_en} icon={MapPin} />
+            <InfoItem label={t('review.location.descriptionAm')} value={formData.description_am} icon={MapPin} />
+
           </div>
           <div className="grid grid-cols-2 gap-3 pt-2">
             <InfoItem label={t('review.location.latitude')} value={formData.latitude} />

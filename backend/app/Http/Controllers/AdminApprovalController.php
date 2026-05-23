@@ -19,6 +19,7 @@ class AdminApprovalController extends Controller
 
         $hospitals = Hospital::with('addresses', 'agent')
             ->where('status', $status)
+            ->latest()
             ->get()
             ->map(function ($h) {
                 $h->type = 'hospital';
@@ -28,6 +29,7 @@ class AdminApprovalController extends Controller
 
         $pharmacies = Pharmacy::with('addresses', 'agent')
             ->where('status', $status)
+            ->latest()
             ->get()
             ->map(function ($p) {
                 $p->type = 'pharmacy';

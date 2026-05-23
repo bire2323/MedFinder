@@ -438,6 +438,9 @@
       "subCity": "ንዑስ ከተማ/ወረዳ",
       "subCityAm": "ንዑስ ከተማ/ወረዳ (በ አማርኛ)",
       "kebele": "ቀበሌ",
+      "addressType": "የአድራሻ አይነት",
+      "descriptionEn": "ዝርዝር አድራሻ (እንግሊዝ)",
+      "descriptionAm": "ዝርዝር አድራሻ (አማርኛ)",
       "detailedAddress": "ዝርዝር አድራሻ",
       "latitude": "ኬክሮስ",
       "longitude": "ኬንትሮስ",
@@ -965,6 +968,9 @@
     "Remove": "አስወግድ"
   },
   "Admin": {
+    "DownloadDocument": "የፍቃድ ሰነድ አዉርድ",
+    "DocumentTypeDownloadHint": "የፍቃድ ሰነዱን የሚያወርዱበትን ይምረጡ",
+    "DocumentPreviewNotSupported": "የፍቃድ ሰነዱን መክፈት አልተቻለም ",
     "DeleteOldNotifications": "የቆዩ ማሳወቂያዎችን አጥፋ",
     "OlderThan1Year": "አንድ ዓመት የቆዩ",
     "OlderThan6Months": "ስድስት ወር የቆዩ",

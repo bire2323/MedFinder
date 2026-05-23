@@ -17,7 +17,7 @@ const SidebarNavigation = ({ activeSection, onSectionClick, theme }) => {
   ];
 
   return (
-    <nav className="flex flex-wrap lg:flex-col gap-1.5 overflow-x-auto pb-4 lg:pb-0 lg:w-64 shrink-0 h-fit sticky top-4 snap-x no-scrollbar">
+    <nav className="flex flex-wrap lg:flex-col gap-1.5 overflow-x-scroll pb-4 lg:pb-0 lg:w-64 shrink-0 h-fit sticky top-4 snap-x no-scrollbar">
       {sections.map((section) => (
         <button
           key={section.id}
@@ -31,11 +31,10 @@ const SidebarNavigation = ({ activeSection, onSectionClick, theme }) => {
               transition={{ type: "spring", stiffness: 380, damping: 30 }}
             />
           )}
-          <span className={`relative z-10 flex items-center gap-3 ${
-            activeSection === section.id 
-              ? "text-white" 
+          <span className={`relative z-10 flex items-center gap-3 ${activeSection === section.id
+              ? "text-white"
               : `text-slate-500 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-450 ${section.color || ""}`
-          }`}>
+            }`}>
             {section.icon}
             <span className="font-black text-[10px] md:text-xs uppercase tracking-widest whitespace-nowrap">{section.label}</span>
           </span>

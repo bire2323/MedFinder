@@ -20,7 +20,7 @@ import { useNavigate, NavLink, Outlet } from 'react-router-dom';
 import useSystemNotificationStore from '../../store/useSystemNotificationStore';
 import LanguageSwitcher from '../../component/LanguageSwitcher';
 import ThemeToggle from '../../component/DarkLightTeam';
-import { useNavigate } from 'react-router-dom';
+
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
@@ -33,7 +33,6 @@ export default function AdminDashboard() {
   const hasLoadedRef = useRef(false);
 
   const unreadNotifications = notifications.filter(n => !n.read_at).length;
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Only load once when authenticated, and only if we haven't loaded before

@@ -448,7 +448,9 @@
       "subCity": "Sub-city/Woreda",
       "subCityAm": "Sub-city/Woreda (በ አማርኛ)",
       "kebele": "Kebele",
-      "detailedAddress": "Detailed Address",
+      "addressType": "Address Type",
+      "descriptionEn": "Detailed Address (English)",
+      "descriptionAm": "Detailed Address (Amharic)",
       "latitude": "Latitude",
       "longitude": "Longitude",
       "workingHour": "Working Hours",
@@ -949,6 +951,9 @@
     "Remove": "Remove"
   },
   "Admin": {
+    "DownloadDocument": "Download Document",
+    "DocumentTypeDownloadHint": "Select the document type you want to download",
+    "DocumentPreviewNotSupported": "Document preview not supported",
     "UserManagement": "User Management",
     "SearchUsers": "Search users...",
     "AllRoles": "All Roles",
