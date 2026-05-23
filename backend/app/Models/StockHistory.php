@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StockHistory extends Model
 {
+    protected $casts = [
+        'inventory_id' => 'integer',
+        'drug_batch_id' => 'integer',
+        'pharmacy_batch_inventory_id' => 'integer',
+        'reference_id' => 'integer',
+        'performed_by' => 'integer',
+    ];
+
     protected $fillable = [
         'inventory_id',
         'drug_batch_id',

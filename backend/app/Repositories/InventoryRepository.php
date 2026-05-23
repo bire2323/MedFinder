@@ -208,13 +208,13 @@ class InventoryRepository
         $inventory->unit_selling_price = $sellingPrice;
         $inventory->save();
 
-        $summaryId = $this->ensureSummaryInventory($pharmacy, $batch->drug_id, [
+        $summary = $this->ensureSummaryInventory($pharmacy, $batch->drug_id, [
             'price' => $sellingPrice,
             'cost_price' => $costPrice,
         ]);
 
         StockHistory::create([
-            'inventory_id' => $summaryId,
+            'inventory_id' => $summary->id,
             'pharmacy_batch_inventory_id' => $inventory->id,
             'drug_batch_id' => $batch->id,
             'old_stock' => $oldQuantity,
@@ -231,7 +231,10 @@ class InventoryRepository
         ]);
 
         $inventory = $inventory->fresh(['drugBatch']);
-        $this->syncSummaryInventory($pharmacy, $batch->drug);
+        $drug = $batch->drug ?? Drug::find($batch->drug_id);
+        if ($drug) {
+            $this->syncSummaryInventory($pharmacy, $drug);
+        }
 
         return $inventory;
     }
