@@ -24,32 +24,6 @@ import useAuthStore from '../../store/UserAuthStore';
 import { useTranslation } from 'react-i18next';
 import Loading from '../../component/SupportiveComponent/Loading';
 
-const sampleUserActivity = [
-  { date: 'Mon', patients: 420, hospitalAgents: 45, pharmacyAgents: 78 },
-  { date: 'Tue', patients: 380, hospitalAgents: 42, pharmacyAgents: 71 },
-  { date: 'Wed', patients: 510, hospitalAgents: 48, pharmacyAgents: 85 },
-  { date: 'Thu', patients: 475, hospitalAgents: 50, pharmacyAgents: 80 },
-  { date: 'Fri', patients: 550, hospitalAgents: 52, pharmacyAgents: 88 },
-  { date: 'Sat', patients: 490, hospitalAgents: 47, pharmacyAgents: 82 },
-  { date: 'Sun', patients: 520, hospitalAgents: 51, pharmacyAgents: 86 },
-];
-
-const sampleChatbotInteractions = [
-  { hour: '00:00', interactions: 45 },
-  { hour: '04:00', interactions: 23 },
-  { hour: '08:00', interactions: 156 },
-  { hour: '12:00', interactions: 234 },
-  { hour: '16:00', interactions: 198 },
-  { hour: '20:00', interactions: 142 },
-];
-
-const sampleTopServices = [
-  { name: 'Emergency Care', requests: 1234 },
-  { name: 'General Consultation', requests: 987 },
-  { name: 'Pharmacy Lookup', requests: 856 },
-  { name: 'Lab Tests', requests: 743 },
-  { name: 'Specialist Referral', requests: 621 },
-];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -225,7 +199,7 @@ export default function AnalyticsDashboard() {
         </div>
         <div className="px-4 pb-5 pt-4 h-72 sm:h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={analytics?.userActivity || sampleUserActivity}>
+            <LineChart data={analytics?.userActivity || []}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-slate-800 opacity-60" />
               <XAxis dataKey="date" className="text-xs" tick={{ fontSize: 11, fill: '#6b7280' }} />
               <YAxis className="text-xs" tick={{ fontSize: 11, fill: '#6b7280' }} />
@@ -260,7 +234,7 @@ export default function AnalyticsDashboard() {
           </div>
           <div className="px-4 pb-5 pt-4 h-72 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={analytics?.chatbotInteractions || sampleChatbotInteractions}>
+              <BarChart data={analytics?.chatbotInteractions || []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-slate-800 opacity-60" />
                 <XAxis dataKey="hour" tick={{ fontSize: 11, fill: '#6b7280' }} />
                 <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} />
@@ -290,7 +264,7 @@ export default function AnalyticsDashboard() {
           </div>
           <div className="px-4 pb-5 pt-4 h-72 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={analytics?.topServices || sampleTopServices} layout="vertical" margin={{ left: 10, right: 10 }}>
+              <BarChart data={analytics?.topServices || []} layout="vertical" margin={{ left: 10, right: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-slate-800 opacity-60" />
                 <XAxis type="number" tick={{ fontSize: 11, fill: '#6b7280' }} />
                 <YAxis dataKey="name" type="category" tick={{ fontSize: 10, fill: '#6b7280' }} width={120} />

@@ -224,29 +224,36 @@ class AdminDashboardController extends Controller
 
         $startDate = now()->subDays($days);
 
-        // User Activity Trends
+        // User Activity Trends based on audit log entries by user role
+        $activityRows = DB::table('audit_log')
+            ->join('users', 'audit_log.user_id', '=', 'users.id')
+            ->join('model_has_roles', function ($join) {
+                $join->on('model_has_roles.model_id', '=', 'users.id')
+                     ->where('model_has_roles.model_type', '=', User::class);
+            })
+            ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+            ->where('audit_log.created_at', '>=', $startDate)
+            ->selectRaw("DATE(audit_log.created_at) as date, roles.name as role, COUNT(*) as total")
+            ->groupBy('date', 'role')
+            ->get()
+            ->groupBy('date');
+
         $userActivity = [];
         for ($i = $days - 1; $i >= 0; $i--) {
             $date = now()->subDays($i)->toDateString();
             $dayName = now()->subDays($i)->format('D');
+            $group = $activityRows->get($date, collect());
 
-            $patients = User::whereHas('roles', function ($q) {
-                $q->where('name', 'patient');
-            })->whereDate('last_seen_at', $date)->count();
-
-            $hospitalAgents = User::whereHas('roles', function ($q) {
-                $q->where('name', 'hospital');
-            })->whereDate('last_seen_at', $date)->count();
-
-            $pharmacyAgents = User::whereHas('roles', function ($q) {
-                $q->where('name', 'pharmacy');
-            })->whereDate('last_seen_at', $date)->count();
+            $counts = collect($group)
+                ->mapWithKeys(function ($item) {
+                    return [strtolower($item->role) => (int) $item->total];
+                });
 
             $userActivity[] = [
                 'date' => $dayName,
-                'patients' => $patients,
-                'hospitalAgents' => $hospitalAgents,
-                'pharmacyAgents' => $pharmacyAgents,
+                'patients' => $counts->get('patient', 0),
+                'hospitalAgents' => $counts->get('hospital', 0),
+                'pharmacyAgents' => $counts->get('pharmacy', 0),
             ];
         }
 
@@ -264,11 +271,10 @@ class AdminDashboardController extends Controller
                 ];
             });
 
-        // Top Services (based on departments)
-        $topServices = DB::table('hospital_departments')
-            ->selectRaw("departments.department_name_en as name, COUNT(*) as requests")
-            ->join('departments', 'hospital_departments.department_id', '=', 'departments.id')
-            ->groupBy('departments.id', 'departments.department_name_en')
+        // Top audit categories or service-like activity categories
+        $topServices = AuditLog::selectRaw('COALESCE(category, "Uncategorized") as name, COUNT(*) as requests')
+            ->where('created_at', '>=', $startDate)
+            ->groupBy('name')
             ->orderByDesc('requests')
             ->limit(5)
             ->get()
@@ -279,9 +285,31 @@ class AdminDashboardController extends Controller
                 ];
             });
 
-        // Insights
-        $peakHour = $chatInteractions->sortByDesc('interactions')->first()['hour'] ?? '12:00';
         $totalMessages = ChatMessage::where('created_at', '>=', $startDate)->count();
+
+        $previousStart = now()->subDays($days * 2);
+        $previousEnd = now()->subDays($days + 1);
+
+        $currentUserSignups = User::whereBetween('created_at', [$startDate, now()])->count();
+        $previousUserSignups = User::whereBetween('created_at', [$previousStart, $previousEnd])->count();
+
+        $currentHospitalApprovals = Hospital::where('status', 'APPROVED')
+            ->whereBetween('created_at', [$startDate, now()])
+            ->count();
+        $previousHospitalApprovals = Hospital::where('status', 'APPROVED')
+            ->whereBetween('created_at', [$previousStart, $previousEnd])
+            ->count();
+
+        $currentPharmacyApprovals = Pharmacy::where('status', 'APPROVED')
+            ->whereBetween('created_at', [$startDate, now()])
+            ->count();
+        $previousPharmacyApprovals = Pharmacy::where('status', 'APPROVED')
+            ->whereBetween('created_at', [$previousStart, $previousEnd])
+            ->count();
+
+        $previousChatCount = ChatMessage::whereBetween('created_at', [$previousStart, $previousEnd])->count();
+
+        $peakHour = $chatInteractions->sortByDesc('interactions')->first()?->hour ?? '12:00';
         $avgResponseTime = 2.3; // Placeholder, as response time calculation is complex
         $userSatisfaction = 94.5; // Placeholder, no feedback system yet
 
@@ -292,6 +320,10 @@ class AdminDashboardController extends Controller
                 'activeHospitals' => Hospital::where('status', 'APPROVED')->count(),
                 'activePharmacies' => Pharmacy::where('status', 'APPROVED')->count(),
                 'totalChats' => $totalMessages,
+                'userGrowth' => $this->percentageChange($previousUserSignups, $currentUserSignups),
+                'hospitalGrowth' => $this->percentageChange($previousHospitalApprovals, $currentHospitalApprovals),
+                'pharmacyGrowth' => $this->percentageChange($previousPharmacyApprovals, $currentPharmacyApprovals),
+                'chatGrowth' => $this->percentageChange($previousChatCount, $totalMessages),
             ],
             'userActivity' => $userActivity,
             'chatbotInteractions' => $chatInteractions,
@@ -302,6 +334,15 @@ class AdminDashboardController extends Controller
                 'userSatisfaction' => $userSatisfaction,
             ],
         ]);
+    }
+
+    private function percentageChange(int $previous, int $current): float
+    {
+        if ($previous === 0) {
+            return $current === 0 ? 0.0 : 100.0;
+        }
+
+        return round((($current - $previous) / max($previous, 1)) * 100, 1);
     }
 
     /**

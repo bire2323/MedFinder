@@ -299,21 +299,18 @@ class PharmacyDrugInventoryController extends Controller
         }
 
         return DB::transaction(function () use ($validated, $pharmacy) {
-            $drug = Drug::where(function ($q) use ($validated) {
-                $q->where('brand_name_en', $validated['brand_name_en'])
-                    ->where('generic_name', $validated['genericName']);
-            })->first();
-
-            if (!$drug) {
-                $drug = Drug::create([
-                    'generic_name' => $validated['genericName'],
+            $drug = Drug::firstOrCreate(
+                [
                     'brand_name_en' => $validated['brand_name_en'],
+                    'generic_name' => $validated['genericName'],
+                ],
+                [
                     'brand_name_am' => $validated['brand_name_am'] ?? null,
-                ]);
-            } else {
-                $drug->update([
-                    'brand_name_am' => $validated['brand_name_am'] ?? $drug->brand_name_am,
-                ]);
+                ]
+            );
+
+            if (!empty($validated['brand_name_am']) && $drug->brand_name_am !== $validated['brand_name_am']) {
+                $drug->update(['brand_name_am' => $validated['brand_name_am']]);
             }
 
             $batchNumber = $validated['batch_number'] ?: 'BATCH-' . now()->format('YmdHis');
