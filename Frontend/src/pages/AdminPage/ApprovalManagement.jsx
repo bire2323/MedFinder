@@ -29,6 +29,19 @@ function DetailModal({ approval, onApprove, onReject, onClose, setDetailModalOpe
   const isHospital = (approval.type || '').toLowerCase() === 'hospital';
   const address = approval.addresses?.[0] || {};
 
+  const formatDate = (value) => {
+    const date = value ? new Date(value) : null;
+    return date instanceof Date && !isNaN(date) ? date.toLocaleDateString() : 'N/A';
+  };
+
+  const safeCoordinates = (value) => {
+    return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(4) : '—';
+  };
+
+  const facilityName = approval.entityName || approval.hospital_name_en || approval.pharmacy_name_en || approval.hospital_name_am || approval.pharmacy_name_am || t("Admin.UnknownFacility");
+  const agentName = approval.agent?.Name || approval.agent?.name || t("Admin.UnknownAgent");
+  const agentJoined = formatDate(approval.agent?.created_at);
+
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <motion.div
@@ -51,7 +64,7 @@ function DetailModal({ approval, onApprove, onReject, onClose, setDetailModalOpe
               {isHospital ? <Building2 className="size-5" /> : <Pill className="size-5" />}
             </div>
             <div>
-              <h3 className="text-base font-black text-slate-850 dark:text-white uppercase tracking-wider">{approval.entityName}</h3>
+              <h3 className="text-base font-black text-slate-850 dark:text-white uppercase tracking-wider">{facilityName}</h3>
               <p className="text-[10px] text-slate-450 dark:text-slate-500 uppercase tracking-widest font-black mt-0.5">{t("Admin.Details")}</p>
             </div>
           </div>
@@ -68,16 +81,16 @@ function DetailModal({ approval, onApprove, onReject, onClose, setDetailModalOpe
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
                 <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">{t("Admin.FacilityNameEn")}</p>
-                <p className="text-sm font-semibold text-slate-800 dark:text-white">{approval.hospital_name_en || approval.pharmacy_name_en}</p>
+                <p className="text-sm font-semibold text-slate-800 dark:text-white">{approval.hospital_name_en || approval.pharmacy_name_en || t("Common.NoData")}</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">{t("Admin.FacilityNameAm")}</p>
-                <p className="text-sm font-semibold text-slate-800 dark:text-white">{approval.hospital_name_am || approval.pharmacy_name_am}</p>
+                <p className="text-sm font-semibold text-slate-800 dark:text-white">{approval.hospital_name_am || approval.pharmacy_name_am || t("Common.NoData")}</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">{t("Admin.LicenseNumber")}</p>
                 <p className="text-xs font-mono font-bold bg-slate-50 dark:bg-slate-950 text-slate-750 dark:text-slate-350 px-2.5 py-1.5 rounded-lg inline-block border border-slate-200/60 dark:border-slate-800/80">
-                  {approval.license_number}
+                  {approval.license_number || 'N/A'}
                 </p>
               </div>
               <div>
@@ -108,7 +121,7 @@ function DetailModal({ approval, onApprove, onReject, onClose, setDetailModalOpe
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">{t("Admin.Coordinates")}</p>
                   <p className="text-xs font-mono font-bold text-teal-600 dark:text-teal-400">
-                    {address.latitude ? `${address?.latitude.toFixed(4) || "N/A"}, ${address?.longitude.toFixed(4) || "N/A"}` : '—'}
+                    {address.latitude || address.longitude ? `${safeCoordinates(address.latitude)}, ${safeCoordinates(address.longitude)}` : '—'}
                   </p>
                 </div>
               </div>
@@ -130,10 +143,10 @@ function DetailModal({ approval, onApprove, onReject, onClose, setDetailModalOpe
                 {approval.agent?.Name?.[0] || 'A'}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-slate-800 dark:text-white leading-tight">{approval.agent?.Name || t("Admin.UnknownAgent")}</p>
+                <p className="text-sm font-bold text-slate-800 dark:text-white leading-tight">{agentName}</p>
                 <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-wider text-slate-450 dark:text-slate-500 mt-1.5 flex-wrap">
                   <span className="flex items-center gap-1.5"><Phone className="size-3" /> {approval.agent?.Phone || t("Common.NoData")}</span>
-                  <span className="flex items-center gap-1.5"><Clock className="size-3" /> {t("Admin.Joined")} {new Date(approval.agent?.created_at).toLocaleDateString()}</span>
+                  <span className="flex items-center gap-1.5"><Clock className="size-3" /> {t("Admin.Joined")} {agentJoined}</span>
                 </div>
               </div>
             </div>
@@ -180,7 +193,89 @@ function DetailModal({ approval, onApprove, onReject, onClose, setDetailModalOpe
   );
 }
 
-function ApprovalCard({ approval, onApprove, onReject, onViewDetails }) {
+function DocumentModal({ documentUrl, title, onClose }) {
+  const { t } = useTranslation();
+  if (!documentUrl) return null;
+
+  const getExtension = (url) => {
+    try {
+      const path = new URL(url, window.location.origin).pathname;
+      return path.split('.').pop()?.toLowerCase() || '';
+    } catch {
+      const fallback = url.split('?')[0].split('#')[0];
+      return fallback.split('.').pop()?.toLowerCase() || '';
+    }
+  };
+
+  const extension = getExtension(documentUrl);
+  const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'svg'];
+  const isImage = imageExtensions.includes(extension);
+  const isPdf = extension === 'pdf';
+
+  return (
+    <div className="fixed inset-0 z-[65] flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 15 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden border border-slate-200/60 dark:border-slate-800"
+      >
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 bg-white/90 dark:bg-slate-900/90 px-5 py-4 border-b border-slate-200 dark:border-slate-800 backdrop-blur-md">
+          <div>
+            <p className="text-sm font-black text-slate-850 dark:text-white tracking-wide">{title || t("Admin.Document")}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-300 transition-colors"
+            aria-label={t("Common.Close")}
+          >
+            <X className="size-5" />
+          </button>
+        </div>
+        <div className="h-[calc(90vh-5rem)] bg-slate-100 dark:bg-slate-950 flex items-center justify-center overflow-hidden">
+          {isImage ? (
+            <img src={documentUrl} alt={title || t("Admin.Document")}
+              className="max-h-full max-w-full object-contain"
+            />
+          ) : isPdf ? (
+            <iframe
+              title={title || t("Admin.Document")}
+              src={documentUrl}
+              className="w-full h-full"
+              frameBorder="0"
+            />
+          ) : (
+            <div className="p-8 text-center">
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+                {t("Admin.DocumentPreviewNotSupported") || 'This document cannot be previewed in the browser.'}
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
+                {t("Admin.DocumentTypeDownloadHint") || 'Please download the file to view it.'}
+              </p>
+              <a
+                href={documentUrl}
+                download
+                className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-700"
+              >
+                {t("Admin.DownloadDocument") || 'Download Document'}
+              </a>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function ApprovalCard({ approval, onApprove, onReject, onViewDetails, onViewDocument }) {
   const { t } = useTranslation();
   const isHospital = (approval.type || '').toLowerCase() === 'hospital';
   const isPending = (approval.status || '').toUpperCase() === 'PENDING';
@@ -200,9 +295,9 @@ function ApprovalCard({ approval, onApprove, onReject, onViewDetails }) {
                 : <Pill className="size-5" />}
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-800 dark:text-white leading-snug">{approval.entityName}</h3>
+              <h3 className="text-base font-bold text-slate-800 dark:text-white leading-snug">{approval.entityName || approval.hospital_name_en || approval.pharmacy_name_en || approval.hospital_name_am || approval.pharmacy_name_am || t("Admin.UnknownFacility")}</h3>
               <p className="text-[10px] font-black uppercase tracking-wider text-slate-450 dark:text-slate-500 mt-1">
-                {isHospital ? t("Admin.HospitalRegistration") : t("Admin.PharmacyRegistration")} &bull; <span className="font-mono bg-slate-50 dark:bg-slate-950 px-1 py-0.5 rounded border border-slate-100 dark:border-slate-800">{approval.license_number}</span>
+                {isHospital ? t("Admin.HospitalRegistration") : t("Admin.PharmacyRegistration")} &bull; <span className="font-mono bg-slate-50 dark:bg-slate-950 px-1 py-0.5 rounded border border-slate-100 dark:border-slate-800">{approval.license_number || 'N/A'}</span>
               </p>
             </div>
           </div>
@@ -230,7 +325,7 @@ function ApprovalCard({ approval, onApprove, onReject, onViewDetails }) {
           </div>
           <div className="flex items-center gap-1.5">
             <Calendar className="size-3.5 shrink-0" />
-            <span>{new Date(approval.created_at).toLocaleDateString()}</span>
+            <span>{approval.created_at ? new Date(approval.created_at).toLocaleDateString() : 'N/A'}</span>
           </div>
         </div>
 
@@ -244,15 +339,14 @@ function ApprovalCard({ approval, onApprove, onReject, onViewDetails }) {
           </button>
 
           {(approval.license_document_url || approval.official_license_upload_url) && (
-            <a
-              href={approval.license_document_url || approval.official_license_upload_url}
-              target="_blank"
-              rel="noreferrer"
+            <button
+              type="button"
+              onClick={() => onViewDocument(approval)}
               className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-xs font-black uppercase tracking-wider"
             >
               <FileText className="size-3.5" />
               {t("Admin.Document")}
-            </a>
+            </button>
           )}
 
           {isPending && (
@@ -311,6 +405,8 @@ export default function ApprovalManagement() {
   const [activeStatus, setActiveStatus] = useState('PENDING');
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [documentModalOpen, setDocumentModalOpen] = useState(false);
+  const [documentUrl, setDocumentUrl] = useState('');
   const [selectedApproval, setSelectedApproval] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
 
@@ -422,6 +518,7 @@ export default function ApprovalManagement() {
               onApprove={handleApprove}
               onReject={(app) => { setSelectedApproval(app); setRejectDialogOpen(true); }}
               onViewDetails={(app) => { setSelectedApproval(app); setDetailModalOpen(true); }}
+              onViewDocument={(app) => { setSelectedApproval(app); setDocumentUrl(app.license_document_url || app.official_license_upload_url); setDocumentModalOpen(true); }}
             />
           ))}
         </div>
@@ -436,6 +533,16 @@ export default function ApprovalManagement() {
             onReject={(app) => { setSelectedApproval(app); setRejectDialogOpen(true); }}
             onClose={() => { setDetailModalOpen(false); setSelectedApproval(null); }}
             setDetailModalOpen={setDetailModalOpen}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {documentModalOpen && documentUrl && (
+          <DocumentModal
+            documentUrl={documentUrl}
+            title={selectedApproval?.entityName || t("Admin.Document")}
+            onClose={() => { setDocumentModalOpen(false); setDocumentUrl(''); setSelectedApproval(null); }}
           />
         )}
       </AnimatePresence>

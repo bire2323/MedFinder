@@ -7,6 +7,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useRegistrationStore } from '../../store/registrationStore';
 import { apiRegisterPharmacy, apiRegisterHospital } from '../../api/registration';
+import { useActiveRegions, useCitiesByRegion } from '../../hooks/useLocationData';
 import {
   Building2,
   MapPin,
@@ -38,26 +39,6 @@ const formatWorkingHours = (workingHour) => {
     return `${day}: ${start}:00 - ${end}:00`;
   });
   return formatted.join(', ');
-};
-
-// Region labels for display - will use t() function
-const getRegionLabel = (regionKey, t) => {
-  const regionMap = {
-    addis_ababa: t('review.regions.addis_ababa'),
-    afar: t('review.regions.afar'),
-    amhara: t('review.regions.amhara'),
-    benishangul_gumuz: t('review.regions.benishangul_gumuz'),
-    dire_dawa: t('review.regions.dire_dawa'),
-    gambela: t('review.regions.gambela'),
-    harari: t('review.regions.harari'),
-    oromia: t('review.regions.oromia'),
-    sidama: t('review.regions.sidama'),
-    snnpr: t('review.regions.snnpr'),
-    somali: t('review.regions.somali'),
-    south_west: t('review.regions.south_west'),
-    tigray: t('review.regions.tigray'),
-  };
-  return regionMap[regionKey] || regionKey;
 };
 
 const getPharmacyTypeLabel = (typeKey, t) => {
@@ -92,42 +73,41 @@ const Step4ReviewAndSubmit = () => {
     setSubmissionResult
   } = useRegistrationStore();
 
+  const regionId = formData.region_id ? Number(formData.region_id) : null;
+  const cityId = formData.city_id ? Number(formData.city_id) : null;
+  const { regions } = useActiveRegions();
+  const { cities } = useCitiesByRegion(regionId);
+  const selectedRegion = regions.find((r) => r.id === regionId);
+  const selectedCity = cities.find((c) => c.id === cityId);
+
   const [submitError, setSubmitError] = useState(null);
   // Handle form submission
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setSubmitError(null);
 
+    const apiCall = registrationType === 'pharmacy'
+      ? apiRegisterPharmacy
+      : apiRegisterHospital;
+
     try {
-      const apiCall = registrationType === 'pharmacy'
-        ? apiRegisterPharmacy
-        : apiRegisterHospital;
-
-      try {
-        const response = await apiCall(formData);
-
-        // Success path
-        if (response.success) {
-          setSubmissionResult({ success: true, data: response });
-          navigate(`/register/${type}/success`);
-        } else if (response.code === 'ALREADY_REGISTERED_AGENT') {
-          setSubmitError(t('review.messages.alreadyRegisteredAgent'));
-        } else {
-          setSubmitError(t('review.messages.tryAgain'));
-        }
-      } catch (error) {
-        // For fetch wrappers that throw on 4xx/5xx
-        console.error(error);
-        if (error?.code === 'ALREADY_REGISTERED_AGENT') {
-          setSubmitError(t('review.messages.alreadyRegisteredAgent'));
-        } else {
-          setSubmitError(t('review.messages.tryAgain'));
-        }
-      } finally {
-        setIsSubmitting(false);
+      const response = await apiCall(formData);
+      if (response.success) {
+        setSubmissionResult({ success: true, data: response });
+        navigate(`/register/${type}/success`);
+        return;
       }
-    } catch (error) {
-      console.log("ddddddddddddd");
+      if (response.code === 'ALREADY_REGISTERED_AGENT') {
+        setSubmitError(t('review.messages.alreadyRegisteredAgent'));
+        return;
+      }
+      setSubmitError(t('review.messages.tryAgain'));
+    } catch (e) {
+      if (e?.code === 'ALREADY_REGISTERED_AGENT') {
+        setSubmitError(t('review.messages.alreadyRegisteredAgent'));
+      } else {
+        setSubmitError(t('review.messages.tryAgain'));
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -222,25 +202,17 @@ const Step4ReviewAndSubmit = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <InfoItem
               label={t('review.location.region')}
-              value={getRegionLabel(formData.region_en, t)}
+              value={selectedRegion?.name_en || (regionId ? String(regionId) : '')}
               icon={Globe}
             />
             <InfoItem
-              label={t('review.location.regionAm')}
-              value={getRegionLabel(formData.region_am, t)}
+              label="City"
+              value={selectedCity?.name_en || (cityId ? String(cityId) : '')}
               icon={Globe}
             />
-            <InfoItem label={t('review.location.zoneCity')} value={formData.zone_en} icon={MapPin} />
-            <InfoItem label={t('review.location.zoneCityAm')} value={formData.zone_am} icon={MapPin} />
-            <InfoItem label={t('review.location.subCity')} value={formData.subCity_en} icon={MapPin} />
-            <InfoItem label={t('review.location.subCityAm')} value={formData.subCity_am} icon={MapPin} />
             <InfoItem label={t('review.location.kebele')} value={formData.kebele} icon={MapPin} />
+            <InfoItem label="Address Type" value={formData.address_type} icon={MapPin} />
           </div>
-          <InfoItem
-            label={t('review.location.detailedAddress')}
-            value={formData.detailedAddress_en}
-            icon={MapPin}
-          />
           <div className="grid grid-cols-2 gap-3 pt-2">
             <InfoItem label={t('review.location.latitude')} value={formData.latitude} />
             <InfoItem label={t('review.location.longitude')} value={formData.longitude} />

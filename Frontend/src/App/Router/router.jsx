@@ -51,6 +51,9 @@ import AdminApprovalManagement from "../../pages/AdminPage/ApprovalManagement";
 import AdminAnalyticsDashboard from "../../pages/AdminPage/AnalyticsDashboard";
 import AuditLog from "../../pages/AdminPage/AuditLog";
 import AdminNotificationCenter from "../../pages/AdminPage/NotificationCenter";
+import RegionManagement from "../../pages/AdminPage/RegionManagement";
+import CityManagement from "../../pages/AdminPage/CityManagement";
+import AdminSettingsLayout from "../../pages/AdminPage/AdminSettingsLayout";
 import ProfileSettingsLayout from "../../pages/shared/ProfileSettings/ProfileSettingsLayout";
 import UserDashboard from "../../pages/UserDashboard/UserDashboard";
 import UserOverview from "../../pages/UserDashboard/components/UserOverview";
@@ -233,7 +236,16 @@ const routesConfig = [
           { path: "analytics", element: <AdminAnalyticsDashboard /> },
           { path: "auditlog", element: <AuditLog /> },
           { path: "notifications", element: <AdminNotificationCenter /> },
-          { path: "settings", element: <Profile /> },
+          {
+            path: "settings",
+            element: <AdminSettingsLayout />,
+            children: [
+              { index: true, element: <Navigate to="profile" replace /> },
+              { path: "profile", element: <Profile /> },
+              { path: "region", element: <RegionManagement /> },
+              { path: "city", element: <CityManagement /> },
+            ],
+          },
         ]
       }
     ],

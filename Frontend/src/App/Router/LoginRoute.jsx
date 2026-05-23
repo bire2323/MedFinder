@@ -17,9 +17,9 @@ export default function LoginRoute() {
   const handleClose = () => {
     const background = location.state?.backgroundLocation || location.state?.background;
     if (background) {
-      navigate(-1);
+      navigate(background, { replace: true });
     } else {
-      navigate("/");
+      navigate("/", { replace: true });
     }
   };
 

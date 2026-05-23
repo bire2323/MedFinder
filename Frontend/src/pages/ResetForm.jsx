@@ -13,12 +13,13 @@ export default function ResetForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const { login } = useAuthStore();
+  const { setSession } = useAuthStore();
 
   const [searchParams] = useSearchParams();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (password.length < 8) {
@@ -36,27 +37,30 @@ export default function ResetForm() {
     const phone = searchParams.get("phone");
     const token = searchParams.get("token");
 
-    apiResetPassword({ phone: phone, token: token, new_password: password }).then((res) => {
-      if (res.success) {
-        login(res.user, res.token, res.roles);
-        if (res.roles?.includes('pharmacyAgent')) {
-          navigate('/pharmacy-agent/dashboard');
+    setLoading(true);
+    try {
+      const res = await apiResetPassword({ phone, token, new_password: password });
+      if (res?.success) {
+        setSession(res.user, res.roles || []);
 
-        } else if (res.roles?.includes('hospitalAgent')) {
-          navigate('/hospital-agent/dashboard');
-
-        }
-        else if (res.roles?.includes('admin')) {
-          navigate('/admin/dashboard');
-
+        if (res.roles?.includes("pharmacyAgent")) {
+          navigate("/pharmacy-agent/dashboard");
+        } else if (res.roles?.includes("hospitalAgent")) {
+          navigate("/hospital-agent/dashboard");
+        } else if (res.roles?.includes("admin")) {
+          navigate("/admin/dashboard");
         } else {
-          navigate('/');
-
+          navigate("/");
         }
       } else {
         setError(t("Reset.password_reset_failed") || "Password reset failed!");
       }
-    })
+    } catch (error) {
+      setError(error.message || t("Reset.password_reset_failed") || "Password reset failed!");
+    } finally {
+      setLoading(false);
+    }
+
     console.log("Password reset:", password);
   };
 
@@ -123,9 +127,10 @@ export default function ResetForm() {
         {/* Submit */}
         <button
           type="submit"
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg transition"
+          className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed"
+          disabled={loading}
         >
-          {t("Reset.UpdatePassword")}
+          {loading ? t("Reset.Updating") || "Updating..." : t("Reset.UpdatePassword")}
         </button>
       </form>
     </div>

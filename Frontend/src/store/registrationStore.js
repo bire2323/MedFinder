@@ -15,6 +15,8 @@ const initialFormData = {
   agreedToTerms: false,
 
   // Step 2: Location & Contact
+  region_id: "",
+  city_id: "",
   region_en: '',
   region_am: '',
   zone_en: '',
@@ -22,10 +24,11 @@ const initialFormData = {
   subCity_en: '',
   subCity_am: '',
   kebele: '',
-  detailedAddress_en: '',
-  detailedAddress_am: '',
+  description_en: '',
+  description_am: '',
   latitude: '',
   longitude: '',
+  address_type: "main",
   workingHour: {},
   contact_phone: '',
   contact_email: '',
@@ -142,38 +145,32 @@ export const useRegistrationStore = create((set, get) => ({
   validateStep2: () => {
     const { formData, registrationType } = get();
     const errors = {};
+    const regEx = /^[A-Za-z\s]*$/;
+    const regAmEx = /^[\u1200-\u137F\s]*$/;
     const isAmharc = localStorage.getItem("i18nextLng") === "am";
 
-    if (!formData.region_en) {
-      errors.region_en = isAmharc ? "ክልል (እንግሊዝኛ) ያስፈልጋል" : 'Region (English) is required';
+    if (!formData.region_id) {
+      errors.region_id = isAmharc ? "ክልል ያስፈልጋል" : "Region is required";
     }
-    if (!formData.region_am) {
-      errors.region_am = isAmharc ? "ክልል (አማርኛ) ያስፈልጋል" : 'Region (Amharic) is required';
+    if (!formData.city_id) {
+      errors.city_id = isAmharc ? "ከተማ ያስፈልጋል" : "City is required";
     }
-
-    // Zone
-    if (!formData.zone_en?.trim()) {
-      errors.zone_en = isAmharc ? "ዞን / ከተማ (እንግሊዝኛ) ያስፈልጋል" : 'Zone / City (English) is required';
-    }
-    if (!formData.zone_am?.trim()) {
-      errors.zone_am = isAmharc ? "ዞን / ከተማ (አማርኛ) ያስፈልጋል" : 'Zone / City (Amharic) is required';
-    }
-
-    // Sub-city
-    if (!formData.subCity_en?.trim()) {
-      errors.subCity_en = isAmharc ? "ንዑስ ከተማ / ወረዳ (እንግሊዝኛ) ያስፈልጋል" : 'Sub-city / Woreda (English) is required';
-    }
-    if (!formData.subCity_am?.trim()) {
-      errors.subCity_am = isAmharc ? "ንዑስ ከተማ / ወረዳ (አማርኛ) ያስፈልጋል" : 'Sub-city / Woreda (Amharic) is required';
+    if (!formData.address_type) {
+      errors.address_type = isAmharc ? "የአድራሻ አይነት ያስፈልጋል" : "Address type is required";
     }
     if (!formData.kebele?.trim()) {
       errors.kebele = isAmharc ? "የቀበሌዎን ቁጥር ያስገቡ" : "enter your kebele";
     }
-    if (!formData.detailedAddress_am) {
-      errors.detailedAddress_am = isAmharc ? "አድራሻ ያስገቡ" : 'Address (Amharic) is required';
+
+    if (!formData.description_en) {
+      if (regEx.test(formData.description_en)) {
+        errors.description_en = isAmharc ? "ትክክለኛ መረጃ ያስገቡ" : "enter a valid description";
+      }
     }
-    if (!formData.detailedAddress_en) {
-      errors.detailedAddress_en = isAmharc ? "አድራሻ ያስገቡ በ english" : 'Address (English) is required';
+    if (!formData.description_am) {
+      if (regAmEx.test(formData.description_am)) {
+        errors.description_am = isAmharc ? "ትክክለኛ መረጃ ያስገቡ" : "enter a valid description";
+      }
     }
     // Latitude validation
     if (!formData.latitude) {

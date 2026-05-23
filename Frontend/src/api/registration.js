@@ -19,19 +19,13 @@ export async function apiRegisterPharmacy(formData) {
 
 
   // Location info
-  data.append('region_en', formData.region_en);
-  data.append('region_am', formData.region_am);
-  data.append('zone_en', formData.zone_en);
-  data.append('zone_am', formData.zone_am);
-
-  data.append('sub_city_en', formData.subCity_en);
-  data.append('sub_city_am', formData.subCity_am);
+  data.append('region_id', formData.region_id);
+  data.append('city_id', formData.city_id);
   data.append('kebele', formData.kebele || '');
-  data.append('detailed_address_en', formData.detailedAddress_en || '');
-  data.append('detailed_address_am', formData.detailedAddress_am || '');
   data.append('latitude', formData.latitude);
   data.append('longitude', formData.longitude);
-  data.append('working_hour', JSON.stringify(formData.working_hour));
+  data.append('address_type', formData.address_type || 'main');
+  data.append('working_hour', JSON.stringify(formData.workingHour || {}));
   data.append('contact_phone', formData.contact_phone);
 
   // Verification info
@@ -71,19 +65,13 @@ export async function apiRegisterHospital(formData) {
 
   // Location info
 
-  data.append('region_en', formData.region_en);
-  data.append('region_am', formData.region_am);
-  data.append('zone_en', formData.zone_en);
-  data.append('zone_am', formData.zone_am);
-
-  data.append('sub_city_en', formData.subCity_en);
-  data.append('sub_city_am', formData.subCity_am);
+  data.append('region_id', formData.region_id);
+  data.append('city_id', formData.city_id);
   data.append('kebele', formData.kebele || '');
-  data.append('detailed_address_en', formData.detailedAddress_en || '');
-  data.append('detailed_address_am', formData.detailedAddress_am || '');
   data.append('latitude', formData.latitude);
   data.append('longitude', formData.longitude);
-  data.append('working_hour', JSON.stringify(formData.working_hour));
+  data.append('address_type', formData.address_type || 'main');
+  data.append('working_hour', JSON.stringify(formData.workingHour || {}));
   data.append('contact_phone', formData.contact_phone);
 
   // Verification info

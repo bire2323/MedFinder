@@ -5,6 +5,8 @@ import {
   Users,
   CheckCircle,
   BarChart3,
+  Map,
+  MapPin,
   Bell,
   LogOut,
   Menu,
@@ -18,9 +20,11 @@ import { useNavigate, NavLink, Outlet } from 'react-router-dom';
 import useSystemNotificationStore from '../../store/useSystemNotificationStore';
 import LanguageSwitcher from '../../component/LanguageSwitcher';
 import ThemeToggle from '../../component/DarkLightTeam';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
   const { notifications, setNotifications } = useSystemNotificationStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -76,7 +80,7 @@ export default function AdminDashboard() {
   };
 
   const handleLogout = () => {
-    window.location.href = '/';
+    navigate('/');
   };
 
   const tabs = [
