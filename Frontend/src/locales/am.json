@@ -972,6 +972,7 @@
     "OlderThan1Month": "አንድ ወር የቆዩ",
     "OlderThan7Days": "ሰባት ቀን የቆዩ",
     "ClearLogs": "ምዝግቦችን አጥፋ",
+    "Unread": "ያልተነበቡ",
     "ClearingLogs": "ምዝግቦችን በማጥፋት ላይ...",
     "ClearLogsSuccess": "በተሳካ ሁኔታ {{count}} የቆዩ ምዝግቦች ተሰርዘዋል።",
     "ClearLogsFailed": "ምዝግቦችን ማጥፋት አልተቻለም: {{error}}",

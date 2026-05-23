@@ -204,7 +204,12 @@ export default function Header() {
                 closeMobileMenu();
               }}
             >
-            
+              <img
+                src={isAmharic ? am_white : en_white}
+                alt={t("headingNav.healthcare_platform")}
+                className="h-9 w-auto max-w-full object-contain object-left sm:h-10 md:h-11"
+              />
+
             </Link>
           </div>
 

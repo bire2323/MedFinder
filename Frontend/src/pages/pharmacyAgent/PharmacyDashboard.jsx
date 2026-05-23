@@ -269,14 +269,12 @@ const PharmacyDashboard = () => {
                       </div>
                       <button
                         onClick={() => {
-                          if (roles?.includes("patient")) navigate("/user/dashboard");
-                          else navigateByRole(roles, navigate);
-                          setToggleProfileDropDown(false);
+                          navigate("/");
                         }}
                         className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 rounded-xl transition-all"
                       >
                         <FaUser className="text-emerald-500" />
-                        <span>{t("headingNav.profile_dropdown.my_dashboard")}</span>
+                        <span>{t("headingNav.home")}</span>
                       </button>
                       <button
                         onClick={handleLogout}

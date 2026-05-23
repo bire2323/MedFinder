@@ -1,512 +1,289 @@
-import React, { useState, useEffect, memo } from 'react';
-import { useRegistrationStore } from '../../store/registrationStore';
-import { useParams, useNavigate } from 'react-router-dom';
-import { MapPin, Phone, Navigation, ArrowLeft, ArrowRight, Globe, Building, Map, Timer } from 'lucide-react';
-import handleKeyDown from '../../hooks/handleKeyDown';
-import WorkingHoursPicker from '../shared/WorkingHoursPicker';
+import React, { useEffect, useMemo, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Controller, useForm } from "react-hook-form";
+import { MapPin, Navigation, ArrowLeft, ArrowRight } from "lucide-react";
+import { useRegistrationStore } from "../../store/registrationStore";
+import { useActiveRegions, useCitiesByRegion } from "../../hooks/useLocationData";
+import SelectInput from "../../components/common/SelectInput";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import WorkingHoursPicker from "../shared/WorkingHoursPicker";
 
-const ETHIOPIAN_REGIONS_EN = [
-  { value: '', label: 'Select Region' },
-  { value: 'addis_ababa', label: 'Addis Ababa' },
-  { value: 'afar', label: 'Afar' },
-  { value: 'amhara', label: 'Amhara' },
-  { value: 'benishangul_gumuz', label: 'Benishangul-Gumuz' },
-  { value: 'dire_dawa', label: 'Dire Dawa' },
-  { value: 'gambela', label: 'Gambela' },
-  { value: 'harari', label: 'Harari' },
-  { value: 'oromia', label: 'Oromia' },
-  { value: 'sidama', label: 'Sidama' },
-  { value: 'snnpr', label: 'SNNPR' },
-  { value: 'somali', label: 'Somali' },
-  { value: 'south_west', label: 'South West Ethiopia' },
-  { value: 'tigray', label: 'Tigray' },
-];
-
-const ETHIOPIAN_REGIONS_AM = [
-  { value: '', label: 'ክልል ይምረጡ' },
-  { value: 'addis_ababa', label: 'አዲስ አበባ' },
-  { value: 'afar', label: 'አፋር' },
-  { value: 'amhara', label: 'አማራ' },
-  { value: 'benishangul_gumuz', label: 'ቤንሻንጉል ጉሙዝ' },
-  { value: 'dire_dawa', label: 'ድሬዳዋ' },
-  { value: 'gambela', label: 'ጋምቤላ' },
-  { value: 'harari', label: 'ሐረሪ' },
-  { value: 'oromia', label: 'ኦሮሚያ' },
-  { value: 'sidama', label: 'ሲዳማ' },
-  { value: 'snnpr', label: 'ደቡብ ብሔራዊ ህዝቦች' },
-  { value: 'somali', label: 'ሶማሌ' },
-  { value: 'south_west', label: 'ደቡብ ምዕራብ ኢትዮጵያ' },
-  { value: 'tigray', label: 'ትግራይ' },
-];
-
-const CITY_SUGGESTIONS = {
-  addis_ababa: {
-    en: ['Bole', 'Kirkos', 'Arada', 'Gullele', 'Lideta', 'Yeka', 'Kolfe Keranio', 'Akaki Kality', 'Nifas Silk Lafto', 'Lemi Kura'],
-    am: ['ቦሌ', 'ቂርቆስ', 'አራዳ', 'ጉለሌ', 'ልደታ', 'የካ', 'ኮልፌ ቀራኒዮ', 'አቃቂ ቃሊቲ', 'ንፋስ ስልክ ላፍቶ', 'ለሚ ኩራ']
-  },
-  amhara: {
-    en: ['Bahir Dar', 'Gondar', 'Dessie', 'Debre Birhan', 'Debre Tabor', 'Woldia', 'Kobo', 'Kombolcha'],
-    am: ['ባህር ዳር', 'ጎንደር', 'ደሴ', 'ደብረ ብርሃን', 'ደብረ ታቦር', 'ወልድያ', 'ቆቦ', 'ኮምቦልቻ']
-  },
-  oromia: {
-    en: ['Adama', 'Jimma', 'Bishoftu', 'Shashemene', 'Nekemte', 'Asella', 'Burayu', 'Ambo', 'Dukem'],
-    am: ['አዳማ', 'ጅማ', 'ቢሾፍቱ', 'ሻሸመኔ', 'ነቀምቴ', 'አሰላ', 'ቡራዩ', 'አምቦ', 'ዱከም']
-  },
-  tigray: {
-    en: ['Mekelle', 'Adigrat', 'Shire', 'Axum', 'Adwa', 'Alamata', 'Humera'],
-    am: ['መቀሌ', 'አዲግራት', 'ሽሬ', 'አክሱም', 'አድዋ', 'አላማጣ', 'ሁመራ']
-  },
-  sidama: {
-    en: ['Hawassa', 'Yirgalem', 'Aleta Wendo'],
-    am: ['ሀዋሳ', 'ይርጋለም', 'አለታ ወንዶ']
-  },
-  dire_dawa: {
-    en: ['Dire Dawa'],
-    am: ['ድሬዳዋ']
-  }
-};
-
-// Memoized InputField – moved outside to prevent recreation on every render
-const InputField = memo(({
-  id, label, icon: Icon, type = 'text', placeholder, required = false,
-  value, error, hint, dir = 'ltr', onChange, suggestions = []
-}) => (
-  <div className="space-y-2">
-    <label htmlFor={id} className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-      <Icon size={16} className="text-blue-500" />
-      {label}
-      {required && <span className="text-red-500">*</span>}
-    </label>
-    <div className="relative">
-      <input
-        id={id}
-        type={type}
-        list={suggestions.length > 0 ? `${id}-suggestions` : undefined}
-        onKeyDown={handleKeyDown}
-        value={value ?? ''}
-        onChange={onChange}
-        placeholder={placeholder}
-        dir={dir}
-        className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0 ${error ? 'border-red-400 focus:border-red-500' : 'border-gray-400 dark:border-gray-500 focus:border-blue-500'
-          }`}
-        aria-describedby={error ? `${id}-error` : undefined}
-      />
-      {suggestions.length > 0 && (
-        <datalist id={`${id}-suggestions`}>
-          {suggestions.map((s, i) => (
-            <option key={i} value={s} />
-          ))}
-        </datalist>
-      )}
-    </div>
-    {error && <p id={`${id}-error`} className="text-xs text-red-500">{error}</p>}
-    {hint && !error && <p className="text-xs text-gray-400">{hint}</p>}
-  </div>
-));
-
-import { useTranslation } from 'react-i18next';
-
-const Step2Location = () => {
-  const { t } = useTranslation();
+export default function Step2Location() {
   const navigate = useNavigate();
   const { type } = useParams();
-  const {
-    formData: storeFormData,
-    errors,
-    syncFormDataFromLocal,
-    validateStep2,
-    registrationType,
-  } = useRegistrationStore();
 
-  const ETHIOPIAN_REGIONS_EN = [
-    { value: '', label: t('Registration.Regions.Select') },
-    { value: 'addis_ababa', label: t('Registration.Regions.AddisAbaba') },
-    { value: 'afar', label: t('Registration.Regions.Afar') },
-    { value: 'amhara', label: t('Registration.Regions.Amhara') },
-    { value: 'benishangul_gumuz', label: t('Registration.Regions.Benishangul') },
-    { value: 'dire_dawa', label: t('Registration.Regions.DireDawa') },
-    { value: 'gambela', label: t('Registration.Regions.Gambela') },
-    { value: 'harari', label: t('Registration.Regions.Harari') },
-    { value: 'oromia', label: t('Registration.Regions.Oromia') },
-    { value: 'sidama', label: t('Registration.Regions.Sidama') },
-    { value: 'snnpr', label: t('Registration.Regions.Snnpr') },
-    { value: 'somali', label: t('Registration.Regions.Somali') },
-    { value: 'south_west', label: t('Registration.Regions.SouthWest') },
-    { value: 'tigray', label: t('Registration.Regions.Tigray') },
-  ];
+  const { formData: storeFormData, syncFormDataFromLocal, validateStep2, registrationType, errors: storeErrors } =
+    useRegistrationStore();
 
-  const ETHIOPIAN_REGIONS_AM = ETHIOPIAN_REGIONS_EN; // They use the same keys now
+  const { regions, loading: regionsLoading, error: regionsError } = useActiveRegions();
 
-  const CITY_SUGGESTIONS = {
-    addis_ababa: {
-      en: ['Bole', 'Kirkos', 'Arada', 'Gullele', 'Lideta', 'Yeka', 'Kolfe Keranio', 'Akaki Kality', 'Nifas Silk Lafto', 'Lemi Kura'],
-      am: ['ቦሌ', 'ቂርቆስ', 'አራዳ', 'ጉለሌ', 'ልደታ', 'የካ', 'ኮልፌ ቀራኒዮ', 'አቃቂ ቃሊቲ', 'ንፋስ ስልክ ላፍቶ', 'ለሚ ኩራ']
-    },
-    amhara: {
-      en: ['Bahir Dar', 'Gondar', 'Dessie', 'Debre Birhan', 'Debre Tabor', 'Woldia', 'Kobo', 'Kombolcha'],
-      am: ['ባህር ዳር', 'ጎንደር', 'ደሴ', 'ደብረ ብርሃን', 'ደብረ ታቦር', 'ወልድያ', 'ቆቦ', 'ኮምቦልቻ']
-    },
-    oromia: {
-      en: ['Adama', 'Jimma', 'Bishoftu', 'Shashemene', 'Nekemte', 'Asella', 'Burayu', 'Ambo', 'Dukem'],
-      am: ['አዳማ', 'ጅማ', 'ቢሾፍቱ', 'ሻሸመኔ', 'ነቀምቴ', 'አሰላ', 'ቡራዩ', 'አምቦ', 'ዱከም']
-    },
-    tigray: {
-      en: ['Mekelle', 'Adigrat', 'Shire', 'Axum', 'Adwa', 'Alamata', 'Humera'],
-      am: ['መቀሌ', 'አዲግራት', 'ሽሬ', 'አክሱም', 'አድዋ', 'አላማጣ', 'ሁመራ']
-    },
-    sidama: {
-      en: ['Hawassa', 'Yirgalem', 'Aleta Wendo'],
-      am: ['ሀዋሳ', 'ይርጋለም', 'አለታ ወንዶ']
-    },
-    dire_dawa: {
-      en: ['Dire Dawa'],
-      am: ['ድሬዳዋ']
-    }
-  };
+  const regionOptions = useMemo(
+    () => regions.map((r) => ({ value: String(r.id), label: r.name_en })),
+    [regions]
+  );
 
-  const parseWorkingHour = (value) => {
-    if (!value) return {};
-    if (typeof value === 'object' && !Array.isArray(value)) return value;
-    if (typeof value === 'string') {
-      // Try to parse as JSON first
-      try {
-        const parsed = JSON.parse(value);
-        if (typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
-      } catch { }
-      // Parse as "8:00 - 12:00" format
-      const match = value.match(/(\d+):(\d+)\s*-\s*(\d+):(\d+)/);
-      if (match) {
-        const startHour = parseInt(match[1]);
-        const endHour = parseInt(match[3]);
-        if (startHour < endHour && startHour >= 0 && endHour <= 24) {
-          const hours = Array.from({ length: endHour - startHour }, (_, i) => startHour + i);
-          // Apply to all weekdays, empty for weekends
-          return {
-            Mon: hours,
-            Tue: hours,
-            Wed: hours,
-            Thu: hours,
-            Fri: hours,
-            Sat: [],
-            Sun: []
-          };
-        }
-      }
-    }
-    return {};
-  };
-
-  const [localData, setLocalData] = useState({
-    region_en: '',
-    region_am: '',
-    zone_en: '',
-    zone_am: '',
-    subCity_en: '',
-    subCity_am: '',
-    kebele: '',
-    detailedAddress_en: '',
-    detailedAddress_am: '',
-    latitude: '',
-    longitude: '',
-    workingHour: {},
-    contact_phone: '',
-    contact_email: '',
+  const { register, handleSubmit, reset, watch, setValue, formState, control } = useForm({
+    defaultValues: {
+      region_id: storeFormData.region_id ? String(storeFormData.region_id) : "",
+      city_id: storeFormData.city_id ? String(storeFormData.city_id) : "",
+      kebele: storeFormData.kebele || "",
+      latitude: storeFormData.latitude || "",
+      longitude: storeFormData.longitude || "",
+      address_type: storeFormData.address_type || "main",
+      contact_phone: storeFormData.contact_phone || "",
+      contact_email: storeFormData.contact_email || "",
+      workingHour: storeFormData.workingHour || {},
+    },
   });
 
-  useEffect(() => {
-    setLocalData({
-      region_en: storeFormData.region_en || '',
-      region_am: storeFormData.region_am || '',
-      zone_en: storeFormData.zone_en || '',
-      zone_am: storeFormData.zone_am || '',
-      subCity_en: storeFormData.subCity_en || '',
-      subCity_am: storeFormData.subCity_am || '',
-      kebele: storeFormData.kebele || '',
-      detailedAddress_en: storeFormData.detailedAddress_en || '',
-      detailedAddress_am: storeFormData.detailedAddress_am || '',
-      latitude: storeFormData.latitude || '',
-      longitude: storeFormData.longitude || '',
-      workingHour: parseWorkingHour(storeFormData.workingHour) || {},
-      contact_phone: storeFormData.contact_phone || '',
-      contact_email: storeFormData.contact_email || '',
-    });
-  }, [storeFormData]);
+  const regionId = watch("region_id");
+  const prevRegionIdRef = useRef(null);
+  const { cities, loading: citiesLoading, error: citiesError } = useCitiesByRegion(regionId ? Number(regionId) : null);
 
-  const handleNext = (e) => {
-    e.preventDefault();
-    syncFormDataFromLocal(localData);
+  const cityOptions = useMemo(
+    () => cities.map((c) => ({ value: String(c.id), label: c.name_en })),
+    [cities]
+  );
+
+  useEffect(() => {
+    reset({
+      region_id: storeFormData.region_id ? String(storeFormData.region_id) : "",
+      city_id: storeFormData.city_id ? String(storeFormData.city_id) : "",
+      kebele: storeFormData.kebele || "",
+      latitude: storeFormData.latitude || "",
+      longitude: storeFormData.longitude || "",
+      address_type: storeFormData.address_type || "main",
+      contact_phone: storeFormData.contact_phone || "",
+      contact_email: storeFormData.contact_email || "",
+      workingHour: storeFormData.workingHour || {},
+    });
+  }, [reset, storeFormData]);
+
+  useEffect(() => {
+    if (prevRegionIdRef.current === null) {
+      prevRegionIdRef.current = regionId;
+      return;
+    }
+    if (prevRegionIdRef.current !== regionId) {
+      setValue("city_id", "");
+    }
+    prevRegionIdRef.current = regionId;
+  }, [regionId, setValue]);
+
+  const onGetLocation = () => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition((pos) => {
+      setValue("latitude", pos.coords.latitude.toFixed(6), { shouldValidate: true });
+      setValue("longitude", pos.coords.longitude.toFixed(6), { shouldValidate: true });
+    });
+  };
+
+  const onSubmit = handleSubmit((values) => {
+    const normalized = {
+      region_id: values.region_id ? Number(values.region_id) : "",
+      city_id: values.city_id ? Number(values.city_id) : "",
+      kebele: values.kebele || "",
+      latitude: values.latitude || "",
+      longitude: values.longitude || "",
+      address_type: values.address_type || "main",
+      contact_phone: values.contact_phone || "",
+      contact_email: values.contact_email || "",
+      workingHour: values.workingHour || {},
+    };
+
+    syncFormDataFromLocal(normalized);
     if (validateStep2()) {
       navigate(`/register/${type}/verification-info`);
     }
-  };
+  });
 
-  // Single stable handler for all inputs/selects
-  const handleInputChange = (e) => {
-    const { id, value } = e.target;
-    setLocalData((prev) => ({ ...prev, [id]: value }));
-  };
-
-  const handleGetLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) =>
-          setLocalData((prev) => ({
-            ...prev,
-            latitude: position.coords.latitude.toFixed(6),
-            longitude: position.coords.longitude.toFixed(6),
-          })),
-        () => alert(t('Registration.LocError'))
-      );
-    } else {
-      alert(t('Registration.GeoError'));
-    }
-  };
+  const fieldError = (name) => formState.errors?.[name]?.message || storeErrors?.[name];
 
   return (
-    <form onSubmit={handleNext} className="p-6 md:p-8">
+    <form onSubmit={onSubmit} className="p-6 md:p-8">
       <div className="space-y-6">
+        {regionsError ? (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{regionsError}</div>
+        ) : null}
+        {citiesError ? (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{citiesError}</div>
+        ) : null}
 
-        {/* Region - Bilingual */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <SelectInput
+            label="Region"
+            name="region_id"
+            register={register}
+            required="Region is required"
+            placeholder={regionsLoading ? "Loading regions..." : "Select a region"}
+            options={regionOptions}
+            disabled={regionsLoading}
+            error={fieldError("region_id")}
+          />
+
+          <SelectInput
+            label="City"
+            name="city_id"
+            register={register}
+            required="City is required"
+            placeholder={
+              !regionId ? "Select a region first" : citiesLoading ? "Loading cities..." : cityOptions.length ? "Select a city" : "No cities available"
+            }
+            options={cityOptions}
+            disabled={!regionId || citiesLoading || cityOptions.length === 0}
+            error={fieldError("city_id")}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-              <Globe size={16} className="text-blue-500" />
-              {t('Registration.PharmacyNameEn').includes('Pharmacy') ? t('Registration.Regions.Select') + ' (English)' : t('Registration.Regions.Select')} <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="region_en"
-              onKeyDown={handleKeyDown}
-              value={localData.region_en}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-3 rounded-xl border-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none appearance-none cursor-pointer ${errors.region_en ? 'border-red-400' : 'border-gray-400 dark:border-gray-500'
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Kebele</label>
+            <input
+              type="text"
+              className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm text-gray-900 outline-none ring-blue-500/30 focus:ring-4 dark:bg-gray-800 dark:text-white ${fieldError("kebele") ? "border-red-400" : "border-gray-300 dark:border-gray-600"
                 }`}
-            >
-              {ETHIOPIAN_REGIONS_EN.map((r) => (
-                <option key={r.value} value={r.value}>{r.label}</option>
-              ))}
-            </select>
-            {errors.region_en && <p className="text-xs text-red-500">{errors.region_en}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-              <Globe size={16} className="text-green-500" />
-              {t('Registration.Regions.Select')} (አማርኛ) <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="region_am"
-              onKeyDown={handleKeyDown}
-              value={localData.region_am}
-              onChange={handleInputChange}
-              dir="rtl"
-              className={`w-full px-4 py-3 rounded-xl border-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none appearance-none cursor-pointer ${errors.region_am ? 'border-red-400' : 'border-gray-400 dark:border-gray-500'
-                }`}
-            >
-              {ETHIOPIAN_REGIONS_AM.map((r) => (
-                <option key={r.value} value={r.value}>{r.label}</option>
-              ))}
-            </select>
-            {errors.region_am && <p className="text-xs text-red-500">{errors.region_am}</p>}
-          </div>
-        </div>
-
-        {/* Zone */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InputField
-            id="zone_en"
-            onKeyDown={handleKeyDown}
-            label={t('Registration.ZoneCity') + ' (English)'}
-            icon={Building}
-            placeholder="e.g., Addis Ababa, Bahir Dar"
-            required
-            value={localData.zone_en}
-            error={errors.zone_en}
-            onChange={handleInputChange}
-            suggestions={CITY_SUGGESTIONS[localData.region_en]?.en || []}
-          />
-
-          <InputField
-            id="zone_am"
-            onKeyDown={handleKeyDown}
-            label={t('Registration.ZoneCity') + ' (አማርኛ)'}
-            icon={Building}
-            placeholder="ለምሳሌ፡ አዲስ አበባ፣ ባህር ዳር"
-            required
-            value={localData.zone_am}
-            error={errors.zone_am}
-            dir="rtl"
-            onChange={handleInputChange}
-            suggestions={CITY_SUGGESTIONS[localData.region_am]?.am || []}
-          />
-        </div>
-
-        {/* Sub-city */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InputField
-            id="subCity_en"
-            onKeyDown={handleKeyDown}
-            label={t('Registration.SubCityWoreda') + ' (English)'}
-            icon={MapPin}
-            placeholder="e.g., Bole, Kirkos"
-            required
-            value={localData.subCity_en}
-            error={errors.subCity_en}
-            onChange={handleInputChange}
-          />
-
-          <InputField
-            id="subCity_am"
-            onKeyDown={handleKeyDown}
-            label={t('Registration.SubCityWoreda') + ' (አማርኛ)'}
-            icon={MapPin}
-            placeholder="ለምሳሌ፡ ቦሌ፣ ቂርቆስ"
-            required
-            value={localData.subCity_am}
-            error={errors.subCity_am}
-            dir="rtl"
-            onChange={handleInputChange}
-          />
-        </div>
-
-        {/* Kebele & Detailed Address */}
-        <InputField
-          id="kebele"
-          onKeyDown={handleKeyDown}
-          label={t('Registration.Kebele')}
-          icon={MapPin}
-          placeholder="e.g., 03/05"
-          value={localData.kebele}
-          error={errors.kebele}
-          onChange={handleInputChange}
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-          <InputField
-            id="detailedAddress_en"
-            label={t('Registration.DetailedAddress') + ' (English)'}
-            icon={Map}
-            onKeyDown={handleKeyDown}
-            placeholder="e.g., Near Edna Mall"
-            value={localData.detailedAddress_en}
-            error={errors.detailedAddress_en}
-            onChange={handleInputChange}
-          />
-          <div>
-            <InputField
-              id="detailedAddress_am"
-              label={t('Registration.DetailedAddress') + ' (አማርኛ)'}
-              icon={Map}
-              onKeyDown={handleKeyDown}
-              placeholder="ለምሳሌ፤, ማራኪ በር"
-              value={localData.detailedAddress_am}
-              error={errors.detailedAddress_am}
-              onChange={handleInputChange}
+              {...register("kebele", { required: "Kebele is required" })}
             />
+            {fieldError("kebele") ? <p className="text-xs text-red-500">{fieldError("kebele")}</p> : null}
+          </div>
+
+          <SelectInput
+            label="Address Type"
+            name="address_type"
+            register={register}
+            required="Address type is required"
+            options={[
+              { value: "main", label: "Main" },
+              { value: "branch", label: "Branch" },
+              { value: "other", label: "Other" },
+            ]}
+            placeholder="Select address type"
+            error={fieldError("address_type")}
+          />
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Address discription</label>
+            <input
+              type="text"
+              className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm text-gray-900 outline-none ring-blue-500/30 focus:ring-4 dark:bg-gray-800 dark:text-white ${fieldError("description_en") ? "border-red-400" : "border-gray-300 dark:border-gray-600"
+                }`}
+              {...register("description_en")}
+            />
+            {fieldError("description_en") ? <p className="text-xs text-red-500">{fieldError("description_en")}</p> : null}
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Address Description (Amharic)</label>
+            <input
+              type="text"
+              className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm text-gray-900 outline-none ring-blue-500/30 focus:ring-4 dark:bg-gray-800 dark:text-white ${fieldError("description_am") ? "border-red-400" : "border-gray-300 dark:border-gray-600"
+                }`}
+              {...register("description_am")}
+            />
+            {fieldError("description_am") ? <p className="text-xs text-red-500">{fieldError("description_am")}</p> : null}
           </div>
         </div>
-
-        {/* GPS Coordinates */}
-        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-gray-400 dark:border-gray-500">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-              <Navigation size={16} className="text-blue-500" />
-              {t('Registration.GpsCoords')}
-            </h3>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-200">
+              <MapPin size={16} className="text-blue-500" />
+              GPS Coordinates
+            </div>
             <button
               type="button"
-              onClick={handleGetLocation}
-              className="text-xs px-3 py-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-1"
+              onClick={onGetLocation}
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-60"
+              disabled={!navigator.geolocation}
             >
-              <Navigation size={12} /> {t('Registration.GetMyLocation')}
+              <Navigation size={14} />
+              Use my location
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InputField
-              id="latitude"
-              onKeyDown={handleKeyDown}
-              label={t('Registration.Latitude')}
-              icon={MapPin}
-              type="number"
-              placeholder="e.g., 9.0054"
-              required
-              value={localData.latitude}
-              error={errors.latitude}
-              hint={t('Registration.LatHint')}
-              onChange={handleInputChange}
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Latitude</label>
+              <input
+                type="text"
+                className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm text-gray-900 outline-none ring-blue-500/30 focus:ring-4 dark:bg-gray-800 dark:text-white ${fieldError("latitude") ? "border-red-400" : "border-gray-300 dark:border-gray-600"
+                  }`}
+                {...register("latitude", { required: "Latitude is required" })}
+              />
+              {fieldError("latitude") ? <p className="text-xs text-red-500">{fieldError("latitude")}</p> : null}
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Longitude</label>
+              <input
+                type="text"
+                className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm text-gray-900 outline-none ring-blue-500/30 focus:ring-4 dark:bg-gray-800 dark:text-white ${fieldError("longitude") ? "border-red-400" : "border-gray-300 dark:border-gray-600"
+                  }`}
+                {...register("longitude", { required: "Longitude is required" })}
+              />
+              {fieldError("longitude") ? <p className="text-xs text-red-500">{fieldError("longitude")}</p> : null}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Contact Phone</label>
+            <input
+              type="tel"
+              className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm text-gray-900 outline-none ring-blue-500/30 focus:ring-4 dark:bg-gray-800 dark:text-white ${fieldError("contact_phone") ? "border-red-400" : "border-gray-300 dark:border-gray-600"
+                }`}
+              {...register("contact_phone", { required: registrationType === "hospital" ? "Phone is required" : false })}
             />
-            <InputField
-              id="longitude"
-              onKeyDown={handleKeyDown}
-              label={t('Registration.Longitude')}
-              icon={MapPin}
-              type="number"
-              placeholder="e.g., 38.7636"
-              required
-              value={localData.longitude}
-              error={errors.longitude}
-              hint={t('Registration.LngHint')}
-              onChange={handleInputChange}
+            {fieldError("contact_phone") ? <p className="text-xs text-red-500">{fieldError("contact_phone")}</p> : null}
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Contact Email</label>
+            <input
+              type="email"
+              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none ring-blue-500/30 focus:ring-4 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+              {...register("contact_email")}
             />
           </div>
         </div>
 
-        {/* Working Hour & Main Contact */}
+        {registrationType === "hospital" ? (
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Working Hours</label>
+            <Controller
+              control={control}
+              name="workingHour"
+              rules={{
+                validate: (value) => {
+                  if (!value || typeof value !== "object") return "Working hours are required";
+                  const hasAny = Object.values(value).some((hours) => Array.isArray(hours) && hours.length > 0);
+                  return hasAny || "Working hours are required";
+                },
+              }}
+              render={({ field }) => <WorkingHoursPicker value={field.value} onChange={field.onChange} />}
+            />
+            {fieldError("workingHour") ? <p className="text-xs text-red-500">{fieldError("workingHour")}</p> : null}
+          </div>
+        ) : null}
 
-        {
-          registrationType === 'hospital' && (
-            <div className="space-y-2 col-span-1 md:col-span-2">
-              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                <Timer size={16} className="text-blue-500" />
-                {t('Registration.WorkingHour')}
-                <span className="text-red-500">*</span>
-              </label>
-              <WorkingHoursPicker
-                value={localData.workingHour}
-                onChange={(v) => setLocalData(prev => ({ ...prev, workingHour: v }))}
-              />
-              {errors.workingHour && (
-                <p className="text-xs text-red-500">{errors.workingHour}</p>
-              )}
-            </div>
-          )
-        }
+        <div className="mt-8 flex justify-between">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 rounded-xl bg-gray-100 px-6 py-3 text-sm font-bold text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+          >
+            <ArrowLeft size={18} /> Back
+          </button>
 
-        <div className={`space-y-2 ${registrationType === 'hospital' ? '' : 'col-span-1 md:col-span-2'}`}>
-          <InputField
-            id="contact_phone"
-            label={registrationType === 'hospital' ? t('Registration.EmergencyPhone') : t('Registration.MainContact')}
-            icon={Phone}
-            type="tel"
-            onKeyDown={handleKeyDown}
-            placeholder="09XXXXXXXX"
-            required={registrationType === 'hospital'}
-            value={localData.contact_phone}
-            error={errors.contact_phone}
-            hint={registrationType === 'hospital' ? t('Registration.EmergencyPhone') : t('Registration.MainContact')}
-            onChange={handleInputChange}
-          />
+          <button
+            type="submit"
+            disabled={formState.isSubmitting}
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-600 px-8 py-3 text-sm font-bold text-white hover:from-blue-700 hover:to-emerald-700 disabled:opacity-60"
+          >
+            {formState.isSubmitting ? <LoadingSpinner size={16} className="border-white" /> : null}
+            Next <ArrowRight size={18} />
+          </button>
         </div>
-      </div>
-
-      <div className="mt-8 flex justify-between">
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200"
-        >
-          <ArrowLeft size={18} /> {t('Registration.Back')}
-        </button>
-
-        <button
-          type="submit"
-          className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold bg-gradient-to-r from-blue-500 to-emerald-500 text-white hover:from-blue-600 hover:to-emerald-600 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg hover:shadow-xl"
-        >
-          {t('Registration.NextStep')} <ArrowRight size={18} />
-        </button>
       </div>
     </form>
   );
-};
-
-export default Step2Location;
+}
