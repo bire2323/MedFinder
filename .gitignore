@@ -59,7 +59,7 @@ docker-compose.override.yml
 
 mod/
 
-models/
+
 rasa_env/
 
 
