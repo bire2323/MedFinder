@@ -26,6 +26,8 @@ export default function Step2Location() {
     defaultValues: {
       region_id: storeFormData.region_id ? String(storeFormData.region_id) : "",
       city_id: storeFormData.city_id ? String(storeFormData.city_id) : "",
+      description_en: storeFormData.description_en || "",
+      description_am: storeFormData.description_am || "",
       kebele: storeFormData.kebele || "",
       latitude: storeFormData.latitude || "",
       longitude: storeFormData.longitude || "",
@@ -37,7 +39,7 @@ export default function Step2Location() {
   });
 
   const regionId = watch("region_id");
-  const prevRegionIdRef = useRef(null);
+  const prevRegionIdRef = useRef(storeFormData.region_id ? String(storeFormData.region_id) : "");
   const { cities, loading: citiesLoading, error: citiesError } = useCitiesByRegion(regionId ? Number(regionId) : null);
 
   const cityOptions = useMemo(
@@ -49,6 +51,8 @@ export default function Step2Location() {
     reset({
       region_id: storeFormData.region_id ? String(storeFormData.region_id) : "",
       city_id: storeFormData.city_id ? String(storeFormData.city_id) : "",
+      description_en: storeFormData.description_en || "",
+      description_am: storeFormData.description_am || "",
       kebele: storeFormData.kebele || "",
       latitude: storeFormData.latitude || "",
       longitude: storeFormData.longitude || "",
@@ -60,7 +64,7 @@ export default function Step2Location() {
   }, [reset, storeFormData]);
 
   useEffect(() => {
-    if (prevRegionIdRef.current === null) {
+    if (prevRegionIdRef.current === null || prevRegionIdRef.current === "") {
       prevRegionIdRef.current = regionId;
       return;
     }
