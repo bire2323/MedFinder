@@ -162,14 +162,19 @@ export const useRegistrationStore = create((set, get) => ({
       errors.kebele = isAmharc ? "የቀበሌዎን ቁጥር ያስገቡ" : "enter your kebele";
     }
 
-    if (!formData.description_en) {
-      if (regEx.test(formData.description_en)) {
-        errors.description_en = isAmharc ? "ትክክለኛ መረጃ ያስገቡ" : "enter a valid description";
+    // English description validation (optional, but must include English letters if provided)
+    if (formData.description_en && formData.description_en.trim() !== '') {
+      const hasEnglish = /[A-Za-z]/.test(formData.description_en);
+      if (!hasEnglish) {
+        errors.description_en = isAmharc ? "የእንግሊዘኛ አድራሻ መግለጫ የእንግሊዘኛ ፊደላትን ማካተት አለበት" : "English address description must include English letters";
       }
     }
-    if (!formData.description_am) {
-      if (regAmEx.test(formData.description_am)) {
-        errors.description_am = isAmharc ? "ትክክለኛ መረጃ ያስገቡ" : "enter a valid description";
+
+    // Amharic description validation (optional, but must include Amharic letters if provided)
+    if (formData.description_am && formData.description_am.trim() !== '') {
+      const hasAmharic = /[\u1200-\u137F]/.test(formData.description_am);
+      if (!hasAmharic) {
+        errors.description_am = isAmharc ? "የአማርኛ አድራሻ መግለጫ የአማርኛ ፊደላትን ማካተት አለበት" : "Amharic address description must include Amharic letters";
       }
     }
     // Latitude validation
