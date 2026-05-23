@@ -569,6 +569,14 @@
     "RecentChats": "Recent Chats",
     "InventoryOverview": "Inventory Overview",
     "ViewAll": "View All",
+    "AllDrugs": "All Drugs",
+    "LatestDrugs": "Latest Drugs",
+    "FilteredBy": "Filtered by",
+    "ClearFilter": "Clear filter",
+    "TrackedDrugs": "Tracked drugs",
+    "CriticalStatus": "Critical status",
+    "NeedsAttention": "Needs attention",
+    "BatchesExpiring": "Batches expiring",
     "DrugName": "Drug Name",
     "GenericName": "Generic Name",
     "BookedDate": "Booked Date",
@@ -743,6 +751,12 @@
         "remaining": "Remaining",
         "performedBy": "Staff",
         "reason": "Note"
+      },
+      "searchPlaceholder": "Search drug or batch...",
+      "dateFrom": "From Date/Time",
+      "dateTo": "To Date/Time",
+      "applyFilters": "Apply filters",
+      "refresh": "Refresh"
       }
     },
     "trash": {

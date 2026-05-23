@@ -560,6 +560,14 @@
     "RecentChats": "የቅርብ ጊዜ ውይይቶች",
     "InventoryOverview": "መድሃኒቶች እይታ",
     "ViewAll": "ሁሉንም ይመልከት",
+    "AllDrugs": "ሁሉንም መድሃኒቶች",
+    "LatestDrugs": "የቅርብ የተመዘገቡ መድሃኒቶች",
+    "FilteredBy": "በ... ተገምግሏል",
+    "ClearFilter": "ማጣሪያ አጥፋ",
+    "TrackedDrugs": "የታየ መድሃኒቶች",
+    "CriticalStatus": "ከባድ ሁኔታ",
+    "NeedsAttention": "ማስታወሻ ያለው",
+    "BatchesExpiring": "የሚያሰኘው ጥቅም ቅርቦች",
     "DrugName": "የመድኃኒት ስም",
     "GenericName": "ሳይንሳዊ ስም",
     "BookedDate": "የተመዘገበበት ቀን",
@@ -718,7 +726,12 @@
         "remaining": "ቀሪ",
         "performedBy": "ባለሙያ",
         "reason": "ማስታወሻ"
-      }
+      },
+      "searchPlaceholder": "መድኃኒት ወይም ጥቅም ይፈልጉ...",
+      "dateFrom": "ከዚህ ቀን / ሰዓት",
+      "dateTo": "እስከዚያ ቀን / ሰዓት",
+      "applyFilters": "አጣሪያዎች አተግብር",
+      "refresh": "አዳዲስ አድርግ"
     },
     "trash": {
       "title": "በማህደር ያሉ መድኃኒቶች",

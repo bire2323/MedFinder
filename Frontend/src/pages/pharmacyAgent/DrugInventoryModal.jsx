@@ -1,14 +1,10 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, Loader2, Pill, X, Info, AlertCircle } from "lucide-react";
 import handleKeyDown from "../../hooks/handleKeyDown";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { formatInventoryDate } from "../../utils/inventoryHelpers";
+import { apiGetDrugMetadata } from "../../api/inventory";
 import { useTranslation } from "react-i18next";
-
-const CATEGORIES = [
-    "Antibiotics", "Pain Relief", "Cardiovascular", "Vitamins",
-    "Antidiabetics", "Respiratory", "Gastrointestinal", "Dermatological", "Others"
-];
 
 const DOSAGE_FORMS = [
     "Tablet", "Capsule", "Syrup", "Injection", "Cream", "Ointment", "Drops", "Inhaler", "Others"
@@ -27,6 +23,10 @@ export default function DrugInventoryModal({
 }) {
     const { t } = useTranslation();
     const [errors, setErrors] = useState({});
+    const [metadataSuggestions, setMetadataSuggestions] = useState({ category: [], brand: [], generic: [] });
+    const [loadingMetadata, setLoadingMetadata] = useState({ category: false, brand: false, generic: false });
+    const [showSuggestions, setShowSuggestions] = useState({ category: false, brand: false, generic: false });
+    const modalRef = useRef(null);
 
     const getExpireMin = (manufactureDate) => {
         if (!manufactureDate) {
@@ -42,6 +42,54 @@ export default function DrugInventoryModal({
         return () => {
             document.body.style.overflow = "";
         };
+    }, []);
+
+    const fetchMetadataSuggestions = useCallback(async (type, query = "") => {
+        if (type !== "category" && query.trim().length < 2) {
+            setMetadataSuggestions((prev) => ({ ...prev, [type]: [] }));
+            return;
+        }
+
+        setLoadingMetadata((prev) => ({ ...prev, [type]: true }));
+        try {
+            const response = await apiGetDrugMetadata({ type, query: query.trim() });
+            setMetadataSuggestions((prev) => ({ ...prev, [type]: response?.data || [] }));
+        } catch (error) {
+            console.error("Failed to load metadata suggestions:", error);
+        } finally {
+            setLoadingMetadata((prev) => ({ ...prev, [type]: false }));
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchMetadataSuggestions("category", drugForm.category || "");
+    }, [drugForm.category, fetchMetadataSuggestions]);
+
+    useEffect(() => {
+        if (drugForm.brand_name_en?.trim().length >= 2) {
+            const timeout = setTimeout(() => fetchMetadataSuggestions("brand", drugForm.brand_name_en), 300);
+            return () => clearTimeout(timeout);
+        }
+        setMetadataSuggestions((prev) => ({ ...prev, brand: [] }));
+    }, [drugForm.brand_name_en, fetchMetadataSuggestions]);
+
+    useEffect(() => {
+        if (drugForm.genericName?.trim().length >= 2) {
+            const timeout = setTimeout(() => fetchMetadataSuggestions("generic", drugForm.genericName), 300);
+            return () => clearTimeout(timeout);
+        }
+        setMetadataSuggestions((prev) => ({ ...prev, generic: [] }));
+    }, [drugForm.genericName, fetchMetadataSuggestions]);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (modalRef.current && !modalRef.current.contains(event.target)) {
+                setShowSuggestions({ category: false, brand: false, generic: false });
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     const applyBatchToForm = useCallback((batchId) => {
@@ -150,6 +198,7 @@ export default function DrugInventoryModal({
                     exit={{ scale: 0.95, opacity: 0, y: 20 }}
                     className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200/50 dark:border-slate-800/80"
                     onClick={(e) => e.stopPropagation()}
+                    ref={modalRef}
                 >
                     {/* Header */}
                     <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-10">
@@ -191,14 +240,39 @@ export default function DrugInventoryModal({
                                     />
                                 </FormField>
                                 <FormField label={t("modal.drugInventory.drugNameEnglish")} error={errors.brand_name_en}>
-                                    <input
-                                        type="text"
-                                        value={drugForm.brand_name_en}
-                                        onChange={handleChange("brand_name_en")}
-                                        placeholder="Panadol"
-                                        className="form-input-premium font-bold tracking-wide"
-                                        onKeyDown={handleKeyDown}
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={drugForm.brand_name_en}
+                                            onChange={(e) => {
+                                                handleChange("brand_name_en")(e);
+                                                setShowSuggestions((prev) => ({ ...prev, brand: true }));
+                                            }}
+                                            onFocus={() => setShowSuggestions((prev) => ({ ...prev, brand: true }))}
+                                            placeholder="Panadol"
+                                            className="form-input-premium font-bold tracking-wide"
+                                            onKeyDown={handleKeyDown}
+                                        />
+                                        {showSuggestions.brand && metadataSuggestions.brand.length > 0 && (
+                                            <div className="absolute z-50 mt-1 w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+                                                {loadingMetadata.brand ? (
+                                                    <div className="p-3 text-sm text-slate-500">Loading...</div>
+                                                ) : metadataSuggestions.brand.map((item, index) => (
+                                                    <button
+                                                        key={`brand-suggestion-${index}`}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setDrugForm((prev) => ({ ...prev, brand_name_en: item }));
+                                                            setShowSuggestions((prev) => ({ ...prev, brand: false }));
+                                                        }}
+                                                        className="w-full px-4 py-3 text-left text-sm text-slate-700 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                                    >
+                                                        {item}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </FormField>
                                 <FormField label={t("modal.drugInventory.drugNameAmharic")} error={errors.brand_name_am}>
                                     <input
@@ -210,16 +284,42 @@ export default function DrugInventoryModal({
                                         onKeyDown={handleKeyDown}
                                     />
                                 </FormField>
-                                <div className="md:col-span-3">
+                                <div className="hidden md:block" />
+                                <div className="md:col-span-2">
                                     <FormField label={t("modal.drugInventory.genericName")} error={errors.genericName}>
-                                        <input
-                                            type="text"
-                                            value={drugForm.genericName}
-                                            onChange={handleChange("genericName")}
-                                            placeholder="Paracetamol"
-                                            className="form-input-premium font-bold tracking-wide"
-                                            onKeyDown={handleKeyDown}
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                value={drugForm.genericName}
+                                                onChange={(e) => {
+                                                    handleChange("genericName")(e);
+                                                    setShowSuggestions((prev) => ({ ...prev, generic: true }));
+                                                }}
+                                                onFocus={() => setShowSuggestions((prev) => ({ ...prev, generic: true }))}
+                                                placeholder="Paracetamol"
+                                                className="form-input-premium font-bold tracking-wide"
+                                                onKeyDown={handleKeyDown}
+                                            />
+                                            {showSuggestions.generic && metadataSuggestions.generic.length > 0 && (
+                                                <div className="absolute z-50 mt-1 w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+                                                    {loadingMetadata.generic ? (
+                                                        <div className="p-3 text-sm text-slate-500">Loading...</div>
+                                                    ) : metadataSuggestions.generic.map((item, index) => (
+                                                        <button
+                                                            key={`generic-suggestion-${index}`}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setDrugForm((prev) => ({ ...prev, genericName: item }));
+                                                                setShowSuggestions((prev) => ({ ...prev, generic: false }));
+                                                            }}
+                                                            className="w-full px-4 py-3 text-left text-sm text-slate-700 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                                        >
+                                                            {item}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </FormField>
                                 </div>
                             </div>
@@ -233,10 +333,39 @@ export default function DrugInventoryModal({
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField label="Category" error={errors.category}>
-                                    <select value={drugForm.category} onChange={handleChange("category")} className="form-input-premium font-bold tracking-wide cursor-pointer uppercase text-xs">
-                                        <option value="">Select Category</option>
-                                        {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                                    </select>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={drugForm.category || ""}
+                                            onChange={(e) => {
+                                                handleChange("category")(e);
+                                                setShowSuggestions((prev) => ({ ...prev, category: true }));
+                                            }}
+                                            onFocus={() => setShowSuggestions((prev) => ({ ...prev, category: true }))}
+                                            placeholder="Search or type category"
+                                            className="form-input-premium font-bold tracking-wide"
+                                            onKeyDown={handleKeyDown}
+                                        />
+                                        {showSuggestions.category && metadataSuggestions.category.length > 0 && (
+                                            <div className="absolute z-50 mt-1 w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+                                                {loadingMetadata.category ? (
+                                                    <div className="p-3 text-sm text-slate-500">Loading...</div>
+                                                ) : metadataSuggestions.category.map((item, index) => (
+                                                    <button
+                                                        key={`category-suggestion-${index}`}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setDrugForm((prev) => ({ ...prev, category: item }));
+                                                            setShowSuggestions((prev) => ({ ...prev, category: false }));
+                                                        }}
+                                                        className="w-full px-4 py-3 text-left text-sm text-slate-700 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                                    >
+                                                        {item}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </FormField>
                                 <FormField label="Dosage Form">
                                     <select value={drugForm.dosage_form} onChange={handleChange("dosage_form")} className="form-input-premium font-bold tracking-wide cursor-pointer uppercase text-xs">

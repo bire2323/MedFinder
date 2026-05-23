@@ -29,13 +29,19 @@ const InventoryHistory = () => {
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [typeFilter, setTypeFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
-  const fetchHistory = async () => {
+  const fetchHistory = async (requestedPage = page) => {
     try {
       setLoading(true);
       const res = await apiGetStockHistory({
-        page,
-        type: typeFilter !== "all" ? typeFilter : undefined
+        page: requestedPage,
+        type: typeFilter !== "all" ? typeFilter : undefined,
+        search: searchQuery || undefined,
+        date_from: dateFrom || undefined,
+        date_to: dateTo || undefined,
       });
       if (res.success) {
         setHistoryItems(res.data);
@@ -51,6 +57,18 @@ const InventoryHistory = () => {
   useEffect(() => {
     fetchHistory();
   }, [page, typeFilter]);
+
+  const handleApplyFilters = () => {
+    setPage(1);
+    fetchHistory(1);
+  };
+
+  const handleSearchKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleApplyFilters();
+    }
+  };
 
   const getStatusBadge = (type) => {
     switch (type) {
@@ -93,13 +111,49 @@ const InventoryHistory = () => {
         </div>
 
         {/* Filter Controls */}
-        <div className="flex items-center gap-3">
+        <div className="grid gap-3 md:grid-cols-[1.4fr_1.2fr_1.2fr_1.2fr_auto] items-end">
+          <div className="relative group col-span-1 md:col-span-2">
+            <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+              placeholder={t("inventory.history.searchPlaceholder")}
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-xl text-sm text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-[10px] font-black uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500">
+              {t("inventory.history.dateFrom")}
+            </label>
+            <input
+              type="datetime-local"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-xl text-sm text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-[10px] font-black uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500">
+              {t("inventory.history.dateTo")}
+            </label>
+            <input
+              type="datetime-local"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-xl text-sm text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all"
+            />
+          </div>
+
           <div className="relative group">
             <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
             <select
               value={typeFilter}
               onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
-              className="pl-10 pr-8 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-xl text-xs font-black uppercase tracking-wider focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all appearance-none cursor-pointer dark:text-gray-200"
+              className="w-full pl-10 pr-8 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-xl text-xs font-black uppercase tracking-wider focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all appearance-none cursor-pointer dark:text-gray-200"
             >
               <option value="all">{t("inventory.filters.allStatus")}</option>
               <option value="MANUAL">{t("inventory.history.type.manual")}</option>
@@ -109,13 +163,21 @@ const InventoryHistory = () => {
             </select>
           </div>
 
-          <button
-            onClick={fetchHistory}
-            className="p-2.5 bg-slate-50 dark:bg-slate-900 text-slate-650 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 border border-slate-200/50 dark:border-slate-800 rounded-xl hover:bg-slate-100 transition-all active:scale-95 cursor-pointer"
-            title="Refresh"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleApplyFilters}
+              className="px-4 py-2 bg-emerald-500 text-white rounded-2xl text-xs font-black uppercase tracking-[0.24em] hover:bg-emerald-600 transition-all"
+            >
+              {t("inventory.history.applyFilters")}
+            </button>
+            <button
+              onClick={fetchHistory}
+              className="p-2.5 bg-slate-50 dark:bg-slate-900 text-slate-650 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 border border-slate-200/50 dark:border-slate-800 rounded-xl hover:bg-slate-100 transition-all active:scale-95 cursor-pointer"
+              title={t("inventory.history.refresh")}
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
         </div>
       </div>
 

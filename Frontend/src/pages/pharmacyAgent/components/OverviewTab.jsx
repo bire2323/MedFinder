@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Pill, Package, AlertCircle, Activity, Calendar, TrendingUp, TrendingDown, ArrowRight, Layers } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { getInv, formatInventoryDate } from "../../../utils/inventoryHelpers";
 
-export const StatCard = ({ title, value, trend, icon, color, index }) => {
+export const StatCard = ({ title, value, trend, icon, color, index, active, onClick }) => {
     const colorVariants = {
         emerald: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border-emerald-100/55 dark:border-emerald-900/30",
         blue: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border-blue-100/55 dark:border-blue-900/30",
@@ -14,16 +14,20 @@ export const StatCard = ({ title, value, trend, icon, color, index }) => {
         red: "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border-red-100/55 dark:border-red-900/30",
     };
 
-    // Stagger animation delay based on index
+    const activeClasses = active
+        ? "border-emerald-500/70 dark:border-emerald-400/70 shadow-lg shadow-emerald-500/10"
+        : "border-slate-200/50 dark:border-slate-800/80 shadow-sm shadow-slate-100/50 dark:shadow-none";
+
     return (
-        <motion.div
+        <motion.button
+            type="button"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.1, type: "spring", stiffness: 100 }}
             whileHover={{ y: -6, scale: 1.02 }}
-            className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/50 dark:border-slate-800/80 shadow-sm shadow-slate-100/50 dark:shadow-none hover:shadow-xl hover:shadow-emerald-500/5 dark:hover:shadow-emerald-500/2 transition-all duration-300 relative overflow-hidden group cursor-default"
+            onClick={onClick}
+            className={`w-full text-left bg-white dark:bg-slate-900 p-5 rounded-2xl ${activeClasses} hover:shadow-xl hover:shadow-emerald-500/5 dark:hover:shadow-emerald-500/2 transition-all duration-300 relative overflow-hidden group cursor-pointer`}
         >
-            {/* Soft background glow */}
             <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-emerald-500/5 dark:bg-emerald-500/2 group-hover:scale-150 transition-transform duration-500" />
             
             <div className="flex justify-between items-start">
@@ -48,7 +52,7 @@ export const StatCard = ({ title, value, trend, icon, color, index }) => {
                     </span>
                 )}
             </div>
-        </motion.div>
+        </motion.button>
     );
 };
 
@@ -56,8 +60,83 @@ export default function OverviewTab() {
     const { inventory, analytics } = useOutletContext();
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const [activeFilter, setActiveFilter] = useState(null);
 
-    // Custom CSS category badge colors helper
+    const allItems = Array.isArray(inventory) ? inventory : [];
+    const threshold = 10;
+    const now = new Date();
+    const expiringCutoff = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+
+    const filteredInventory = activeFilter === null
+        ? allItems.slice(0, 5)
+        : allItems.filter((drug) => {
+            const inv = getInv(drug);
+
+            if (activeFilter === "all") {
+                return true;
+            }
+
+            if (activeFilter === "low_stock") {
+                return inv.stock > 0 && inv.stock <= (inv.low_stock_threshold ?? threshold);
+            }
+
+            if (activeFilter === "out_of_stock") {
+                return inv.stock === 0;
+            }
+
+            if (activeFilter === "expiring_soon") {
+                const batches = drug.batches || [];
+                return batches.some((batch) => {
+                    if (!batch.expiration_date) return false;
+                    const expiry = new Date(batch.expiration_date);
+                    return expiry >= now && expiry <= expiringCutoff;
+                });
+            }
+
+            return true;
+        });
+
+    const activeLabel = activeFilter === "all"
+        ? t("PharmacyDashboard.AllDrugs")
+        : activeFilter === "low_stock"
+            ? t("inventory.filters.lowStock")
+            : activeFilter === "out_of_stock"
+                ? t("inventory.filters.outOfStock")
+                : activeFilter === "expiring_soon"
+                    ? t("inventory.analytics.expiringSoon")
+                    : t("PharmacyDashboard.LatestDrugs");
+
+    const statCards = [
+        {
+            key: "all",
+            title: t("PharmacyDashboard.TotalDrugs"),
+            value: analytics?.total_items?.toString() || "0",
+            icon: <Pill />,
+            color: "emerald",
+        },
+        {
+            key: "low_stock",
+            title: t("PharmacyDashboard.LowStock"),
+            value: analytics?.low_stock?.toString() || "0",
+            icon: <Package />,
+            color: "orange",
+        },
+        {
+            key: "out_of_stock",
+            title: t("PharmacyDashboard.OutOfStock"),
+            value: analytics?.out_of_stock?.toString() || "0",
+            icon: <AlertCircle />,
+            color: "red",
+        },
+        {
+            key: "expiring_soon",
+            title: t("inventory.analytics.expiringSoon"),
+            value: analytics?.expiring_soon?.toString() || "0",
+            icon: <Activity />,
+            color: "purple",
+        },
+    ];
+
     const getCategoryStyles = (category) => {
         const cat = String(category).toLowerCase();
         if (cat.includes("antibiotic")) return "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-900/30";
@@ -94,38 +173,19 @@ export default function OverviewTab() {
         >
             {/* Stat Cards Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                <StatCard
-                    title={t("PharmacyDashboard.TotalDrugs")}
-                    value={analytics?.total_items?.toString() || "0"}
-                    trend="+12 this week"
-                    icon={<Pill />}
-                    color="emerald"
-                    index={0}
-                />
-                <StatCard
-                    title={t("PharmacyDashboard.LowStock")}
-                    value={analytics?.low_stock?.toString() || "0"}
-                    trend="Needs attention"
-                    icon={<Package />}
-                    color="orange"
-                    index={1}
-                />
-                <StatCard
-                    title={t("PharmacyDashboard.OutOfStock")}
-                    value={analytics?.out_of_stock?.toString() || "0"}
-                    trend="Critical status"
-                    icon={<AlertCircle />}
-                    color="red"
-                    index={2}
-                />
-                <StatCard
-                    title={t("inventory.analytics.expiringSoon")}
-                    value={analytics?.expiring_soon?.toString() || "0"}
-                    trend="Batches expiring"
-                    icon={<Activity />}
-                    color="purple"
-                    index={3}
-                />
+                {statCards.map((card, index) => (
+                    <StatCard
+                        key={card.key}
+                        title={card.title}
+                        value={card.value}
+                        trend={card.key === "out_of_stock" ? t("PharmacyDashboard.CriticalStatus") : card.key === "low_stock" ? t("PharmacyDashboard.NeedsAttention") : card.key === "expiring_soon" ? t("PharmacyDashboard.BatchesExpiring") : t("PharmacyDashboard.TrackedDrugs")}
+                        icon={card.icon}
+                        color={card.color}
+                        index={index}
+                        active={activeFilter === card.key}
+                        onClick={() => setActiveFilter(activeFilter === card.key ? null : card.key)}
+                    />
+                ))}
             </div>
 
             {/* Inventory Overview Card */}
@@ -148,6 +208,26 @@ export default function OverviewTab() {
                     </button>
                 </div>
 
+                <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <p className="text-xs uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500 font-black">
+                            {activeFilter ? t("PharmacyDashboard.FilteredBy") : t("PharmacyDashboard.LatestDrugs")}
+                        </p>
+                        <h4 className="text-lg font-black text-slate-900 dark:text-white">
+                            {activeLabel} • {filteredInventory.length} {t("PharmacyDashboard.Drugs")}
+                        </h4>
+                    </div>
+                    {activeFilter && (
+                        <button
+                            type="button"
+                            onClick={() => setActiveFilter(null)}
+                            className="text-xs font-bold uppercase tracking-[0.24em] text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200"
+                        >
+                            {t("PharmacyDashboard.ClearFilter")}
+                        </button>
+                    )}
+                </div>
+
                 {/* Desktop View Table: Shown on medium/large screens */}
                 <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left border-collapse">
@@ -161,7 +241,7 @@ export default function OverviewTab() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40">
-                            {inventory?.slice(0, 5).map((drug) => {
+                            {filteredInventory.map((drug) => {
                                 const inv = getInv(drug);
                                 const batches = drug.batches || [];
                                 const isLow = inv.stock <= (inv.low_stock_threshold || 10);
@@ -244,7 +324,7 @@ export default function OverviewTab() {
                     animate="show"
                     className="block md:hidden space-y-4"
                 >
-                    {inventory?.slice(0, 5).map((drug) => {
+                    {filteredInventory.map((drug) => {
                         const inv = getInv(drug);
                         const batches = drug.batches || [];
                         const isLow = inv.stock <= (inv.low_stock_threshold || 10);

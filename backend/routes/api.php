@@ -249,6 +249,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('batches/drug/{drug}', [\App\Http\Controllers\BatchInventoryController::class, 'index']);
         Route::get('batches/drug/{drug}/history', [\App\Http\Controllers\BatchInventoryController::class, 'history']);
         Route::put('batches/{batchInventory}', [\App\Http\Controllers\BatchInventoryController::class, 'updateBatch']);
+        Route::get('metadata', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'getInventoryMetadata']);
 
         Route::get('{drug}', [DrugController::class, 'show']);
         Route::post('/', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'addDrug']);

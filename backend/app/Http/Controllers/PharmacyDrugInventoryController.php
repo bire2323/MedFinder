@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\ChatSession;
 use App\Models\Drug;
+use App\Models\DrugBatch;
 use App\Models\Pharmacy;
 use App\Models\PharmacyDrugInventory;
 use App\Models\StockHistory;
 use App\Repositories\InventoryRepository;
 use App\Services\StockAlertService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -161,6 +163,53 @@ class PharmacyDrugInventoryController extends Controller
         }
 
         return response()->json($result);
+    }
+
+    public function getInventoryMetadata(Request $request)
+    {
+        $pharmacy = $this->pharmacy();
+        if (!$pharmacy) {
+            return response()->json(['success' => false, 'message' => 'Pharmacy not found'], 404);
+        }
+
+        $type = $request->query('type', 'category');
+        $query = $request->query('query', '');
+
+        if ($type === 'brand') {
+            $results = Drug::whereNotNull('brand_name_en')
+                ->where('brand_name_en', '<>', '')
+                ->when($query, fn ($q) => $q->where('brand_name_en', 'like', "%{$query}%"))
+                ->distinct()
+                ->limit(20)
+                ->pluck('brand_name_en');
+        } elseif ($type === 'generic') {
+            $results = Drug::whereNotNull('generic_name')
+                ->where('generic_name', '<>', '')
+                ->when($query, fn ($q) => $q->where('generic_name', 'like', "%{$query}%"))
+                ->distinct()
+                ->limit(20)
+                ->pluck('generic_name');
+        } else {
+            $inventoryCategories = PharmacyDrugInventory::where('pharmacy_id', $pharmacy->id)
+                ->whereNotNull('category')
+                ->where('category', '<>', '')
+                ->when($query, fn ($q) => $q->where('category', 'like', "%{$query}%"))
+                ->distinct()
+                ->pluck('category');
+
+            $batchCategories = DrugBatch::whereNotNull('category')
+                ->where('category', '<>', '')
+                ->when($query, fn ($q) => $q->where('category', 'like', "%{$query}%"))
+                ->distinct()
+                ->pluck('category');
+
+            $results = $inventoryCategories->merge($batchCategories)->unique()->values();
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $results,
+        ]);
     }
 
     public function botSearchMedicine(Request $request)
@@ -549,6 +598,29 @@ class PharmacyDrugInventoryController extends Controller
 
         if ($request->filled('type') && $request->type !== 'all') {
             $query->where('type', $request->type);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('inventory.drug', function ($q) use ($search) {
+                    $q->where('brand_name_en', 'like', "%{$search}%")
+                        ->orWhere('generic_name', 'like', "%{$search}%")
+                        ->orWhere('brand_name_am', 'like', "%{$search}%");
+                })
+                ->orWhereHas('drugBatch', function ($q) use ($search) {
+                    $q->where('batch_number', 'like', "%{$search}%");
+                })
+                ->orWhere('reason', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('date_from')) {
+            $query->where('created_at', '>=', Carbon::parse($request->date_from)->toDateTimeString());
+        }
+
+        if ($request->filled('date_to')) {
+            $query->where('created_at', '<=', Carbon::parse($request->date_to)->toDateTimeString());
         }
 
         $history = $query->paginate($request->get('per_page', 15));

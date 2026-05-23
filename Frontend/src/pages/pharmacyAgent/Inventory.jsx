@@ -607,6 +607,19 @@ export default function Inventory() {
                                                             <MinusCircle size={16} />
                                                         </button>
                                                     )}
+                                                    {batches.length > 0 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setAdjustBatch(batches[0]);
+                                                                setAdjustBatchMode("add");
+                                                            }}
+                                                            className="p-2 text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl hover:bg-emerald-500 hover:text-white transition-all duration-300 active:scale-90 cursor-pointer"
+                                                            title="Add stock"
+                                                        >
+                                                            <Plus size={16} />
+                                                        </button>
+                                                    )}
                                                     <button
                                                         onClick={() => handleToggleAvailability(drug)}
                                                         className={`p-2 rounded-xl transition-all duration-300 active:scale-90 cursor-pointer ${inv.is_available

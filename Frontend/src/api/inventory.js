@@ -29,6 +29,13 @@ export async function apiGetStockHistory(params = {}) {
   return apiFetch(`${BASE}/history${query ? `?${query}` : ""}`, { method: "GET" });
 }
 
+export async function apiGetDrugMetadata(params = {}) {
+  const query = new URLSearchParams(
+    Object.entries(params).filter(([, v]) => v !== undefined && v !== "")
+  ).toString();
+  return apiFetch(`${BASE}/metadata${query ? `?${query}` : ""}`, { method: "GET" });
+}
+
 export async function apiAddDrug(drugData) {
   await ensureCsrfCookie();
   return apiFetch(BASE, {
@@ -165,6 +172,7 @@ export default {
   apiGetAnalytics,
   apiGetTrash,
   apiGetStockHistory,
+  apiGetDrugMetadata,
   apiAddDrug,
   apiUpdateDrug,
   apiDeleteDrug,
