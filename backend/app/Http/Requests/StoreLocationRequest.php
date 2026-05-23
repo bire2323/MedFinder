@@ -26,8 +26,6 @@ class StoreLocationRequest extends FormRequest
             'addressable_type' => 'required|string|in:App\Models\Hospital,App\Models\Pharmacy',
             'region_id' => 'required|integer|exists:regions,id',
             'city_id' => 'required|integer|exists:cities,id',
-            'zone_en' => 'nullable|string|max:255',
-            'zone_am' => 'nullable|string|max:255',
             'kebele' => 'required|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',

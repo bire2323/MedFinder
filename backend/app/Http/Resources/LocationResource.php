@@ -22,8 +22,6 @@ class LocationResource extends JsonResource
             'city_id' => $this->city_id,
             'region' => new RegionResource($this->whenLoaded('region')),
             'city' => new CityResource($this->whenLoaded('city')),
-            'zone_en' => $this->zone_en,
-            'zone_am' => $this->zone_am,
             'kebele' => $this->kebele,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
