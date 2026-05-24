@@ -757,15 +757,15 @@
       "dateTo": "To Date/Time",
       "applyFilters": "Apply filters",
       "refresh": "Refresh"
-      }
-    },
+      },
     "trash": {
       "title": "Archived Inventory",
       "description": "Archive of deleted medicines. You can restore them back to active inventory at any time.",
       "restore": "Restore Item",
       "confirmRestore": "Are you sure you want to restore <strong>{{name}}</strong>?",
       "empty": "No archived items found"
-    },
+    }
+     },
     "toast": {
       "drugAdded": "Medicine added successfully",
       "drugUpdated": "Inventory updated successfully",
