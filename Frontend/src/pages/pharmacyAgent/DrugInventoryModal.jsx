@@ -3,8 +3,11 @@ import { CheckCircle, Loader2, Pill, X, Info, AlertCircle } from "lucide-react";
 import handleKeyDown from "../../hooks/handleKeyDown";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { formatInventoryDate } from "../../utils/inventoryHelpers";
-import { apiGetDrugMetadata } from "../../api/inventory";
+import { apiGetDrugMetadataAll } from "../../api/inventory";
 import { useTranslation } from "react-i18next";
+
+const METADATA_CACHE_KEY = "pharmacyInventoryDrugMetadata";
+const METADATA_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 const DOSAGE_FORMS = [
     "Tablet", "Capsule", "Syrup", "Injection", "Cream", "Ointment", "Drops", "Inhaler", "Others"
@@ -23,6 +26,7 @@ export default function DrugInventoryModal({
 }) {
     const { t } = useTranslation();
     const [errors, setErrors] = useState({});
+    const [metadataCache, setMetadataCache] = useState({ category: [], brand: [], brandAm: [], generic: [] });
     const [metadataSuggestions, setMetadataSuggestions] = useState({ category: [], brand: [], generic: [] });
     const [loadingMetadata, setLoadingMetadata] = useState({ category: false, brand: false, generic: false });
     const [showSuggestions, setShowSuggestions] = useState({ category: false, brand: false, generic: false });
@@ -44,42 +48,100 @@ export default function DrugInventoryModal({
         };
     }, []);
 
-    const fetchMetadataSuggestions = useCallback(async (type, query = "") => {
-        if (type !== "category" && query.trim().length < 2) {
-            setMetadataSuggestions((prev) => ({ ...prev, [type]: [] }));
+    const loadMetadataCacheFromStorage = () => {
+        try {
+            const raw = localStorage.getItem(METADATA_CACHE_KEY);
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            if (!parsed || !parsed.cachedAt) return null;
+            if (Date.now() - parsed.cachedAt > METADATA_CACHE_TTL_MS) {
+                localStorage.removeItem(METADATA_CACHE_KEY);
+                return null;
+            }
+            return parsed.data;
+        } catch (error) {
+            console.warn("Failed to read metadata cache:", error);
+            return null;
+        }
+    };
+
+    const saveMetadataCacheToStorage = (data) => {
+        try {
+            localStorage.setItem(
+                METADATA_CACHE_KEY,
+                JSON.stringify({ cachedAt: Date.now(), data })
+            );
+        } catch (error) {
+            console.warn("Failed to write metadata cache:", error);
+        }
+    };
+
+    const filterSuggestions = useCallback((type, query = "") => {
+        const items = metadataCache[type] || [];
+        const normalized = query?.trim().toLowerCase();
+        if (!normalized) {
+            return items.slice(0, 20);
+        }
+        return items.filter((item) => item?.toLowerCase().includes(normalized)).slice(0, 20);
+    }, [metadataCache]);
+
+    const updateSuggestions = useCallback((type, query = "") => {
+        setMetadataSuggestions((prev) => ({ ...prev, [type]: filterSuggestions(type, query) }));
+    }, [filterSuggestions]);
+
+    const loadMetadataCache = useCallback(async () => {
+        const cached = loadMetadataCacheFromStorage();
+        if (cached) {
+            setMetadataCache(cached);
             return;
         }
 
-        setLoadingMetadata((prev) => ({ ...prev, [type]: true }));
+        setLoadingMetadata({ category: true, brand: true, generic: true });
         try {
-            const response = await apiGetDrugMetadata({ type, query: query.trim() });
-            setMetadataSuggestions((prev) => ({ ...prev, [type]: response?.data || [] }));
+            const response = await apiGetDrugMetadataAll();
+            const payload = response?.data || {};
+            const cache = {
+                brand: payload.brand_names_en || [],
+                brandAm: payload.brand_names_am || [],
+                generic: payload.generic_names || [],
+                category: payload.categories || [],
+            };
+            setMetadataCache(cache);
+            saveMetadataCacheToStorage(cache);
         } catch (error) {
-            console.error("Failed to load metadata suggestions:", error);
+            console.error("Failed to load drug metadata cache:", error);
         } finally {
-            setLoadingMetadata((prev) => ({ ...prev, [type]: false }));
+            setLoadingMetadata({ category: false, brand: false, generic: false });
         }
     }, []);
 
     useEffect(() => {
-        fetchMetadataSuggestions("category", drugForm.category || "");
-    }, [drugForm.category, fetchMetadataSuggestions]);
+        loadMetadataCache();
+    }, [loadMetadataCache]);
 
     useEffect(() => {
-        if (drugForm.brand_name_en?.trim().length >= 2) {
-            const timeout = setTimeout(() => fetchMetadataSuggestions("brand", drugForm.brand_name_en), 300);
-            return () => clearTimeout(timeout);
-        }
-        setMetadataSuggestions((prev) => ({ ...prev, brand: [] }));
-    }, [drugForm.brand_name_en, fetchMetadataSuggestions]);
+        updateSuggestions("category", drugForm.category || "");
+    }, [drugForm.category, updateSuggestions]);
 
     useEffect(() => {
-        if (drugForm.genericName?.trim().length >= 2) {
-            const timeout = setTimeout(() => fetchMetadataSuggestions("generic", drugForm.genericName), 300);
-            return () => clearTimeout(timeout);
+        const timeout = setTimeout(() => updateSuggestions("brand", drugForm.brand_name_en || ""), 150);
+        return () => clearTimeout(timeout);
+    }, [drugForm.brand_name_en, updateSuggestions]);
+
+    useEffect(() => {
+        const timeout = setTimeout(() => updateSuggestions("generic", drugForm.genericName || ""), 150);
+        return () => clearTimeout(timeout);
+    }, [drugForm.genericName, updateSuggestions]);
+
+    useEffect(() => {
+        if (!metadataCache.brand.length && !metadataCache.generic.length && !metadataCache.category.length) {
+            return;
         }
-        setMetadataSuggestions((prev) => ({ ...prev, generic: [] }));
-    }, [drugForm.genericName, fetchMetadataSuggestions]);
+
+        updateSuggestions("category", drugForm.category || "");
+        updateSuggestions("brand", drugForm.brand_name_en || "");
+        updateSuggestions("generic", drugForm.genericName || "");
+    }, [metadataCache, drugForm.category, drugForm.brand_name_en, drugForm.genericName, updateSuggestions]);
 
     useEffect(() => {
         function handleClickOutside(event) {

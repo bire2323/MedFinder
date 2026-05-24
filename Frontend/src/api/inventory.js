@@ -36,6 +36,10 @@ export async function apiGetDrugMetadata(params = {}) {
   return apiFetch(`${BASE}/metadata${query ? `?${query}` : ""}`, { method: "GET" });
 }
 
+export async function apiGetDrugMetadataAll() {
+  return apiGetDrugMetadata({ type: "all" });
+}
+
 export async function apiAddDrug(drugData) {
   await ensureCsrfCookie();
   return apiFetch(BASE, {
@@ -173,6 +177,7 @@ export default {
   apiGetTrash,
   apiGetStockHistory,
   apiGetDrugMetadata,
+  apiGetDrugMetadataAll,
   apiAddDrug,
   apiUpdateDrug,
   apiDeleteDrug,

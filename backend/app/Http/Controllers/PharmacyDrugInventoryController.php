@@ -180,31 +180,94 @@ class PharmacyDrugInventoryController extends Controller
                 ->where('brand_name_en', '<>', '')
                 ->when($query, fn ($q) => $q->where('brand_name_en', 'like', "%{$query}%"))
                 ->distinct()
-                ->limit(20)
                 ->pluck('brand_name_en');
-        } elseif ($type === 'generic') {
+
+            return response()->json([
+                'success' => true,
+                'data' => $results,
+            ]);
+        }
+
+        if ($type === 'brand_am') {
+            $results = Drug::whereNotNull('brand_name_am')
+                ->where('brand_name_am', '<>', '')
+                ->when($query, fn ($q) => $q->where('brand_name_am', 'like', "%{$query}%"))
+                ->distinct()
+                ->pluck('brand_name_am');
+
+            return response()->json([
+                'success' => true,
+                'data' => $results,
+            ]);
+        }
+
+        if ($type === 'generic') {
             $results = Drug::whereNotNull('generic_name')
                 ->where('generic_name', '<>', '')
                 ->when($query, fn ($q) => $q->where('generic_name', 'like', "%{$query}%"))
                 ->distinct()
-                ->limit(20)
                 ->pluck('generic_name');
-        } else {
+
+            return response()->json([
+                'success' => true,
+                'data' => $results,
+            ]);
+        }
+
+        if ($type === 'all') {
+            $brandNamesEn = Drug::whereNotNull('brand_name_en')
+                ->where('brand_name_en', '<>', '')
+                ->distinct()
+                ->pluck('brand_name_en');
+
+            $brandNamesAm = Drug::whereNotNull('brand_name_am')
+                ->where('brand_name_am', '<>', '')
+                ->distinct()
+                ->pluck('brand_name_am');
+
+            $genericNames = Drug::whereNotNull('generic_name')
+                ->where('generic_name', '<>', '')
+                ->distinct()
+                ->pluck('generic_name');
+
             $inventoryCategories = PharmacyDrugInventory::where('pharmacy_id', $pharmacy->id)
                 ->whereNotNull('category')
                 ->where('category', '<>', '')
-                ->when($query, fn ($q) => $q->where('category', 'like', "%{$query}%"))
                 ->distinct()
                 ->pluck('category');
 
             $batchCategories = DrugBatch::whereNotNull('category')
                 ->where('category', '<>', '')
-                ->when($query, fn ($q) => $q->where('category', 'like', "%{$query}%"))
                 ->distinct()
                 ->pluck('category');
 
-            $results = $inventoryCategories->merge($batchCategories)->unique()->values();
+            $categories = $inventoryCategories->merge($batchCategories)->unique()->values();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'brand_names_en' => $brandNamesEn,
+                    'brand_names_am' => $brandNamesAm,
+                    'generic_names' => $genericNames,
+                    'categories' => $categories,
+                ],
+            ]);
         }
+
+        $inventoryCategories = PharmacyDrugInventory::where('pharmacy_id', $pharmacy->id)
+            ->whereNotNull('category')
+            ->where('category', '<>', '')
+            ->when($query, fn ($q) => $q->where('category', 'like', "%{$query}%"))
+            ->distinct()
+            ->pluck('category');
+
+        $batchCategories = DrugBatch::whereNotNull('category')
+            ->where('category', '<>', '')
+            ->when($query, fn ($q) => $q->where('category', 'like', "%{$query}%"))
+            ->distinct()
+            ->pluck('category');
+
+        $results = $inventoryCategories->merge($batchCategories)->unique()->values();
 
         return response()->json([
             'success' => true,
