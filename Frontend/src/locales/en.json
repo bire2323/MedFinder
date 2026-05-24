@@ -765,7 +765,7 @@
       "confirmRestore": "Are you sure you want to restore <strong>{{name}}</strong>?",
       "empty": "No archived items found"
     }
-     },
+  ,
     "toast": {
       "drugAdded": "Medicine added successfully",
       "drugUpdated": "Inventory updated successfully",
@@ -776,7 +776,8 @@
       "failedDelete": "Archive failed",
       "loadFailed": "Failed to load inventory",
       "units": "units"
-    },
+    }
+       },
   "modal": {
     "delete": {
       "title": "Archive Medicine",
@@ -1346,7 +1347,10 @@
     "mockDrug3": "Vitamin D3 (cholecalciferol)",
     "mockPharmacy1": "Green Cross Pharmacy — Bole",
     "mockPharmacy2": "MedFinder Partner Pharmacy — Kazanchis",
-    "mockPharmacyNote": "Example distance-based match"
+    "mockPharmacyNote": "Example distance-based match",
+    "desclimer1": "This prescription reader is for informational purposes only.",
+    "desclimer2": "Results may not be 100% accurate.",
+    "desclimer3": "Always verify with a healthcare professional."
   },
   "departmentServiceSearch": {
     "keywordLabel": "Keyword",
