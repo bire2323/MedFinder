@@ -2,7 +2,7 @@ import os
 import shutil
 import logging
 from typing import Optional
-from fastapi import FastAPI, UploadFile, File, Query, HTTPException
+from fastapi import FastAPI, UploadFile, File, Query, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -226,6 +226,7 @@ async def prescription_api(
     file: UploadFile = File(...),
     lat: Optional[float] = Query(None, description="User latitude"),
     lng: Optional[float] = Query(None, description="User longitude"),
+    request: Request = None,
 ):
     """
     Process prescription image: OCR → extract medicines → search pharmacies.
@@ -330,7 +331,10 @@ async def prescription_api(
         logger.info("[prescription_api] Searching nearby pharmacies")
         try:
             pharmacies = await search_nearby_pharmacies(
-                medicines, lat=lat, lng=lng
+                medicines,
+                lat=lat,
+                lng=lng,
+                request_cookies=request.cookies if request else None,
             )
         except Exception as e:
             logger.exception("[prescription_api] Pharmacy search failed")

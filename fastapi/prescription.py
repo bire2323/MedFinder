@@ -69,33 +69,53 @@ async def search_nearby_pharmacies(
     medicines: list[str],
     lat: float = None,
     lng: float = None,
+    request_cookies: dict = None,
 ) -> list[dict]:
     """Query the Laravel backend for pharmacies stocking the given medicines."""
     if not medicines:
         return [{"message": "No medicines detected in prescription."}]
 
-    payload = {
-        "medicines":  medicines,
-        "lat":        lat,
-        "lng":        lng,
-        "radius_km":  10,
-    }
     headers = {
-        "Authorization": f"Bearer {os.getenv('LARAVEL_API_TOKEN', '')}",
-        "Accept":        "application/json",
+        "Accept": "application/json",
     }
+
+    pharmacies = []
+    seen = set()
 
     try:
         async with httpx.AsyncClient() as http:
-            response = await http.post(
-                f"{LARAVEL_API_URL}/pharmacies/search",
-                json=payload,
-                headers=headers,
-                timeout=15.0,
-            )
-            response.raise_for_status()
-            data = response.json()
-            return data.get("pharmacies", [])
+            for medicine in medicines[:3]:
+                if not medicine:
+                    continue
+
+                response = await http.get(
+                    f"{LARAVEL_API_URL}/bot/search-drug",
+                    params={"name": medicine},
+                    headers=headers,
+                    cookies=request_cookies,
+                    timeout=15.0,
+                )
+                response.raise_for_status()
+                data = response.json()
+
+                if not isinstance(data, list):
+                    continue
+
+                for item in data:
+                    key = (
+                        f"{item.get('pharmacy', '')}|"
+                        f"{item.get('drug', '')}|"
+                        f"{item.get('location', '')}"
+                    )
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    pharmacies.append(item)
+
+        if not pharmacies:
+            return [{"message": "No nearby pharmacies found for the requested medicines."}]
+
+        return pharmacies
     except httpx.HTTPStatusError as e:
         print(f"[pharmacy search] HTTP {e.response.status_code}: {e.response.text}")
         return [{"error": f"Pharmacy API returned {e.response.status_code}"}]
