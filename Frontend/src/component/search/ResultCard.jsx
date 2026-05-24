@@ -49,6 +49,13 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
     : (isAmharic ? facility.pharmacy_name_am : facility.pharmacy_name_en);
   const name = localizedName || facility.name || "Unnamed Facility";
 
+  const logoSrc =
+    facility?.raw?.logo_url ||
+    facility?.logo_url ||
+    facility?.raw?.logo ||
+    facility?.logo ||
+    null;
+
   // 2. CONSTRUCT ADDRESS
   const getAddress = () => {
     if (facility.addresses && facility.addresses.length > 0) {
@@ -114,9 +121,18 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
           <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-emerald-500 rounded-full blur-3xl"></div>
         </div>
 
-        <div className={`relative z-10 rounded-xl border-2 border-white dark:border-gray-800 overflow-hidden bg-white dark:bg-slate-900 shadow-xl flex items-center justify-center  object-cover transform group-hover:scale-110 transition-transform duration-500 w-full`}>
-          {facility.raw ? (
-            <img src={facility.raw?.logo_url} alt={name} className="w-full h-50 object-fill dark:opacity-50" />
+        <div className={`relative z-10 rounded-xl border-2 border-white dark:border-gray-800 overflow-hidden bg-white dark:bg-slate-900 shadow-xl flex items-center justify-center object-cover transform group-hover:scale-110 transition-transform duration-500 w-full`}>
+          {logoSrc ? (
+            <img
+              src={logoSrc}
+              alt={name}
+              className="w-full h-50 object-fill dark:opacity-50"
+              onError={(e) => {
+                // if the logo is missing/broken, fallback to a default image
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "/default-facility-image.png";
+              }}
+            />
           ) : (
             <div className={`text-4xl ${isHospital ? 'text-blue-500' : 'text-emerald-500'}`}>
               {isHospital ? <FaHospital /> : isPharmacy ? <FaPills /> : <FaClinicMedical />}
