@@ -933,7 +933,8 @@
   },
   "facility_detail_page": {
     "please_login_to_chat": "Please log in to chat with the facility",
-    "chatin_errors": "Failed to start chat, try again later"
+    "chatin_errors": "Failed to start chat, try again later",
+    "login_to_get_contact": "Please log in to get contact details"
   },
   "UserDashboard": {
     "Overview": "Overview",

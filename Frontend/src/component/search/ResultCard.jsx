@@ -86,6 +86,14 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
     )?.slice?.(0, tagCap) || []
     : [];
 
+  const isDrugResult = facility.type === "pharmacy" && (facility.drugPrice != null || facility.drugName);
+  const drugStatusLabel = (() => {
+    const v = (facility.drugAvailability ?? facility.drugStatus ?? "").toString().toLowerCase();
+    if (v === "available" || v === "true" || v === "1") return t("search.available");
+    if (v === "not_available" || v === "unavailable" || v === "false" || v === "0") return t("search.not_available");
+    return v ? v : t("search.availability_label");
+  })();
+
   const openInInternalMap = (e) => {
     e.stopPropagation();
     navigate("/home/map", { state: { selectedFacility: facility } });
@@ -156,25 +164,35 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
             </p>
 
             {/* Drug Info Overlay */}
-            {facility.drugPrice && (
+            {isDrugResult && (
               <div className={`mt-3 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/50 flex justify-between items-center w-full group-hover:bg-blue-100 dark:group-hover:bg-blue-900/20 transition-colors ${isList ? 'sm:max-w-md' : ''}`}>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">{t("search.price")}</span>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+                    {t("search.drug_placeholder")}
+                  </span>
+                  <span className="text-sm font-black text-slate-900 dark:text-white truncate">
+                    {facility.drugName || "—"}
+                  </span>
+                  {facility.total_stock != null && (
+                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300 mt-1">
+                      Stock: {facility.total_stock}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-col items-end shrink-0">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("search.price")}</span>
                   <span className="text-lg font-black text-slate-900 dark:text-white">
                     {facility.drugPrice} <span className="text-xs font-bold text-slate-400 uppercase">{t("Common.Currency")}</span>
                   </span>
-                </div>
-                <div className="flex flex-col items-end">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{t("search.availability")}</span>
-                  <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black border ${facility.drugAvailability === 'available' || facility.drugAvailability === true
-                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                    : 'bg-rose-500/10 text-rose-600 border-rose-500/20'
-                    }`}>
-                    <div className={`w-1 h-1 rounded-full ${facility.drugAvailability === 'available' || facility.drugAvailability === true ? 'bg-emerald-500' : 'bg-rose-500'
-                      }`} />
-                    {facility.drugAvailability === 'available' || facility.drugAvailability === true
-                      ? t("search.available")
-                      : t("search.not_available")}
+                  <div
+                    className={`mt-1 flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black border ${(facility.drugAvailability === 'available' || facility.drugAvailability === true)
+                      ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                      : 'bg-rose-500/10 text-rose-600 border-rose-500/20'
+                      }`}
+                  >
+                    <div className={`w-1 h-1 rounded-full ${(facility.drugAvailability === 'available' || facility.drugAvailability === true) ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                    {drugStatusLabel}
                   </div>
                 </div>
               </div>
