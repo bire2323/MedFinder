@@ -165,7 +165,7 @@ const PharmacyDashboard = () => {
         {sidebarOpen && (
           <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-30 lg:hidden" onClick={() => setSidebarOpen(false)} aria-hidden="true" />
         )}
-        <nav className={`fixed lg:relative border-r border-slate-200/50 dark:border-slate-800/80 inset-y-0 left-0 z-40 w-64 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl flex flex-col transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+        <nav className={`fixed lg:sticky lg:top-0 border-r border-slate-200/50 dark:border-slate-800/80 inset-y-0 left-0 z-40 w-64 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl flex flex-col transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
           <div className="sticky top-0 h-full flex flex-col">
             <div className="p-6 flex items-center gap-3 border-b border-slate-100 dark:border-slate-800/50">
               <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-2 rounded-xl text-white shadow-md shadow-emerald-500/20">
