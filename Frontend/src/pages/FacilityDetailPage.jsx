@@ -34,6 +34,7 @@ import { formatWorkingHours, getTodayHours, formatDayWorkingHours } from '../uti
 import { formatInventoryDate } from "../utils/inventoryHelpers";
 import apiStartChatSession from '../api/RealtimeChat';
 import useAuthStore from '../store/UserAuthStore';
+import { navigateByRole } from '../utils/UserNavigation';
 import toast from 'react-hot-toast';
 import Loading from '../component/SupportiveComponent/Loading';
 import { localizeFacility } from '../hooks/Localizer';
@@ -88,6 +89,8 @@ const FacilityDetailPage = () => {
   const roles = useAuthStore((state) => state.roles);
   const isAuthenticated = Boolean(user) && !isAuthLoading;
   const currentUserId = user?.id;
+  const facilityAgentId = facility?.facility_agent_id ?? facility?.hospital_agent_id ?? facility?.pharmacy_agent_id;
+  const isSameFacilityAgent = Boolean(currentUserId && facilityAgentId && String(currentUserId) === String(facilityAgentId));
 
   const maskPhone = (phone) => {
     const raw = (phone ?? "").toString().replace(/\s+/g, "");
@@ -217,6 +220,11 @@ const FacilityDetailPage = () => {
       return;
     }
 
+    if (isSameFacilityAgent) {
+      navigateByRole(roles, navigate, { chat: true });
+      return;
+    }
+
     setChatLoading(true);
     setChatError(null);
 
@@ -228,8 +236,18 @@ const FacilityDetailPage = () => {
 
       const response = await apiStartChatSession(payload);
       const sessionData = await response;
+      const sessionId = sessionData?.id ?? sessionData?.chat_session_id;
 
-      navigate(`/user/dashboard?session=${sessionData?.id ?? sessionData?.chat_session_id} `, { state: { openChatSessionId: sessionData?.id ?? sessionData?.chat_session_id } });
+      if (roles?.includes('pharmacyAgent') || roles?.includes('hospitalAgent')) {
+        navigateByRole(roles, navigate, {
+          chat: true,
+          state: { openChatSessionId: sessionId },
+        });
+      } else {
+        navigate(`/user/dashboard?session=${sessionId}`, {
+          state: { openChatSessionId: sessionId },
+        });
+      }
     } catch (err) {
       setChatError(err.message || t('facility_detail_page.chat_initiation_error'));
       toast.error(t("facility_detail_page.chatin_errors") || "Error starting chat");

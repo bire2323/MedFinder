@@ -1,13 +1,19 @@
-export const navigateByRole = (roles, navigate) => {
+export const getDashboardPath = (roles, { chat = false } = {}) => {
   if (roles?.includes('pharmacyAgent')) {
-    navigate('/pharmacy-agent/dashboard', { replace: true });
-  } else if (roles?.includes('hospitalAgent')) {
-    navigate('/hospital-agent/dashboard', { replace: true });
-  } else if (roles?.includes('admin')) {
-    navigate('/admin/dashboard', { replace: true });
-  } else {
-    navigate('/', { replace: true });
+    return chat ? '/pharmacy/dashboard/chats' : '/pharmacy/dashboard';
   }
+  if (roles?.includes('hospitalAgent')) {
+    return chat ? '/hospital/dashboard/chats' : '/hospital/dashboard';
+  }
+  if (roles?.includes('admin')) {
+    return '/admin/dashboard';
+  }
+  return '/user/dashboard';
+};
+
+export const navigateByRole = (roles, navigate, { chat = false, state } = {}) => {
+  const path = getDashboardPath(roles, { chat });
+  navigate(path, { replace: true, state });
 };
 
 export const getBackgroundLocation = (location) => ({
