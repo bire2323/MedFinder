@@ -147,37 +147,38 @@ const InventoryHistory = () => {
               className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-xl text-sm text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all"
             />
           </div>
+        </div>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="relative group">
+          <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
+          <select
+            value={typeFilter}
+            onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
+            className="w-full pl-10 pr-8 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-xl text-xs font-black uppercase tracking-wider focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all appearance-none cursor-pointer dark:text-gray-200"
+          >
+            <option value="all">{t("inventory.filters.allStatus")}</option>
+            <option value="MANUAL">{t("inventory.history.type.manual")}</option>
+            <option value="SALE">{t("inventory.history.type.sale")}</option>
+            <option value="RESTOCK">{t("inventory.history.type.restock")}</option>
+            <option value="ADJUSTMENT">{t("inventory.history.type.adjustment")}</option>
+          </select>
+        </div>
 
-          <div className="relative group">
-            <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
-            <select
-              value={typeFilter}
-              onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
-              className="w-full pl-10 pr-8 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-xl text-xs font-black uppercase tracking-wider focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all appearance-none cursor-pointer dark:text-gray-200"
-            >
-              <option value="all">{t("inventory.filters.allStatus")}</option>
-              <option value="MANUAL">{t("inventory.history.type.manual")}</option>
-              <option value="SALE">{t("inventory.history.type.sale")}</option>
-              <option value="RESTOCK">{t("inventory.history.type.restock")}</option>
-              <option value="ADJUSTMENT">{t("inventory.history.type.adjustment")}</option>
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleApplyFilters}
-              className="px-4 py-2 bg-emerald-500 text-white rounded-2xl text-xs font-black uppercase tracking-[0.24em] hover:bg-emerald-600 transition-all"
-            >
-              {t("inventory.history.applyFilters")}
-            </button>
-            <button
-              onClick={fetchHistory}
-              className="p-2.5 bg-slate-50 dark:bg-slate-900 text-slate-650 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 border border-slate-200/50 dark:border-slate-800 rounded-xl hover:bg-slate-100 transition-all active:scale-95 cursor-pointer"
-              title={t("inventory.history.refresh")}
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            </button>
-          </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleApplyFilters}
+            className="px-2 py-1 bg-emerald-500 text-white rounded-2xl text-xs font-black uppercase tracking-[0.24em] hover:bg-emerald-600 transition-all"
+          >
+            {t("inventory.history.applyFilters")}
+          </button>
+          <button
+            onClick={fetchHistory}
+            className="p-2.5 bg-slate-50 dark:bg-slate-900 text-slate-650 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 border border-slate-200/50 dark:border-slate-800 rounded-xl hover:bg-slate-100 transition-all active:scale-95 cursor-pointer"
+            title={t("inventory.history.refresh")}
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          </button>
         </div>
       </div>
 
@@ -215,52 +216,53 @@ const InventoryHistory = () => {
                       const { oldQ, newQ } = getHistoryQuantities(log);
                       const batchNum = getHistoryBatchNumber(log);
                       return (
-                      <motion.tr
-                        key={log.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ type: "spring", stiffness: 100, delay: index * 0.02 }}
-                        className="hover:bg-slate-50/50 dark:hover:bg-slate-800/25 transition-colors group"
-                      >
-                        <td className="px-6 py-3.5 whitespace-nowrap">
-                          <div className="flex items-center gap-2 text-xs text-slate-550 dark:text-slate-400 font-bold">
-                            <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                            {new Date(log.created_at).toLocaleString()}
-                          </div>
-                        </td>
-                        <td className="px-6 py-3.5 font-bold text-slate-850 dark:text-white">
-                          {getHistoryDrugName(log)}
-                        </td>
-                        <td className="px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400">
-                          {batchNum || "—"}
-                        </td>
-                        <td className="px-6 py-3.5">
-                          <div className={`flex items-center gap-1 font-black ${log.change_amount > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                            {log.change_amount > 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                            {Math.abs(log.change_amount)} {t("inventory.toast.units")}
-                            <span className="text-[10px] text-slate-400 font-semibold ml-1">
-                              ({oldQ} → {newQ})
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-3.5 text-center">
-                          {getStatusBadge(log.type)}
-                        </td>
-                        <td className="px-6 py-3.5">
-                          <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-350">
-                            <div className="w-6 h-6 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center border border-slate-200/50 dark:border-slate-800">
-                              <User className="w-3 h-3 text-slate-500" />
+                        <motion.tr
+                          key={log.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ type: "spring", stiffness: 100, delay: index * 0.02 }}
+                          className="hover:bg-slate-50/50 dark:hover:bg-slate-800/25 transition-colors group"
+                        >
+                          <td className="px-6 py-3.5 whitespace-nowrap">
+                            <div className="flex items-center gap-2 text-xs text-slate-550 dark:text-slate-400 font-bold">
+                              <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                              {new Date(log.created_at).toLocaleString()}
                             </div>
-                            <span className="font-bold">{getPerformerName(log)}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-3.5">
-                          <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold italic max-w-xs truncate" title={log.reason}>
-                            {log.reason || "—"}
-                          </p>
-                        </td>
-                      </motion.tr>
-                    );})}
+                          </td>
+                          <td className="px-6 py-3.5 font-bold text-slate-850 dark:text-white">
+                            {getHistoryDrugName(log)}
+                          </td>
+                          <td className="px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400">
+                            {batchNum || "—"}
+                          </td>
+                          <td className="px-6 py-3.5">
+                            <div className={`flex items-center gap-1 font-black ${log.change_amount > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                              {log.change_amount > 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                              {Math.abs(log.change_amount)} {t("inventory.toast.units")}
+                              <span className="text-[10px] text-slate-400 font-semibold ml-1">
+                                ({oldQ} → {newQ})
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-3.5 text-center">
+                            {getStatusBadge(log.type)}
+                          </td>
+                          <td className="px-6 py-3.5">
+                            <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-350">
+                              <div className="w-6 h-6 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center border border-slate-200/50 dark:border-slate-800">
+                                <User className="w-3 h-3 text-slate-500" />
+                              </div>
+                              <span className="font-bold">{getPerformerName(log)}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-3.5">
+                            <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold italic max-w-xs truncate" title={log.reason}>
+                              {log.reason || "—"}
+                            </p>
+                          </td>
+                        </motion.tr>
+                      );
+                    })}
                   </AnimatePresence>
                 </tbody>
               </table>
@@ -272,57 +274,58 @@ const InventoryHistory = () => {
                 {historyItems.map((log, index) => {
                   const { oldQ, newQ } = getHistoryQuantities(log);
                   return (
-                  <motion.div
-                    key={log.id}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ type: "spring", stiffness: 100, delay: index * 0.02 }}
-                    className="p-4 bg-slate-50/60 dark:bg-slate-800/30 rounded-2xl border border-slate-100/80 dark:border-slate-800/85 space-y-3 shadow-sm"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-black text-slate-800 dark:text-white leading-tight">
-                          {getHistoryDrugName(log)}
-                        </p>
-                        {getHistoryBatchNumber(log) && (
-                          <p className="text-[10px] text-emerald-600 font-bold mt-0.5">
-                            Batch: {getHistoryBatchNumber(log)}
+                    <motion.div
+                      key={log.id}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ type: "spring", stiffness: 100, delay: index * 0.02 }}
+                      className="p-4 bg-slate-50/60 dark:bg-slate-800/30 rounded-2xl border border-slate-100/80 dark:border-slate-800/85 space-y-3 shadow-sm"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-black text-slate-800 dark:text-white leading-tight">
+                            {getHistoryDrugName(log)}
                           </p>
-                        )}
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-1 flex items-center gap-1">
-                          <Calendar className="w-3 h-3 text-slate-450" />
-                          {new Date(log.created_at).toLocaleString()}
-                        </p>
+                          {getHistoryBatchNumber(log) && (
+                            <p className="text-[10px] text-emerald-600 font-bold mt-0.5">
+                              Batch: {getHistoryBatchNumber(log)}
+                            </p>
+                          )}
+                          <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-1 flex items-center gap-1">
+                            <Calendar className="w-3 h-3 text-slate-450" />
+                            {new Date(log.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                        {getStatusBadge(log.type)}
                       </div>
-                      {getStatusBadge(log.type)}
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/55">
-                      <div>
-                        <span className="text-[9px] text-slate-400 font-black uppercase">Change Amount</span>
-                        <div className={`flex items-center gap-0.5 font-black text-xs mt-0.5 ${log.change_amount > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                          {log.change_amount > 0 ? "+" : "-"}
-                          {Math.abs(log.change_amount)} units
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/55">
+                        <div>
+                          <span className="text-[9px] text-slate-400 font-black uppercase">Change Amount</span>
+                          <div className={`flex items-center gap-0.5 font-black text-xs mt-0.5 ${log.change_amount > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                            {log.change_amount > 0 ? "+" : "-"}
+                            {Math.abs(log.change_amount)} units
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-slate-400 font-black uppercase">Performed By</span>
+                          <p className="text-xs font-bold text-slate-650 dark:text-slate-350 mt-0.5 truncate">
+                            {getPerformerName(log)}
+                          </p>
                         </div>
                       </div>
-                      <div>
-                        <span className="text-[9px] text-slate-400 font-black uppercase">Performed By</span>
-                        <p className="text-xs font-bold text-slate-650 dark:text-slate-350 mt-0.5 truncate">
-                          {getPerformerName(log)}
-                        </p>
-                      </div>
-                    </div>
 
-                    {log.reason && (
-                      <div className="pt-2 border-t border-slate-100/50 dark:border-slate-800/40">
-                        <span className="text-[9px] text-slate-400 font-black uppercase">Reason / Note</span>
-                        <p className="text-xs font-semibold italic text-slate-450 dark:text-slate-500 mt-0.5 leading-relaxed">
-                          {log.reason}
-                        </p>
-                      </div>
-                    )}
-                  </motion.div>
-                );})}
+                      {log.reason && (
+                        <div className="pt-2 border-t border-slate-100/50 dark:border-slate-800/40">
+                          <span className="text-[9px] text-slate-400 font-black uppercase">Reason / Note</span>
+                          <p className="text-xs font-semibold italic text-slate-450 dark:text-slate-500 mt-0.5 leading-relaxed">
+                            {log.reason}
+                          </p>
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
             </div>
           </>
