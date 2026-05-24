@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaChevronDown, FaSearch, FaRobot, FaQuestionCircle } from "react-icons/fa";
+import { apiGetFaqs } from "../api/faq";
 
 const FAQItem = ({ question, answer, isOpen, onClick }) => {
   return (
@@ -36,15 +37,50 @@ const FAQItem = ({ question, answer, isOpen, onClick }) => {
 };
 
 export default function FAQSection() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [activeId, setActiveId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
+  const [faqItems, setFaqItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const faqItems = t("faqSection.items", { returnObjects: true }) || [];
   const categories = t("faqSection.categories", { returnObjects: true }) || {};
+  const locale = i18n.language === "am" ? "am" : "en";
 
-  const filteredItems = faqItems.filter((item) => {
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadFaqs() {
+      try {
+        const response = await apiGetFaqs();
+        if (cancelled) return;
+        setFaqItems(response?.data || []);
+      } catch (error) {
+        console.error("Failed to load FAQs:", error);
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadFaqs();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const localizedFaqItems = faqItems.map((item) => ({
+    ...item,
+    question: locale === "am"
+      ? item.question_am || item.question_en || item.question || ""
+      : item.question_en || item.question || item.question_am || "",
+    answer: locale === "am"
+      ? item.answer_am || item.answer_en || item.answer || ""
+      : item.answer_en || item.answer || item.answer_am || "",
+  }));
+
+  const filteredItems = localizedFaqItems.filter((item) => {
     const matchesSearch = item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          item.answer.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = activeCategory === "all" || item.category === activeCategory;

@@ -16,6 +16,7 @@ use App\Http\Controllers\MessageStatusController;
 use App\Http\Controllers\ChatMessageController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\RouteController;
+use App\Http\Controllers\FaqController;
 use Illuminate\Support\Facades\Broadcast;
 
 use App\Models\Hospital;
@@ -125,6 +126,7 @@ Route::get('pharmacies', [PharmacyController::class, 'index']);
 Route::get('pharmacies/{pharmacy}', [PharmacyController::class, 'show']);
 Route::get('drugs', [DrugController::class, 'index']);
 Route::get('drugs/{drug}', [DrugController::class, 'show']);
+Route::get('faqs', [FaqController::class, 'index']);
 Route::get('pharmacy/inventory/medicines/search', [\App\Http\Controllers\PharmacyDrugInventoryController::class, 'searchMedicine']);
 
 // Public location endpoints (for dropdowns in registration forms)
