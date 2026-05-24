@@ -634,10 +634,10 @@ const FacilityDetailPage = () => {
                         </div>
                         <div>
                           <div className="font-extrabold text-xl text-slate-900 dark:text-white mb-2">
-                            {a.region}, {a.zone}
+                            {[a.sub_city, a.region].filter(Boolean).join(", ")}
                           </div>
                           <div className="text-sm font-semibold text-slate-500 dark:text-gray-400 leading-relaxed">
-                            {a.sub_city}<br />Kebele: {a.kebele}
+                            Kebele: {a.kebele}
                           </div>
                         </div>
                       </div>

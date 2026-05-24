@@ -28,6 +28,8 @@ function DetailModal({ approval, onApprove, onReject, onClose, setDetailModalOpe
   if (!approval) return null;
   const isHospital = (approval.type || '').toLowerCase() === 'hospital';
   const address = approval.addresses?.[0] || {};
+  const regionEn = address?.region?.name_en || address.region_en || '—';
+  const cityEn = address?.city?.name_en || address.sub_city_en || address.city_en || '—';
 
   const formatDate = (value) => {
     const date = value ? new Date(value) : null;
@@ -108,11 +110,11 @@ function DetailModal({ approval, onApprove, onReject, onClose, setDetailModalOpe
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">{t("Admin.Region")}</p>
-                  <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{address.region_en || '—'}</p>
+                  <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{regionEn}</p>
                 </div>
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">{t("Admin.ZoneSubCity")}</p>
-                  <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{address.zone_en || address.sub_city_en || '—'}</p>
+                  <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{cityEn}</p>
                 </div>
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">{t("Admin.WoredaKebele")}</p>

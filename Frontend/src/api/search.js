@@ -16,13 +16,36 @@ function normalizeFacility(f) {
     f?.name ||
     (type === "hospital" ? "Hospital" : type === "pharmacy" ? "Pharmacy" : "Facility");
 
-  const address =
+  // Address fields vary by endpoint:
+  // - Some responses include addresses[0].region.name_en + addresses[0].city.name_en + addresses[0].description_en
+  // - Some legacy responses include addresses[0].region_en/sub_city_en
+  const addrDescEn =
     f?.address_description_en ||
     mainAddress?.address_description_en ||
-    mainAddress?.street_en ||
-    mainAddress?.sub_city_en ||
-    mainAddress?.city_en ||
+    mainAddress?.description_en ||
     "";
+
+  const addrDescAm =
+    f?.address_description_am ||
+    mainAddress?.address_description_am ||
+    mainAddress?.description_am ||
+    "";
+
+  const cityEn =
+    mainAddress?.city?.name_en ||
+    mainAddress?.city_en ||
+    mainAddress?.sub_city_en ||
+    "";
+  const regionEn =
+    mainAddress?.region?.name_en ||
+    mainAddress?.region_en ||
+    "";
+
+  const kebele = mainAddress?.kebele || "";
+
+  // Used for search filtering + quick preview (English-ish)
+  // Keep cards clean: "City, Region" only
+  const address = [cityEn, regionEn].filter(Boolean).join(", ");
 
   const lat = safeFloat(mainAddress?.latitude ?? f?.lat);
   const lng = safeFloat(mainAddress?.longitude ?? f?.lng);
@@ -43,6 +66,11 @@ function normalizeFacility(f) {
     workingHour: f?.working_hour,
     departments: Array.isArray(f?.departments) ? f.departments : [],
     services: Array.isArray(f?.services) ? f.services : [],
+
+    // For ResultCard address rendering
+    addresses: f?.addresses,
+    address_description_en: addrDescEn,
+    address_description_am: addrDescAm,
   };
 }
 
