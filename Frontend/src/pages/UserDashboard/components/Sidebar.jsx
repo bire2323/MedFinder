@@ -1,4 +1,4 @@
-import { Heart, Home, LogOut, MessageSquare, MapPin, User, X, ChevronRight, Menu } from "lucide-react";
+import { Heart, Home, LogOut, MessageSquare, MapPin, User, X, ChevronRight, Menu, FileText } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -12,6 +12,7 @@ export default function Sidebar({ onLogout, favoritesCount = 0, unreadCount = 0 
     { icon: MapPin, label: t("UserDashboard.SearchAndNavigate"), path: "/user/dashboard/search" },
     { icon: Heart, label: t("UserDashboard.SavedPlaces"), path: "/user/dashboard/favorites" },
     { icon: MessageSquare, label: t("UserDashboard.Messages"), path: "/user/dashboard/messages" },
+    { icon: FileText, label: t("UserDashboard.Prescription"), path: "/user/dashboard/prescription" },
     { icon: User, label: t("UserDashboard.Profile"), path: "/user/dashboard/profile" },
   ];
 
