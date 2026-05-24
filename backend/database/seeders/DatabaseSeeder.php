@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
     //PharmacySeeder::class,
     DrugSeeder::class,
     InventorySeeder::class,
+    FaqSeeder::class,
     UserSeeder::class
 
 

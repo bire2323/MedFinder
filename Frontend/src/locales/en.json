@@ -775,8 +775,7 @@
       "failedDelete": "Archive failed",
       "loadFailed": "Failed to load inventory",
       "units": "units"
-    }
-  },
+    },
   "modal": {
     "delete": {
       "title": "Archive Medicine",
