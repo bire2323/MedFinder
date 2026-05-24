@@ -62,7 +62,6 @@ import UserFavorites from "../../pages/UserDashboard/components/UserFavorites";
 import MapView from "../../pages/UserDashboard/components/MapView";
 import Profile from "../../pages/UserDashboard/components/Profile";
 import Chat from "../../pages/UserDashboard/components/Chat";
-import PrescriptionReader from "../../pages/shared/PrescriptionReader";
 
 import ProtectedRoute from "../../auth/ProtectedRoute";
 import AuthCallback from "../../auth/AuthCallBack";
