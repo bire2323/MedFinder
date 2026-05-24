@@ -13,7 +13,12 @@ const FacilityCard = ({ facility, onViewDetails, onMapView }) => {
   };
 
   const getFacilityAddress = () => {
-    return facility.address_description_en || '';
+    if (facility.address_description_en) return facility.address_description_en;
+    const addr = Array.isArray(facility.addresses) && facility.addresses.length ? facility.addresses[0] : null;
+    if (!addr) return '';
+    const city = addr.city?.name_en || addr.sub_city_en || addr.city_en || '';
+    const region = addr.region?.name_en || addr.region_en || '';
+    return [city, region].filter(Boolean).join(', ');
   };
 
   const getFacilityTypeColor = () => {

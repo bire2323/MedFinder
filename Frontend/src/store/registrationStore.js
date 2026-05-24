@@ -19,8 +19,6 @@ const initialFormData = {
   city_id: "",
   region_en: '',
   region_am: '',
-  zone_en: '',
-  zone_am: '',
   subCity_en: '',
   subCity_am: '',
   kebele: '',

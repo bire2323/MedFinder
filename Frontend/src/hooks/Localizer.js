@@ -1,6 +1,32 @@
 export function localizeFacility(facility, type, lang) {
   const isAm = lang === "am";
   const isHospital = type === 'hospital';
+  const mainAddress = Array.isArray(facility?.addresses) && facility.addresses.length > 0 ? facility.addresses[0] : null;
+
+  const regionName = isAm
+    ? (mainAddress?.region?.name_am ?? mainAddress?.region_am ?? mainAddress?.region?.name_en ?? "")
+    : (mainAddress?.region?.name_en ?? mainAddress?.region_en ?? mainAddress?.region?.name_am ?? "");
+
+  const cityName = isAm
+    ? (mainAddress?.city?.name_am ?? mainAddress?.sub_city_am ?? mainAddress?.city_am ?? mainAddress?.city?.name_en ?? "")
+    : (mainAddress?.city?.name_en ?? mainAddress?.sub_city_en ?? mainAddress?.city_en ?? mainAddress?.city?.name_am ?? "");
+
+  // In newer backend responses address text is inside addresses[0].description_en/am
+  const addressDescriptionEn =
+    facility?.address_description_en ??
+    mainAddress?.address_description_en ??
+    mainAddress?.description_en ??
+    "";
+  const addressDescriptionAm =
+    facility?.address_description_am ??
+    mainAddress?.address_description_am ??
+    mainAddress?.description_am ??
+    "";
+
+  // For UI: prefer description, otherwise show "City, Region"
+  const addressDescription = isAm
+    ? (addressDescriptionAm || [cityName, regionName].filter(Boolean).join(", "))
+    : (addressDescriptionEn || [cityName, regionName].filter(Boolean).join(", "));
 
   return {
     ...facility,
@@ -22,7 +48,13 @@ export function localizeFacility(facility, type, lang) {
     inventory: isHospital ? [] : facility.drugs ? facility.drugs.map(d => localizeDrugs(d, type, lang)) : [],
     departments: !isHospital ? [] : facility.departments ? facility.departments.map(d => localizeDepartments(d, type, lang)) : [],
     services: !isHospital ? [] : facility.services ? facility.services.map(s => localizeServices(s, type, lang)) : [],
-    address_description: isAm ? facility.address_description_am : facility.address_description_en,
+    // keep both language variants for components that rely on them
+    address_description_en: addressDescriptionEn,
+    address_description_am: addressDescriptionAm,
+    address_description: addressDescription,
+    // convenience for some UIs
+    region: regionName,
+    city: cityName,
     status: facility.status,
     logo_url: facility.logo_url,
     lat: facility.addresses && facility.addresses.length > 0 ? parseFloat(facility.addresses[0].latitude) : null,
@@ -84,6 +116,17 @@ export function localizeDepartments(department, type, lang) {
 export function localizeAddress(address, type, lang) {
   const isAm = lang === "am";
   const isHospital = type === 'hospital';
+
+  const regionName = isAm
+    ? (address?.region?.name_am ?? address?.region_am ?? address?.region?.name_en ?? "")
+    : (address?.region?.name_en ?? address?.region_en ?? address?.region?.name_am ?? "");
+
+  const cityName = isAm
+    ? (address?.city?.name_am ?? address?.sub_city_am ?? address?.city_am ?? address?.city?.name_en ?? "")
+    : (address?.city?.name_en ?? address?.sub_city_en ?? address?.city_en ?? address?.city?.name_am ?? "");
+
+  const descEn = address?.address_description_en ?? address?.description_en ?? "";
+  const descAm = address?.address_description_am ?? address?.description_am ?? "";
   return {
     ...address,
     id: address.id,
@@ -95,8 +138,18 @@ export function localizeAddress(address, type, lang) {
     latitude: address.latitude,
     longitude: address.longitude,
 
-    region: isAm ? address.region_am : address.region_en,
-    sub_city: isAm ? address.sub_city_am : address.sub_city_en,
-    zone: isAm ? address.zone_am : address.zone_en,
+    // normalized fields used by FacilityDetailPage and others
+    region: regionName,
+    sub_city: cityName,
+    // zone is not part of the current backend response shape; keep empty for safety
+    zone: "",
+
+    // keep language variants for other consumers
+    region_en: address?.region?.name_en ?? address.region_en ?? "",
+    region_am: address?.region?.name_am ?? address.region_am ?? "",
+    sub_city_en: address?.city?.name_en ?? address.sub_city_en ?? address.city_en ?? "",
+    sub_city_am: address?.city?.name_am ?? address.sub_city_am ?? address.city_am ?? "",
+    description_en: descEn,
+    description_am: descAm,
   };
 }

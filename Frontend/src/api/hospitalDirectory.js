@@ -19,6 +19,29 @@ export function normalizeHospitalCapability(h) {
 
   const rating = safeFloat(h?.rating);
 
+  const addrDescEn =
+    h?.address_description_en ||
+    mainAddress?.address_description_en ||
+    mainAddress?.description_en ||
+    "";
+
+  const addrDescAm =
+    h?.address_description_am ||
+    mainAddress?.address_description_am ||
+    mainAddress?.description_am ||
+    "";
+
+  const cityEn =
+    mainAddress?.city?.name_en ||
+    mainAddress?.city_en ||
+    mainAddress?.sub_city_en ||
+    "";
+  const regionEn =
+    mainAddress?.region?.name_en ||
+    mainAddress?.region_en ||
+    "";
+  // const kebele = mainAddress?.kebele || "";
+
   return {
     raw: h,
     id: h?.id,
@@ -28,12 +51,8 @@ export function normalizeHospitalCapability(h) {
       h?.name ||
       "Hospital",
     address:
-      h?.address_description_en ||
-      mainAddress?.address_description_en ||
-      mainAddress?.street_en ||
-      mainAddress?.sub_city_en ||
-      mainAddress?.city_en ||
-      "",
+      // Keep cards clean: "City, Region" only
+      [cityEn, regionEn].filter(Boolean).join(", "),
     lat,
     lng,
     rating,
@@ -45,8 +64,8 @@ export function normalizeHospitalCapability(h) {
     pharmacy_name_en: undefined,
     pharmacy_name_am: undefined,
     addresses: h?.addresses,
-    address_description_en: h?.address_description_en,
-    address_description_am: h?.address_description_am,
+    address_description_en: addrDescEn,
+    address_description_am: addrDescAm,
     working_hour: h?.working_hour,
   };
 }

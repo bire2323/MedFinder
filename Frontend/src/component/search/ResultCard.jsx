@@ -57,9 +57,13 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
     if (facility.addresses && facility.addresses.length > 0) {
       const addr = facility.addresses[0];
       if (isAmharic) {
-        return `${addr.sub_city_am || ""}, ${addr.zone_am || ""}, ${addr.region_am || ""}`.replace(/^, |, $/g, "").replace(/, , /g, ", ");
+        const city = addr.city?.name_am || addr.sub_city_am || addr.city_am || "";
+        const region = addr.region?.name_am || addr.region_am || "";
+        return [city, region].filter(Boolean).join(", ");
       }
-      return `${addr.sub_city_en || ""}, ${addr.zone_en || ""}, ${addr.region_en || ""}`.replace(/^, |, $/g, "").replace(/, , /g, ", ");
+      const city = addr.city?.name_en || addr.sub_city_en || addr.city_en || "";
+      const region = addr.region?.name_en || addr.region_en || "";
+      return [city, region].filter(Boolean).join(", ");
     }
     return facility.address || t("search.addressNotAvailable");
   };
