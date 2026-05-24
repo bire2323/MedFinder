@@ -951,8 +951,11 @@ function DrugDetailCard({ drug, getDrugUiStatus }) {
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <InfoTile label="Category" value={drug.category || "—"} />
+          <InfoTile label="Dosage form" value={drug.dosage_form || "—"} />
+          <InfoTile label="Manufacturer" value={drug.manufacturer || "—"} />
+          <InfoTile label="Manufacture date" value={formatInventoryDate(drug.manufacture_date)} />
           <InfoTile label="Expire date" value={formatInventoryDate(drug.expire_date)} />
-          <InfoTile label="Low stock threshold" value={drug.low_stock_threshold ?? "—"} />
           <InfoTile label="Cost price" value={drug.cost_price ? `${drug.cost_price} ETB` : "—"} />
           <InfoTile label="Batch number" value={drug.batch_number || "—"} />
         </div>
