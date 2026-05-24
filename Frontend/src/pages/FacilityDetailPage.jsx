@@ -53,8 +53,17 @@ const FacilityDetailPage = () => {
   const [chatLoading, setChatLoading] = useState(false);
   const [chatError, setChatError] = useState(null);
 
+  const [selectedDrug, setSelectedDrug] = useState(null);
+
   const { user, isAuthenticated } = useAuthStore();
   const currentUserId = user?.id;
+
+  const maskLicenseNumber = (license) => {
+    if (!license) return '**********';
+    const visibleCount = Math.ceil(license.length / 2);
+    const hiddenCount = Math.max(license.length - visibleCount, 0);
+    return `${license.slice(0, visibleCount)}${'*'.repeat(hiddenCount)}`;
+  };
 
   // Load and localize facility
   useEffect(() => {
@@ -62,6 +71,14 @@ const FacilityDetailPage = () => {
     setFacility(result);
     setIsLoading(false);
   }, [data, type, i18n.language]);
+
+  useEffect(() => {
+    if (!facility?.inventory?.length) {
+      setSelectedDrug(null);
+      return;
+    }
+    setSelectedDrug((prev) => prev ?? facility.inventory[0]);
+  }, [facility]);
 
   // Scrollspy Intersection Observer setup
   useEffect(() => {
@@ -312,7 +329,7 @@ const FacilityDetailPage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   <div className="space-y-1">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">License Number</p>
-                    <p className="font-extrabold text-lg">{facility.license_number || 'N/A'}</p>
+                    <p className="font-extrabold text-lg">{maskLicenseNumber(facility.license_number)}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Region / Ownership</p>
@@ -337,36 +354,112 @@ const FacilityDetailPage = () => {
             {/* DEPARTMENTS / INVENTORY SECTION */}
             {isPharmacy ? (
               <section id="inventory" className="scroll-mt-36">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-xl bg-emerald-100/50 text-emerald-600">
                       <Package size={24} />
                     </div>
-                    <h2 className="text-2xl font-extrabold tracking-tight">Available Inventory</h2>
+                    <div>
+                      <h2 className="text-2xl font-extrabold tracking-tight">Available Inventory</h2>
+                      <p className="text-sm text-slate-500 dark:text-gray-400 mt-1">
+                        Browse drugs, then select an item to view detailed pricing, availability and prescription info.
+                      </p>
+                    </div>
                   </div>
-                  <span className="hidden sm:inline-block px-3 py-1 bg-white dark:bg-gray-800 text-sm font-bold text-slate-500 rounded-full ring-1 ring-slate-200 dark:ring-gray-700">
+                  <span className="inline-flex items-center justify-center px-3 py-1 bg-white dark:bg-gray-800 text-sm font-bold text-slate-500 rounded-full ring-1 ring-slate-200 dark:ring-gray-700">
                     {facility.inventory?.length || 0} Items
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                  {facility.inventory?.map((item, index) => (
-                    <div key={index} className="group p-5 rounded-[1.5rem] bg-white dark:bg-[#111827] shadow-[0_4px_20px_rgb(0,0,0,0.03)] ring-1 ring-slate-900/5 dark:ring-white/10 hover:ring-emerald-300 dark:hover:ring-emerald-700 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(16,185,129,0.1)] flex flex-col justify-between">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="pr-3">
-                          <h4 className="font-extrabold text-lg leading-tight mb-1">{item.name}</h4>
-                          <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{item.generic_name}</p>
-                        </div>
-                        <span className={`shrink-0 px-2 py-1 text-[10px] uppercase tracking-wider font-extrabold rounded-lg ${item.status ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 ring-1 ring-emerald-200 dark:ring-emerald-500/30' : 'bg-rose-50 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400 ring-1 ring-rose-200 dark:ring-rose-500/30'}`}>
-                          {item.status ? 'In Stock' : 'Out'}
-                        </span>
-                      </div>
-                      <div className="pt-4 border-t border-slate-100 dark:border-gray-800 flex justify-between items-end">
-                        <p className="text-xs font-semibold text-slate-400">{item.brand_name || 'Generic'}</p>
-                        <p className="font-black text-xl text-emerald-600 dark:text-emerald-400">{item.price} <span className="text-sm font-bold opacity-70">ETB</span></p>
-                      </div>
+                <div className="grid grid-cols-1 xl:grid-cols-[1.7fr_1.3fr] gap-6">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {facility.inventory?.map((item, index) => {
+                        const isSelected = selectedDrug === item;
+                        return (
+                          <button
+                            key={item.id ?? index}
+                            type="button"
+                            onClick={() => setSelectedDrug(item)}
+                            className={`text-left group p-5 rounded-[1.5rem] bg-white dark:bg-[#111827] shadow-[0_4px_20px_rgb(0,0,0,0.03)] ring-1 ring-slate-900/5 dark:ring-white/10 transition-all duration-300 ${isSelected ? 'ring-2 ring-emerald-300 dark:ring-emerald-600 shadow-[0_12px_30px_rgb(16,185,129,0.18)]' : 'hover:-translate-y-1 hover:ring-emerald-300 dark:hover:ring-emerald-700 hover:shadow-[0_8px_30px_rgb(16,185,129,0.1)]'} focus:outline-none`}
+                          >
+                            <div className="flex justify-between items-start gap-4 mb-4">
+                              <div className="min-w-0">
+                                <h4 className="font-extrabold text-lg leading-tight mb-1 truncate">{item.name}</h4>
+                                <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 truncate">{item.generic_name}</p>
+                              </div>
+                              <span className={`shrink-0 px-2 py-1 text-[10px] uppercase tracking-wider font-extrabold rounded-lg ${item.status ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 ring-1 ring-emerald-200 dark:ring-emerald-500/30' : 'bg-rose-50 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400 ring-1 ring-rose-200 dark:ring-rose-500/30'}`}>
+                                {item.status ? 'In Stock' : 'Out'}
+                              </span>
+                            </div>
+
+                            <div className="pt-4 border-t border-slate-100 dark:border-gray-800 flex flex-col gap-2">
+                              <p className="text-xs font-semibold text-slate-400">{item.brand_name || 'Generic'}</p>
+                              <p className="font-black text-xl text-emerald-600 dark:text-emerald-400">
+                                {item.price} <span className="text-sm font-bold opacity-70">ETB</span>
+                              </p>
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
-                  ))}
+
+                    <div className="px-5 py-4 rounded-[1.5rem] bg-slate-50 dark:bg-gray-900 border border-slate-200/80 dark:border-gray-800 text-sm text-slate-600 dark:text-gray-400">
+                      <p className="font-medium">Tip:</p>
+                      <p className="mt-2">On desktop the selected drug detail appears in the side panel. On mobile, the detail stacks below the list so you can keep browsing and review one item at a time.</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="bg-white dark:bg-[#111827] rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-900/5 dark:ring-white/10 h-full">
+                      {selectedDrug ? (
+                        <>
+                          <div className="flex items-start justify-between gap-4 mb-6">
+                            <div>
+                              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Selected Drug</p>
+                              <h3 className="mt-2 text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">{selectedDrug.name}</h3>
+                              <p className="mt-2 text-sm text-slate-500 dark:text-gray-400">{selectedDrug.generic_name}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{selectedDrug.price} <span className="text-base font-bold">ETB</span></p>
+                              <p className="mt-1 text-sm font-semibold text-slate-500 dark:text-gray-400">{selectedDrug.stock ?? 0} units</p>
+                            </div>
+                          </div>
+
+                          <div className="grid gap-4">
+                            <div className="space-y-2">
+                              <p className="text-sm font-semibold text-slate-700 dark:text-white">About</p>
+                              <p className="text-sm leading-7 text-slate-500 dark:text-gray-400">{selectedDrug.about_drug || selectedDrug.about_drug_en || 'No description available.'}</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                              <div className="rounded-2xl bg-slate-50 dark:bg-gray-900 p-4 border border-slate-200/80 dark:border-gray-800">
+                                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Prescription</p>
+                                <p className={`mt-2 font-bold ${selectedDrug.prescription_required ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                                  {selectedDrug.prescription_required ? 'Required' : 'Not Required'}
+                                </p>
+                              </div>
+                              <div className="rounded-2xl bg-slate-50 dark:bg-gray-900 p-4 border border-slate-200/80 dark:border-gray-800">
+                                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Expire Date</p>
+                                <p className="mt-2 font-bold text-slate-900 dark:text-white">{selectedDrug.expire_date || 'Unknown'}</p>
+                              </div>
+                            </div>
+
+                            <div className="rounded-2xl bg-slate-50 dark:bg-gray-900 p-4 border border-slate-200/80 dark:border-gray-800">
+                              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Availability</p>
+                              <p className="mt-2 text-sm font-semibold text-slate-700 dark:text-gray-200">{selectedDrug.status ? 'Available for purchase' : 'Currently unavailable'}</p>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex h-full flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-slate-300/60 bg-slate-50 dark:border-gray-700 dark:bg-gray-900 p-8 text-center">
+                          <div className="mb-4 text-6xl">💊</div>
+                          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">Pick a drug to preview</h3>
+                          <p className="mt-2 text-sm text-slate-500 dark:text-gray-400">Select any inventory card to see pricing, stock, prescription and expiry details.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </section>
             ) : (

@@ -6,7 +6,7 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import useAuthStore from "../store/UserAuthStore";
 import { useTranslation } from "react-i18next";
 
@@ -26,6 +26,7 @@ const staggerContainer = {
 export default function RegisterPharmacy() {
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -34,14 +35,14 @@ export default function RegisterPharmacy() {
     if (type === 'pharmacy') {
 
       if (!isAuthenticated) {
-        navigate('/login');
+        navigate('/login', { state: { background: { pathname: location.pathname, search: location.search, hash: location.hash } } });
       } else {
         navigate('/pharmacy/registration/basic-info')
       }
     } else if (type === 'hospital') {
 
       if (!isAuthenticated) {
-        navigate("/login");
+        navigate("/login", { state: { background: { pathname: location.pathname, search: location.search, hash: location.hash } } });
       } else {
 
         navigate('/register/hospital')
