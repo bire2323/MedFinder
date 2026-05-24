@@ -1,5 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { CircleHelp, Map, MapPin, User } from "lucide-react";
+import {
+    CircleHelp, Map, MapPin, User
+} from "lucide-react";
 
 const navItems = [
     {
@@ -31,7 +33,7 @@ const navItems = [
         label: "FAQs",
         path: "faqs",
 
-        icon: QuestionMarkCircle,
+        icon: CircleHelp,
         colorClass: "text-emerald-700 bg-emerald-100 dark:text-emerald-200 dark:bg-emerald-950/20",
         activeClass: "bg-emerald-600 text-white shadow-lg shadow-emerald-500/20",
 

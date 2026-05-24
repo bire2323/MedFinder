@@ -297,8 +297,8 @@ const FacilityDetailPage = () => {
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
                   className={`relative px-5 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${isActive
-                      ? 'text-slate-900 dark:text-white bg-white dark:bg-gray-800 shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10'
-                      : 'text-slate-500 dark:text-gray-400 hover:bg-slate-200/50 dark:hover:bg-gray-800/50 hover:text-slate-900 dark:hover:text-white'
+                    ? 'text-slate-900 dark:text-white bg-white dark:bg-gray-800 shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10'
+                    : 'text-slate-500 dark:text-gray-400 hover:bg-slate-200/50 dark:hover:bg-gray-800/50 hover:text-slate-900 dark:hover:text-white'
                     }`}
                 >
                   {item.label}
@@ -404,10 +404,7 @@ const FacilityDetailPage = () => {
                       })}
                     </div>
 
-                    <div className="px-5 py-4 rounded-[1.5rem] bg-slate-50 dark:bg-gray-900 border border-slate-200/80 dark:border-gray-800 text-sm text-slate-600 dark:text-gray-400">
-                      <p className="font-medium">Tip:</p>
-                      <p className="mt-2">On desktop the selected drug detail appears in the side panel. On mobile, the detail stacks below the list so you can keep browsing and review one item at a time.</p>
-                    </div>
+
                   </div>
 
                   <div className="space-y-4">
@@ -598,8 +595,8 @@ const FacilityDetailPage = () => {
                   onClick={handleStartChat}
                   disabled={chatLoading || chatSession}
                   className={`w-full py-4 rounded-xl font-black text-[15px] flex items-center justify-center gap-2 transition-all transform hover:-translate-y-1 shadow-xl text-white ${chatLoading || chatSession
-                      ? 'bg-slate-400 cursor-not-allowed shadow-none hover:translate-y-0'
-                      : isPharmacy ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'
+                    ? 'bg-slate-400 cursor-not-allowed shadow-none hover:translate-y-0'
+                    : isPharmacy ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'
                     }`}
                 >
                   {chatLoading ? (
