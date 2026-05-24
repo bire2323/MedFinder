@@ -53,6 +53,7 @@ import AuditLog from "../../pages/AdminPage/AuditLog";
 import AdminNotificationCenter from "../../pages/AdminPage/NotificationCenter";
 import RegionManagement from "../../pages/AdminPage/RegionManagement";
 import CityManagement from "../../pages/AdminPage/CityManagement";
+import FaqManagement from "../../pages/AdminPage/FaqManagement";
 import AdminSettingsLayout from "../../pages/AdminPage/AdminSettingsLayout";
 import ProfileSettingsLayout from "../../pages/shared/ProfileSettings/ProfileSettingsLayout";
 import UserDashboard from "../../pages/UserDashboard/UserDashboard";
@@ -244,6 +245,7 @@ const routesConfig = [
               { path: "profile", element: <Profile /> },
               { path: "region", element: <RegionManagement /> },
               { path: "city", element: <CityManagement /> },
+              { path: "faqs", element: <FaqManagement /> },
             ],
           },
         ]

@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Map, MapPin, User } from "lucide-react";
+import { Map, MapPin, QuestionMarkCircle, User } from "lucide-react";
 
 const navItems = [
     {
@@ -26,6 +26,14 @@ const navItems = [
         colorClass: "text-emerald-700 bg-emerald-100 dark:text-emerald-200 dark:bg-emerald-950/20",
         activeClass: "bg-emerald-600 text-white shadow-lg shadow-emerald-500/20",
     },
+    {
+        id: "faqs",
+        label: "FAQs",
+        path: "faqs",
+        icon: QuestionMarkCircle,
+        colorClass: "text-sky-700 bg-sky-100 dark:text-sky-200 dark:bg-sky-950/20",
+        activeClass: "bg-sky-600 text-white shadow-lg shadow-sky-500/20",
+    },
 ];
 
 export default function AdminSettingsLayout() {
@@ -34,7 +42,7 @@ export default function AdminSettingsLayout() {
             <aside className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5 dark:border-slate-800 dark:bg-slate-950/70 dark:shadow-none lg:sticky lg:top-10 lg:self-start">
                 <div className="mb-6">
                     <h2 className="text-base font-black text-slate-900 dark:text-white">Settings</h2>
-                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Configure admin profile, region, and city management.</p>
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Configure admin profile, region, city and FAQ management.</p>
                 </div>
 
                 <div className="space-y-3">
