@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, MessageSquare, ChevronLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useLocation, useOutletContext } from "react-router-dom";
 import SharedChatWindow from "../../../component/SharedChatWindow";
 import { apiFetch } from "../../../api/client";
 import useChatNotificationStore from "../../../store/useChatNotificationStore";
-
-import { useOutletContext } from "react-router-dom";
 
 export default function ChatsTab() {
     const { currentUserId } = useOutletContext();
@@ -14,12 +13,22 @@ export default function ChatsTab() {
     const { sessions: chatSessions, loadSessions, activeSessionId: selectedSessionId, setActiveSessionId: setSelectedSessionId, targetSessionToOpen, setTargetSessionToOpen } = useChatNotificationStore();
     const [loadingChats, setLoadingChats] = useState(false);
 
+    const location = useLocation();
+
     useEffect(() => {
         if (targetSessionToOpen) {
             setSelectedSessionId(targetSessionToOpen);
             setTargetSessionToOpen(null);
         }
     }, [targetSessionToOpen, setTargetSessionToOpen, setSelectedSessionId]);
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const sessionId = location.state?.openChatSessionId || params.get("session");
+        if (sessionId) {
+            setTargetSessionToOpen(sessionId);
+        }
+    }, [location.search, location.state, setTargetSessionToOpen]);
 
     useEffect(() => {
         return () => {
