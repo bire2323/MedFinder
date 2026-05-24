@@ -12,7 +12,7 @@ import OtherLayout from "../layout/OtherLayout";
 import HomePage from "../../pages/home/HomePage";
 import SearchResultsHomePage from "../../pages/home/SearchResultsHomePage";
 import SearchDepartmentService from "../../pages/home/SearchDepartmentService";
-import PrescriptionReader from "../../pages/prescription/PrescriptionReader";
+import PrescriptionReader from "../../pages/shared/PrescriptionReader";
 import MapPage from "../../pages/map/MapPage";
 import PharmacyDashboard from "../../pages/pharmacyAgent/PharmacyDashboard";
 import PharmacyInventory from "../../pages/pharmacyAgent/Inventory";
@@ -62,7 +62,7 @@ import UserFavorites from "../../pages/UserDashboard/components/UserFavorites";
 import MapView from "../../pages/UserDashboard/components/MapView";
 import Profile from "../../pages/UserDashboard/components/Profile";
 import Chat from "../../pages/UserDashboard/components/Chat";
-import Prescription from "../../pages/UserDashboard/components/Prescription";
+import PrescriptionReader from "../../pages/shared/PrescriptionReader";
 
 import ProtectedRoute from "../../auth/ProtectedRoute";
 import AuthCallback from "../../auth/AuthCallBack";
@@ -184,6 +184,7 @@ const routesConfig = [
           { index: true, element: <PharmacyOverviewTab /> },
           { path: "overview", element: <PharmacyOverviewTab /> },
           { path: "inventory", element: <PharmacyInventory /> },
+          { path: "prescription", element: <PrescriptionReader showHeader={false} /> },
           { path: "chats", element: <PharmacyChatsTab /> },
           { path: "settings", element: <ProfileSettingsLayout type="pharmacy" /> },
         ]
@@ -219,7 +220,7 @@ const routesConfig = [
           { path: "search", element: <MapView /> },
           { path: "favorites", element: <UserFavorites /> },
           { path: "messages", element: <Chat /> },
-          { path: "prescription", element: <Prescription /> },
+          { path: "prescription", element: <PrescriptionReader showHeader={false} /> },
           { path: "profile", element: <Profile /> },
         ]
       }

@@ -1430,6 +1430,10 @@
     "resultsDrugsTitle": "የተገኙ መድኃኒቶች",
     "resultsPharmaciesTitle": "የተጠቆሙ ፋርማሲዎች",
     "resultsPlaceholderNote": "ምሳሌ አቀማመጥ — በዝግጁ ከAPI ጋር ያገናኙ።",
+    "disclaimerTitle": "ማስጠንቀቂያ",
+    "disclaimer1": "ይህ የመድኃኒት ማዘዣ ንባብ ለመረጃ ብቻ ነው።",
+    "disclaimer2": "ውጤቶች 100% ትክክል አይደሉም።",
+    "disclaimer3": "ሁልጊዜ ከባለሞያ ጤና ባለሞያ ጋር ይነጋገሩ።",
     "historyResultTitle": "የታሪክ የማዘዣ ውጤት",
     "historyTitle": "የጭነት ታሪክ",
     "historySubtitle": "የቅርብ ጊዜ መድኃኒት ማዘዣዎች",
@@ -1447,9 +1451,6 @@
     "mockDrug3": "ቫይታሚን ዲ3 (ኮሌካልሲፈሮል)",
     "mockPharmacy1": "ግሪን ክሮስ ፋርማሲ — ቦሌ",
     "mockPharmacy2": "MedFinder አጋር ፋርማሲ — ቃዝንቺስ",
-    "mockPharmacyNote": "ምሳሌ በርቀት ላይ የተመሠረተ ምድብ",
-    "desclimer1": "ይህ መድኃኒት ማዘዣ ተጠቃሚ ለመረጃ ብቻ ነው።",
-    "desclimer2": "የተገኙ ውጤቶች ምንም 100% ትክክል አይደሉም።",
-    "desclimer3": "ሁልጊዜም ያረጋግጡ።"
+    "mockPharmacyNote": "ምሳሌ በርቀት ላይ የተመሠረተ ምድብ"
   }
 }

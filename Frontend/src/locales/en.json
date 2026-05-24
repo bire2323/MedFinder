@@ -1333,6 +1333,10 @@
     "historyHasResults": "Analyzed",
     "historySaved": "Saved",
     "errorApiFailed": "Failed to analyze prescription. Please try again.",
+    "disclaimerTitle": "Disclaimer",
+    "disclaimer1": "This prescription reader is for informational purposes only.",
+    "disclaimer2": "Results may not be 100% accurate.",
+    "disclaimer3": "Always verify with a healthcare professional.",
     "analysisHeader": "Analysis & Explanation",
     "detectedMedications": "Detected Medications",
     "noMedications": "No specific medications detected.",
@@ -1343,10 +1347,7 @@
     "mockDrug3": "Vitamin D3 (cholecalciferol)",
     "mockPharmacy1": "Green Cross Pharmacy — Bole",
     "mockPharmacy2": "MedFinder Partner Pharmacy — Kazanchis",
-    "mockPharmacyNote": "Example distance-based match",
-    "desclimer1": "This prescription reader is for informational purposes only.",
-    "desclimer2": "Results may not be 100% accurate.",
-    "desclimer3": "Always verify with a healthcare professional."
+    "mockPharmacyNote": "Example distance-based match"
   },
   "departmentServiceSearch": {
     "keywordLabel": "Keyword",

@@ -21,6 +21,7 @@ import {
   MessageSquare,
   Menu,
   ChevronLeft,
+  FileText,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import ThemeToggle from "../../component/DarkLightTeam";
@@ -145,6 +146,7 @@ const PharmacyDashboard = () => {
   const navItems = [
     { path: "/pharmacy/dashboard/overview", icon: <BarChart3 size={20} />, label: t("PharmacyDashboard.Overview") },
     { path: "/pharmacy/dashboard/inventory", icon: <Pill size={20} />, label: t("PharmacyDashboard.Inventory") },
+    { path: "/pharmacy/dashboard/prescription", icon: <FileText size={20} />, label: t("PharmacyDashboard.Prescriptions") },
     { path: "/pharmacy/dashboard/chats", icon: <MessageSquare size={20} />, label: t("PharmacyDashboard.Chats"), badge: unreadCount > 0 ? unreadCount : null },
     { path: "/pharmacy/dashboard/settings", icon: <Settings size={20} />, label: t("PharmacyDashboard.Settings") },
   ];
