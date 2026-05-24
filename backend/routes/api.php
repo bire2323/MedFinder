@@ -357,6 +357,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('cities/{city}', [\App\Http\Controllers\AdminCityController::class, 'destroy']);
         Route::post('cities/{city}/toggle-status', [\App\Http\Controllers\AdminCityController::class, 'toggleStatus']);
 
+        // FAQ Management
+        Route::get('faqs', [\App\Http\Controllers\FaqController::class, 'adminIndex']);
+        Route::post('faqs', [\App\Http\Controllers\FaqController::class, 'store']);
+        Route::put('faqs/{faq}', [\App\Http\Controllers\FaqController::class, 'update']);
+        Route::patch('faqs/{faq}', [\App\Http\Controllers\FaqController::class, 'update']);
+        Route::delete('faqs/{faq}', [\App\Http\Controllers\FaqController::class, 'destroy']);
+
         // Dashboard Stats & Management
         Route::get('all/users', [\App\Http\Controllers\AdminDashboardController::class, 'index']);
         Route::get('users', [\App\Http\Controllers\AdminDashboardController::class, 'users']);
