@@ -97,9 +97,7 @@ export default function SearchResultsHomePage() {
 
     let fetchAction;
     if (facilityType === "drug") {
-      fetchAction = !debouncedQuery.trim()
-        ? Promise.resolve([])
-        : apiFetchDrugResults(debouncedQuery, { signal: ac.signal });
+      fetchAction = apiFetchDrugResults(debouncedQuery, { signal: ac.signal });
     } else {
       fetchAction = apiFetchFacilities({ signal: ac.signal });
     }

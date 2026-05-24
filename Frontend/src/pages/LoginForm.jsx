@@ -8,7 +8,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import useAuthStore from "../store/UserAuthStore";
 import handleKeyDown from "../hooks/handleKeyDown";
-import { navigateByRole } from "../utils/UserNavigation";
+import { navigateByRole, resolveBackgroundLocation } from "../utils/UserNavigation";
 
 import am_white from "../assets/am_white.png";
 import en_white from "../assets/en_white.png";
@@ -75,7 +75,7 @@ export default function LoginForm() {
   }
 
   function openRegisterRoute() {
-    navigate("/register", { state: { background: location.state?.background || location.state?.backgroundLocation || location } });
+    navigate("/register", { state: { background: resolveBackgroundLocation(location) } });
   }
   return (
 

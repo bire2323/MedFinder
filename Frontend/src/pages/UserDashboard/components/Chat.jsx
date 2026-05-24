@@ -722,7 +722,7 @@ export default function Chat({ initialFacility: propFacility, onClearInitialFaci
                         </p>
                         <button
                           type="button"
-                          onClick={() => navigate("/login", { state: { background: location } })}
+                          onClick={() => navigate("/login", { state: { background: { pathname: location.pathname, search: location.search, hash: location.hash } } })}
                           className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all active:scale-95 cursor-pointer"
                         >
                           {t("floatingChat.loginNow")}

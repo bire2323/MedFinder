@@ -72,7 +72,7 @@ Route::get('/public/services', function () {
 
 Route::get('/medical-facilities', function () {
 
-    $hospitals = Hospital::with('addresses')
+    $hospitals = Hospital::with(['addresses.region', 'addresses.city'])
         ->where('status', 'APPROVED')
         ->get()
         ->map(function ($item) {
@@ -83,7 +83,7 @@ Route::get('/medical-facilities', function () {
             return $item->toArray();
         });
 
-    $pharmacies = Pharmacy::with('addresses')
+    $pharmacies = Pharmacy::with(['addresses.region', 'addresses.city'])
         ->where('status', 'APPROVED')
         ->get()
         ->map(function ($item) {
@@ -100,7 +100,7 @@ Route::get('/medical-facilities', function () {
     ]);
 });
 Route::get('/top-medical-facilities', function () {
-    $hospitals = Hospital::with('addresses')->where('status', 'APPROVED')->limit(6)->latest()->get()->map(function ($item) {
+    $hospitals = Hospital::with(['addresses.region', 'addresses.city'])->where('status', 'APPROVED')->limit(6)->latest()->get()->map(function ($item) {
         $item->type = 'hospital';
         $item->global_id = 'h-' . $item->id;
         $item->working_hour = $item->working_hour; // Include working hours
@@ -108,7 +108,7 @@ Route::get('/top-medical-facilities', function () {
         return $item;
     });
 
-    $pharmacies = Pharmacy::with('addresses')->where('status', 'APPROVED')->limit(6)->latest()->get()->map(function ($item) {
+    $pharmacies = Pharmacy::with(['addresses.region', 'addresses.city'])->where('status', 'APPROVED')->limit(6)->latest()->get()->map(function ($item) {
         $item->type = 'pharmacy';
         $item->global_id = 'p-' . $item->id;
         $item->working_hour = $item->working_hour; // Include working hours

@@ -1,18 +1,19 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FaHospitalAlt, FaStore, FaArrowRight, FaHandshake } from "react-icons/fa";
 import useAuthStore from "../store/UserAuthStore";
 
 export default function SupportiveCTA() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const handleRegister = (type) => {
     if (!isAuthenticated) {
-      navigate("/login");
+      navigate("/login", { state: { background: { pathname: location.pathname, search: location.search, hash: location.hash } } });
     } else {
       navigate(`/register/${type}`);
     }

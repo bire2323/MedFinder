@@ -11,7 +11,7 @@ import ThemeToggle from "./DarkLightTeam";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { createPortal } from "react-dom";
 import useAuthStore from "../store/UserAuthStore";
-import { navigateByRole } from "../utils/UserNavigation";
+import { navigateByRole, resolveBackgroundLocation } from "../utils/UserNavigation";
 import { apiLogout } from "../api/auth";
 import am_white from "../assets/am_white.png";
 import en_white from "../assets/en_white.png";
@@ -142,6 +142,22 @@ export default function Header() {
 
   const isAmharic = useTranslation().i18n.language === "am";
 
+  const maskEmail = (email = "user@example.com") => {
+    const [local, domain] = email.split("@");
+    const visibleLocal = local ? local.slice(0, Math.min(2, local.length)) : "us";
+    const maskedLocal = `${visibleLocal}${"*".repeat(Math.max((local?.length || 0) - visibleLocal.length, 3))}`;
+    const maskedDomain = domain ? domain.replace(/.(?=.{3,}$)/g, "*") : "***.***";
+    return `${maskedLocal}@${maskedDomain}`;
+  };
+
+  const maskPhone = (phone = "0912345678") => {
+    const raw = (phone || "").replace(/\D/g, "");
+    const visible = raw.slice(0, 3) || "09";
+    const masked = "*".repeat(Math.max(raw.length - visible.length, 6));
+    return `${visible}${masked}`;
+  };
+
+  const guestContactHint = t("headingNav.loginToSee") || "Login to see";
   const closeFindCare = useCallback(() => setFindCareOpen(false), []);
   const closeMobileMenu = useCallback(() => {
     setIsMenuOpen(false);
@@ -296,18 +312,36 @@ export default function Header() {
               <div className="hidden items-center gap-2 md:flex md:gap-3">
                 <button
                   type="button"
-                  onClick={() => navigate("/login", { state: { background: location } })}
+                  onClick={() => navigate("/login", { state: { background: resolveBackgroundLocation(location) } })}
                   className="rounded-lg px-2 py-1.5 text-xs font-bold text-slate-600 transition hover:text-emerald-600 dark:text-gray-300 dark:hover:text-emerald-400 sm:px-3 sm:text-sm"
                 >
                   {t("Register.Login")}
                 </button>
                 <button
                   type="button"
-                  onClick={() => navigate("/register", { state: { background: location } })}
+                  onClick={() => navigate("/register", { state: { background: resolveBackgroundLocation(location) } })}
                   className="rounded-xl bg-emerald-700 px-3 py-2 text-xs font-bold text-white shadow-md transition hover:bg-emerald-600 active:scale-[0.98] dark:bg-emerald-600 dark:hover:bg-emerald-500 sm:px-4 sm:text-sm"
                 >
                   {t("Register.join_medFinder")}
                 </button>
+                <div className="hidden flex-col text-xs text-slate-500 dark:text-gray-400 mt-1 md:flex">
+                  <button
+                    type="button"
+                    title={guestContactHint}
+                    onClick={() => navigate("/login", { state: { background: resolveBackgroundLocation(location) } })}
+                    className="text-left underline decoration-dotted underline-offset-2 hover:text-emerald-600 dark:hover:text-emerald-400"
+                  >
+                    Email: {maskEmail()}
+                  </button>
+                  <button
+                    type="button"
+                    title={guestContactHint}
+                    onClick={() => navigate("/login", { state: { background: resolveBackgroundLocation(location) } })}
+                    className="text-left underline decoration-dotted underline-offset-2 hover:text-emerald-600 dark:hover:text-emerald-400"
+                  >
+                    Phone: {maskPhone()}
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="hidden items-center gap-2 md:flex md:gap-4">
@@ -510,7 +544,7 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => {
-                    navigate("/login");
+                    navigate("/login", { state: { background: resolveBackgroundLocation(location) } });
                     closeMobileMenu();
                   }}
                   className="w-full rounded-2xl border-2 border-emerald-600 py-3.5 text-base font-bold text-emerald-700 dark:border-emerald-500 dark:text-emerald-300"
@@ -520,13 +554,37 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => {
-                    navigate("/register");
+                    navigate("/register", { state: { background: resolveBackgroundLocation(location) } });
                     closeMobileMenu();
                   }}
                   className="w-full rounded-2xl bg-emerald-700 py-3.5 text-base font-bold text-white shadow-lg dark:bg-emerald-600"
                 >
                   {t("Register.join_medFinder")}
                 </button>
+                <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-500 dark:text-gray-400 mt-3">
+                  <button
+                    type="button"
+                    title={guestContactHint}
+                    onClick={() => {
+                      navigate("/login", { state: { background: resolveBackgroundLocation(location) } });
+                      closeMobileMenu();
+                    }}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-left hover:bg-slate-100 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800"
+                  >
+                    Email: {maskEmail()}
+                  </button>
+                  <button
+                    type="button"
+                    title={guestContactHint}
+                    onClick={() => {
+                      navigate("/login", { state: { background: resolveBackgroundLocation(location) } });
+                      closeMobileMenu();
+                    }}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-left hover:bg-slate-100 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800"
+                  >
+                    Phone: {maskPhone()}
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="mt-6 border-t border-slate-100 pt-6 dark:border-gray-800">

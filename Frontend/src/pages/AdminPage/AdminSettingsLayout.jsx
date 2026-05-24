@@ -7,8 +7,8 @@ const navItems = [
         label: "Profile",
         path: "profile",
         icon: User,
-        colorClass: "text-slate-700 bg-slate-100 dark:text-slate-200 dark:bg-slate-800",
-        activeClass: "bg-slate-900 text-white dark:bg-white/10",
+        colorClass: "text-emerald-700 bg-emerald-100 dark:text-emerald-200 dark:bg-emerald-950/20",
+        activeClass: "bg-emerald-600 text-white shadow-lg shadow-emerald-500/20",
     },
     {
         id: "region",
@@ -31,8 +31,8 @@ const navItems = [
         label: "FAQs",
         path: "faqs",
         icon: QuestionMarkCircle,
-        colorClass: "text-sky-700 bg-sky-100 dark:text-sky-200 dark:bg-sky-950/20",
-        activeClass: "bg-sky-600 text-white shadow-lg shadow-sky-500/20",
+        colorClass: "text-emerald-700 bg-emerald-100 dark:text-emerald-200 dark:bg-emerald-950/20",
+        activeClass: "bg-emerald-600 text-white shadow-lg shadow-emerald-500/20",
     },
 ];
 

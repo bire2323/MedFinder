@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 //import VerifyOtp from "./verifyOtp";
 import handleKeyDown from "../hooks/handleKeyDown";
+import { resolveBackgroundLocation } from "../utils/UserNavigation";
 import { FcGoogle } from "react-icons/fc";
 
 import am_white from "../assets/am_white.png";
@@ -101,7 +102,7 @@ export default function RegisterationForm() {
     return mapping[errorKey] || errorKey; // fallback
   }
   function openLoginRoute() {
-    navigate("/login", { state: { background: location.state?.background || location.state?.backgroundLocation || location } });
+    navigate("/login", { state: { background: resolveBackgroundLocation(location) } });
   }
 
 

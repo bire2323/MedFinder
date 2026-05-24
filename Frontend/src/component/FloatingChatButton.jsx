@@ -381,7 +381,7 @@ export default function FloatingChatButton() {
                     <button
                       onClick={() => {
                         setIsOpen(false);
-                        navigate("/login", { state: { background: location } });
+                        navigate("/login", { state: { background: { pathname: location.pathname, search: location.search, hash: location.hash } } });
                       }}
                       className="w-full bg-blue-600 hover:bg-blue-750 dark:bg-blue-700 dark:hover:bg-blue-650 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition-all active:scale-95 cursor-pointer"
                     >

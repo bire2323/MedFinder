@@ -5,7 +5,16 @@ export const navigateByRole = (roles, navigate) => {
     navigate('/hospital-agent/dashboard', { replace: true });
   } else if (roles?.includes('admin')) {
     navigate('/admin/dashboard', { replace: true });
-  }  else {
+  } else {
     navigate('/', { replace: true });
   }
 };
+
+export const getBackgroundLocation = (location) => ({
+  pathname: location.pathname,
+  search: location.search,
+  hash: location.hash,
+});
+
+export const resolveBackgroundLocation = (location) =>
+  location.state?.backgroundLocation || location.state?.background || getBackgroundLocation(location);

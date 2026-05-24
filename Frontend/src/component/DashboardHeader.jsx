@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import ThemeToggle from "./DarkLightTeam";
 import LanguageSwitcher from "./LanguageSwitcher";
 import useAuthStore from "../store/UserAuthStore";
-import { navigateByRole } from "../utils/UserNavigation";
+import { navigateByRole, resolveBackgroundLocation } from "../utils/UserNavigation";
 import { apiLogout } from "../api/auth";
 import am_white from "../assets/am_white.png";
 import en_white from "../assets/en_white.png";
@@ -88,13 +88,13 @@ export default function DashboardHeader() {
                         ) : !user ? (
                             <div className="hidden lg:flex items-center gap-3 border-l pl-6 border-slate-200 dark:border-gray-800">
                                 <button
-                                    onClick={() => navigate("/login", { state: { background: location } })}
+                                    onClick={() => navigate("/login", { state: { background: resolveBackgroundLocation(location) } })}
                                     className="text-sm font-bold text-slate-600 dark:text-gray-300 hover:text-blue-600 transition"
                                 >
                                     {t("Register.Login")}
                                 </button>
                                 <button
-                                    onClick={() => navigate("/register", { state: { background: location } })}
+                                    onClick={() => navigate("/register", { state: { background: resolveBackgroundLocation(location) } })}
                                     className="bg-green-800 dark:bg-green-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-green-700 dark:hover:bg-blue-500 transition-all shadow-md active:scale-95"
                                 >
                                     {t("Register.join_medFinder")}
@@ -233,7 +233,7 @@ export default function DashboardHeader() {
                     {!user ? (
                         <button
                             onClick={() => {
-                                navigate("/login");
+                                navigate("/login", { state: { background: resolveBackgroundLocation(location) } });
                                 setIsMenuOpen(false);
                             }}
                             className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold"

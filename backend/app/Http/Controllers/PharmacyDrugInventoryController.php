@@ -114,16 +114,18 @@ class PharmacyDrugInventoryController extends Controller
 
     public function searchMedicine(Request $request)
     {
-        $searchTerm = $request->query('query');
+        $searchTerm = trim((string) $request->query('query', ''));
 
-        if (empty($searchTerm)) {
-            return response()->json(['message' => 'Missing search query'], 400);
+        $drugQuery = Drug::query();
+        if ($searchTerm !== '') {
+            $drugQuery->where(function ($query) use ($searchTerm) {
+                $query->where('brand_name_en', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('generic_name', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('brand_name_am', 'LIKE', "%{$searchTerm}%");
+            });
         }
 
-        $medicines = Drug::where('brand_name_en', 'LIKE', "%{$searchTerm}%")
-            ->orWhere('generic_name', 'LIKE', "%{$searchTerm}%")
-            ->orWhere('brand_name_am', 'LIKE', "%{$searchTerm}%")
-            ->get();
+        $medicines = $drugQuery->get();
 
         if ($medicines->isEmpty()) {
             return response()->json([]);
@@ -135,9 +137,13 @@ class PharmacyDrugInventoryController extends Controller
             $query->whereIn('drug_id', $medicineIds)->where('stock', '>', 0);
         })
             ->where('status', 'APPROVED')
-            ->with(['addresses', 'drugInventories' => function ($query) use ($medicineIds) {
-                $query->whereIn('drug_id', $medicineIds)->with('drug');
-            }])
+            ->with([
+                'addresses.region',
+                'addresses.city',
+                'drugInventories' => function ($query) use ($medicineIds) {
+                    $query->whereIn('drug_id', $medicineIds)->with('drug');
+                }
+            ])
             ->get();
 
         $result = [];
