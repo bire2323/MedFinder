@@ -83,7 +83,10 @@ const FacilityDetailPage = () => {
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
   const isXlUp = useMediaQuery("(min-width: 1280px)");
 
-  const { user, isAuthenticated } = useAuthStore();
+  const isAuthLoading = useAuthStore((state) => state.isLoading);
+  const user = useAuthStore((state) => state.user);
+  const roles = useAuthStore((state) => state.roles);
+  const isAuthenticated = Boolean(user) && !isAuthLoading;
   const currentUserId = user?.id;
 
   const maskLicenseNumber = (license) => {
@@ -654,16 +657,40 @@ const FacilityDetailPage = () => {
 
                 {/* Direct Contact Card */}
                 <div className="bg-white dark:bg-[#111827] rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-900/5 dark:ring-white/10 space-y-6">
-                  <ContactRow icon={Phone} label="Primary Phone" value={facility.contact_phone} href={`tel:${facility.contact_phone}`} themeColor={themeColor} />
+                  <ContactRow
+                    icon={Phone}
+                    label="Primary Phone"
+                    value={isAuthenticated ? facility.contact_phone : (t("facility_detail_page.please_login_to_chat") || "Login to view")}
+                    href={isAuthenticated ? `tel:${facility.contact_phone}` : null}
+                    themeColor={themeColor}
+                  />
                   {facility.alternatePhone && (
-                    <ContactRow icon={Phone} label="Alternate Phone" value={facility.alternatePhone} href={`tel:${facility.alternatePhone}`} themeColor={themeColor} />
+                    <ContactRow
+                      icon={Phone}
+                      label="Alternate Phone"
+                      value={isAuthenticated ? facility.alternatePhone : (t("facility_detail_page.please_login_to_chat") || "Login to view")}
+                      href={isAuthenticated ? `tel:${facility.alternatePhone}` : null}
+                      themeColor={themeColor}
+                    />
                   )}
                   {facility.contact_email && (
-                    <ContactRow icon={Mail} label="Email Address" value={facility.contact_email} href={`mailto:${facility.contact_email}`} themeColor={themeColor} />
+                    <ContactRow
+                      icon={Mail}
+                      label="Email Address"
+                      value={isAuthenticated ? facility.contact_email : (t("facility_detail_page.please_login_to_chat") || "Login to view")}
+                      href={isAuthenticated ? `mailto:${facility.contact_email}` : null}
+                      themeColor={themeColor}
+                    />
                   )}
                   {facility.emergencyPhone && (
                     <div className="pt-4 mt-2 border-t border-slate-100 dark:border-gray-800">
-                      <ContactRow icon={AlertCircle} label="Emergency Hotline" value={facility.emergencyPhone} href={`tel:${facility.emergencyPhone}`} isEmergency />
+                      <ContactRow
+                        icon={AlertCircle}
+                        label="Emergency Hotline"
+                        value={isAuthenticated ? facility.emergencyPhone : (t("facility_detail_page.please_login_to_chat") || "Login to view")}
+                        href={isAuthenticated ? `tel:${facility.emergencyPhone}` : null}
+                        isEmergency
+                      />
                     </div>
                   )}
                 </div>

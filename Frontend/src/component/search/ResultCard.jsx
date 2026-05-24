@@ -51,9 +51,6 @@ export default function ResultCard({ facility, onClick, viewMode = "grid", maxTa
 
   // 2. CONSTRUCT ADDRESS
   const getAddress = () => {
-    if (isAmharic && facility.address_description_am) return facility.address_description_am;
-    if (!isAmharic && facility.address_description_en) return facility.address_description_en;
-
     if (facility.addresses && facility.addresses.length > 0) {
       const addr = facility.addresses[0];
       if (isAmharic) {
