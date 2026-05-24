@@ -62,6 +62,7 @@ import UserFavorites from "../../pages/UserDashboard/components/UserFavorites";
 import MapView from "../../pages/UserDashboard/components/MapView";
 import Profile from "../../pages/UserDashboard/components/Profile";
 import Chat from "../../pages/UserDashboard/components/Chat";
+import Prescription from "../../pages/UserDashboard/components/Prescription";
 
 import ProtectedRoute from "../../auth/ProtectedRoute";
 import AuthCallback from "../../auth/AuthCallBack";
@@ -218,6 +219,7 @@ const routesConfig = [
           { path: "search", element: <MapView /> },
           { path: "favorites", element: <UserFavorites /> },
           { path: "messages", element: <Chat /> },
+          { path: "prescription", element: <Prescription /> },
           { path: "profile", element: <Profile /> },
         ]
       }

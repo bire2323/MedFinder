@@ -169,6 +169,7 @@ export default function UserDashboard() {
                                         {activeSection === "search" && t("UserDashboard.SearchAndNavigate")}
                                         {activeSection === "favorites" && t("UserDashboard.SavedPlaces")}
                                         {activeSection === "messages" && t("UserDashboard.Messages")}
+                                        {activeSection === "prescription" && t("UserDashboard.Prescription")}
                                         {activeSection === "profile" && t("UserDashboard.Profile")}
                                     </h1>
                                 </div>
