@@ -1,5 +1,5 @@
 TRIAGE_LABELS = ["EMERGENCY", "URGENT", "NON_URGENT"]
-LARAVEL_API_URL = "http://localhost:8000/api"
+LARAVEL_API_URL = "https://medfinder.com/api"
 
 
 
