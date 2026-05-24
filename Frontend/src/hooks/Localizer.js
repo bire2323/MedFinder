@@ -34,18 +34,31 @@ export function localizeFacility(facility, type, lang) {
 export function localizeDrugs(drug, type, lang) {
   const isAm = lang === "am";
   const isHospital = type === 'hospital';
+  const inv = drug.inventory || {};
   return {
     id: drug.id,
     generic_name: drug.generic_name,
     brand_name: isAm ? drug.brand_name_am : drug.brand_name_en,
-    about_drug: isAm ? drug.inventory?.about_drug_am : drug.inventory?.about_drug_en,
-    price: drug.inventory?.price,
-    stock: drug.inventory?.stock,
-    pharmacy_id: drug.inventory?.pharmacy_id,
-    drug_id: drug.inventory?.drug_id,
-    prescription_required: drug.inventory?.prescription_required,
-    expire_date: drug.inventory?.expire_date,
-    status: drug.inventory?.status,
+    brand_name_en: drug.brand_name_en,
+    brand_name_am: drug.brand_name_am,
+
+    // inventory (flattened for UI convenience)
+    inventory_id: inv.id,
+    about_drug: isAm ? inv.about_drug_am : inv.about_drug_en,
+    about_drug_en: inv.about_drug_en,
+    about_drug_am: inv.about_drug_am,
+    price: inv.price,
+    cost_price: inv.cost_price,
+    stock: inv.stock,
+    low_stock_threshold: inv.low_stock_threshold,
+    prescription_required: inv.prescription_required,
+    expire_date: inv.expire_date,
+    batch_number: inv.batch_number,
+    status: inv.status,
+    is_available: inv.is_available,
+
+    pharmacy_id: inv.pharmacy_id,
+    drug_id: inv.drug_id,
 
   };
 }

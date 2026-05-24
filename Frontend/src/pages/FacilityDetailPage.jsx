@@ -25,16 +25,42 @@ import {
   Loader2,
   Info,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-react';
 import { useLoaderData } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatWorkingHours, getTodayHours, formatDayWorkingHours } from '../utils/workingHoursUtils';
+import { formatInventoryDate } from "../utils/inventoryHelpers";
 import apiStartChatSession from '../api/RealtimeChat';
 import useAuthStore from '../store/UserAuthStore';
 import toast from 'react-hot-toast';
 import Loading from '../component/SupportiveComponent/Loading';
 import { localizeFacility } from '../hooks/Localizer';
+
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia(query).matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mql = window.matchMedia(query);
+    const onChange = (e) => setMatches(e.matches);
+    // Safari < 14 uses addListener
+    if (mql.addEventListener) mql.addEventListener("change", onChange);
+    else mql.addListener(onChange);
+    setMatches(mql.matches);
+
+    return () => {
+      if (mql.removeEventListener) mql.removeEventListener("change", onChange);
+      else mql.removeListener(onChange);
+    };
+  }, [query]);
+
+  return matches;
+}
 
 const FacilityDetailPage = () => {
   const { id } = useParams();
@@ -54,6 +80,8 @@ const FacilityDetailPage = () => {
   const [chatError, setChatError] = useState(null);
 
   const [selectedDrug, setSelectedDrug] = useState(null);
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
+  const isXlUp = useMediaQuery("(min-width: 1280px)");
 
   const { user, isAuthenticated } = useAuthStore();
   const currentUserId = user?.id;
@@ -79,6 +107,33 @@ const FacilityDetailPage = () => {
     }
     setSelectedDrug((prev) => prev ?? facility.inventory[0]);
   }, [facility]);
+
+  useEffect(() => {
+    if (isXlUp) setMobileDetailOpen(false);
+  }, [isXlUp]);
+
+  const handleDrugSelect = (item) => {
+    setSelectedDrug(item);
+    if (!isXlUp) setMobileDetailOpen(true);
+  };
+
+  const getDrugUiStatus = (drug) => {
+    if (!drug) return { label: "—", tone: "muted" };
+    const stock = Number(drug.stock ?? 0);
+    const threshold = Number(drug.low_stock_threshold ?? 10);
+    const isAvailableFlag = drug.is_available ?? true;
+    const isAvailableStatus = (drug.status || "").toUpperCase() === "AVAILABLE";
+    const expDate = drug.expire_date ? new Date(drug.expire_date) : null;
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const isExpired = expDate ? expDate < todayStart : false;
+
+    if (isExpired) return { label: "Expired", tone: "danger" };
+    if (!isAvailableFlag || !isAvailableStatus) return { label: "Unavailable", tone: "muted" };
+    if (stock <= 0) return { label: "Out of stock", tone: "danger" };
+    if (stock <= threshold) return { label: "Low stock", tone: "warning" };
+    return { label: "In stock", tone: "success" };
+  };
 
   // Scrollspy Intersection Observer setup
   useEffect(() => {
@@ -371,93 +426,142 @@ const FacilityDetailPage = () => {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 xl:grid-cols-[1.7fr_1.3fr] gap-6">
+                <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,420px)] gap-6">
+                  {/* LEFT: LIST */}
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {facility.inventory?.map((item, index) => {
-                        const isSelected = selectedDrug === item;
-                        return (
-                          <button
-                            key={item.id ?? index}
-                            type="button"
-                            onClick={() => setSelectedDrug(item)}
-                            className={`text-left group p-5 rounded-[1.5rem] bg-white dark:bg-[#111827] shadow-[0_4px_20px_rgb(0,0,0,0.03)] ring-1 ring-slate-900/5 dark:ring-white/10 transition-all duration-300 ${isSelected ? 'ring-2 ring-emerald-300 dark:ring-emerald-600 shadow-[0_12px_30px_rgb(16,185,129,0.18)]' : 'hover:-translate-y-1 hover:ring-emerald-300 dark:hover:ring-emerald-700 hover:shadow-[0_8px_30px_rgb(16,185,129,0.1)]'} focus:outline-none`}
-                          >
-                            <div className="flex justify-between items-start gap-4 mb-4">
-                              <div className="min-w-0">
-                                <h4 className="font-extrabold text-lg leading-tight mb-1 truncate">{item.name}</h4>
-                                <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 truncate">{item.generic_name}</p>
+                    {facility.inventory?.length ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-4">
+                        {facility.inventory?.map((item, index) => {
+                          const isSelected = selectedDrug?.id === item?.id;
+                          const ui = getDrugUiStatus(item);
+                          const stock = Number(item.stock ?? 0);
+
+                          const toneClass =
+                            ui.tone === "success"
+                              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 ring-emerald-200 dark:ring-emerald-500/30"
+                              : ui.tone === "warning"
+                                ? "bg-amber-50 text-amber-800 dark:bg-amber-500/15 dark:text-amber-200 ring-amber-200 dark:ring-amber-500/30"
+                                : ui.tone === "danger"
+                                  ? "bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300 ring-rose-200 dark:ring-rose-500/30"
+                                  : "bg-slate-100 text-slate-700 dark:bg-gray-800 dark:text-gray-300 ring-slate-200 dark:ring-gray-700";
+
+                          return (
+                            <button
+                              key={item.id ?? index}
+                              type="button"
+                              onClick={() => handleDrugSelect(item)}
+                              className={`text-left group p-5 rounded-[1.5rem] bg-white dark:bg-[#111827] shadow-[0_4px_20px_rgb(0,0,0,0.03)] ring-1 ring-slate-900/5 dark:ring-white/10 transition-all duration-300 focus:outline-none ${isSelected
+                                ? "ring-2 ring-emerald-300 dark:ring-emerald-600 shadow-[0_12px_30px_rgb(16,185,129,0.18)]"
+                                : "hover:-translate-y-1 hover:ring-emerald-300 dark:hover:ring-emerald-700 hover:shadow-[0_8px_30px_rgb(16,185,129,0.1)]"
+                                }`}
+                            >
+                              <div className="flex justify-between items-start gap-4">
+                                <div className="min-w-0">
+                                  <h4 className="font-extrabold text-lg leading-tight mb-1 truncate">
+                                    {item.brand_name || item.brand_name_en || "Unnamed drug"}
+                                  </h4>
+                                  <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 truncate">
+                                    {item.generic_name || "—"}
+                                  </p>
+                                </div>
+
+                                <div className="flex flex-col items-end gap-2 shrink-0">
+                                  <span className={`px-2 py-1 text-[10px] uppercase tracking-wider font-extrabold rounded-lg ring-1 ${toneClass}`}>
+                                    {ui.label}
+                                  </span>
+                                  {item.prescription_required && (
+                                    <span className="px-2 py-1 text-[10px] uppercase tracking-wider font-extrabold rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300 ring-1 ring-indigo-200 dark:ring-indigo-500/30">
+                                      Rx
+                                    </span>
+                                  )}
+                                </div>
                               </div>
-                              <span className={`shrink-0 px-2 py-1 text-[10px] uppercase tracking-wider font-extrabold rounded-lg ${item.status ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 ring-1 ring-emerald-200 dark:ring-emerald-500/30' : 'bg-rose-50 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400 ring-1 ring-rose-200 dark:ring-rose-500/30'}`}>
-                                {item.status ? 'In Stock' : 'Out'}
-                              </span>
-                            </div>
 
-                            <div className="pt-4 border-t border-slate-100 dark:border-gray-800 flex flex-col gap-2">
-                              <p className="text-xs font-semibold text-slate-400">{item.brand_name || 'Generic'}</p>
-                              <p className="font-black text-xl text-emerald-600 dark:text-emerald-400">
-                                {item.price} <span className="text-sm font-bold opacity-70">ETB</span>
-                              </p>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
+                              <div className="mt-4 grid grid-cols-2 gap-2 text-xs font-bold text-slate-600 dark:text-gray-300">
+                                <div className="rounded-xl bg-slate-50 dark:bg-gray-900 border border-slate-200/80 dark:border-gray-800 px-3 py-2">
+                                  <p className="text-[10px] uppercase tracking-wider text-slate-400">Stock</p>
+                                  <p className="mt-1">{stock} units</p>
+                                </div>
+                                <div className="rounded-xl bg-slate-50 dark:bg-gray-900 border border-slate-200/80 dark:border-gray-800 px-3 py-2">
+                                  <p className="text-[10px] uppercase tracking-wider text-slate-400">Expires</p>
+                                  <p className="mt-1">{formatInventoryDate(item.expire_date)}</p>
+                                </div>
+                              </div>
 
-
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="bg-white dark:bg-[#111827] rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-900/5 dark:ring-white/10 h-full">
-                      {selectedDrug ? (
-                        <>
-                          <div className="flex items-start justify-between gap-4 mb-6">
-                            <div>
-                              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Selected Drug</p>
-                              <h3 className="mt-2 text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">{selectedDrug.name}</h3>
-                              <p className="mt-2 text-sm text-slate-500 dark:text-gray-400">{selectedDrug.generic_name}</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{selectedDrug.price} <span className="text-base font-bold">ETB</span></p>
-                              <p className="mt-1 text-sm font-semibold text-slate-500 dark:text-gray-400">{selectedDrug.stock ?? 0} units</p>
-                            </div>
-                          </div>
-
-                          <div className="grid gap-4">
-                            <div className="space-y-2">
-                              <p className="text-sm font-semibold text-slate-700 dark:text-white">About</p>
-                              <p className="text-sm leading-7 text-slate-500 dark:text-gray-400">{selectedDrug.about_drug || selectedDrug.about_drug_en || 'No description available.'}</p>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                              <div className="rounded-2xl bg-slate-50 dark:bg-gray-900 p-4 border border-slate-200/80 dark:border-gray-800">
-                                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Prescription</p>
-                                <p className={`mt-2 font-bold ${selectedDrug.prescription_required ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
-                                  {selectedDrug.prescription_required ? 'Required' : 'Not Required'}
+                              <div className="pt-4 mt-4 border-t border-slate-100 dark:border-gray-800 flex items-end justify-between gap-4">
+                                <p className="text-xs font-semibold text-slate-400 truncate">
+                                  {item.brand_name ? (item.brand_name_en && item.brand_name_am ? `${item.brand_name_en} • ${item.brand_name_am}` : "") : ""}
+                                </p>
+                                <p className="font-black text-xl text-emerald-600 dark:text-emerald-400">
+                                  {item.price ?? "—"} <span className="text-sm font-bold opacity-70">ETB</span>
                                 </p>
                               </div>
-                              <div className="rounded-2xl bg-slate-50 dark:bg-gray-900 p-4 border border-slate-200/80 dark:border-gray-800">
-                                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Expire Date</p>
-                                <p className="mt-2 font-bold text-slate-900 dark:text-white">{selectedDrug.expire_date || 'Unknown'}</p>
-                              </div>
-                            </div>
-
-                            <div className="rounded-2xl bg-slate-50 dark:bg-gray-900 p-4 border border-slate-200/80 dark:border-gray-800">
-                              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Availability</p>
-                              <p className="mt-2 text-sm font-semibold text-slate-700 dark:text-gray-200">{selectedDrug.status ? 'Available for purchase' : 'Currently unavailable'}</p>
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="flex h-full flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-slate-300/60 bg-slate-50 dark:border-gray-700 dark:bg-gray-900 p-8 text-center">
-                          <div className="mb-4 text-6xl">💊</div>
-                          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">Pick a drug to preview</h3>
-                          <p className="mt-2 text-sm text-slate-500 dark:text-gray-400">Select any inventory card to see pricing, stock, prescription and expiry details.</p>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="bg-white dark:bg-[#111827] rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-900/5 dark:ring-white/10">
+                        <div className="flex flex-col items-center text-center py-8">
+                          <div className="mb-3 text-5xl">💊</div>
+                          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">No inventory listed</h3>
+                          <p className="mt-2 text-sm text-slate-500 dark:text-gray-400">This pharmacy has not published any drugs yet.</p>
                         </div>
-                      )}
+                      </div>
+                    )}
+
+                    <div className="px-5 py-4 rounded-[1.5rem] bg-slate-50 dark:bg-gray-900 border border-slate-200/80 dark:border-gray-800 text-sm text-slate-600 dark:text-gray-400">
+                      <p className="font-medium">Tip:</p>
+                      <p className="mt-2">
+                        On desktop, details open in a side panel so you can browse the list. On mobile, tapping a drug opens a full-screen detail view.
+                      </p>
                     </div>
+
+                  </div>
+
+                  {/* RIGHT: DETAIL (XL+) */}
+                  <div className="hidden xl:block">
+                    <DrugDetailCard drug={selectedDrug} getDrugUiStatus={getDrugUiStatus} />
                   </div>
                 </div>
+
+                {/* MOBILE FULL-SCREEN DETAIL */}
+                <AnimatePresence>
+                  {mobileDetailOpen && selectedDrug && (
+                    <motion.div
+                      className="fixed inset-0 z-[60] xl:hidden"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <div
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                        onClick={() => setMobileDetailOpen(false)}
+                      />
+                      <motion.div
+                        className="absolute inset-x-0 bottom-0 top-0 bg-white dark:bg-[#0D1321] overflow-y-auto"
+                        initial={{ y: "10%", opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: "10%", opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 260, damping: 30 }}
+                      >
+                        <div className="sticky top-0 z-10 bg-white/90 dark:bg-[#0D1321]/90 backdrop-blur border-b border-slate-200/60 dark:border-gray-800 px-4 py-3 flex items-center justify-between">
+                          <div className="font-extrabold text-slate-900 dark:text-white">Drug details</div>
+                          <button
+                            type="button"
+                            onClick={() => setMobileDetailOpen(false)}
+                            className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-gray-800 text-slate-700 dark:text-gray-200 ring-1 ring-slate-200 dark:ring-gray-700"
+                          >
+                            <X size={18} />
+                          </button>
+                        </div>
+                        <div className="p-4">
+                          <DrugDetailCard drug={selectedDrug} getDrugUiStatus={getDrugUiStatus} />
+                        </div>
+                      </motion.div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </section>
             ) : (
               <section id="departments" className="scroll-mt-36">
@@ -700,3 +804,93 @@ const ContactRow = ({ icon: Icon, label, value, href, isEmergency, themeColor })
 );
 
 export default FacilityDetailPage;
+
+function DrugDetailCard({ drug, getDrugUiStatus }) {
+  if (!drug) {
+    return (
+      <div className="bg-white dark:bg-[#111827] rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-900/5 dark:ring-white/10 h-full">
+        <div className="flex h-full flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-slate-300/60 bg-slate-50 dark:border-gray-700 dark:bg-gray-900 p-8 text-center">
+          <div className="mb-4 text-6xl">💊</div>
+          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">Pick a drug to preview</h3>
+          <p className="mt-2 text-sm text-slate-500 dark:text-gray-400">Select any inventory card to see pricing, stock, prescription and expiry details.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const ui = getDrugUiStatus(drug);
+  const toneClass =
+    ui.tone === "success"
+      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 ring-emerald-200 dark:ring-emerald-500/30"
+      : ui.tone === "warning"
+        ? "bg-amber-50 text-amber-800 dark:bg-amber-500/15 dark:text-amber-200 ring-amber-200 dark:ring-amber-500/30"
+        : ui.tone === "danger"
+          ? "bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300 ring-rose-200 dark:ring-rose-500/30"
+          : "bg-slate-100 text-slate-700 dark:bg-gray-800 dark:text-gray-300 ring-slate-200 dark:ring-gray-700";
+
+  return (
+    <div className="bg-white dark:bg-[#111827] rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-900/5 dark:ring-white/10 h-full">
+      <div className="flex items-start justify-between gap-4 mb-6">
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Selected Drug</p>
+          <h3 className="mt-2 text-2xl font-extrabold text-slate-900 dark:text-white leading-tight truncate">
+            {drug.brand_name || drug.brand_name_en || "Unnamed drug"}
+          </h3>
+          <p className="mt-2 text-sm text-slate-500 dark:text-gray-400">{drug.generic_name || "—"}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className={`px-2.5 py-1 text-[10px] uppercase tracking-wider font-extrabold rounded-lg ring-1 ${toneClass}`}>
+              {ui.label}
+            </span>
+            {drug.prescription_required && (
+              <span className="px-2.5 py-1 text-[10px] uppercase tracking-wider font-extrabold rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300 ring-1 ring-indigo-200 dark:ring-indigo-500/30">
+                Prescription required
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="text-right shrink-0">
+          <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+            {drug.price ?? "—"} <span className="text-base font-bold">ETB</span>
+          </p>
+          <p className="mt-1 text-sm font-semibold text-slate-500 dark:text-gray-400">{Number(drug.stock ?? 0)} units</p>
+        </div>
+      </div>
+
+      <div className="grid gap-4">
+        <div className="space-y-2">
+          <p className="text-sm font-semibold text-slate-700 dark:text-white">About</p>
+          <p className="text-sm leading-7 text-slate-500 dark:text-gray-400">
+            {drug.about_drug || drug.about_drug_en || "No description available."}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <InfoTile label="Expire date" value={formatInventoryDate(drug.expire_date)} />
+          <InfoTile label="Low stock threshold" value={drug.low_stock_threshold ?? "—"} />
+          <InfoTile label="Cost price" value={drug.cost_price ? `${drug.cost_price} ETB` : "—"} />
+          <InfoTile label="Batch number" value={drug.batch_number || "—"} />
+        </div>
+
+        <div className="rounded-2xl bg-slate-50 dark:bg-gray-900 p-4 border border-slate-200/80 dark:border-gray-800">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Availability</p>
+          <p className="mt-2 text-sm font-semibold text-slate-700 dark:text-gray-200">
+            {ui.label === "In stock" || ui.label === "Low stock"
+              ? "Available for purchase"
+              : ui.label === "Expired"
+                ? "Expired — not available"
+                : "Currently unavailable"}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InfoTile({ label, value }) {
+  return (
+    <div className="rounded-2xl bg-slate-50 dark:bg-gray-900 p-4 border border-slate-200/80 dark:border-gray-800">
+      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
+      <p className="mt-2 font-bold text-slate-900 dark:text-white">{value}</p>
+    </div>
+  );
+}

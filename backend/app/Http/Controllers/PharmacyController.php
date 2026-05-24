@@ -203,6 +203,11 @@ class PharmacyController extends Controller
         // Load relationships for response
         $pharmacy->load(['addresses.region', 'addresses.city']);
 
+        $this->logAudit($request, 'PHARMACY_PROFILE_UPDATE', 'Pharmacy profile updated', 'success', 'pharmacy', [
+            'pharmacy_id' => $pharmacy->id,
+            'updated_fields' => array_keys($validated ?? []),
+        ], auth('sanctum')->id());
+
         return response()->json([
             'success' => true,
             'message' => 'Pharmacy updated successfully',
@@ -211,6 +216,10 @@ class PharmacyController extends Controller
 
     } catch (\Illuminate\Validation\ValidationException $e) {
         DB::rollBack();
+        $this->logAudit($request, 'PHARMACY_PROFILE_UPDATE', 'Pharmacy profile update validation failed', 'failed', 'pharmacy', [
+            'pharmacy_id' => $pharmacy->id,
+            'errors' => $e->errors(),
+        ], auth('sanctum')->id());
         return response()->json([
             'success' => false,
             'message' => 'Validation failed',
@@ -220,6 +229,10 @@ class PharmacyController extends Controller
         DB::rollBack();
         Log::error('Pharmacy update error: ' . $e->getMessage());
         Log::error($e->getTraceAsString());
+        $this->logAudit($request, 'PHARMACY_PROFILE_UPDATE', 'Pharmacy profile update failed', 'failed', 'pharmacy', [
+            'pharmacy_id' => $pharmacy->id,
+            'error' => $e->getMessage(),
+        ], auth('sanctum')->id());
 
         return response()->json([
             'success' => false,
@@ -259,7 +272,8 @@ class PharmacyController extends Controller
     public function store(Request $request)
     {
         // 1. Validate all incoming data
-        $validated = $request->validate([
+        try {
+            $validated = $request->validate([
             // Basic Info
             'facilityNameEn' => 'required|string|min:3|max:255',
             'facilityNameAm' => 'required|string|min:3|max:255',
@@ -299,12 +313,27 @@ class PharmacyController extends Controller
         ],[
             'contact_email.unique' => 'Email already exists',
         ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->logAudit($request, 'PHARMACY_REGISTER', 'Pharmacy registration validation failed', 'failed', 'pharmacy', [
+                'errors' => $e->errors(),
+            ], auth('sanctum')->id());
+            return response()->json([
+                'success' => false,
+                'code' => 'VALIDATION_FAILED',
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        }
 
         try {
             $user = auth('sanctum')->user();
             if (!$user) {
+                $this->logAudit($request, 'PHARMACY_REGISTER', 'Unauthorized pharmacy registration attempt', 'failed', 'pharmacy', [], null);
                 return response()->json(['success' => false, "message" => "unauthorized"]);
             }else if($user->hasAnyRole(["hospitalAgent","pharmacyAgent"])){
+                    $this->logAudit($request, 'PHARMACY_REGISTER', 'Pharmacy registration rejected: already registered as agent', 'failed', 'pharmacy', [
+                        'current_roles' => $user->getRoleNames(),
+                    ], $user->id);
                     return response()->json([
                         'success' => false,
                         'code' => 'ALREADY_REGISTERED_AGENT',
@@ -361,6 +390,13 @@ class PharmacyController extends Controller
             ]);
             $user->syncRoles('pharmacyAgent');
 
+            $this->logAudit($request, 'PHARMACY_REGISTER', 'Pharmacy registration submitted', 'success', 'pharmacy', [
+                'pharmacy_id' => $pharmacy->id,
+                'pharmacy_name_en' => $pharmacy->pharmacy_name_en,
+                'pharmacy_name_am' => $pharmacy->pharmacy_name_am,
+                'status' => $pharmacy->status,
+            ], $user->id);
+
             // 6. Notify Admins in real-time
             $admins = User::role('admin')->get();
             \Log::info('Notifying admins about new pharmacy registration', ['admin' => $admins]);
@@ -383,6 +419,9 @@ class PharmacyController extends Controller
 
             ], 201);
         } catch (\Exception $e) {
+            $this->logAudit($request, 'PHARMACY_REGISTER', 'Pharmacy registration failed', 'failed', 'pharmacy', [
+                'error' => $e->getMessage(),
+            ], auth('sanctum')->id());
             return response()->json([
                 'success' => false,
                 'message' => 'Registration failed. Please try again.',

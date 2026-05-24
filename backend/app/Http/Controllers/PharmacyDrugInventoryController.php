@@ -364,10 +364,12 @@ class PharmacyDrugInventoryController extends Controller
 
         $pharmacy = $this->pharmacy();
         if (!$pharmacy) {
+            $this->logAudit($request, 'INVENTORY_ADD_DRUG', 'Add drug failed: pharmacy not found for user', 'failed', 'inventory', [], Auth::id());
             return response()->json(['message' => 'Pharmacy not found for user'], 404);
         }
 
-        return DB::transaction(function () use ($validated, $pharmacy) {
+        try {
+            return DB::transaction(function () use ($validated, $pharmacy, $request) {
             $drug = Drug::firstOrCreate(
                 [
                     'brand_name_en' => $validated['brand_name_en'],
@@ -427,6 +429,15 @@ class PharmacyDrugInventoryController extends Controller
 
             $this->alerts->evaluateBatchLowStock($batchInventory);
 
+            $this->logAudit($request, 'INVENTORY_ADD_DRUG', 'Drug batch added to inventory', 'success', 'inventory', [
+                'pharmacy_id' => $pharmacy->id,
+                'drug_id' => $drug->id,
+                'batch_number' => $batchNumber,
+                'quantity_added' => (int) $validated['stock'],
+                'price' => (float) $validated['price'],
+                'cost_price' => (float) ($validated['cost_price'] ?? 0),
+            ], Auth::id());
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -437,7 +448,14 @@ class PharmacyDrugInventoryController extends Controller
                 ],
                 'message' => 'Drug batch added successfully',
             ]);
-        });
+            });
+        } catch (\Throwable $e) {
+            $this->logAudit($request, 'INVENTORY_ADD_DRUG', 'Drug add failed', 'failed', 'inventory', [
+                'pharmacy_id' => $pharmacy->id,
+                'error' => $e->getMessage(),
+            ], Auth::id());
+            throw $e;
+        }
     }
 
     public function update($id, Request $request)
@@ -468,7 +486,8 @@ class PharmacyDrugInventoryController extends Controller
             ->with('drug')
             ->firstOrFail();
 
-        return DB::transaction(function () use ($validated, $pharmacy, $inventory) {
+        try {
+            return DB::transaction(function () use ($validated, $pharmacy, $inventory, $request) {
             $inventory->update([
                 'about_drug_en' => $validated['about_drug_en'],
                 'about_drug_am' => $validated['about_drug_am'] ?? $inventory->about_drug_am,
@@ -538,11 +557,27 @@ class PharmacyDrugInventoryController extends Controller
                 }
             }
 
+            $this->logAudit($request, 'INVENTORY_UPDATE_DRUG', 'Inventory item updated', 'success', 'inventory', [
+                'pharmacy_id' => $pharmacy->id,
+                'inventory_id' => $inventory->id,
+                'drug_id' => $inventory->drug_id,
+                'updated_fields' => array_keys($validated ?? []),
+            ], Auth::id());
+
             return response()->json([
                 'success' => true,
                 'data' => $inventory->load('drug'),
             ]);
-        });
+            });
+        } catch (\Throwable $e) {
+            $this->logAudit($request, 'INVENTORY_UPDATE_DRUG', 'Inventory update failed', 'failed', 'inventory', [
+                'pharmacy_id' => $pharmacy->id,
+                'inventory_id' => $inventory->id,
+                'drug_id' => $inventory->drug_id,
+                'error' => $e->getMessage(),
+            ], Auth::id());
+            throw $e;
+        }
     }
 
     public function deleteDrug($id)
@@ -554,6 +589,12 @@ class PharmacyDrugInventoryController extends Controller
             ->firstOrFail();
 
         $inventory->delete();
+
+        $this->logAudit(request(), 'INVENTORY_ARCHIVE_DRUG', 'Inventory item archived', 'success', 'inventory', [
+            'pharmacy_id' => $pharmacy->id,
+            'inventory_id' => $inventory->id,
+            'drug_id' => $inventory->drug_id,
+        ], Auth::id());
 
         return response()->json([
             'success' => true,
@@ -625,11 +666,16 @@ class PharmacyDrugInventoryController extends Controller
     public function restoreDrug($id)
     {
         $pharmacy = $this->pharmacy();
-        PharmacyDrugInventory::onlyTrashed()
+        $restored = PharmacyDrugInventory::onlyTrashed()
             ->where('id', $id)
             ->where('pharmacy_id', $pharmacy->id)
             ->firstOrFail()
             ->restore();
+
+        $this->logAudit(request(), 'INVENTORY_RESTORE_DRUG', 'Inventory item restored', 'success', 'inventory', [
+            'pharmacy_id' => $pharmacy->id,
+            'inventory_id' => (int) $id,
+        ], Auth::id());
 
         return response()->json(['success' => true, 'message' => 'Item restored successfully']);
     }
@@ -643,6 +689,13 @@ class PharmacyDrugInventoryController extends Controller
 
         $inventory->is_available = !$inventory->is_available;
         $inventory->save();
+
+        $this->logAudit(request(), 'INVENTORY_TOGGLE_AVAILABILITY', 'Inventory availability toggled', 'success', 'inventory', [
+            'pharmacy_id' => $pharmacy->id,
+            'inventory_id' => $inventory->id,
+            'drug_id' => $inventory->drug_id,
+            'is_available' => (bool) $inventory->is_available,
+        ], Auth::id());
 
         return response()->json(['success' => true, 'is_available' => $inventory->is_available]);
     }
