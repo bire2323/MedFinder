@@ -764,18 +764,19 @@
       "restore": "Restore Item",
       "confirmRestore": "Are you sure you want to restore <strong>{{name}}</strong>?",
       "empty": "No archived items found"
-    },
-    "toast": {
-      "drugAdded": "Medicine added successfully",
-      "drugUpdated": "Inventory updated successfully",
-      "drugDeleted": "Item moved to trash",
-      "drugRestored": "Item restored to active inventory",
-      "failedAdd": "Failed to add medicine",
-      "failedUpdate": "Update failed",
-      "failedDelete": "Archive failed",
-      "loadFailed": "Failed to load inventory",
-      "units": "units"
-    },
+    }
+  },
+  "toast": {
+    "drugAdded": "Medicine added successfully",
+    "drugUpdated": "Inventory updated successfully",
+    "drugDeleted": "Item moved to trash",
+    "drugRestored": "Item restored to active inventory",
+    "failedAdd": "Failed to add medicine",
+    "failedUpdate": "Update failed",
+    "failedDelete": "Archive failed",
+    "loadFailed": "Failed to load inventory",
+    "units": "units"
+  },
   "modal": {
     "delete": {
       "title": "Archive Medicine",
