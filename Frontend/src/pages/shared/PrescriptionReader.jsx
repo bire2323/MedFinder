@@ -151,6 +151,7 @@ export default function PrescriptionReader({ showHeader = true }) {
       const baseUrl = import.meta.env.VITE_API_BASE || "";
       const response = await fetch(`${baseUrl}/ai/prescription`, {
         method: "POST",
+        credentials: "include",
         body: formData,
       });
 

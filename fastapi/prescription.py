@@ -110,7 +110,15 @@ async def search_nearby_pharmacies(
                     if key in seen:
                         continue
                     seen.add(key)
-                    pharmacies.append(item)
+
+                    normalized = {
+                        **item,
+                        "name": item.get("name") or item.get("pharmacy"),
+                        "address": item.get("address") or item.get("location"),
+                        "note": item.get("note") or (item.get("drug") and f"Drug: {item.get('drug')}") or None,
+                    }
+
+                    pharmacies.append(normalized)
 
         if not pharmacies:
             return [{"message": "No nearby pharmacies found for the requested medicines."}]
