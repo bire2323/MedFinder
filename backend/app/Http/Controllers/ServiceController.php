@@ -62,6 +62,7 @@ class ServiceController extends Controller
     {
         $facility = $this->getFacility();
         if (!$facility) {
+            $this->logAudit($request, 'SERVICE_ATTACH', 'Service attach failed: facility not found for agent', 'failed', 'service', [], auth('sanctum')->id());
             return response()->json(['message' => 'Facility not found for this agent'], 404);
         }
 
@@ -76,6 +77,7 @@ class ServiceController extends Controller
 
         // Check if service already exists globally
         $service = Service::where('service_name_en', $validated['service_name_en'])->first();
+        $createdNew = false;
 
         if (!$service) {
             $service = Service::create([
@@ -84,10 +86,11 @@ class ServiceController extends Controller
                 'service_category_name_en' => $validated['service_category_name_en'] ?? null,
                 'service_category_name_am' => $validated['service_category_name_am'] ?? null,
             ]);
+            $createdNew = true;
         }
 
         // Create or update connection to facility
-        FacilityService::updateOrCreate(
+        $facilityService = FacilityService::updateOrCreate(
             [
                 'addressable_id' => $facility->id,
                 'addressable_type' => get_class($facility),
@@ -98,6 +101,15 @@ class ServiceController extends Controller
                 'notes' => $request->input('notes'),
             ]
         );
+
+        $this->logAudit($request, 'SERVICE_ATTACH', 'Service attached to facility', 'success', 'service', [
+            'facility_type' => class_basename($facility),
+            'facility_id' => $facility->id,
+            'service_id' => $service->id,
+            'facility_service_id' => $facilityService->id,
+            'created_new_service' => $createdNew,
+            'is_available' => (bool) $request->input('is_available', true),
+        ], auth('sanctum')->id());
 
         return response()->json($service, 201);
     }
@@ -134,6 +146,13 @@ class ServiceController extends Controller
                 ]);
         }
 
+        $this->logAudit($request, 'SERVICE_UPDATE', 'Service updated', 'success', 'service', [
+            'service_id' => $service->id,
+            'facility_type' => $facility ? class_basename($facility) : null,
+            'facility_id' => $facility?->id,
+            'updated_fields' => array_keys($validated ?? []),
+        ], auth('sanctum')->id());
+
         return response()->json($service);
     }
 
@@ -149,6 +168,12 @@ class ServiceController extends Controller
                 ->where('service_id', $service->id)
                 ->delete();
         }
+
+        $this->logAudit(request(), 'SERVICE_DETACH', 'Service detached from facility', 'success', 'service', [
+            'service_id' => $service->id,
+            'facility_type' => $facility ? class_basename($facility) : null,
+            'facility_id' => $facility?->id,
+        ], auth('sanctum')->id());
 
         return response()->json(['success' => true]);
     }

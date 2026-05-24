@@ -102,6 +102,12 @@ class BatchInventoryController extends Controller
         );
 
         if (!$success) {
+            $this->logAudit($request, 'BATCH_DISPENSE', 'Dispense failed: insufficient stock', 'failed', 'inventory', [
+                'pharmacy_id' => $pharmacy->id,
+                'drug_id' => $drug->id,
+                'quantity' => (int) $validated['quantity'],
+                'reason' => $validated['reason'] ?? null,
+            ], Auth::id());
             return response()->json([
                 'success' => false,
                 'message' => 'Insufficient stock available',
@@ -109,6 +115,13 @@ class BatchInventoryController extends Controller
         }
 
         $this->alerts->checkAndCreateAlerts($pharmacy);
+
+        $this->logAudit($request, 'BATCH_DISPENSE', 'Stock dispensed using FIFO', 'success', 'inventory', [
+            'pharmacy_id' => $pharmacy->id,
+            'drug_id' => $drug->id,
+            'quantity' => (int) $validated['quantity'],
+            'reason' => $validated['reason'] ?? null,
+        ], Auth::id());
 
         return response()->json([
             'success' => true,
@@ -138,6 +151,13 @@ class BatchInventoryController extends Controller
 
         $change = (int) $validated['quantity_change'];
         if ($change < 0 && $batchInventory->quantity_available < abs($change)) {
+            $this->logAudit($request, 'BATCH_ADJUST', 'Batch adjust failed: cannot remove more than available', 'failed', 'inventory', [
+                'pharmacy_id' => $pharmacy->id,
+                'batch_inventory_id' => $batchInventory->id,
+                'drug_id' => $batchInventory->drugBatch?->drug_id,
+                'quantity_change' => $change,
+                'available' => (int) $batchInventory->quantity_available,
+            ], Auth::id());
             return response()->json([
                 'success' => false,
                 'message' => 'Cannot remove more than available stock for this batch',
@@ -152,6 +172,14 @@ class BatchInventoryController extends Controller
         );
 
         $this->alerts->evaluateBatchLowStock($updated);
+
+        $this->logAudit($request, 'BATCH_ADJUST', $change > 0 ? 'Stock added to batch' : 'Stock removed from batch', 'success', 'inventory', [
+            'pharmacy_id' => $pharmacy->id,
+            'batch_inventory_id' => $updated->id,
+            'drug_id' => $updated->drugBatch?->drug_id,
+            'quantity_change' => $change,
+            'reason' => $validated['reason'] ?? null,
+        ], Auth::id());
 
         return response()->json([
             'success' => true,
@@ -183,6 +211,13 @@ class BatchInventoryController extends Controller
         if ($batchInventory->drugBatch?->drug) {
             $this->inventory->syncSummaryInventory($pharmacy, $batchInventory->drugBatch->drug);
         }
+
+        $this->logAudit($request, 'BATCH_UPDATE', 'Batch inventory updated', 'success', 'inventory', [
+            'pharmacy_id' => $pharmacy->id,
+            'batch_inventory_id' => $batchInventory->id,
+            'drug_id' => $batchInventory->drugBatch?->drug_id,
+            'updated_fields' => array_keys($validated ?? []),
+        ], Auth::id());
 
         return response()->json([
             'success' => true,
@@ -221,6 +256,14 @@ class BatchInventoryController extends Controller
             'acknowledged_by' => Auth::id(),
         ]);
 
+        $this->logAudit(request(), 'ALERT_ACKNOWLEDGE', 'Inventory alert acknowledged', 'success', 'inventory', [
+            'pharmacy_id' => $pharmacy->id,
+            'alert_id' => $alert->id,
+            'drug_id' => $alert->drug_id,
+            'drug_batch_id' => $alert->drug_batch_id,
+            'severity' => $alert->severity,
+        ], Auth::id());
+
         return response()->json(['success' => true, 'data' => $alert]);
     }
 
@@ -238,6 +281,14 @@ class BatchInventoryController extends Controller
             'acknowledged_by' => Auth::id(),
         ]);
 
+        $this->logAudit(request(), 'ALERT_RESOLVE', 'Inventory alert resolved', 'success', 'inventory', [
+            'pharmacy_id' => $pharmacy->id,
+            'alert_id' => $alert->id,
+            'drug_id' => $alert->drug_id,
+            'drug_batch_id' => $alert->drug_batch_id,
+            'severity' => $alert->severity,
+        ], Auth::id());
+
         return response()->json(['success' => true, 'data' => $alert]);
     }
 
@@ -245,6 +296,10 @@ class BatchInventoryController extends Controller
     {
         $pharmacy = $this->pharmacy();
         $this->alerts->checkAndCreateAlerts($pharmacy);
+
+        $this->logAudit(request(), 'ALERT_CHECK_RUN', 'Manual inventory alert check executed', 'success', 'inventory', [
+            'pharmacy_id' => $pharmacy->id,
+        ], Auth::id());
 
         return response()->json(['success' => true, 'message' => 'Alert check completed']);
     }

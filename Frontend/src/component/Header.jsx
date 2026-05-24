@@ -141,23 +141,6 @@ export default function Header() {
   const initialized = useAuthStore((state) => state.initialized);
 
   const isAmharic = useTranslation().i18n.language === "am";
-
-  const maskEmail = (email = "user@example.com") => {
-    const [local, domain] = email.split("@");
-    const visibleLocal = local ? local.slice(0, Math.min(2, local.length)) : "us";
-    const maskedLocal = `${visibleLocal}${"*".repeat(Math.max((local?.length || 0) - visibleLocal.length, 3))}`;
-    const maskedDomain = domain ? domain.replace(/.(?=.{3,}$)/g, "*") : "***.***";
-    return `${maskedLocal}@${maskedDomain}`;
-  };
-
-  const maskPhone = (phone = "0912345678") => {
-    const raw = (phone || "").replace(/\D/g, "");
-    const visible = raw.slice(0, 3) || "09";
-    const masked = "*".repeat(Math.max(raw.length - visible.length, 6));
-    return `${visible}${masked}`;
-  };
-
-  const guestContactHint = t("headingNav.loginToSee") || "Login to see";
   const closeFindCare = useCallback(() => setFindCareOpen(false), []);
   const closeMobileMenu = useCallback(() => {
     setIsMenuOpen(false);
@@ -324,24 +307,6 @@ export default function Header() {
                 >
                   {t("Register.join_medFinder")}
                 </button>
-                <div className="hidden flex-col text-xs text-slate-500 dark:text-gray-400 mt-1 md:flex">
-                  <button
-                    type="button"
-                    title={guestContactHint}
-                    onClick={() => navigate("/login", { state: { background: resolveBackgroundLocation(location) } })}
-                    className="text-left underline decoration-dotted underline-offset-2 hover:text-emerald-600 dark:hover:text-emerald-400"
-                  >
-                    Email: {maskEmail()}
-                  </button>
-                  <button
-                    type="button"
-                    title={guestContactHint}
-                    onClick={() => navigate("/login", { state: { background: resolveBackgroundLocation(location) } })}
-                    className="text-left underline decoration-dotted underline-offset-2 hover:text-emerald-600 dark:hover:text-emerald-400"
-                  >
-                    Phone: {maskPhone()}
-                  </button>
-                </div>
               </div>
             ) : (
               <div className="hidden items-center gap-2 md:flex md:gap-4">
@@ -561,30 +526,6 @@ export default function Header() {
                 >
                   {t("Register.join_medFinder")}
                 </button>
-                <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-500 dark:text-gray-400 mt-3">
-                  <button
-                    type="button"
-                    title={guestContactHint}
-                    onClick={() => {
-                      navigate("/login", { state: { background: resolveBackgroundLocation(location) } });
-                      closeMobileMenu();
-                    }}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-left hover:bg-slate-100 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800"
-                  >
-                    Email: {maskEmail()}
-                  </button>
-                  <button
-                    type="button"
-                    title={guestContactHint}
-                    onClick={() => {
-                      navigate("/login", { state: { background: resolveBackgroundLocation(location) } });
-                      closeMobileMenu();
-                    }}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-left hover:bg-slate-100 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800"
-                  >
-                    Phone: {maskPhone()}
-                  </button>
-                </div>
               </div>
             ) : (
               <div className="mt-6 border-t border-slate-100 pt-6 dark:border-gray-800">

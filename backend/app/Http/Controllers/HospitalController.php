@@ -128,6 +128,9 @@ class HospitalController extends Controller
             'logo' => 'LOGO_REQ',
         ]);
         } catch (ValidationException $e) {
+              $this->logAudit($request, 'HOSPITAL_REGISTER', 'Hospital registration validation failed', 'failed', 'hospital', [
+                  'errors' => $e->errors(),
+              ], auth('sanctum')->id());
                return response()->json([
                 'success' => false,
                 'code' => 'VALIDATION_FAILED',
@@ -139,8 +142,12 @@ class HospitalController extends Controller
         // 2. Check if user is already a hospital agent
         $user = auth('sanctum')->user();
         if (!$user) {
+            $this->logAudit($request, 'HOSPITAL_REGISTER', 'Unauthorized hospital registration attempt', 'failed', 'hospital', [], null);
             return response()->json(['success'=>false,"message"=>"unauthorized"]);
         }else if($user->hasAnyRole(["hospitalAgent","pharmacyAgent"])){
+            $this->logAudit($request, 'HOSPITAL_REGISTER', 'Hospital registration rejected: already registered as agent', 'failed', 'hospital', [
+                'current_roles' => $user->getRoleNames(),
+            ], $user->id);
             return response()->json([
                 'success' => false,
                 'code' => 'ALREADY_REGISTERED_AGENT',], 200); // now frontend always sees 200
@@ -150,8 +157,12 @@ class HospitalController extends Controller
            $user =auth('sanctum')->user();
           Log::info('User logged in for hosp booking', ['user_id' => auth('sanctum')->id(), 'ip' => request()->ip()]);
            if (!$user) {
+            $this->logAudit($request, 'HOSPITAL_REGISTER', 'Unauthorized hospital registration attempt', 'failed', 'hospital', [], null);
             return response()->json(['success'=>false,"message"=>"unauthorized"]);
            }else if($user->hasAnyRole(["hospitalAgent","pharmacyAgent"])){
+                  $this->logAudit($request, 'HOSPITAL_REGISTER', 'Hospital registration rejected: already registered as agent', 'failed', 'hospital', [
+                      'current_roles' => $user->getRoleNames(),
+                  ], $user->id);
                   return response()->json([
                     'success' => false,
                     'code' => 'ALREADY_REGISTERED_AGENT',
@@ -210,6 +221,13 @@ class HospitalController extends Controller
             $user->syncRoles('hospitalAgent');
           Log::info('User booked hospital', ['user_id' => auth('sanctum')->id()]);
 
+            $this->logAudit($request, 'HOSPITAL_REGISTER', 'Hospital registration submitted', 'success', 'hospital', [
+                'hospital_id' => $hospital->id,
+                'hospital_name_en' => $hospital->hospital_name_en,
+                'hospital_name_am' => $hospital->hospital_name_am,
+                'status' => $hospital->status,
+            ], $user->id);
+
             // 6. Notify Admins in real-time
             $admins = \App\Models\User::role('admin')->get();
             foreach ($admins as $admin) {
@@ -232,6 +250,9 @@ class HospitalController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
+            $this->logAudit($request, 'HOSPITAL_REGISTER', 'Hospital registration failed', 'failed', 'hospital', [
+                'error' => $e->getMessage(),
+            ], auth('sanctum')->id());
             return response()->json([
                 'success' => false,
                 'message' => 'Registration failed. Please try again.',
@@ -414,6 +435,11 @@ class HospitalController extends Controller
         // Load relationships for response
         $hospital->load(['addresses.region', 'addresses.city']);
 
+        $this->logAudit($request, 'HOSPITAL_PROFILE_UPDATE', 'Hospital profile updated', 'success', 'hospital', [
+            'hospital_id' => $hospital->id,
+            'updated_fields' => array_keys($validated ?? []),
+        ], auth('sanctum')->id());
+
         return response()->json([
             'success' => true,
             'message' => 'Hospital updated successfully',
@@ -422,6 +448,10 @@ class HospitalController extends Controller
 
     } catch (\Illuminate\Validation\ValidationException $e) {
         DB::rollBack();
+        $this->logAudit($request, 'HOSPITAL_PROFILE_UPDATE', 'Hospital profile update validation failed', 'failed', 'hospital', [
+            'hospital_id' => $hospital->id,
+            'errors' => $e->errors(),
+        ], auth('sanctum')->id());
         return response()->json([
             'success' => false,
             'message' => 'Validation failed',
@@ -431,6 +461,10 @@ class HospitalController extends Controller
         DB::rollBack();
         Log::error('hospital update error: ' . $e->getMessage());
         Log::error($e->getTraceAsString());
+        $this->logAudit($request, 'HOSPITAL_PROFILE_UPDATE', 'Hospital profile update failed', 'failed', 'hospital', [
+            'hospital_id' => $hospital->id,
+            'error' => $e->getMessage(),
+        ], auth('sanctum')->id());
 
         return response()->json([
             'success' => false,

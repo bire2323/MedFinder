@@ -36,6 +36,7 @@ class DepartmentController extends Controller
         $hospital = $this->getHospital();
         \Log::info("Storing department for hospital : {$hospital}");
         if (!$hospital) {
+            $this->logAudit($request, 'DEPARTMENT_ATTACH', 'Department attach failed: hospital not found for agent', 'failed', 'department', [], auth('sanctum')->id());
             return response()->json(['message' => 'Hospital not found for this agent'], 404);
         }
 
@@ -48,15 +49,23 @@ class DepartmentController extends Controller
 
         // Check if department already exists globally
         $department = Department::where('department_name_en', $validated['department_name_en'])->first();
+        $createdNew = false;
 
         if (!$department) {
             $department = Department::create($validated);
+            $createdNew = true;
         }
 
         // Attach to hospital if not already attached
         if (!$hospital->departments()->where('department_id', $department->id)->exists()) {
             $hospital->departments()->attach($department->id);
         }
+
+        $this->logAudit($request, 'DEPARTMENT_ATTACH', 'Department attached to hospital', 'success', 'department', [
+            'hospital_id' => $hospital->id,
+            'department_id' => $department->id,
+            'created_new_department' => $createdNew,
+        ], auth('sanctum')->id());
 
         return response()->json($department, 201);
     }
@@ -75,6 +84,11 @@ class DepartmentController extends Controller
 
         $department->update($validated);
 
+        $this->logAudit($request, 'DEPARTMENT_UPDATE', 'Department updated', 'success', 'department', [
+            'department_id' => $department->id,
+            'updated_fields' => array_keys($validated ?? []),
+        ], auth('sanctum')->id());
+
         return response()->json($department);
     }
 
@@ -87,6 +101,11 @@ class DepartmentController extends Controller
         if ($hospital) {
             $hospital->departments()->detach($department->id);
         }
+
+        $this->logAudit(request(), 'DEPARTMENT_DETACH', 'Department detached from hospital', 'success', 'department', [
+            'hospital_id' => $hospital?->id,
+            'department_id' => $department->id,
+        ], auth('sanctum')->id());
 
         return response()->json(['success' => true]);
     }
