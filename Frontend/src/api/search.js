@@ -109,8 +109,10 @@ export async function apiFetchDrugResults(medicineName, { signal } = {}) {
       ...normalized,
       drugPrice: item.drugPrice ?? item.drug_price ?? item.price,
       expire_date: item.expire_date,
-      drugAvailability: item.drugAvailability ?? item.drug_availability,
+      drugAvailability: item.drugAvailability ?? item.drug_availability ?? item.drugAvailabilityStatus,
+      drugStatus: item.drugAvailability ?? item.drug_availability ?? item.status,
       drugName,
+      total_stock: item.total_stock ?? item.stock ?? item.totalStock,
     };
   });
 }

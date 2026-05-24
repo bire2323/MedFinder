@@ -950,7 +950,8 @@
   },
   "facility_detail_page": {
     "please_login_to_chat": "እባክዎ መጀመሪያ ይግቡ/ይመዝገቡ!",
-    "chatin_errors": "chat ማድረግ አልተቻለም! እባክዎ ኢንተርኔትዎን ያረጋግጡ/ እንደገና ይሞክሩ!"
+    "chatin_errors": "chat ማድረግ አልተቻለም! እባክዎ ኢንተርኔትዎን ያረጋግጡ/ እንደገና ይሞክሩ!",
+    "login_to_get_contact": "የመገናኛ መረጃን ለማየት እባክዎ ይግቡ"
   },
   "UserDashboard": {
     "Overview": "አጠቃላይ እይታ",

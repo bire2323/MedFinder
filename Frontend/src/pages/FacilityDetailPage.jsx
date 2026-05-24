@@ -89,6 +89,31 @@ const FacilityDetailPage = () => {
   const isAuthenticated = Boolean(user) && !isAuthLoading;
   const currentUserId = user?.id;
 
+  const maskPhone = (phone) => {
+    const raw = (phone ?? "").toString().replace(/\s+/g, "");
+    if (!raw) return "••••••••";
+    if (raw.length <= 4) return "••••";
+    const start = raw.slice(0, Math.min(3, raw.length));
+    const end = raw.slice(-2);
+    return `${start}${"•".repeat(Math.max(raw.length - start.length - end.length, 4))}${end}`;
+  };
+
+  const maskEmail = (email) => {
+    const raw = (email ?? "").toString().trim();
+    if (!raw || !raw.includes("@")) return "••••••••";
+    const [local, domain] = raw.split("@");
+    const localMasked =
+      local.length <= 2 ? `${local[0] || ""}•` : `${local.slice(0, 2)}${"•".repeat(Math.max(local.length - 2, 4))}`;
+    const dotIdx = domain.lastIndexOf(".");
+    const domainName = dotIdx > 0 ? domain.slice(0, dotIdx) : domain;
+    const tld = dotIdx > 0 ? domain.slice(dotIdx) : "";
+    const domainMasked =
+      domainName.length <= 1 ? `${domainName || "•"}${"•".repeat(4)}` : `${domainName[0]}${"•".repeat(Math.max(domainName.length - 1, 4))}`;
+    return `${localMasked}@${domainMasked}${tld}`;
+  };
+
+  const loginToGetContactMsg = t("facility_detail_page.login_to_get_contact") || "Login to get contact";
+
   const maskLicenseNumber = (license) => {
     if (!license) return '**********';
     const visibleCount = Math.ceil(license.length / 2);
@@ -661,26 +686,32 @@ const FacilityDetailPage = () => {
                   <ContactRow
                     icon={Phone}
                     label="Primary Phone"
-                    value={isAuthenticated ? facility.contact_phone : (t("facility_detail_page.please_login_to_chat") || "Login to view")}
+                    value={isAuthenticated ? facility.contact_phone : maskPhone(facility.contact_phone)}
                     href={isAuthenticated ? `tel:${facility.contact_phone}` : null}
                     themeColor={themeColor}
+                    tooltip={!isAuthenticated ? loginToGetContactMsg : null}
+                    onClick={!isAuthenticated ? () => toast(loginToGetContactMsg) : null}
                   />
                   {facility.alternatePhone && (
                     <ContactRow
                       icon={Phone}
                       label="Alternate Phone"
-                      value={isAuthenticated ? facility.alternatePhone : (t("facility_detail_page.please_login_to_chat") || "Login to view")}
+                      value={isAuthenticated ? facility.alternatePhone : maskPhone(facility.alternatePhone)}
                       href={isAuthenticated ? `tel:${facility.alternatePhone}` : null}
                       themeColor={themeColor}
+                      tooltip={!isAuthenticated ? loginToGetContactMsg : null}
+                      onClick={!isAuthenticated ? () => toast(loginToGetContactMsg) : null}
                     />
                   )}
                   {facility.contact_email && (
                     <ContactRow
                       icon={Mail}
                       label="Email Address"
-                      value={isAuthenticated ? facility.contact_email : (t("facility_detail_page.please_login_to_chat") || "Login to view")}
+                      value={isAuthenticated ? facility.contact_email : maskEmail(facility.contact_email)}
                       href={isAuthenticated ? `mailto:${facility.contact_email}` : null}
                       themeColor={themeColor}
+                      tooltip={!isAuthenticated ? loginToGetContactMsg : null}
+                      onClick={!isAuthenticated ? () => toast(loginToGetContactMsg) : null}
                     />
                   )}
                   {facility.emergencyPhone && (
@@ -688,9 +719,11 @@ const FacilityDetailPage = () => {
                       <ContactRow
                         icon={AlertCircle}
                         label="Emergency Hotline"
-                        value={isAuthenticated ? facility.emergencyPhone : (t("facility_detail_page.please_login_to_chat") || "Login to view")}
+                        value={isAuthenticated ? facility.emergencyPhone : maskPhone(facility.emergencyPhone)}
                         href={isAuthenticated ? `tel:${facility.emergencyPhone}` : null}
                         isEmergency
+                        tooltip={!isAuthenticated ? loginToGetContactMsg : null}
+                        onClick={!isAuthenticated ? () => toast(loginToGetContactMsg) : null}
                       />
                     </div>
                   )}
@@ -812,7 +845,7 @@ const FacilityDetailPage = () => {
 };
 
 // UI Component Helpers
-const ContactRow = ({ icon: Icon, label, value, href, isEmergency, themeColor }) => (
+const ContactRow = ({ icon: Icon, label, value, href, isEmergency, themeColor, tooltip, onClick }) => (
   <div className="flex items-center gap-4 group">
     <div className={`p-3.5 rounded-2xl shrink-0 ${isEmergency ? 'bg-rose-100 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400' : (themeColor === 'emerald' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400')} transition-colors`}>
       <Icon size={24} />
@@ -823,6 +856,15 @@ const ContactRow = ({ icon: Icon, label, value, href, isEmergency, themeColor })
         <a href={href} className={`font-extrabold text-lg text-slate-900 dark:text-white hover:underline decoration-2 underline-offset-4 ${isEmergency ? 'decoration-rose-500' : (themeColor === 'emerald' ? 'decoration-emerald-500' : 'decoration-blue-500')}`}>
           {value}
         </a>
+      ) : onClick ? (
+        <button
+          type="button"
+          title={tooltip || undefined}
+          onClick={onClick}
+          className="font-extrabold text-lg text-slate-900 dark:text-white cursor-pointer hover:underline decoration-2 underline-offset-4 decoration-slate-400"
+        >
+          {value}
+        </button>
       ) : (
         <p className="font-extrabold text-lg text-slate-900 dark:text-white">{value}</p>
       )}
