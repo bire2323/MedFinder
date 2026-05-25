@@ -166,7 +166,7 @@ const PharmacyDashboard = () => {
           <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-30 lg:hidden" onClick={() => setSidebarOpen(false)} aria-hidden="true" />
         )}
 
-        <nav className={`fixed lg:sticky top-0 border-r border-slate-200/50 dark:border-slate-800/80 inset-y-0 lg:bottom-auto left-0 z-40 w-64 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl flex flex-col transform lg:transform-none transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+        <nav className={`fixed lg:sticky top-0 xl:h-screen border-r border-slate-200/50 dark:border-slate-800/80 inset-y-0 lg:bottom-auto left-0 z-40 w-64 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl flex flex-col transform lg:transform-none transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
 
           <div className="h-full flex flex-col">
 
