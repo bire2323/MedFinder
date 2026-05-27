@@ -1,10 +1,65 @@
 import requests
+import re
 from typing import Any, Text, Dict, List
 
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet
 from thefuzz import process
+
+
+class LanguageDetector:
+    """Detect language from text using Ge'ez Unicode detection"""
+    
+    AMHARIC_RANGE = (0x1200, 0x137F)  # Ge'ez script Unicode range
+    
+    @staticmethod
+    def detect_language(text: str) -> str:
+        """
+        Detect language from text.
+        Returns: 'am' (Amharic), 'en' (English), or 'mixed'
+        """
+        amharic_count = sum(1 for c in text if ord(c) in range(0x1200, 0x137F))
+        english_count = sum(1 for c in text if c.isalpha() and ord(c) < 128)
+        
+        total = amharic_count + english_count
+        if total == 0:
+            return "en"  # Default to English if no alpha chars
+        
+        amharic_ratio = amharic_count / total
+        
+        # Clear detection thresholds
+        if amharic_ratio > 0.6:
+            return "am"
+        elif amharic_ratio < 0.2:
+            return "en"
+        else:
+            return "mixed"
+
+
+class ActionInitializeLanguage(Action):
+    """Auto-detect and initialize language on first message"""
+    
+    def name(self) -> Text:
+        return "action_initialize_language"
+    
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        
+        # Only initialize if language slot not already set
+        current_language = tracker.get_slot("language")
+        if current_language:
+            return []  # Already initialized, skip
+        
+        # Detect language from user message
+        user_text = tracker.latest_message.get("text", "")
+        detected_language = LanguageDetector.detect_language(user_text)
+        
+        # For mixed language, default to English
+        if detected_language == "mixed":
+            detected_language = "en"
+        
+        return [SlotSet("language", detected_language)]
 
 
 class ActionSetLanguage(Action):
@@ -16,28 +71,43 @@ class ActionSetLanguage(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
 
-        # Get language from slot (auto-filled by Rasa from the entity you send)
-        language = tracker.get_slot("language") or "en"
-
-        # Extra safety: also check latest entities (in case auto-fill didn't trigger)
+        # Get language from entity (explicit user choice)
+        language = None
         for entity in tracker.latest_message.get("entities", []):
             if entity.get("entity") == "language":
                 lang_value = str(entity.get("value", "")).lower().strip()
                 if lang_value in ["am", "amharic", "አማርኛ"]:
                     language = "am"
-                elif lang_value in ["en", "english"]:
+                elif lang_value in ["en", "english", "ኢንግሊዝ"]:
                     language = "en"
                 break
 
         if language not in ["en", "am"]:
-            language = "en"
+            language = tracker.get_slot("language") or "en"
 
-        # Send friendly confirmation in the chosen language
+        # Get previous context to preserve during switch
+        previous_drug = tracker.get_slot("drug_name")
+        previous_location = tracker.get_slot("location")
+        previous_hospital = tracker.get_slot("hospital_name")
+        previous_pharmacy = tracker.get_slot("pharmacy_name")
+
+        # Send confirmation with context preservation message
         if language == "am":
-            dispatcher.utter_message(text="መልካም በ አማርኛ ቋንቋ እናዎራለን፡፡ እባክዎን ይቀጥሉ፡፡ ✅")
+            msg = "✅ ወደ አማርኛ ቀይርን"
+            if previous_drug:
+                msg += f"\n(ስለ {previous_drug} ነበሩ መፈለግ)"
+            elif previous_location:
+                msg += f"\n(በ{previous_location} ውስጥ ነበሩ መፈለግ)"
         else:
-            dispatcher.utter_message(text="nice we can toke in English ✅")
+            msg = "✅ Switched to English"
+            if previous_drug:
+                msg += f"\n(You were searching for {previous_drug})"
+            elif previous_location:
+                msg += f"\n(You were searching in {previous_location})"
 
+        dispatcher.utter_message(text=msg)
+
+        # IMPORTANT: Return only language slot change, preserve all other slots
         return [SlotSet("language", language)]
 class ActionSearchDrugs(Action):
 
@@ -60,7 +130,7 @@ class ActionSearchDrugs(Action):
 
         # Call your backend API
         try:
-            response = requests.get(f"https://medfinder.com/api/bot/search-drug?name={drug_name}")
+            response = requests.get(f"http://backend/api/bot/search-drug?name={drug_name}")
             response.raise_for_status()
             data = response.json()
         except:
@@ -101,12 +171,20 @@ class ActionSearchDrugs(Action):
 
         buttons = [
             {
-                "title": "📍 ቅርብ ፋርማሲዎች" if language == "am" else "📍 Near me",
-                "payload": { "intent": "find_nearby_pharmacies", "data": { "drug_name": drug_name } }
+                "title": "💊 መድኃኒት ፈልግ" if language == "am" else "💊 Search Drug",
+                "payload": "/search_drug"
             },
             {
-                "title": "💰 ዝቅተኛ ዋጋ" if language == "am" else "💰 Lowest price",
-                "payload": { "intent": "find_lowest_price", "data": { "drug_name": drug_name } }
+                "title": "🏥 ሆስፒታል ፈልግ" if language == "am" else "🏥 Search Hospital",
+                "payload": "/search_hospital"
+            },
+            {
+                "title": "🔍 ፋርማሲ ፈልግ" if language == "am" else "🔍 Search Pharmacy",
+                "payload": "/search_pharmacy"
+            },
+            {
+                "title": "🗺️ ካርታ አጠቃቀም" if language == "am" else "🗺️ Map Navigation",
+                "payload": "/ask_how_to_use_map"
             }
         ]
 
@@ -134,7 +212,7 @@ class ActionSearchPharmacy(Action):
         location = tracker.get_slot("location")
         pharmacy_name = tracker.get_slot("pharmacy_name")
 
-        url = "https://medfinder.com/api/pharmacies"
+        url = "http://backend/api/pharmacies"
         params = {"location": location} if location else {}
 
         # --- API CALL ---
@@ -165,10 +243,20 @@ class ActionSearchPharmacy(Action):
 
             buttons = [
                 {
-                    "title": "📍 ቅርብ ፋርማሲዎች"
-                    if language == "am"
-                    else "📍 Find nearby pharmacies",
-                    "payload": "/find_nearby_pharmacies"
+                    "title": "💊 መድኃኒት ፈልግ" if language == "am" else "💊 Search Drug",
+                    "payload": "/search_drug"
+                },
+                {
+                    "title": "🏥 ሆስፒታል ፈልግ" if language == "am" else "🏥 Search Hospital",
+                    "payload": "/search_hospital"
+                },
+                {
+                    "title": "🔍 ፋርማሲ ፈልግ" if language == "am" else "🔍 Search Pharmacy",
+                    "payload": "/search_pharmacy"
+                },
+                {
+                    "title": "🗺️ ካርታ አጠቃቀም" if language == "am" else "🗺️ Map Navigation",
+                    "payload": "/ask_how_to_use_map"
                 }
             ]
 
@@ -209,11 +297,20 @@ class ActionSearchPharmacy(Action):
 
         buttons = [
             {
-                "title": "📍 ቅርብ ፋርማሲዎች"
-                if language == "am"
-                else "📍 Near me",
-                "payload": "/find_nearby_pharmacies",
-                
+                "title": "💊 መድኃኒት ፈልግ" if language == "am" else "💊 Search Drug",
+                "payload": "/search_drug"
+            },
+            {
+                "title": "🏥 ሆስፒታል ፈልግ" if language == "am" else "🏥 Search Hospital",
+                "payload": "/search_hospital"
+            },
+            {
+                "title": "🔍 ፋርማሲ ፈልግ" if language == "am" else "🔍 Search Pharmacy",
+                "payload": "/search_pharmacy"
+            },
+            {
+                "title": "🗺️ ካርታ አጠቃቀም" if language == "am" else "🗺️ Map Navigation",
+                "payload": "/ask_how_to_use_map"
             }
         ]
 
@@ -237,7 +334,7 @@ class ActionSearchHospital(Action):
         hospital_name = tracker.get_slot("hospital_name")
         location = tracker.get_slot("location")
 
-        url = "https://medfinder.com/api/hospitals"
+        url = "http://backend/api/hospitals"
         params = {"location": location} if location else {}
 
         try:
@@ -274,8 +371,20 @@ class ActionSearchHospital(Action):
 
         buttons = [
             {
-                "title": "📍 ቅርብ ሆስፒታሎች" if language == "am" else "📍 Near me",
-                "payload": "/find_nearby_hospitals"
+                "title": "💊 መድኃኒት ፈልግ" if language == "am" else "💊 Search Drug",
+                "payload": "/search_drug"
+            },
+            {
+                "title": "🏥 ሆስፒታል ፈልግ" if language == "am" else "🏥 Search Hospital",
+                "payload": "/search_hospital"
+            },
+            {
+                "title": "🔍 ፋርማሲ ፈልግ" if language == "am" else "🔍 Search Pharmacy",
+                "payload": "/search_pharmacy"
+            },
+            {
+                "title": "🗺️ ካርታ አጠቃቀም" if language == "am" else "🗺️ Map Navigation",
+                "payload": "/ask_how_to_use_map"
             }
         ]
 

@@ -71,7 +71,7 @@ public function forgotPassword(Request $request){
     logger()->error($response->body());
  }
 
-     return response()->json(['success'=>true, 'message' => 'OTP sent successfully to- '.$request->phone]);
+     return response()->json(['success'=>true, 'message' => 'OTP '.$otp.' sent successfully to- '.$request->phone]);
  }
 
 public function resetPassword(Request $request){

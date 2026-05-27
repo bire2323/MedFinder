@@ -505,28 +505,28 @@ export default function DrugInventoryModal({
                                     />
                                 </FormField>
                                 {mode === "add" ? (
-                                <FormField label="Batch quantity">
-                                    <input
-                                        type="number"
-                                        value={drugForm.stock}
-                                        onChange={handleChange("stock")}
-                                        placeholder="0"
-                                        className="form-input-premium font-bold tracking-wide"
-                                        onKeyDown={handleKeyDown}
-                                    />
-                                </FormField>
+                                    <FormField label="Batch quantity">
+                                        <input
+                                            type="number"
+                                            value={drugForm.stock}
+                                            onChange={handleChange("stock")}
+                                            placeholder="0"
+                                            className="form-input-premium font-bold tracking-wide"
+                                            onKeyDown={handleKeyDown}
+                                        />
+                                    </FormField>
                                 ) : (
-                                <FormField label="Batch stock (use Adjust on batch list to add/remove)">
-                                    <input
-                                        type="number"
-                                        value={drugForm.stock}
-                                        onChange={handleChange("stock")}
-                                        placeholder="0"
-                                        className="form-input-premium font-bold tracking-wide opacity-70"
-                                        onKeyDown={handleKeyDown}
-                                        title="Prefer Adjust button in expanded batches for +/- stock"
-                                    />
-                                </FormField>
+                                    <FormField label="Batch stock (use Adjust on batch list to add/remove)">
+                                        <input
+                                            type="number"
+                                            value={drugForm.stock}
+                                            onChange={handleChange("stock")}
+                                            placeholder="0"
+                                            className="form-input-premium font-bold tracking-wide opacity-70"
+                                            onKeyDown={handleKeyDown}
+                                            title="Prefer Adjust button in expanded batches for +/- stock"
+                                        />
+                                    </FormField>
                                 )}
                                 <FormField label="Low Stock Alert">
                                     <input
@@ -585,6 +585,7 @@ export default function DrugInventoryModal({
                                         rows={3}
                                         className="form-input-premium resize-none font-bold tracking-wide leading-relaxed"
                                         onKeyDown={handleKeyDown}
+
                                     />
                                 </FormField>
                                 <FormField label="Description (AM)">

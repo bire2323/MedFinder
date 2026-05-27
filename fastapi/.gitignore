@@ -3,3 +3,5 @@ dockerfile
 requirements.txt
 New Text Document (2).txt
 .dockerignore
+models/
+best_prescription_biobert_model/

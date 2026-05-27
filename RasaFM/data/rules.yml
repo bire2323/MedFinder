@@ -20,10 +20,6 @@ rules:
       - action: utter_iamabot
 
   # ==================== INFORMATIONAL ====================
-  - rule: Features
-    steps:
-      - intent: ask_features
-      - action: utter_features
 
   - rule: Developer info
     steps:
@@ -44,6 +40,10 @@ rules:
     steps:
       - intent: ask_difference_chatbot_vs_app
       - action: utter_chatbot_advantage
+  - rule: Explain map usage
+    steps:
+      - intent: ask_how_to_use_map
+      - action: utter_map_usage
 
   # ==================== SEARCH TASKS (Custom Actions) ====================
   - rule: Trigger drug search
@@ -60,17 +60,22 @@ rules:
     steps:
       - intent: search_hospital
       - action: action_search_hospital
-  - rule: Explain system purpose
-    steps:
-      - intent: ask_system_purpose
-      - action: utter_system_purpose
+ 
 
   - rule: How to find a drug
     steps:
       - intent: ask_how_to_find_drug
       - action: utter_how_to_find_drug
 
-  - rule: Provide help
+  # ==================== PHASE 1: LANGUAGE INITIALIZATION & FALLBACK ====================
+  
+  - rule: Initialize language on first greeting
     steps:
-      - intent: ask_help
-      - action: utter_help
+      - intent: greet
+      - action: action_initialize_language
+      - action: utter_greet
+
+  - rule: Fallback handler
+    steps:
+      - intent: nlu_fallback
+      - action: action_default_fallback

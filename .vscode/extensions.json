@@ -1,5 +1,6 @@
 {
     "recommendations": [
-        "aminer.codegeex"
+        "aminer.codegeex",
+        "bradlc.vscode-tailwindcss"
     ]
 }

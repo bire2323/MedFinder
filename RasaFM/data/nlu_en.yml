@@ -16,6 +16,7 @@ nlu:
       - goodmorning
       - goodevening
       - good afternoon
+ 
 
   - intent: goodbye
     examples: |
@@ -97,6 +98,18 @@ nlu:
       - are you a bot or a machine?
       - are you a machine?
       - are you a bot?
+  - intent: ask_how_to_use_map
+    examples: |
+      - how i can use the map to access location
+      - how i use the map in this website to get pharmacies
+      - what the map service provide 
+      - explain map service work flow
+      - what the map provide to me
+      - how i can access the map to get hospital
+      - map work flow
+      - map navigation usage
+      - tell me map navigation usage
+      - how i use map navigation in this platform
  
   - intent: set_language
     examples: |
@@ -107,8 +120,7 @@ nlu:
       - [english](language) please
       - i want [english](language)
       - make it [english](language)
-      - change to [en](language)
-
+      - change to [en](language
       - switch to [amharic](language)
       - change language to [amharic](language)
       - set language to [amharic](language)
@@ -157,11 +169,9 @@ nlu:
       - which hospital has a good [orthopedics](medical_service) department?
       - I need an [ER](medical_service) near [Kazanchis](location)
       - locate [Zewditu Hospital](hospital_name)
-     
       - find a [dentist](medical_service) in [Hawassa](location)
       - where is the [ENT](medical_service) department in [Nordic](hospital_name)?
       - is there a [maternity](medical_service) ward at [Landmark](hospital_name)?
-      
       - locate [Tibebe Ghion](hospital_name) in [Bahir Dar](location)
       - show hospitals with [physiotherapy](medical_service) in [Adama](location)
       - I need to find [Red Cross](hospital_name)
@@ -173,7 +183,6 @@ nlu:
       - pharmacies around [Arada](location)
       - where is the nearest pharmacy in [Bole](location)?
       - look for a drugstore in [Bahir Dar](location)
-      - I need a chemist near [Mekelle](location)
       - are there any pharmacies in [Adama](location)?
       - search for pharmacies in [Hawassa](location)
       - find me a medical store in [Dire Dawa](location)
@@ -538,43 +547,29 @@ nlu:
  
   - intent: ask_how_to_find_drug
     examples: |
-      - how do I check drug availability
+      - how do I search for a drug
       - how can I find medicine
-      - how to search for a drug
-      - can you help me find medication
-      - how do I look for a drug in this app
-      - how do I find a drug in this system
-      - i want to search drug
-      - how can you help me to search drug
-      - how do I find a drug in this website
-      - explain drug searching ways in this app
-      - explain drug searching ways in this system
-      - explain drug searching ways in this website
-      - steps to find drug in this website
+      - how do I look for medication
+      - how to search for a drug in this app
+      - how do I check drug availability
+      - steps to find a drug
+      - how do I find paracetamol
+      - how to look up a medication
+      - help me find a drug
+      - how do I search medication in this system
 
   - intent: ask_capabilities
     examples: |
-      - what can you do
-      - what are your features
-      - what services do you provide
-      - how can you help me
-      - what can you assist me with
-      - what are your capabilities
-      - what are your functions
-      - what are your abilities
-      - what are your skills
-      - what are your services
-      - what can you offer
-      - how can you assist me
-      - write your capabilities
-      - list your capabilities
-      - list your features
-      - what you perform
-      - what you can do
-      - how do I search for a hospital
-      - how can I find pharmacies
-      - how to search in this app
-      - how do I look for medical services
+       - how do I search for a hospital
+       - how can I find a hospital
+       - how do I look for a pharmacy
+       - how do I find pharmacies near me
+       - how do I use this to find a hospital
+       - how to search hospitals in this app
+       - can you help me find a hospital
+       - can you find me a pharmacy
+       - show me how to find a hospital
+       - how to look for medical services here
 
 
   - intent: ask_difference_chatbot_vs_app
@@ -582,6 +577,18 @@ nlu:
       - why should I use the chatbot
       - what is the advantage of chatting instead of using the app
       - how are you different from the system
+      - why should I use the chatbot
+      - why use chat instead of the app
+      - what is the benefit of the chatbot
+      - chatbot vs app, which is better
+      - why chat with you instead of using MedFinder directly
+      - what advantage does the chatbot have
+      - is the chatbot better than the website
+      - why would I talk to you instead of searching myself
+      - what is the point of using you
+      - chatbot advantage over the system
+      - how are you different from the app
+      - why not just use the app
 
   - lookup: drug_name
     examples: |
@@ -1454,3 +1461,4 @@ nlu:
   - synonym: benzonatate
     examples: |
       - tessalon
+

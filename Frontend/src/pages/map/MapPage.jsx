@@ -151,7 +151,7 @@ export default function MapPage() {
         });
       },
       (err) => {
-        console.error("Geolocation Error:", err.message);
+        // console.error("Geolocation Error:", err.message);
       },
       {
         enableHighAccuracy: true,
@@ -165,12 +165,12 @@ export default function MapPage() {
 
   const startNavigationWithRoute = (route) => {
     if (!route || !route.steps || route.steps.length === 0) {
-      console.error("Cannot start navigation: Invalid route");
+      //console.error("Cannot start navigation: Invalid route");
       return false;
     }
 
     if (isStartingNavigationRef.current) {
-      console.log("Navigation already starting, skipping...");
+      //console.log("Navigation already starting, skipping...");
       return false;
     }
 
@@ -463,13 +463,14 @@ export default function MapPage() {
         <LayersControl position="topright">
           <LayersControl.BaseLayer checked name="Street Map">
             {/* [SELF-HOSTED] Self-hosted tileserver via Docker + Nginx proxy — uncomment to revert */}
-            {/* <TileLayer url="/tiles/{z}/{x}/{y}.png" /> */}
+            <TileLayer url="/tiles/{z}/{x}/{y}.png" />
 
-            {/* [FREE-TEST] OpenStreetMap standard tiles — no signup, no card required */}
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
+            {/* [FREE-TEST] OpenStreetMap standard tiles — no signup, no card required 
+             <TileLayer
+            //   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            //   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            // />
+            */}
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="Satellite">
             <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
