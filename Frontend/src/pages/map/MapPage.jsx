@@ -463,13 +463,13 @@ export default function MapPage() {
         <LayersControl position="topright">
           <LayersControl.BaseLayer checked name="Street Map">
             {/* [SELF-HOSTED] Self-hosted tileserver via Docker + Nginx proxy — uncomment to revert */}
-            {/* <TileLayer url="/tiles/{z}/{x}/{y}.png" /> */}
+            <TileLayer url="/tiles/{z}/{x}/{y}.png" />
 
             {/* [FREE-TEST] OpenStreetMap standard tiles — no signup, no card required */}
-            <TileLayer
+            {/* <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
+            /> */}
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="Satellite">
             <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
