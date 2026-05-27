@@ -120,6 +120,7 @@ const HospitalDashboard = () => {
   const clearSession = useAuthStore((state) => state.clearSession);
 
   useEffect(() => {
+
     const init = async () => {
       const isAuthentic = await initializeAuth();
       if (!isAuthentic) navigate("/");
@@ -141,7 +142,7 @@ const HospitalDashboard = () => {
         apiGetDepartments(),
         apiGetServices()
       ]);
-      console.log(profileRes.data);
+      // console.log(profileRes.data);
       setHospitalProfile(profileRes.data || profileRes);
       setDepartments(Array.isArray(deptsRes) ? deptsRes : (deptsRes.data || []));
       setServices(Array.isArray(servicesRes) ? servicesRes : (servicesRes.data || []));
@@ -315,7 +316,7 @@ const HospitalDashboard = () => {
             <LanguageSwitcher />
             <ThemeToggle />
           </div>
-          <NotificationDropdown />
+          {/* <NotificationDropdown /> */}
 
           <div className="relative">
             <button

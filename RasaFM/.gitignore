@@ -12,6 +12,7 @@ RasaFM/rasa_env/
 __pycache__/
 *.pyc
 
-cache/
+.cache/
+.rasa/
 tmp/
 .rasa_cache/

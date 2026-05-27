@@ -68,7 +68,7 @@ export default function LoginForm() {
         }
       }
     } catch (err) {
-      setError(err.message || t("Login.Login Failed"));
+      setError(t("Login.Login Failed"));
     } finally {
       setLoading(false);
     }

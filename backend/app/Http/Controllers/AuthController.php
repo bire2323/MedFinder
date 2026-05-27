@@ -98,35 +98,35 @@ class AuthController extends Controller
 
         // TODO: Send OTP via SMS provider
         // sendOtpSms($validated['phone'], $otp);
- $response = Http::withBasicAuth(env('TELERIVET_API_KEY'), '')
-    ->asJson()
-    ->post(
-        'https://api.telerivet.com/v1/projects/' . env('TELERIVET_PROJECT_ID') . '/messages/send',
-        [
-            'to_number' => $validated['phone'],
-            'content' => "Your OTP is $otp",
-        ]
-    );
+//  $response = Http::withBasicAuth(env('TELERIVET_API_KEY'), '')
+//     ->asJson()
+//     ->post(
+//         'https://api.telerivet.com/v1/projects/' . env('TELERIVET_PROJECT_ID') . '/messages/send',
+//         [
+//             'to_number' => $validated['phone'],
+//             'content' => "Your OTP is $otp",
+//         ]
+//     );
 
- if ($response->successful()) {
-    $data = $response->json();
+//  if ($response->successful()) {
+//     $data = $response->json();
 
-    $messageId = $data['id'];
-    $status = $data['status'];
-    $message = $data['content'];
-    Log::info("message");
+//     $messageId = $data['id'];
+//     $status = $data['status'];
+//     $message = $data['content'];
+//     Log::info("message");
 
- } else {
-    // Handle error
-    logger()->error($response->body());
- }
+//  } else {
+//     // Handle error
+//     logger()->error($response->body());
+//  }
 
 
         $this->logAudit($request, 'REGISTER_REQUEST', "OTP sent for phone {$validated['phone']}", 'success', 'auth', ['phone' => $validated['phone']]);
 
-        return response()->json([
+          return response()->json([
             'success' => true,
-            'message' => " OTP sent to your phone",
+            'message' => $otp . " OTP sent to your phone",
         ]);
 
     }    public function verifyOtp(Request $request)    {

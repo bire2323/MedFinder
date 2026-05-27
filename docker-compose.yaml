@@ -158,5 +158,24 @@ services:
       - rasa
       - tileserver
     restart: unless-stopped
+  fastapi:
+    build:
+      context: ./fastapi
+      dockerfile: Dockerfile
+    container_name: medfinder-fastapi
+
+    volumes:
+      - ./fastapi:/app # optional for dev
+
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      GROQ_MODEL: ${GROQ_MODEL}
+    ports:
+      - "8001:8000" # expose FastAPI on port 8001
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    restart: unless-stopped
 volumes:
   mysql-data:

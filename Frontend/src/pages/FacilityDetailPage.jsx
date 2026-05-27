@@ -556,12 +556,12 @@ const FacilityDetailPage = () => {
                       </div>
                     )}
 
-                    <div className="px-5 py-4 rounded-[1.5rem] bg-slate-50 dark:bg-gray-900 border border-slate-200/80 dark:border-gray-800 text-sm text-slate-600 dark:text-gray-400">
+                    {/* <div className="px-5 py-4 rounded-[1.5rem] bg-slate-50 dark:bg-gray-900 border border-slate-200/80 dark:border-gray-800 text-sm text-slate-600 dark:text-gray-400">
                       <p className="font-medium">Tip:</p>
                       <p className="mt-2">
                         On desktop, details open in a side panel so you can browse the list. On mobile, tapping a drug opens a full-screen detail view.
                       </p>
-                    </div>
+                    </div> */}
 
                   </div>
 
