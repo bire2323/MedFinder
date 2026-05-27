@@ -7,6 +7,15 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 5173
+# Build production app
+RUN npm run build
 
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+# Install static server
+RUN npm install -g serve
+
+# Render provides PORT dynamically
+ENV PORT=10000
+
+EXPOSE $PORT
+
+CMD ["sh", "-c", "serve -s dist -l $PORT"]
