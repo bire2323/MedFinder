@@ -380,13 +380,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 });
 
+Route::get('/bot/search-drug', [\App\Http\Controllers\PharmacyDrugInventoryController::class, "botSearchMedicine"]);
+
 // Fallback route for API
 Route::fallback(function () {
     return response()->json(['message' => 'Not Found.'], 404);
 });
-
-
-
-
-
-Route::get('/bot/search-drug', [\App\Http\Controllers\PharmacyDrugInventoryController::class, "botSearchMedicine"]);
