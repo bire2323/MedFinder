@@ -17,15 +17,19 @@ class AdminApprovalController extends Controller
     {
         $status = strtoupper($request->query('status', 'PENDING'));
 
-        $hospitals = Hospital::with('addresses', 'agent')
-            ->where('status', $status)
-            ->latest()
-            ->get()
-            ->map(function ($h) {
-                $h->type = 'hospital';
-                $h->entityName = $h->hospital_name_en;
-                return $h;
-            });
+      $hospitals = Hospital::with([
+        'addresses.city',
+        'addresses.region',
+        'agent'
+    ])
+    ->where('status', $status)
+    ->latest()
+    ->get()
+    ->map(function ($h) {
+        $h->type = 'hospital';
+        $h->entityName = $h->hospital_name_en;
+        return $h;
+    });
 
         $pharmacies = Pharmacy::with('addresses', 'agent')
             ->where('status', $status)

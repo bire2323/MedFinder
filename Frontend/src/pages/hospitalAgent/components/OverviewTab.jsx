@@ -1,22 +1,22 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { 
-  Layers, 
-  Stethoscope, 
-  Activity, 
-  Users, 
-  Building2, 
-  MessageSquare, 
-  ChevronRight, 
-  Tag, 
-  Clock, 
-  MapPin 
+import {
+  Layers,
+  Stethoscope,
+  Activity,
+  Users,
+  Building2,
+  MessageSquare,
+  ChevronRight,
+  Tag,
+  Clock,
+  MapPin
 } from "lucide-react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 
 const AnalyticsCard = ({ title, value, icon, bgColor, description }) => {
   return (
-    <motion.div 
+    <motion.div
       whileHover={{ y: -6, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
@@ -74,7 +74,7 @@ export default function OverviewTab() {
       className="space-y-10"
     >
       {/* Hospital Profile Summary */}
-      <motion.div 
+      <motion.div
         variants={itemVariants}
         className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/50 dark:border-slate-800/80 shadow-sm overflow-hidden relative group"
       >
@@ -106,12 +106,12 @@ export default function OverviewTab() {
               </div>
               <div className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400">
                 <Clock size={14} className="text-emerald-500" />
-                {hospitalProfile?.working_hour || "24/7 Service"}
+                {hospitalProfile?.isFullTime ? "24/7 Service" : ""}
               </div>
               {hospitalProfile?.addresses?.[0] && (
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400">
                   <MapPin size={14} className="text-rose-500" />
-                  {`${hospitalProfile.addresses[0].region_en}, ${hospitalProfile.addresses[0].sub_city_en}`}
+                  {`${hospitalProfile.addresses[0]?.region?.name_en}, ${hospitalProfile.addresses[0]?.city?.name_en}`}
                 </div>
               )}
             </div>
@@ -120,7 +120,7 @@ export default function OverviewTab() {
       </motion.div>
 
       {/* Analytics Grid */}
-      <motion.div 
+      <motion.div
         variants={itemVariants}
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
       >
@@ -140,14 +140,14 @@ export default function OverviewTab() {
         />
         <AnalyticsCard
           title="Total Inquiries"
-          value="482"
+          value="2"
           icon={<Activity />}
           bgColor="bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400"
           description="94% patient inquiry resolution rate this month."
         />
         <AnalyticsCard
           title="Staff Count"
-          value="126"
+          value="2"
           icon={<Users />}
           bgColor="bg-orange-50 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400"
           description="Qualified medical professionals on duty."
@@ -155,7 +155,7 @@ export default function OverviewTab() {
       </motion.div>
 
       {/* Main Grid */}
-      <motion.div 
+      <motion.div
         variants={itemVariants}
         className="grid grid-cols-1 lg:grid-cols-3 gap-8"
       >
@@ -212,8 +212,8 @@ export default function OverviewTab() {
               <div
                 key={chat.id}
                 className={`p-5 rounded-2xl border transition-all hover:scale-[1.02] cursor-pointer ${chat.status === "unread"
-                    ? "bg-blue-50/40 dark:bg-blue-950/10 border-blue-100 dark:border-blue-900/30"
-                    : "bg-white dark:bg-slate-900 border-slate-200/50 dark:border-slate-800/80"
+                  ? "bg-blue-50/40 dark:bg-blue-950/10 border-blue-100 dark:border-blue-900/30"
+                  : "bg-white dark:bg-slate-900 border-slate-200/50 dark:border-slate-800/80"
                   }`}
               >
                 <div className="flex items-center justify-between mb-3">

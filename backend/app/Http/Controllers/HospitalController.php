@@ -67,7 +67,7 @@ class HospitalController extends Controller
             // Basic Info
             'facilityNameEn' => 'required|string|min:3|max:255',
             'facilityNameAm' => 'required|string|min:3|max:255',
-            'contact_email' => 'nullable|email|unique:hospitals,contact_email',
+            'contact_email' => 'required|email|unique:hospitals,contact_email',
 
             // Location Info
             'region_id' => 'required|exists:regions,id',

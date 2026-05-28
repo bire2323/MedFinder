@@ -16,7 +16,7 @@ import os
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 
 # Point directly to your local model folder inside the Docker app
-MODEL_DIR = "/app/best_prescription_biobert_model"
+MODEL_DIR = "/app/models/medfinder_multiclass_output/biobert_prescription_ner"
 
 print("[ML Initializer] Loading Fine-Tuned Multi-Class BioBERT Parser strictly from local disk...")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR, local_files_only=True)
@@ -87,7 +87,7 @@ def explain_prescription(text: str) -> str:
         d = dosages[i] if i < len(dosages) else "As specified"
         f = forms[i] if i < len(forms) else "Units"
         freq = frequencies[i] if i < len(frequencies) else "As instructed"
-        lines.append(f"- **Medication**: {med} | **Form**: {f} | **Dosage**: {d} | **Frequency**: {freq}")
+        lines.append(f"- *Medication*: {med} | *Form*: {f} | *Dosage*: {d} | *Frequency*: {freq}")
         
     return "\n".join(lines) + f"\n\n{DISCLAIMER}"
 

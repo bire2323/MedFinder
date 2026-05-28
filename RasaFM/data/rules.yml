@@ -8,7 +8,13 @@ rules:
       - intent: set_language
       - action: action_set_language
 
-  # ==================== GREETINGS & SMALL TALK ====================
+  # ==================== GREETINGS ====================
+  - rule: Initialize language and greet
+    steps:
+      - intent: greet
+      - action: action_initialize_language
+      - action: utter_greet
+
   - rule: Say goodbye
     steps:
       - intent: goodbye
@@ -20,7 +26,6 @@ rules:
       - action: utter_iamabot
 
   # ==================== INFORMATIONAL ====================
-
   - rule: Developer info
     steps:
       - intent: ask_developer_info
@@ -40,12 +45,18 @@ rules:
     steps:
       - intent: ask_difference_chatbot_vs_app
       - action: utter_chatbot_advantage
+
   - rule: Explain map usage
     steps:
       - intent: ask_how_to_use_map
       - action: utter_map_usage
 
-  # ==================== SEARCH TASKS (Custom Actions) ====================
+  - rule: How to find a drug
+    steps:
+      - intent: ask_how_to_find_drug
+      - action: utter_how_to_find_drug
+
+  # ==================== SEARCH ====================
   - rule: Trigger drug search
     steps:
       - intent: search_drug
@@ -60,21 +71,9 @@ rules:
     steps:
       - intent: search_hospital
       - action: action_search_hospital
- 
 
-  - rule: How to find a drug
-    steps:
-      - intent: ask_how_to_find_drug
-      - action: utter_how_to_find_drug
-
-  # ==================== PHASE 1: LANGUAGE INITIALIZATION & FALLBACK ====================
-  
-  - rule: Initialize language on first greeting
-    steps:
-      - intent: greet
-      - action: action_initialize_language
-      - action: utter_greet
-
+  # ==================== FALLBACK ====================
+  # FIX: nlu_fallback intent now declared in domain.yml so this rule fires correctly
   - rule: Fallback handler
     steps:
       - intent: nlu_fallback

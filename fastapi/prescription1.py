@@ -93,10 +93,11 @@ def search_nearby_pharmacies(medicines: list[str], lat: float, lon: float) -> li
     try:
         seen = set()
         pharmacies = []
-        
+        print("[ML Initializer] Micruccessfully.")
         async_client = httpx.Client()
         with async_client as client:
             for medicine in medicines:
+                print("sfully.")
                 response = client.get(
                     f"{LARAVEL_API_URL}/pharmacies",
                     params={"medicine": medicine, "latitude": lat, "longitude": lon},

@@ -82,7 +82,7 @@ export default function Header() {
 
   const { locationName, setLocation, detectLocation, coordinates } = useLocationStore();
   const [isDetecting, setIsDetecting] = useState(false);
-
+  console.log(coordinates);
   const navigate = useNavigate();
   const location = useLocation();
 
