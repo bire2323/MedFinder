@@ -61,7 +61,13 @@ export default function SearchDepartmentService() {
   const routeLocation = useLocation();
   const langIsAm = i18n.language === "am";
 
-  const { coordinates: userLoc } = useLocationStore();
+  const { coordinates: userLoc, permissionState } = useLocationStore();
+
+  useEffect(() => {
+    if (permissionState === "denied") {
+      alert("you are not grant location and Location Features Stop Working");
+    }
+  }, [permissionState]);
 
   const [keyword, setKeyword] = useState("");
   const [appliedKeyword, setAppliedKeyword] = useState("");
@@ -278,7 +284,13 @@ export default function SearchDepartmentService() {
                   </span>
                   <select
                     value={distance}
-                    onChange={(e) => setDistance(e.target.value)}
+                    onChange={(e) => {
+                      if (permissionState === "denied" && e.target.value !== "any") {
+                        alert("you are not grant location and Location Features Stop Working");
+                        return;
+                      }
+                      setDistance(e.target.value);
+                    }}
                     className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                   >
                     <option value="any">{t("filters.distance.any")}</option>

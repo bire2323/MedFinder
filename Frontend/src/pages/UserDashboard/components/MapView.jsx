@@ -78,7 +78,7 @@ export default function MapView({
     const onFacilityViewed = propViewed ?? context.addRecent;
     const onRequestChat = propChat ?? context.requestChatWithFacility;
 
-    const { coordinates: storeLocation, detectLocation } = useLocationStore();
+    const { coordinates: storeLocation, detectLocation, permissionState, permissionError } = useLocationStore();
     const [userLocation, setUserLocation] = useState(storeLocation);
     const [geoError, setGeoError] = useState("");
 
@@ -90,7 +90,7 @@ export default function MapView({
     const [facilityType, setFacilityType] = useState("all");
 
     const [routeTo, setRouteTo] = useState(null);
-    const [followUser, setFollowUser] = useState(true);
+    const [followUser, setFollowUser] = useState(permissionState !== "denied" && !!storeLocation);
 
     const [permissionState, setPermissionState] = useState("prompt");
     const [isLocationLoading, setIsLocationLoading] = useState(false);
@@ -100,6 +100,13 @@ export default function MapView({
     useEffect(() => {
         if (storeLocation) setUserLocation(storeLocation);
     }, [storeLocation]);
+
+    // Show alert when permission is denied
+    useEffect(() => {
+        if (permissionState === "denied") {
+            setGeoError(permissionError || "Location access is not granted. Location-based features (nearby search, live tracking, map centering) are disabled.");
+        }
+    }, [permissionState, permissionError]);
 
     // Parse incoming URL query parameters (e.g. from favorites/recents redirects)
     useEffect(() => {

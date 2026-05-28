@@ -13,6 +13,7 @@ import { apiSmartPharmacySearch } from "../../api/routing";
 import { enhanceRouteSteps } from "./enhanceRouteSteps";
 import { apiGetFacilities } from "../../api/hospital";
 import NavigationUI from "./NavigationUI";
+import useLocationStore from "../../store/useLocationStore";
 
 // Leaflet Icon Fix
 delete L.Icon.Default.prototype._getIconUrl;
@@ -54,6 +55,8 @@ export default function MapPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
+
+  const { permissionState, setPermissionDenied } = useLocationStore();
 
   const [userLocation, setUserLocation] = useState(null);
   const [facilities, setFacilities] = useState([]);
@@ -135,8 +138,20 @@ export default function MapPage() {
     fetchData();
   }, []);
 
+  // Alert and halt location updates if permission is denied
+  useEffect(() => {
+    if (permissionState === "denied") {
+      alert("you are not grant location and Location Features Stop Working");
+    }
+  }, [permissionState]);
+
   // Live User Tracking
   useEffect(() => {
+    if (permissionState === "denied") {
+      setUserLocation(null);
+      return;
+    }
+
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
         const newLat = pos.coords.latitude;
@@ -152,6 +167,10 @@ export default function MapPage() {
       },
       (err) => {
         console.error("Geolocation Error:", err.message);
+        if (err.code === 1) {
+          alert("you are not grant location and Location Features Stop Working");
+          setPermissionDenied(err.message);
+        }
       },
       {
         enableHighAccuracy: true,
@@ -161,7 +180,7 @@ export default function MapPage() {
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
-  }, []);
+  }, [permissionState, setPermissionDenied]);
 
   const startNavigationWithRoute = (route) => {
     if (!route || !route.steps || route.steps.length === 0) {
@@ -301,6 +320,10 @@ export default function MapPage() {
 
   // ✅ FIXED: Handle navigation start from button click
   const handleStartNavigation = (place) => {
+    if (permissionState === "denied") {
+      alert("you are not grant location and Location Features Stop Working");
+      return;
+    }
     if (!userLocation) {
       alert("Please enable location services");
       return;
