@@ -2,10 +2,14 @@
 rasa_env/
 .env/
 .envs/
-.venv/
+myenv/
+.rasaenv/
 env/
 /Include/
 Lib
+.cache
+.keras
+
 RasaFM/rasa_env/
 *.tar.gz
 

@@ -34,7 +34,8 @@ nlu:
       - ይሁን
       - አዎን
       - እንደዛ ይሻላል
-
+      - እንደዛ ይሁን
+    
   - intent: deny
     examples: |
       - አይደለም
@@ -52,6 +53,14 @@ nlu:
       - ሁሉንም ነገር ወድጄዋለሁ
       - በጣም ጥሩ
       - ደስ ብሎኛል
+      - በጣም ደስ ብሎኛል
+      - ደስተኛ ነኝ
+      - ደስ አለኝ
+      - ጥሩ ነኝ
+      - በጣም ጥሩ ነኝ
+      - ሁሉ ነገር ጥሩ ነው
+      - አስደሳች ቀን ነው
+      - ምርጥ ስሜት አለኝ
 
   - intent: mood_unhappy
     examples: |
@@ -68,6 +77,10 @@ nlu:
       - ሮቦት ነህ?
       - ከ ሰው ጋር ነው የማወራው?
       - ሰው ነሽ ወይስ ሮቦት?
+      - ከ ሰው ጋር ነው የማወራው?
+      - ሰው ነህ ወይስ ሮቦት?
+      - ሰው ነሽ ወይስ ሮቦት?
+
   - intent: search_hospital
     examples: |
       - [የልብ ህክምና](medical_service) ያለው ሆስፒታል ፈልግልኝ
@@ -85,23 +98,23 @@ nlu:
       - list [oncology](medical_service) services at [St. Paul](hospital_name)
       - [የራጅ](medical_service) አገልግሎት [ጥቁር አንበሳ](hospital_name) አለ?
       - [የአጥንት](medical_service) ህክምና [አሚን ሆስፒታል](hospital_name) ይገኛል?
-      - [የልብ ህክምና](department) ያለው ሆስፒታል ፈልግልኝ
+      - [የልብ ህክምና](medical_service) ያለው ሆስፒታል ፈልግልኝ
       - [ICU](medical_service) አገልግሎት የሚሰጡ ሆስፒታሎችን ታውቃለህ?
-      - [የእናቶች መውለጃ](department) ያለው ሆስፒታል እፈልጋለሁ
-      - [አዲስ አበባ](location) ውስጥ [የህፃናት](department) ሆስፒታል እፈልጋለሁ
-      - በአቅራቢያዬ [ድንገተኛ አደጋ](department) የት አለ?
-      - [ቀዶ ጥገና](department) ያላቸው ሆስፒታሎችን ዘርዝር
-      - [ጥቁር አንበሳ ሆስፒታል](hospital_name) ውስጥ [ላቦራቶሪ](department) አለ?
+      - [የእናቶች መውለጃ](medical_service) ያለው ሆስፒታል እፈልጋለሁ
+      - [አዲስ አበባ](location) ውስጥ [የህፃናት](medical_service) ሆስፒታል እፈልጋለሁ
+      - በአቅራቢያዬ [ድንገተኛ አደጋ](medical_service) የት አለ?
+      - [ቀዶ ጥገና](medical_service) ያላቸው ሆስፒታሎችን ዘርዝር
+      - [ጥቁር አንበሳ ሆስፒታል](hospital_name) ውስጥ [ላቦራቶሪ](medical_service) አለ?
       - [ቅዱስ ጳውሎስ ሆስፒታል](hospital_name) የት ነው የሚገኘው?
-      - [ቦሌ](location) አካባቢ [የልብ](department) ክሊኒክ ፈልግ
+      - [ቦሌ](location) አካባቢ [የልብ](medical_service) ክሊኒክ ፈልግ
       - [intensive care](medical_service) ያለው ሆስፒታል አሳየኝ
       - [አራዳ](location) አካባቢ [የወሊድ](medical_service) አገልግሎት ፈልግ
-      - የትኛው ሆስፒታል ነው ጥሩ [የአጥንት](department) ክፍል ያለው?
-      - [ካዛንቺስ](location) አካባቢ [ER](department) እፈልጋለሁ
+      - የትኛው ሆስፒታል ነው ጥሩ [የአጥንት](medical_service) ክፍል ያለው?
+      - [ካዛንቺስ](location) አካባቢ [ER](medical_service) እፈልጋለሁ
       - [ዘውዲቱ ሆስፒታል](hospital_name) የት ነው?
       - [ጎንደር](location) ውስጥ [የኩላሊት እጥበት](medical_service) ማዕከል አለ?
-      - [ሀያት ሆስፒታል](hospital_name) ውስጥ [የነርቭ](department) ሀኪም እፈልጋለሁ
-      - [ሀዋሳ](location) ውስጥ [የጥርስ](department) ሀኪም ፈልግልኝ
+      - [ሀያት ሆስፒታል](hospital_name) ውስጥ [የነርቭ](medical_service) ሀኪም እፈልጋለሁ
+      - [ሀዋሳ](location) ውስጥ [የጥርስ](medical_service) ሀኪም ፈልግልኝ
       - [የራጅ](medical_service) አገልግሎት የት ነው የማገኘው?
       - [ላንድማርክ ሆስፒታል](hospital_name) [አዲስ አበባ](location) ውስጥ ፈልግ
       - [የካንሰር](department) ስፔሻሊስት ፈልግልኝ
@@ -151,7 +164,7 @@ nlu:
       - [aluminium fluoratum](drug_name)
       - [doxycycline hyclate](drug_name)
       - [insulin glargine](drug_name) አለመኖሩን አረጋግጡልኝ
-      - የ[flexeril](drug_name) ዋጋ ስንት ነው?
+      - የ [flexeril](drug_name) ዋጋ ስንት ነው?
       - [sudafed](drug_name) ፍለጋ
       - [ፔኒሲሊን](drug_name) እፈልጋለሁ
       - [ኢቡፕሮፌን](drug_name) እዚህ ይገኛል?
@@ -179,16 +192,16 @@ nlu:
       - [silicon dioxide](drug_name) መግዛት እፈልጋለሁ
       - [zyloprim](drug_name) በቅርብ ርቀት
       - [eucalyptus oil](drug_name) ፍለጋ
-      - የ[baclofen injection](drug_name) ዋጋ ስንት ነው?
+      - የ [baclofen injection](drug_name) ዋጋ ስንት ነው?
       - ማን ነው [thuja occidentalis](drug_name) ያለው?
       - [tricor](drug_name)
       - ማን ነው [haloperidol](drug_name) ያለው?
       - [lacosamide](drug_name) የት አገኛለሁ?
-      - የ[ዴክሳሜታሶን](drug_name) ዋጋ ስንት ነው?
+      - የ [ዴክሳሜታሶን](drug_name) ዋጋ ስንት ነው?
       - እባክዎ [flomax](drug_name) ይፈልጉልኝ
       - [zestril](drug_name) የሚሸጥ ፋርማሲ አለ?
       - [nitricum acidum](drug_name) እፈልጋለሁ
-      - የ[insulin lispro](drug_name) ክምችት አለን?
+      - የ [insulin lispro](drug_name) ክምችት አለን?
       - [benzalkonium chloride](drug_name) አላችሁ?
       - [bryonia root](drug_name) እዚህ ይገኛል?
       - የትኛው ፋርማሲ [hypericum perforatum](drug_name) አለው?
@@ -196,23 +209,23 @@ nlu:
       - የትኛው ፋርማሲ [varenicline](drug_name) አለው?
       - [avagard d](drug_name)
       - [potassium chloride](drug_name) እፈልጋለሁ
-      - የ[ropinirole](drug_name) ክምችት አለን?
+      - የ [ropinirole](drug_name) ክምችት አለን?
       - ማን ነው [zestril](drug_name) ያለው?
-      - የ[clotrimazole](drug_name) ዋጋ ስንት ነው?
+      - የ [clotrimazole](drug_name) ዋጋ ስንት ነው?
       - [selenium](drug_name) እዚህ ይገኛል?
       - [ativan](drug_name) አላችሁ?
       - ማን ነው [cefazolin](drug_name) ያለው?
-      - የ[prinivil](drug_name) ክምችት አለን?
+      - የ [prinivil](drug_name) ክምችት አለን?
       - [sulfamylon](drug_name) መግዛት እችላለሁ?
       - [ammonium bromatum](drug_name) አስፈልጎኛል
       - [ventolin](drug_name)
       - [pulsatilla pratensis](drug_name) በቅርብ ርቀት
-      - የ[olanzapine](drug_name) ዋጋ ስንት ነው?
+      - የ [olanzapine](drug_name) ዋጋ ስንት ነው?
       - [insulin lispro](drug_name) አስፈልጎኛል
       - የትኛው ፋርማሲ [aluminium fluoratum](drug_name) አለው?
       - [esomeprazole magnesium](drug_name) መግዛት እችላለሁ?
       - [ክሎፒዶግሬል](drug_name) አላችሁ?
-      - የ[nux vomica](drug_name) ክምችት አለን?
+      - የ [nux vomica](drug_name) ክምችት አለን?
       - የትኛው ፋርማሲ [cefazolin](drug_name) አለው?
       - [azstarys](drug_name) አለ?
       - እባክዎ [esomeprazole magnesium](drug_name) ይፈልጉልኝ
@@ -230,18 +243,18 @@ nlu:
       - [avobenzone](drug_name) በቅርብ ርቀት
       - [monofluoro](drug_name) ማግኘት እችላለሁ?
       - [propylene glycol](drug_name) አስፈልጎኛል
-      - የ[betadine](drug_name) ክምችት አለን?
+      - የ [betadine](drug_name) ክምችት አለን?
       - ማን ነው [argentum metalicum](drug_name) ያለው?
-      - የ[dch scar](drug_name) ዋጋ ስንት ነው?
+      - የ [dch scar](drug_name) ዋጋ ስንት ነው?
       - [dch hemorrhoidal](drug_name) መግዛት እፈልጋለሁ
-      - የ[ሲምቫስታቲን](drug_name) ክምችት አለን?
+      - የ [ሲምቫስታቲን](drug_name) ክምችት አለን?
       - [lidocaine](drug_name) ፍለጋ
       - [bkemv](drug_name) አለ?
       - [ኢሶሜፕራዞል](drug_name) መግዛት እፈልጋለሁ
       - [ethyl alcohol](drug_name) እዚህ ይገኛል?
       - [bentyl](drug_name) አላችሁ?
       - [symphytum officinale](drug_name) በቅርብ ርቀት
-      - የ[lipitor](drug_name) ዋጋ ስንት ነው?
+      - የ [lipitor](drug_name) ዋጋ ስንት ነው?
       - [zyloprim](drug_name) የት አገኛለሁ?
       - [capsaicin](drug_name) ፍለጋ
       - ማን ነው [septra](drug_name) ያለው?
@@ -259,17 +272,17 @@ nlu:
       - የትኛው ፋርማሲ [agaricus muscarius](drug_name) አለው?
       - [አሴታሚኖፌን](drug_name) እፈልጋለሁ
       - እባኮትን [elahere](drug_name) ካለ ያሳውቁኝ
-      - የ[ሮሱቫስታቲን](drug_name) ክምችት አለን?
+      - የ [ሮሱቫስታቲን](drug_name) ክምችት አለን?
       - [ሲልዴናፊል](drug_name) የት አገኛለሁ?
       - [ኢሶሜፕራዞል](drug_name) አስፈልጎኛል
       - [trexall](drug_name) ማግኘት እችላለሁ?
       - [silicea](drug_name)
-      - የ[cuprum metallicum](drug_name) ዋጋ ስንት ነው?
+      - የ [cuprum metallicum](drug_name) ዋጋ ስንት ነው?
       - [lacosamide](drug_name) አለ?
       - [aluminium nitricum](drug_name) የሚሸጥ ፋርማሲ አለ?
       - [carduus marianus](drug_name)
       - [betamethasone dipropionate](drug_name) እፈልጋለሁ
-      - የ[lorlatinib](drug_name) ዋጋ ስንት ነው?
+      - የ [lorlatinib](drug_name) ዋጋ ስንት ነው?
       - [lipitor](drug_name) በቅርብ ርቀት
       - [ታይለኖል](drug_name) እዚህ ይገኛል?
       - [ግሊሜፒራይድ](drug_name) መግዛት እችላለሁ?
@@ -282,9 +295,9 @@ nlu:
       - [ሲታሎፕራም](drug_name) አለ?
       - እባኮትን [ክሊንዳማይሲን](drug_name) ካለ ያሳውቁኝ
       - [ሲምቫስታቲን](drug_name) የት አገኛለሁ?
-      - የ[vabrinty](drug_name) ዋጋ ስንት ነው?
+      - የ [vabrinty](drug_name) ዋጋ ስንት ነው?
       - [voltaren](drug_name) አስፈልጎኛል
-      - የ[ሰርትራሊን](drug_name) ዋጋ ስንት ነው?
+      - የ [ሰርትራሊን](drug_name) ዋጋ ስንት ነው?
       - [ራኒቲዲን](drug_name) አለመኖሩን አረጋግጡልኝ
       - የትኛው ፋርማሲ [lamotrigine](drug_name) አለው?
       - የትኛው ፋርማሲ [allium cepa](drug_name) አለው?
@@ -292,9 +305,9 @@ nlu:
       - [lacosamide](drug_name) እፈልጋለሁ
       - የትኛው ፋርማሲ [microzide](drug_name) አለው?
       - [cymbalta](drug_name)
-      - የ[አፒክሳባን](drug_name) ክምችት አለን?
+      - የ [አፒክሳባን](drug_name) ክምችት አለን?
       - [chlorthalidone](drug_name) በቅርብ ርቀት
-      - የ[amaryl](drug_name) ክምችት አለን?
+      - የ [amaryl](drug_name) ክምችት አለን?
       - [varenicline](drug_name) መግዛት እችላለሁ?
       - [ፕራቫስታቲን](drug_name) ማግኘት እችላለሁ?
       - [doxorubicin](drug_name) መግዛት እፈልጋለሁ
@@ -302,11 +315,11 @@ nlu:
       - [clonidine](drug_name) መግዛት እችላለሁ?
       - [benzocaine](drug_name)
       - [histastat pollen](drug_name) የት አገኛለሁ?
-      - የ[ustilago maydis](drug_name) ክምችት አለን?
+      - የ [ustilago maydis](drug_name) ክምችት አለን?
       - እባክዎ [eptifibatide](drug_name) ይፈልጉልኝ
       - [dextroamphetamine saccharate](drug_name)
       - [ኢንሱሊን](drug_name)
-      - የ[zituvimet](drug_name) ዋጋ ስንት ነው?
+      - የ [zituvimet](drug_name) ዋጋ ስንት ነው?
       - [xanax](drug_name) የሚሸጥ ፋርማሲ አለ?
       - [methocarbamol](drug_name) በቅርብ ርቀት
       - [glycerin](drug_name) ማግኘት እችላለሁ?
@@ -316,7 +329,7 @@ nlu:
       - እባኮትን [biofreeze](drug_name) ካለ ያሳውቁኝ
       - የትኛው ፋርማሲ [macrobid](drug_name) አለው?
       - [bryonia root](drug_name) አስፈልጎኛል
-      - የ[ferrum metallicum](drug_name) ክምችት አለን?
+      - የ [ferrum metallicum](drug_name) ክምችት አለን?
       - [motrin](drug_name) መግዛት እችላለሁ?
       - [minoxidil](drug_name) ፍለጋ
       - የትኛው ፋርማሲ [ኤስሲታሎፕራም](drug_name) አለው?
@@ -343,16 +356,16 @@ nlu:
       - እባኮትን [magnesium hydroxide](drug_name) ካለ ያሳውቁኝ
       - [doxycycline hyclate](drug_name) የት አገኛለሁ?
       - የትኛው ፋርማሲ [pramipexole di](drug_name) አለው?
-      - የ[አምሎዲፒን](drug_name) ዋጋ ስንት ነው?
+      - የ [አምሎዲፒን](drug_name) ዋጋ ስንት ነው?
       - [ranolazine](drug_name) ማግኘት እችላለሁ?
       - [ሮሱቫስታቲን](drug_name) እፈልጋለሁ
       - [ፓራሰታሞል](drug_name) የሚሸጥ ፋርማሲ አለ?
-      - የ[carduus marianus](drug_name) ዋጋ ስንት ነው?
+      - የ [carduus marianus](drug_name) ዋጋ ስንት ነው?
       - እባኮትን [keflex](drug_name) ካለ ያሳውቁኝ
       - [tarentula hispana](drug_name) በቅርብ ርቀት
       - [duloxetine delayed-release](drug_name) አለመኖሩን አረጋግጡልኝ
       - [amitriptyline](drug_name) አላችሁ?
-      - የ[petrolatum](drug_name) ዋጋ ስንት ነው?
+      - የ [petrolatum](drug_name) ዋጋ ስንት ነው?
       - [ustilago maydis](drug_name) እዚህ ይገኛል?
       - [glycerin](drug_name) አለመኖሩን አረጋግጡልኝ
       - [dextroamphetamine](drug_name) አስፈልጎኛል
@@ -379,14 +392,14 @@ nlu:
       - [medrol](drug_name)
       - [mucinex](drug_name) አለመኖሩን አረጋግጡልኝ
       - [etodolac](drug_name) መግዛት እፈልጋለሁ
-      - የ[verapamil](drug_name) ዋጋ ስንት ነው?
+      - የ [verapamil](drug_name) ዋጋ ስንት ነው?
       - እባኮትን [ኢሶሜፕራዞል](drug_name) ካለ ያሳውቁኝ
       - የትኛው ፋርማሲ [bupropion  xl](drug_name) አለው?
       - እባኮትን [povidone-iodine](drug_name) ካለ ያሳውቁኝ
       - [zituvimet](drug_name) አለ?
-      - የ[esomeprazole magnesium](drug_name) ክምችት አለን?
+      - የ [esomeprazole magnesium](drug_name) ክምችት አለን?
       - [caffeine](drug_name) አስፈልጎኛል
-      - የ[doxepin](drug_name) ዋጋ ስንት ነው?
+      - የ [doxepin](drug_name) ዋጋ ስንት ነው?
       - [zantac](drug_name) አስፈልጎኛል
       - እባኮትን [tetrahydrozoline](drug_name) ካለ ያሳውቁኝ
       - [betadine](drug_name) አስፈልጎኛል
@@ -395,7 +408,7 @@ nlu:
       - [maxalt](drug_name) የት አገኛለሁ?
       - [witch hazel](drug_name) የሚሸጥ ፋርማሲ አለ?
       - [iclevia](drug_name) አለ?
-      - የ[ranolazine](drug_name) ክምችት አለን?
+      - የ [ranolazine](drug_name) ክምችት አለን?
       - [esomeprazole magnesium](drug_name) አስፈልጎኛል
       - [prozac](drug_name) መግዛት እችላለሁ?
       - [codeine](drug_name) የሚሸጥ ፋርማሲ አለ?
@@ -409,7 +422,7 @@ nlu:
       - [ammonium phosphoricum](drug_name) እዚህ ይገኛል?
       - [vabrinty](drug_name) አላችሁ?
       - [fucus vesiculosus](drug_name) በቅርብ ርቀት
-      - የ[ናፕሮክሲን](drug_name) ክምችት አለን?
+      - የ [ናፕሮክሲን](drug_name) ክምችት አለን?
       - [amitriptyline](drug_name) ፍለጋ
       - [ranolazine](drug_name)
       - እባኮትን [eszopiclone](drug_name) ካለ ያሳውቁኝ
@@ -424,7 +437,7 @@ nlu:
       - [አቶርቫስታቲን](drug_name) የሚሸጥ ፋርማሲ አለ?
       - [dextroamphetamine](drug_name) መግዛት እችላለሁ?
       - ማን ነው [glycerin](drug_name) ያለው?
-      - የ[ፕራቫስታቲን](drug_name) ክምችት አለን?
+      - የ [ፕራቫስታቲን](drug_name) ክምችት አለን?
       - [baclofen injection](drug_name)
       - [haloperidol](drug_name) አላችሁ?
       - የትኛው ፋርማሲ [ammonium phosphoricum](drug_name) አለው?
@@ -522,6 +535,22 @@ nlu:
       - ለምን ቻትቦቱን መጠቀም አለብኝ
       - መተግበሪያውን ከመጠቀም ይልቅ በቻት መጠቀም ያለው ብልጫ ምንድን ነው
       - ከሲስተሙ በምን ትለያለህ
+      - ቻትቦቱን ለምን እጠቀማለሁ
+      - ቻትቦቱን ከመጠቀም ምን ጥቅም አለ
+      - ከመተግበሪያው ጋር ሲነጻጸር ቻቱ ምን ይጠቅማል
+      - ቻቱ ምን ይሻላል
+  - intent: ask_how_to_use_map
+    examples: |
+      - ካርታውን እንዴት መጠቀም እችላለው
+      - ፋርማሲዎችን ለመፈለግ እንዴት ካርታውን ልጠቀም
+      - ካርታው እንዴት አገልግሎትyyይይሰጣል
+      - explain map service work flow
+      - what the map provide to me
+      - how i can access the map to get hospital
+      - map work flow
+      - map navigation usage
+      - tell me map navigation usage
+      - how i use map navigation in this platform  
 
   - lookup: drug_name
     examples: |

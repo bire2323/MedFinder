@@ -1,4 +1,41 @@
 {
+  "department": {
+    "precision": 0.3,
+    "recall": 1.0,
+    "f1-score": 0.4615384615384615,
+    "support": 6,
+    "confused_with": {}
+  },
+  "drug_name": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 735,
+    "confused_with": {}
+  },
+  "medical_service": {
+    "precision": 0.9767441860465116,
+    "recall": 0.75,
+    "f1-score": 0.8484848484848485,
+    "support": 56,
+    "confused_with": {
+      "department": 14
+    }
+  },
+  "services": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1-score": 0.0,
+    "support": 2,
+    "confused_with": {}
+  },
+  "hospital_name": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 48,
+    "confused_with": {}
+  },
   "language": {
     "precision": 1.0,
     "recall": 1.0,
@@ -6,62 +43,30 @@
     "support": 19,
     "confused_with": {}
   },
-  "medical_service": {
-    "precision": 0.9183673469387755,
-    "recall": 0.8653846153846154,
-    "f1-score": 0.8910891089108911,
-    "support": 52,
-    "confused_with": {
-      "department": 7
-    }
-  },
-  "drug_name": {
-    "precision": 1.0,
-    "recall": 0.944141689373297,
-    "f1-score": 0.9712683952347583,
-    "support": 734,
-    "confused_with": {}
-  },
-  "hospital_name": {
-    "precision": 1.0,
-    "recall": 1.0,
-    "f1-score": 1.0,
-    "support": 53,
-    "confused_with": {}
-  },
   "location": {
     "precision": 1.0,
     "recall": 1.0,
     "f1-score": 1.0,
-    "support": 87,
+    "support": 82,
     "confused_with": {}
   },
-  "department": {
-    "precision": 0.7083333333333334,
-    "recall": 0.8095238095238095,
-    "f1-score": 0.7555555555555556,
-    "support": 21,
-    "confused_with": {
-      "medical_service": 4
-    }
-  },
   "micro avg": {
-    "precision": 0.9881081081081081,
-    "recall": 0.9461697722567288,
-    "f1-score": 0.9666842940243258,
-    "support": 966
+    "precision": 0.9841605068637803,
+    "recall": 0.9831223628691983,
+    "f1-score": 0.9836411609498681,
+    "support": 948
   },
   "macro avg": {
-    "precision": 0.9377834467120181,
-    "recall": 0.936508352380287,
-    "f1-score": 0.9363188432835341,
-    "support": 966
+    "precision": 0.7538205980066445,
+    "recall": 0.8214285714285714,
+    "f1-score": 0.7585747585747585,
+    "support": 948
   },
   "weighted avg": {
-    "precision": 0.989265115984282,
-    "recall": 0.9461697722567288,
-    "f1-score": 0.9669920315034632,
-    "support": 966
+    "precision": 0.9920861544500048,
+    "recall": 0.9831223628691983,
+    "f1-score": 0.985532048823188,
+    "support": 948
   },
-  "accuracy": 0.9863945578231292
+  "accuracy": 0.9957574245071126
 }

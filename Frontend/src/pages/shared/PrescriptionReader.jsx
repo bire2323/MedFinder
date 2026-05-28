@@ -160,6 +160,7 @@ export default function PrescriptionReader({ showHeader = true }) {
       }
 
       const data = await response.json();
+      //console.log("Prescription API Response:", data);
       setApiResults(data);
       setShowResults(true);
 
@@ -274,6 +275,7 @@ export default function PrescriptionReader({ showHeader = true }) {
                         <p className="font-bold">{item.fileName}</p>
                         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{new Date(item.uploadedAt).toLocaleString()}</p>
                       </div>
+
                       <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                         {item.results?.detected_medicines?.length > 0
                           ? t("prescriptionReader.historyHasResults")

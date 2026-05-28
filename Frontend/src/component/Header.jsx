@@ -92,7 +92,7 @@ export default function Header() {
     permissionError 
   } = useLocationStore();
   const [isDetecting, setIsDetecting] = useState(false);
-
+  console.log(coordinates);
   const navigate = useNavigate();
   const location = useLocation();
 

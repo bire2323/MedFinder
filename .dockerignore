@@ -1,9 +1,52 @@
 # Global ignores for monorepo
+
+.venv
+.idea
+_pycache_/
+.gitignore
+.venv
+pycache
+*.pyc
+.git
+.gitignore
+node_modules
+tests
+cache
+logs
+*.log
+.env
 .git
 .github
 .vscode
 .idea
 .DS_Store
+# Ignore python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Ignore local virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# ─── CRITICAL: Ignore heavy local ML models & zips ───
+models/
+easyocr_models/
+medfinder_multiclass_output/
+biobert_prescription_ner/
+*.zip
+
+# Ignore local system/IDE folders
+.git/
+.idea/
+.vscode/
+*.log
+logs/
+.env
 Thumbs.db
 
 # Environment & Docker files

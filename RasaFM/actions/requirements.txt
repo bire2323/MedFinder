@@ -1,5 +1,4 @@
-rasa==3.6.20
 rasa-sdk>=3.6.0,<4.0.0
 requests>=2.32.0
 thefuzz>=0.22.0
-python-Levenshtein>=0.25.0   # makes fuzzy matching much faster
+python-Levenshtein>=0.25.0

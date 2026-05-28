@@ -30,3 +30,30 @@ stories:
       - action: utter_did_that_help
       - intent: deny
       - action: utter_goodbye
+
+  - story: interactive_story_1
+    steps:
+     - intent: greet
+     - action: utter_greet
+     - intent: ask_how_to_use_map
+     - action: utter_map_usage
+     - intent: ask_capabilities
+       entities:
+       - services: capability
+     - action: utter_capabilities
+     - intent: ask_capabilities
+     - action: utter_capabilities
+     - intent: ask_difference_chatbot_vs_app
+     - action: utter_chatbot_advantage
+     - intent: ask_difference_chatbot_vs_app
+     - action: utter_chatbot_advantage
+     - intent: ask_about_app
+     - action: utter_about_app
+     - intent: ask_developer_info
+     - action: utter_developer_info
+     - intent: search_drug
+       entities:
+       - drug_name: paracetamol
+     - slot_was_set:
+       - drug_name: paracetamol
+     - action: action_search_drugs

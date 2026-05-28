@@ -478,7 +478,7 @@ public function botIndex(Request $request)
             return [
                 "pharmacy" => $p->pharmacy_name_en,
                 "location" => $address
-                    ? trim("{$regionName}, {$cityName}, " . ($address->zone_en ? "{$address->zone_en}, " : "") . "{$address->kebele}", ", ")
+                    ? trim("{$regionName}, {$cityName}, " . ($address->region ? "{$address->region}, " : "") . "{$address->kebele}", ", ")
                     : "Unknown",
                 "working_hours" => $p->working_hour,
                 "phone" => $p->contact_phone,

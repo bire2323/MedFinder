@@ -46,6 +46,7 @@ export default function NavigationUI({ currentRoute, currentStepIndex, isMuted, 
                     >
                         <X size={20} />
                     </button>
+
                 </div>
             </div>
 
