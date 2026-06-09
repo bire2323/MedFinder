@@ -99,9 +99,9 @@ def search_nearby_pharmacies(medicines: list[str], lat: float, lon: float) -> li
             for medicine in medicines:
                 print("sfully.")
                 response = client.get(
-                    f"{LARAVEL_API_URL}/pharmacies",
-                    params={"medicine": medicine, "latitude": lat, "longitude": lon},
-                    timeout=15.0,
+                    f"{LARAVEL_API_URL}/pharmacies/prescription-finder",
+                    params={"drug": medicine, "latitude": lat, "longitude": lon},
+                    timeout=40.0,
                 )
                 response.raise_for_status()
                 data = response.json()
@@ -124,7 +124,7 @@ def search_nearby_pharmacies(medicines: list[str], lat: float, lon: float) -> li
                     pharmacies.append(normalized)
 
         if not pharmacies:
-            return [{"message": "No nearby pharmacies found for the requested medicines."}]
+            return [{"message": "No pharmacies found for the requested medicines."}]
 
         return pharmacies
     except httpx.HTTPStatusError as e:

@@ -12,7 +12,6 @@ rules:
   - rule: Initialize language and greet
     steps:
       - intent: greet
-      - action: action_initialize_language
       - action: utter_greet
 
   - rule: Say goodbye

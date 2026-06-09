@@ -489,4 +489,179 @@ public function botIndex(Request $request)
 
         return response()->json($result);
 }
+
+public function prescriptionFinder(Request $request)
+{
+    $medicine = $request->query('medicine');
+    $latitude = $request->query('latitude');
+    $longitude = $request->query('longitude');
+    $location = $request->query('location');
+    $name = $request->query('name');
+
+    $query = Pharmacy::with([
+        'addresses.region',
+        'addresses.city',
+        'drugs.inventory'
+    ])
+    ->where('status', 'APPROVED');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pharmacy Name Filter
+    |--------------------------------------------------------------------------
+    */
+    if ($name) {
+        $query->where(function ($q) use ($name) {
+            $q->where('pharmacy_name_en', 'LIKE', "%{$name}%")
+              ->orWhere('pharmacy_name_am', 'LIKE', "%{$name}%");
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Medicine Filter
+    |--------------------------------------------------------------------------
+    */
+    if ($medicine) {
+        $query->whereHas('drugs', function ($q) use ($medicine) {
+            $q->where('drug_name_en', 'LIKE', "%{$medicine}%")
+              ->orWhere('drug_name_am', 'LIKE', "%{$medicine}%");
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Text Location Filter
+    |--------------------------------------------------------------------------
+    */
+    if ($location) {
+        $query->whereHas('addresses', function ($q) use ($location) {
+
+            $q->whereHas('region', function ($r) use ($location) {
+                $r->where('name_en', 'LIKE', "%{$location}%")
+                  ->orWhere('name_am', 'LIKE', "%{$location}%");
+            })
+
+            ->orWhereHas('city', function ($c) use ($location) {
+                $c->where('name_en', 'LIKE', "%{$location}%")
+                  ->orWhere('name_am', 'LIKE', "%{$location}%");
+            })
+
+            ->orWhere('zone_en', 'LIKE', "%{$location}%")
+            ->orWhere('zone_am', 'LIKE', "%{$location}%");
+        });
+    }
+
+    $pharmacies = $query->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Coordinate Distance Sort
+    |--------------------------------------------------------------------------
+    */
+    if ($latitude && $longitude) {
+
+        $pharmacies = $pharmacies->sortBy(function ($p) use ($latitude, $longitude) {
+
+            $address = $p->addresses->first();
+
+            if (
+                !$address ||
+                !$address->latitude ||
+                !$address->longitude
+            ) {
+                return PHP_INT_MAX;
+            }
+
+            $earthRadius = 6371;
+
+            $latDiff =
+                deg2rad($address->latitude - $latitude);
+
+            $lonDiff =
+                deg2rad($address->longitude - $longitude);
+
+            $a =
+                sin($latDiff / 2) *
+                sin($latDiff / 2) +
+
+                cos(deg2rad($latitude)) *
+                cos(deg2rad($address->latitude)) *
+
+                sin($lonDiff / 2) *
+                sin($lonDiff / 2);
+
+            $distance =
+                2 *
+                atan2(
+                    sqrt($a),
+                    sqrt(1 - $a)
+                );
+
+            return $earthRadius * $distance;
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Transform Response
+    |--------------------------------------------------------------------------
+    */
+    $result = [];
+
+    foreach ($pharmacies->take(10) as $p) {
+
+        $address = $p->addresses->first();
+
+        $region =
+            optional($address?->region)->name_en;
+
+        $city =
+            optional($address?->city)->name_en;
+
+        $locationString =
+            trim(
+                "{$region}, {$city}, {$address?->kebele}",
+                ", "
+            );
+
+        foreach ($p->drugs as $drug) {
+
+            $result[] = [
+
+                "pharmacy" =>
+                    $p->pharmacy_name_en,
+
+                "location" =>
+                    $locationString ?: "Unknown",
+
+                "drug" =>
+                    $drug->drug_name_en,
+
+                "working_hours" =>
+                    $p->working_hour,
+
+                "phone" =>
+                    $p->contact_phone,
+
+                "latitude" =>
+                    $address?->latitude,
+
+                "longitude" =>
+                    $address?->longitude,
+
+                "stock" =>
+                    optional($drug->inventory)
+                    ->quantity,
+
+                "address" =>
+                    $locationString
+            ];
+        }
+    }
+
+    return response()->json($result);
+}
+
+
 }

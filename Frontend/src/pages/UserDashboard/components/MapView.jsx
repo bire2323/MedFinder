@@ -60,12 +60,12 @@ function normalizePharmacyFromApi(p) {
     };
 }
 
-export default function MapView({ 
-    favorites: propFavs, 
-    isFavorite: propIsFav, 
-    onToggleFavorite: propToggleFav, 
-    onFacilityViewed: propViewed, 
-    onRequestChat: propChat 
+export default function MapView({
+    favorites: propFavs,
+    isFavorite: propIsFav,
+    onToggleFavorite: propToggleFav,
+    onFacilityViewed: propViewed,
+    onRequestChat: propChat
 }) {
     const { t } = useTranslation();
     const location = useLocation();
@@ -92,7 +92,7 @@ export default function MapView({
     const [routeTo, setRouteTo] = useState(null);
     const [followUser, setFollowUser] = useState(permissionState !== "denied" && !!storeLocation);
 
-    const [permissionState, setPermissionState] = useState("prompt");
+    // const [permissionState, setPermissionState] = useState("prompt");
     const [isLocationLoading, setIsLocationLoading] = useState(false);
 
     const defaultCenter = useMemo(() => [12.6000, 37.4500], []);
@@ -115,17 +115,17 @@ export default function MapView({
             const latStr = params.get("lat");
             const lngStr = params.get("lng");
             const name = params.get("name");
-            
+
             if (latStr && lngStr) {
                 const lat = parseFloat(latStr);
                 const lng = parseFloat(lngStr);
                 if (Number.isFinite(lat) && Number.isFinite(lng)) {
                     // Try to enrich facility details using coordinates if already loaded in facilities list
-                    const matched = facilities.find(f => 
-                        Math.abs(f.lat - lat) < 0.0001 && 
+                    const matched = facilities.find(f =>
+                        Math.abs(f.lat - lat) < 0.0001 &&
                         Math.abs(f.lng - lng) < 0.0001
                     );
-                    
+
                     const targetFacility = matched ? matched : {
                         id: params.get("id") ?? "query-target",
                         name: name ?? "Selected Facility",
@@ -133,11 +133,11 @@ export default function MapView({
                         lng,
                         type: params.get("type") ?? "hospital"
                     };
-                    
+
                     setRouteTo(targetFacility);
                     setFollowUser(false);
                     setOpenMap(true);
-                    
+
                     // Mark as viewed
                     if (onFacilityViewed) {
                         onFacilityViewed(targetFacility);
@@ -277,11 +277,10 @@ export default function MapView({
                                                 key={opt.value}
                                                 type="button"
                                                 onClick={() => setFacilityType(opt.value)}
-                                                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all duration-200 ${
-                                                    facilityType === opt.value
-                                                        ? "bg-emerald-600 text-white shadow-sm"
-                                                        : "text-slate-600 hover:text-slate-800 dark:text-gray-400 dark:hover:text-slate-200 bg-transparent"
-                                                }`}
+                                                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all duration-200 ${facilityType === opt.value
+                                                    ? "bg-emerald-600 text-white shadow-sm"
+                                                    : "text-slate-600 hover:text-slate-800 dark:text-gray-400 dark:hover:text-slate-200 bg-transparent"
+                                                    }`}
                                             >
                                                 {opt.label}
                                             </button>
@@ -342,11 +341,10 @@ export default function MapView({
                                                             >
                                                                 <p className="font-bold text-slate-800 dark:text-white truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{f.name}</p>
                                                                 <div className="flex items-center gap-2 mt-1.5">
-                                                                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                                                                        f.type === "hospital"
-                                                                            ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400"
-                                                                            : "bg-teal-500/10 text-teal-600 dark:bg-teal-500/15 dark:text-teal-400"
-                                                                    }`}>
+                                                                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${f.type === "hospital"
+                                                                        ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400"
+                                                                        : "bg-teal-500/10 text-teal-600 dark:bg-teal-500/15 dark:text-teal-400"
+                                                                        }`}>
                                                                         {f.type === "hospital" ? t("Map.hospital") : t("Map.pharmacy")}
                                                                     </span>
                                                                     {distanceLabel && (
@@ -360,11 +358,10 @@ export default function MapView({
                                                             <button
                                                                 type="button"
                                                                 onClick={() => onToggleFavorite?.(f)}
-                                                                className={`shrink-0 p-2 rounded-xl transition-all duration-200 shadow-sm ${
-                                                                    fav 
-                                                                        ? "bg-rose-50 dark:bg-rose-950/30 text-rose-500 hover:text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-900/40" 
-                                                                        : "bg-slate-50 dark:bg-gray-800/80 text-slate-500 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-700/80"
-                                                                }`}
+                                                                className={`shrink-0 p-2 rounded-xl transition-all duration-200 shadow-sm ${fav
+                                                                    ? "bg-rose-50 dark:bg-rose-950/30 text-rose-500 hover:text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-900/40"
+                                                                    : "bg-slate-50 dark:bg-gray-800/80 text-slate-500 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-700/80"
+                                                                    }`}
                                                                 aria-label={t("Map.Save")}
                                                                 title={t("Map.Save")}
                                                             >

@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PharmacyDrugInventoryController extends Controller
 {
@@ -284,7 +285,7 @@ class PharmacyDrugInventoryController extends Controller
     public function botSearchMedicine(Request $request)
     {
         $searchTerm = $request->query('name');
-
+       Log::info("Entered in method");
         if (empty($searchTerm)) {
             return response()->json(['message' => 'Missing search query'], 400);
         }

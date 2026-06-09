@@ -238,11 +238,21 @@ class ActionSearchPharmacy(Action):
                                     params=params, timeout=20)
             response.raise_for_status()
             all_pharmacies = response.json()
+        # except Exception as e:
+        #     print("ERROR:", str(e))
+        #     text = ("የመረጃ ቋቱን ማግኘት አልቻልኩም።"
+        #             if language == "am"
+        #             else "I can't connect to the pharmacy service right now.")
+        #     dispatcher.utter_message(text=text, buttons=quick_buttons(language))
+        #     return []
         except Exception as e:
-            print("ERROR:", str(e))
-            text = ("የመረጃ ቋቱን ማግኘት አልቻልኩም።"
-                    if language == "am"
-                    else "I can't connect to the pharmacy service right now.")
+            print("=== PHARMACY API ERROR ===")
+            print("Error Type:", type(e).__name__)
+            print("Error Message:", str(e))
+            import traceback
+            traceback.print_exc()
+    
+            text = "የመረጃ ቋቱን ማግኘት አልቻልኩም።" if language == "am" else "I can't connect..."
             dispatcher.utter_message(text=text, buttons=quick_buttons(language))
             return []
 
