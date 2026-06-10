@@ -1,9 +1,0 @@
-node_modules
-.git
-storage/logs
-*.log
-.idea
-.vscode
-vendor
-public/hot
-public/storage

@@ -1,8 +1,0 @@
-.rasa/
-.cache/
-.keras/
-.config/
-models/*
-*.log
-.gitignore
-.bash_history

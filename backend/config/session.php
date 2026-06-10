@@ -3,7 +3,7 @@
 use Illuminate\Support\Str;
 
 return [
-    'driver' => env('SESSION_DRIVER', 'cookie'),
+    'driver' => env('SESSION_DRIVER', 'file'),
     'lifetime' => (int) env('SESSION_LIFETIME', 120),
     'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
     'encrypt' => env('SESSION_ENCRYPT', false),
@@ -12,14 +12,14 @@ return [
     'table' => env('SESSION_TABLE', 'sessions'),
     'store' => env('SESSION_STORE'),
     'lottery' => [2, 100],
-    
+
     // CRITICAL: Use environment variable with explicit default
     'cookie' => env('SESSION_COOKIE', 'laravel_session'), // Changed from dynamic slug
-    
+
     'path' => env('SESSION_PATH', '/'),
     'domain' => env('SESSION_DOMAIN', null),
-    'secure' => env('SESSION_SECURE_COOKIE', true),
+    'secure' => env('SESSION_SECURE_COOKIE', false),
     'http_only' => env('SESSION_HTTP_ONLY', true),
-    'same_site' => env('SESSION_SAME_SITE', 'none'),
+    'same_site' => env('SESSION_SAME_SITE', 'lax'),
     'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
 ];

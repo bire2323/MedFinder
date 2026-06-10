@@ -36,11 +36,20 @@ use Illuminate\Support\Facades\Http;
 */
 
 // Public auth
-Route::post('login', [AuthController::class, 'login']);
-Route::post('register', [AuthController::class, 'register']);
-Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
-Route::post('resend-otp', [AuthController::class, 'resendOtp']);
+Route::middleware('web')->group(function () {
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
+    Route::post('resend-otp', [AuthController::class, 'resendOtp']);
+});
 
+// Protected auth
+Route::middleware(['web', 'auth:web'])->group(function () {
+    Route::get('user', [AuthController::class, 'user']);
+    Route::post('refresh', [AuthController::class, 'refresh']);
+    Route::post('logout', [AuthController::class, 'logout']);
+
+});
 Route::middleware(['web'])->group(function () {
     Route::get('/auth/google/redirect', [AuthController::class, 'redirectToGoogle']);
     Route::get("/auth/google/callback", [AuthController::class, "handleGoogleCallback"]);
@@ -134,6 +143,8 @@ Route::get('regions', [\App\Http\Controllers\AdminRegionController::class, 'getA
 Route::get('regions/{region}/cities', [\App\Http\Controllers\AdminCityController::class, 'getCitiesByRegion']);
 
 Route::get('/pharmacies', [PharmacyController::class, 'botIndex']);
+Route::get('/pharmacies/prescription-finder', [PharmacyController::class, 'prescriptionFinder']);
+
 Route::get('/hospitals', [HospitalController::class, 'botIndex']);
 Route::middleware(['auth:sanctum', \App\Http\Middleware\EnsureFacilityApproved::class])->group(function () {
     Route::post('pharmacy/profile/{pharmacy}', [PharmacyController::class, 'updateProfile']);
@@ -192,7 +203,7 @@ Route::middleware(['auth:sanctum', \App\Http\Middleware\EnsureFacilityApproved::
     Route::get('pharmacy-agent/profile', [PharmacyController::class, 'getPharmaProfile']);
     Route::post('profile/update', [AuthController::class, 'updateProfile']);
     Route::post('profile/password-update', [AuthController::class, 'updatePassword']);
-    Route::get('user', [AuthController::class, 'user']);
+
     Route::post('user/heartbeat', \App\Http\Controllers\HeartbeatController::class);
 
     Route::get('chat/sessions', [ChatSessionController::class, 'index']);
@@ -377,7 +388,6 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Auth actions
-    Route::post('logout', [AuthController::class, 'logout']);
 });
 
 Route::get('/bot/search-drug', [\App\Http\Controllers\PharmacyDrugInventoryController::class, "botSearchMedicine"]);
