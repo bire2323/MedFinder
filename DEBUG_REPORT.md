@@ -1,5 +1,6 @@
 # Rasa Chatbot - Laravel Backend Debug Report
-
+uvicorn app:app --reload --host 127.0.0.1 --port 8000
+ pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cpu
 ## 🔍 FINDINGS
 
 ### 1. **ROUTE LOCATION (Line 392 in api.php)**
