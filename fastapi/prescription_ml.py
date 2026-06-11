@@ -15,10 +15,12 @@ LARAVEL_API_URL = "https://medfinder.com/api"
 import os
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 
-# Point directly to your local model folder inside the Docker app
-MODEL_DIR = "/app/models/medfinder_multiclass_output/biobert_prescription_ner"
+# Point directly to your local model folder inside the Docker app, fallback to local path if running outside Docker
+DOCKER_MODEL_DIR = "/app/models/medfinder_multiclass_output/biobert_prescription_ner"
+LOCAL_MODEL_DIR = os.path.join(os.path.dirname(__file__), "models", "medfinder_multiclass_output", "biobert_prescription_ner")
+MODEL_DIR = DOCKER_MODEL_DIR if os.path.exists(DOCKER_MODEL_DIR) else LOCAL_MODEL_DIR
 
-print("[ML Initializer] Loading Fine-Tuned Multi-Class BioBERT Parser strictly from local disk...")
+print(f"[ML Initializer] Loading BioBERT Parser from path: {MODEL_DIR}")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR, local_files_only=True)
 model = AutoModelForTokenClassification.from_pretrained(MODEL_DIR, local_files_only=True)
 
@@ -82,7 +84,7 @@ def explain_prescription(text: str) -> str:
     forms = blocks.get("form", [])
     frequencies = blocks.get("frequency", [])
     
-    lines = ["### 📋 Parsed Structured Clinical Instructions:\n"]
+    lines = ["## 📋 Parsed Structured Clinical Instructions:\n"]
     for i, med in enumerate(meds):
         d = dosages[i] if i < len(dosages) else "As specified"
         f = forms[i] if i < len(forms) else "Units"

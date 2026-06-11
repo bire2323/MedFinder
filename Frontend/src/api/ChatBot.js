@@ -1,28 +1,13 @@
 import { detectLanguage } from "../hooks/DetectLanguage";
 import { apiFetch, ensureCsrfCookie } from "./client";
 
-async function sendMessage(text) {
-  // await ensureCsrfCookie();
-  //  return apiFetch("/api/detectIntent", {
-  //    method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  // body: JSON.stringify({ question: text }),
-  // });
-  const res = await fetch('/webhooks/rest/webhook', {
+async function sendMessage(text, lat, lng) {
+  const res = await fetch('/api/ai/chat', {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      sender: "patient_001", message: text,
-      // entities: [
-      //   {
-      //     entity: "language",
-      //     value: detectLanguage(text)
-      //   }
-      // ]
-    }),
-  })
+    body: JSON.stringify({ message: text, lat, lng }),
+  });
   return res.json();
-
 }
 
 // presidence: unused API (temporarily disabled, do not delete)

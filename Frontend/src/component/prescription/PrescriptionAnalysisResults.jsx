@@ -39,6 +39,7 @@ export default function PrescriptionAnalysisResults({ results }) {
           <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-400">
             {drugs.length > 0 ? t("prescriptionReader.detectedMedications") : t("prescriptionReader.resultsPlaceholderNote")}
           </p>
+          
           <ul className="space-y-2">
             {drugs.length > 0 ? (
               drugs.map((name, i) => (

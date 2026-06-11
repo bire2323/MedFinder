@@ -13,6 +13,7 @@ import { sendMessage } from "../api/ChatBot";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAuthStore from "../store/UserAuthStore";
+import useLocationStore from "../store/useLocationStore";
 
 const MAX_ANONYMOUS_ASK_LIMIT = 3;
 
@@ -21,6 +22,7 @@ export default function FloatingChatButton() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuthStore();
+  const { coordinates } = useLocationStore();
   const isLoggedIn = !!user;
 
   const [isOpen, setIsOpen] = useState(false);
@@ -166,7 +168,7 @@ export default function FloatingChatButton() {
     setLoading(true);
 
     try {
-      const data = await sendMessage(text);
+      const data = await sendMessage(text, coordinates?.lat, coordinates?.lng);
 
       if (data && data.length > 0) {
         const botMessages = data.map((msg) => ({

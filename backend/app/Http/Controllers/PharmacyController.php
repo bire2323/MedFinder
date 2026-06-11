@@ -492,7 +492,7 @@ public function botIndex(Request $request)
 
 public function prescriptionFinder(Request $request)
 {
-    $medicine = $request->query('medicine');
+    $medicine = $request->query('medicine') ?? $request->query('drug');
     $latitude = $request->query('latitude');
     $longitude = $request->query('longitude');
     $location = $request->query('location');

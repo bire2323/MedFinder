@@ -100,7 +100,7 @@ def search_nearby_pharmacies(medicines: list[str], lat: float, lon: float) -> li
                 print("sfully.")
                 response = client.get(
                     f"{LARAVEL_API_URL}/pharmacies/prescription-finder",
-                    params={"drug": medicine, "latitude": lat, "longitude": lon},
+                    params={"medicine": medicine, "latitude": lat, "longitude": lon},
                     timeout=40.0,
                 )
                 response.raise_for_status()

@@ -146,6 +146,16 @@ Route::get('/pharmacies', [PharmacyController::class, 'botIndex']);
 Route::get('/pharmacies/prescription-finder', [PharmacyController::class, 'prescriptionFinder']);
 
 Route::get('/hospitals', [HospitalController::class, 'botIndex']);
+
+Route::post('/ai/chat', function (Request $request) {
+    $response = Http::post('http://localhost:8000/chat', [
+        'message' => $request->input('message'),
+        'lat' => $request->input('lat'),
+        'lng' => $request->input('lng'),
+    ]);
+
+    return $response->json();
+});
 Route::middleware(['auth:sanctum', \App\Http\Middleware\EnsureFacilityApproved::class])->group(function () {
     Route::post('pharmacy/profile/{pharmacy}', [PharmacyController::class, 'updateProfile']);
     Route::post('hospital/profile/{hospital}', [HospitalController::class, 'updateProfile']);

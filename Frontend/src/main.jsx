@@ -21,14 +21,14 @@ window.Pusher = Pusher;
     broadcaster: 'reverb',
     key: import.meta.env.VITE_REVERB_APP_KEY,
     wsHost: import.meta.env.VITE_REVERB_HOST || window.location.hostname,
-    wsPort: isSecure ? 443 : 80,
-    wssPort: isSecure ? 443 : 80,
+    wsPort: isSecure ? 443 : 8080,
+    wssPort: isSecure ? 443 : 8080,
     forceTLS: isSecure,
     enabledTransports: ['ws', 'wss'],
 
     authEndpoint: '/broadcasting/auth',
 
-    wsPath: import.meta.env.VITE_REVERB_PATH || '/reverb',
+    // wsPath: import.meta.env.VITE_REVERB_PATH || '/reverb',
 
     auth: {
       withCredentials: true,
