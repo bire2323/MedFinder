@@ -34,6 +34,8 @@ dist/
 *.sln
 *.sw?
 
-
+*.env
+.env
+.env.development
 /src1
 /nginx.conf
