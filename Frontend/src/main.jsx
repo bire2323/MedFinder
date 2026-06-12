@@ -40,7 +40,7 @@ window.Pusher = Pusher;
           authorize: async (socketId, callback) => {
             try {
               const response = await fetch(
-                "http://localhost:8000/broadcasting/auth",
+                "https://medfinder-nqdq.onrender.com/broadcasting/auth",
                 {
                   method: "POST",
 
