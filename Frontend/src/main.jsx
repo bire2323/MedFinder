@@ -27,11 +27,11 @@ window.Pusher = Pusher;
 
       key: import.meta.env.VITE_REVERB_APP_KEY,
 
-      wsHost: "localhost",
-      wsPort: 8080,
-      wssPort: 8080,
+      wsHost: import.meta.env.VITE_REVERB_HOST,
+      wsPort: Number(import.meta.env.VITE_REVERB_PORT),
+      wssPort: Number(import.meta.env.VITE_REVERB_PORT),
 
-      forceTLS: false,
+      forceTLS: import.meta.env.VITE_REVERB_SCHEME === "https",
 
       enabledTransports: ["ws"],
 
