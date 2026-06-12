@@ -13,7 +13,7 @@ export default defineConfig({
     // ←←← ADD THIS PROXY CONFIGURATION
     proxy: {
       "/api": {
-        target: import.meta.env.VITE_BACKEND_URL || "http://localhost:8000",
+        target: import.meta.env.VITE_BACKEND_URL,
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, "/api"), // optional but safe
