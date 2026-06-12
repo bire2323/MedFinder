@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Helpers\SmsHelper;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
@@ -61,52 +62,80 @@ class AuthController extends Controller
     /**
      * POST /api/register
      */
+
     public function register(Request $request)
-    {
-        $validated = $request->validate([
-            'name'     => 'required|string|min:4|max:20',
-            'phone'    => 'required|unique:users,phone',
-            'password' => 'required|min:6',
-        ], [
-            'phone.required' => 'phone_required',
-            'phone.unique'   => 'phone_taken',
-            'name.required'  => 'name_required',
-            'name.min'       => 'name_min_4',
-        ]);
+{
+    $validated = $request->validate([
+        'name'     => 'required|string|min:4|max:20',
+        'phone'    => 'required|unique:users,phone|regex:/^09\d{8}$/',
+        'password' => 'required|min:6',
+    ], [
+        'phone.required' => 'phone_required',
+        'phone.unique'   => 'phone_taken',
+        'name.required'  => 'name_required',
+        'name.min'       => 'name_min_4',
+    ]);
 
-        $otp = random_int(1000, 9999);
-        $expiresAt = now()->addMinutes(5);
+    // Convert local Ethiopian format (09xxxxxxxx) to E.164 (+2519xxxxxxxx)
+    $normalizedPhone = preg_replace('/^0/', '+251', $validated['phone']);
 
-        // Save pending user
-        PendingUser::updateOrCreate(
-            ['phone' => $validated['phone']],
-            [
-                'name'       => $validated['name'],
-                'password'   => Hash::make($validated['password']),
-                'expires_at' => $expiresAt,
-            ]
+    $otp = random_int(1000, 9999);
+    $expiresAt = now()->addMinutes(5);
+
+    // Save pending user
+    PendingUser::updateOrCreate(
+        ['phone' => $validated['phone']], // keep original for DB consistency
+        [
+            'name'       => $validated['name'],
+            'password'   => Hash::make($validated['password']),
+            'expires_at' => $expiresAt,
+        ]
+    );
+
+    // Save OTP
+    OtpVerification::updateOrCreate(
+        ['phone' => $validated['phone']],
+        [
+            'otp_hash'   => Hash::make($otp),
+            'expires_at' => $expiresAt,
+            'attempts'   => 0,
+        ]
+    );
+
+    // Send OTP via Telerivet using normalized phone
+    $res = SmsHelper::sendOtpSms($normalizedPhone, $otp);
+
+    if (!$res) {
+        $this->logAudit(
+            $request,
+            'REGISTER_REQUEST',
+            "Failed to send OTP for phone {$validated['phone']}",
+            'failed',
+            'auth',
+            ['phone' => $validated['phone']]
         );
-
-        // Save OTP
-        OtpVerification::updateOrCreate(
-            ['phone' => $validated['phone']],
-            [
-                'otp_hash'   => Hash::make($otp),
-                'expires_at' => $expiresAt,
-                'attempts'   => 0,
-            ]
-        );
-
-        // TODO: Send real OTP via SMS
-        // sendOtpSms($validated['phone'], $otp);
-
-        $this->logAudit($request, 'REGISTER_REQUEST', "OTP sent for phone {$validated['phone']}", 'success', 'auth', ['phone' => $validated['phone']]);
 
         return response()->json([
-            'success' => true,
-            'message' => $otp . " OTP sent to your phone",
-        ]);
+            'success' => false,
+            'message' => 'Failed to send OTP, please try again later'
+        ], 500);
     }
+
+    $this->logAudit(
+        $request,
+        'REGISTER_REQUEST',
+        "OTP sent for phone {$validated['phone']}",
+        'success',
+        'auth',
+        ['phone' => $validated['phone']]
+    );
+
+    return response()->json([
+        'success' => true,
+        'message' => 'OTP sent successfully'
+    ]);
+}
+
 
     /**
      * POST /api/verify-otp

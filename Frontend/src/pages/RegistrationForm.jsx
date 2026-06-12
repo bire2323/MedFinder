@@ -83,11 +83,11 @@ export default function RegisterationForm() {
           const firstMessage = res.errors[firstField][0];
           setError(t(mapBackendErrorToTranslation(firstMessage)));
         } else {
-          setError(res.message || t("Register.Registration Failed"));
+          setError(t("Register.Registration Failed"));
         }
       }
     } catch (err) {
-      setError(err.message || t("Register.Registration Failed"));
+      setError(t("Register.Registration Failed"));
     } finally {
       setLoading(false);
     }

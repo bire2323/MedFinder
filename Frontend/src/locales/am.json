@@ -214,6 +214,7 @@
   },
   "VerifyOtp": {
     "Title": "OTP አረጋግጥ",
+    "5min": "በ 5 ደቂቃዎች ውስጥ ይሙሉ",
     "EnterOtpSentTo": "OTP ተልኳል በ ስልክ ቁጥር፡ ",
     "ButtonVerify": "OTP አረጋግጥ",
     "Verifying": "በማረጋገጥ ላይ...",

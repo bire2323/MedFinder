@@ -214,6 +214,7 @@
   },
   "VerifyOtp": {
     "Title": "Verify OTP",
+    "5min": "you have 5 minutes to verify",
     "EnterOtpSentTo": "Enter the OTP sent to",
     "ButtonVerify": "Verify OTP",
     "Verifying": "Verifying...",

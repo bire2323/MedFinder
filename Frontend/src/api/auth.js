@@ -1,6 +1,7 @@
 import { apiFetch, ensureCsrfCookie } from "./client";
 
 export async function apiRegister(formData) {
+  await ensureCsrfCookie();
   return apiFetch("/api/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
