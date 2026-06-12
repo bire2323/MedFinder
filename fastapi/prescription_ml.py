@@ -16,7 +16,7 @@ import os
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 
 # Point directly to your local model folder inside the Docker app, fallback to local path if running outside Docker
-DOCKER_MODEL_DIR = "/app/models/medfinder_multiclass_output/biobert_prescription_ner"
+DOCKER_MODEL_DIR = "C:/active/MedFinder/fastapi/models/medfinder_multiclass_output/biobert_prescription_ner"
 LOCAL_MODEL_DIR = os.path.join(os.path.dirname(__file__), "models", "medfinder_multiclass_output", "biobert_prescription_ner")
 MODEL_DIR = DOCKER_MODEL_DIR if os.path.exists(DOCKER_MODEL_DIR) else LOCAL_MODEL_DIR
 

@@ -21,7 +21,7 @@ export function getXsrfToken() {
 }
 
 export async function ensureCsrfCookie() {
-  await fetch(`/sanctum/csrf-cookie`, {
+  await fetch(`http://localhost:8000/sanctum/csrf-cookie`, {
     method: "GET",
     credentials: "include",
   });

@@ -123,7 +123,7 @@ At the end of your response, always append a disclaimer:
 "⚠️ Disclaimer: This information is for support only. It is not a medical diagnosis or treatment recommendation."
 """
 
-@app.post("/chat")
+@app.post("/api/ai/chat")
 async def chat_endpoint(request: Request):
     try:
         payload = await request.json()

@@ -37,6 +37,6 @@ Broadcast::channel('user.{id}', function ($user, $id) {
 
 Broadcast::channel('notifications.{id}', function ($user, $id) {
     \Log::info("Event not. str! {$id}");
-    \Log::info("Event not. str! {$user->id}");
+    \Log::info("Event not. useer str! {$user->id}");
     return (int) $user->id === (int) $id;
 });
