@@ -13,7 +13,7 @@ export default defineConfig({
     // ←←← ADD THIS PROXY CONFIGURATION
     proxy: {
       "/api": {
-        target: "https://medfinder-nqdq.onrender.com/",
+        target: import.meta.env.VITE_BACKEND_URL || "http://localhost:8000",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, "/api"), // optional but safe
