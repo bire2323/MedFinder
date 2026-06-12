@@ -15,12 +15,13 @@ return [
 
     // Add your React frontend origin here
     'allowed_origins' => [
+    https://med-finder-five.vercel.app/,
         'http://localhost:5173',
         'http://127.0.0.1:5173',
         'http://localhost:3000',
         'http://127.0.0.1:3000',
     ],
-    'allowed_origins_patterns' => ['https://cellulolytic-nonshredding-kena.ngrok-free.dev/', 'http://localhost(:[0-9]+)?', 'http://127\.0\.0\.1(:[0-9]+)?'],
+    'allowed_origins_patterns' => ['https://cellulolytic-nonshredding-kena.ngrok-free.dev/', https://med-finder-five.vercel.app/,'http://localhost(:[0-9]+)?', 'http://127\.0\.0\.1(:[0-9]+)?'],
 
     'allowed_headers' => ['*'],
 
