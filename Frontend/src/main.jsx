@@ -33,7 +33,7 @@ window.Pusher = Pusher;
 
       forceTLS: import.meta.env.VITE_REVERB_SCHEME === "https",
 
-      enabledTransports: ["ws"],
+      enabledTransports: ["ws", "wss"],
 
       authorizer: (channel) => {
         return {
