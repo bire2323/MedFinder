@@ -26,7 +26,14 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN a2enmod rewrite proxy proxy_http proxy_wstunnel headers
+RUN a2enmod rewrite headers proxy proxy_http proxy_wstunnel
+
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
+
+RUN a2dissite 000-default || true \
+    && a2ensite 000-default
+
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Allow .htaccess overrides
 RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
