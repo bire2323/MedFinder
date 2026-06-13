@@ -36,6 +36,7 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' \
     /etc/apache2/apache2.conf \
     /etc/apache2/conf-available/*.conf
+
 WORKDIR /var/www/html
 
 COPY composer.json composer.lock ./
@@ -43,6 +44,15 @@ RUN composer install --no-dev --no-scripts --prefer-dist
 
 COPY . .
 
+# === IMPORTANT: Fix permissions ===
+RUN mkdir -p storage/logs bootstrap/cache \
+    && touch storage/logs/laravel.log \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache \
+    && chmod 664 storage/logs/laravel.log
+
 RUN composer dump-autoload --optimize
+
 COPY Supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
