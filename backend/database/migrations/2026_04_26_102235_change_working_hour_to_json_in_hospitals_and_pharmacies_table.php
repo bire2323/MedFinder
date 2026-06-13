@@ -9,19 +9,11 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        // Change working_hour to JSON for hospitals
-        Schema::table('hospitals', function (Blueprint $table) {
-            $table->json('working_hour')->change();
-        });
-
-        // Change working_hour to JSON for pharmacies
-        Schema::table('pharmacies', function (Blueprint $table) {
-            $table->json('working_hour')->change();
-        });
-    }
-
+    public function up()
+{
+    DB::statement("ALTER TABLE hospitals ALTER COLUMN working_hour TYPE json USING working_hour::json");
+    DB::statement("ALTER TABLE pharmacies ALTER COLUMN working_hour TYPE json USING working_hour::json");
+}
     /**
      * Reverse the migrations.
      */
