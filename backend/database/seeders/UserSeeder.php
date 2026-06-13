@@ -17,37 +17,37 @@ class UserSeeder extends Seeder
         // 1. Define your users and their Spatie roles
         $users = [
             [
-                'name' => 'Admin User',
+                'Name' => 'Admin User',
                 'phone' => '0911000001',
                 'password' => 'admin123',
                 'role' => 'admin',
             ],
             [
-                'name' => 'Hospital Agent 1',
+                'Name' => 'Hospital Agent 1',
                 'phone' => '0911000002',
                 'password' => 'agent123',
                 'role' => 'hospitalAgent',
             ],
             [
-                'name' => 'Hospital Agent 2',
+                'Name' => 'Hospital Agent 2',
                 'phone' => '0911000003',
                 'password' => 'agent123',
                 'role' => 'hospitalAgent',
             ],
             [
-                'name' => 'Pharmacy Agent 1',
+                'Name' => 'Pharmacy Agent 1',
                 'phone' => '0911000004',
                 'password' => 'agent123',
                 'role' => 'pharmacyAgent',
             ],
             [
-                'name' => 'Pharmacy Agent 2',
+                'Name' => 'Pharmacy Agent 2',
                 'phone' => '0911000005',
                 'password' => 'agent123',
                 'role' => 'pharmacyAgent',
             ],
             [
-                'name' => 'John Doe',
+                'Name' => 'John Doe',
                 'phone' => '0911000006',
                 'password' => 'user123',
                 'role' => 'patient', // No special role
@@ -57,7 +57,7 @@ class UserSeeder extends Seeder
         foreach ($users as $userData) {
             // Create the user using Eloquent
             $user = User::create([
-                'name' => $userData['name'],
+                'Name' => $userData['Name'],
                 'phone' => $userData['phone'],
                 'phone_verified_at' => now(),
                 'password' => Hash::make($userData['password']),
