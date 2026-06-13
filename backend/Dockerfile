@@ -44,6 +44,5 @@ RUN composer install --no-dev --no-scripts --prefer-dist
 COPY . .
 
 RUN composer dump-autoload --optimize
-CMD php artisan migrate --force && php artisan config:clear && /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
 COPY Supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
