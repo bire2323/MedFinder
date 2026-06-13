@@ -9,11 +9,20 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
+    libpq-dev \
     zip \
     unzip \
     supervisor \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring bcmath pcntl gd zip
+    && docker-php-ext-install \
+    pdo_mysql \
+    pdo_pgsql \
+    pgsql \
+    mbstring \
+    bcmath \
+    pcntl \
+    gd \
+    zip
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
