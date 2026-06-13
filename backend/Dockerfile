@@ -44,11 +44,12 @@ RUN composer install --no-dev --no-scripts --prefer-dist
 
 COPY . .
 
-# === IMPORTANT: Fix permissions ===
-RUN mkdir -p storage/logs bootstrap/cache \
+# === FIXED PERMISSIONS SECTION ===
+RUN mkdir -p storage/logs bootstrap/cache /var/log/apache2 \
     && touch storage/logs/laravel.log \
-    && chown -R www-data:www-data storage bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache /var/log/apache2 \
     && chmod -R 775 storage bootstrap/cache \
+    && chmod -R 775 /var/log/apache2 \
     && chmod 664 storage/logs/laravel.log
 
 RUN composer dump-autoload --optimize
