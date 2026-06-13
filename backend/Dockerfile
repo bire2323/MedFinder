@@ -8,9 +8,6 @@ FROM node:18 AS nodebuild
 WORKDIR /app
 COPY package.json package-lock.json /app/
 RUN npm ci --silent
-# Copy only public assets build context; full repo copied in final stage
-COPY . /app
-RUN npm run build --silent
 
 FROM php:8.2-fpm
 ENV DEBIAN_FRONTEND=noninteractive
