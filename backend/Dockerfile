@@ -28,6 +28,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN a2enmod rewrite proxy proxy_http proxy_wstunnel headers
 
+# Allow .htaccess overrides
+RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
+
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
@@ -44,12 +47,11 @@ RUN composer install --no-dev --no-scripts --prefer-dist
 
 COPY . .
 
-# === FIXED PERMISSIONS SECTION ===
+# Permissions fix
 RUN mkdir -p storage/logs bootstrap/cache /var/log/apache2 \
     && touch storage/logs/laravel.log \
     && chown -R www-data:www-data storage bootstrap/cache /var/log/apache2 \
     && chmod -R 775 storage bootstrap/cache \
-    && chmod -R 775 /var/log/apache2 \
     && chmod 664 storage/logs/laravel.log
 
 RUN composer dump-autoload --optimize
