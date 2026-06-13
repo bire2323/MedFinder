@@ -35,6 +35,6 @@ RUN chown -R www-data:www-data storage bootstrap/cache
 
 COPY nginx.conf /etc/nginx/sites-enabled/default
 
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY Supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 CMD ["/usr/bin/supervisord","-c","/etc/supervisor/conf.d/supervisord.conf"]
