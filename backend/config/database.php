@@ -97,7 +97,20 @@ return [
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
         ],
-
+'pgsql_direct' => [
+    'driver' => 'pgsql',
+    'url' => env('DATABASE_URL_DIRECT'),
+    'host' => env('DB_HOST_DIRECT'),
+    'port' => env('DB_PORT', '5432'),
+    'database' => env('DB_DATABASE'),
+    'username' => env('DB_USERNAME'),
+    'password' => env('DB_PASSWORD'),
+    'charset' => 'utf8',
+    'prefix' => '',
+    'prefix_indexes' => true,
+    'schema' => 'public',
+    'sslmode' => 'require',
+],
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),
