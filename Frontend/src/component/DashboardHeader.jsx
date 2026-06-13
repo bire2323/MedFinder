@@ -136,7 +136,7 @@ export default function DashboardHeader() {
                                                         {t("headingNav.profile_dropdown.account")}
                                                     </p>
                                                     <p className="text-sm font-bold truncate dark:text-white">
-                                                        {user?.Email}
+                                                        {user?.email}
                                                     </p>
                                                 </div>
                                                 <NavLink
@@ -266,7 +266,7 @@ export default function DashboardHeader() {
                                                 {t("headingNav.profile_dropdown.account")}
                                             </p>
                                             <p className="text-sm font-bold truncate dark:text-white">
-                                                {user?.Email}
+                                                {user?.email}
                                             </p>
                                         </div>
                                         <NavLink

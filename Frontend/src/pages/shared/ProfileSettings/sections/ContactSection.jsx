@@ -19,13 +19,13 @@ const ContactSection = ({ data, onChange, error, theme }) => {
           placeholder="0911223344"
         />
         <InputField
-          label={t("Settings.PublicEmail")}
+          label={t("Settings.Publicemail")}
           icon={<Mail size={14} />}
           value={data.contact_email}
           onChange={(v) => onChange("contact_email", v)}
           error={error?.contact_email}
           theme={theme}
-          placeholder="[EMAIL_ADDRESS]"
+          placeholder="[email_ADDRESS]"
         />
       </div>
     </SectionWrapper>

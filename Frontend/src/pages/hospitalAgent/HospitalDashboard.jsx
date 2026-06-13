@@ -119,7 +119,7 @@ const HospitalDashboard = () => {
 
   const clearSession = useAuthStore((state) => state.clearSession);
 
-// <<<<<<< HEAD
+  // <<<<<<< HEAD
   useEffect(() => {
 
     const init = async () => {
@@ -128,15 +128,15 @@ const HospitalDashboard = () => {
     };
     init();
   }, [navigate]);
-// =======
-//   // useEffect(() => {
-//   //   const init = async () => {
-//   //     const isAuthentic = await initializeAuth();
-//   //     if (!isAuthentic) navigate("/");
-//   //   };
-//   //   init();
-//   // }, [navigate]);
-// >>>>>>> 19a7c898b0044586c597eacd5183ec6bc8f38f05
+  // =======
+  //   // useEffect(() => {
+  //   //   const init = async () => {
+  //   //     const isAuthentic = await initializeAuth();
+  //   //     if (!isAuthentic) navigate("/");
+  //   //   };
+  //   //   init();
+  //   // }, [navigate]);
+  // >>>>>>> 19a7c898b0044586c597eacd5183ec6bc8f38f05
 
   useEffect(() => {
     if (user?.status === "inactive") {
@@ -354,7 +354,7 @@ const HospitalDashboard = () => {
                   >
                     <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 mb-3">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Sign in As</p>
-                      <p className="text-sm font-black truncate dark:text-white uppercase tracking-tight">{user?.Email || "Agent Account"}</p>
+                      <p className="text-sm font-black truncate dark:text-white uppercase tracking-tight">{user?.email || "Agent Account"}</p>
                     </div>
                     <div className="space-y-1">
                       <button

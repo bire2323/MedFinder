@@ -65,7 +65,7 @@ public function index()
         $q->where('users.id', $user->id);
     })
     ->with([
-        'patient:id,Name,Email',
+        'patient:id,Name,email',
         'pharmacy:id,pharmacy_name_en,pharmacy_agent_id',
         'hospital:id,hospital_name_en,hospital_agent_id',
         'participants' => function($q) use ($user) {

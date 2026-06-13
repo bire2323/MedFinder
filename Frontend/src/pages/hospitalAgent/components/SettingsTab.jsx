@@ -43,7 +43,7 @@ export default function SettingsTab({ profile, setProfile }) {
             onChange={(e) => setProfile({ ...profile, name: e.target.value })}
           />
           <InputGroup
-            label="Email"
+            label="email"
             icon={<Globe size={12} />}
             value={profile?.email || ""}
             onChange={(e) => setProfile({ ...profile, email: e.target.value })}

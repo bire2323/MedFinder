@@ -105,7 +105,7 @@ class HospitalController extends Controller
         ],[
             'facilityNameEn' => 'FACILITY_NAME_REQ',
             'facilityNameAm' => 'FACILITY_NAME_AM_REQ',
-            'contact_email' => 'CONTACT_EMAIL_REQ',
+            'contact_email' => 'CONTACT_email_REQ',
 
             // Location Info
             'region_id' => 'REGION_ID_REQ',

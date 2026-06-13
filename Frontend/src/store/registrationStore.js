@@ -122,7 +122,7 @@ export const useRegistrationStore = create((set, get) => ({
 
 
 
-    // Email validation (optional but must be valid if provided)     
+    // email validation (optional but must be valid if provided)     
     if (formData.contact_email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.contact_email)) {

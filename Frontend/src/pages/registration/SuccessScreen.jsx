@@ -122,8 +122,8 @@ const SuccessScreen = () => {
                   <Mail size={18} className="text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('Registration.ViaEmail')}</p>
-                  <p className="text-sm font-medium text-gray-800 dark:text-white">{t('Registration.EmailNotif')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('Registration.Viaemail')}</p>
+                  <p className="text-sm font-medium text-gray-800 dark:text-white">{t('Registration.emailNotif')}</p>
                 </div>
               </div>
             </div>

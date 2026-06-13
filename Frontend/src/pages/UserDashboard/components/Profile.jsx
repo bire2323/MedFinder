@@ -43,7 +43,7 @@ export default function Profile() {
       ...prev,
       name: user?.Name ?? prev.name ?? "",
       phone: user?.Phone ?? prev.phone ?? "",
-      email: user?.Email ?? prev.email ?? "",
+      email: user?.email ?? prev.email ?? "",
     }));
   }, [user]);
 
@@ -61,11 +61,11 @@ export default function Profile() {
     }
 
     if (!profile.email.trim()) {
-      setStatus({ kind: "error", message: t("Profile.Errors.EmailRequired") });
+      setStatus({ kind: "error", message: t("Profile.Errors.emailRequired") });
       return;
     }
     if (!/^\S+@\S+\.\S+$/.test(profile.email)) {
-      setStatus({ kind: "error", message: t("Profile.Errors.EmailInvalid") });
+      setStatus({ kind: "error", message: t("Profile.Errors.emailInvalid") });
       return;
     }
 
@@ -130,22 +130,20 @@ export default function Profile() {
               <button
                 type="button"
                 onClick={() => setViewTab("profile")}
-                className={`flex-1 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 ${
-                  viewTab === "profile"
+                className={`flex-1 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 ${viewTab === "profile"
                     ? "bg-emerald-600 text-white shadow-sm"
                     : "text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-slate-200"
-                }`}
+                  }`}
               >
                 {t("UserDashboard.Profile")}
               </button>
               <button
                 type="button"
                 onClick={() => setViewTab("password")}
-                className={`flex-1 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 ${
-                  viewTab === "password"
+                className={`flex-1 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 ${viewTab === "password"
                     ? "bg-emerald-600 text-white shadow-sm"
                     : "text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-slate-200"
-                }`}
+                  }`}
               >
                 {t("Reset.ResetYourPassword")}
               </button>
@@ -156,7 +154,7 @@ export default function Profile() {
                 {viewTab === "profile" && (
                   <div className="rounded-2xl border border-slate-100 dark:border-gray-800/80 bg-white/50 dark:bg-gray-900/10 p-5 space-y-4">
                     <h3 className="text-sm font-bold text-slate-850 dark:text-slate-200">{t("Profile.PersonalInformation")}</h3>
-                    
+
                     {status.kind !== "idle" && (
                       <div className={[
                         "rounded-xl border p-3.5 text-xs md:text-sm flex items-center gap-2",
@@ -199,7 +197,7 @@ export default function Profile() {
                           value={profile.email}
                           onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))}
                           className="mt-1.5 w-full rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-slate-100 dark:border-gray-800 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-sm transition-all duration-200 text-sm"
-                          placeholder={t("Profile.Email")}
+                          placeholder={t("Profile.email")}
                           required
                         />
                       </div>
@@ -217,14 +215,14 @@ export default function Profile() {
                     </div>
                   </div>
                 )}
-                
+
                 {viewTab === "password" && (
                   <div className="rounded-2xl border border-slate-100 dark:border-gray-800/80 bg-white/50 dark:bg-gray-900/10 p-5 space-y-4">
                     <h3 className="text-sm font-bold text-slate-850 dark:text-slate-200 flex items-center gap-2">
                       <Lock size={16} className="text-emerald-500" />
                       {t("Reset.ResetYourPassword")}
                     </h3>
-                    
+
                     {passwordStatus.kind !== "idle" && (
                       <div className={[
                         "rounded-xl border p-3.5 text-xs md:text-sm flex items-center gap-2",
@@ -235,7 +233,7 @@ export default function Profile() {
                         <span>{passwordStatus.message}</span>
                       </div>
                     )}
-                    
+
                     <form className="space-y-4">
                       <div>
                         <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wide">{t("Profile.CurrentPassword")}</label>

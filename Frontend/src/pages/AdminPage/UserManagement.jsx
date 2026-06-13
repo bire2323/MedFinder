@@ -82,7 +82,7 @@ export default function UserManagement() {
     const matchSearch =
       !searchTerm ||
       (u.Name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (u.Email || '').toLowerCase().includes(searchTerm.toLowerCase());
+      (u.email || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchRole = roleFilter === 'all' || (u.role || '').includes(roleFilter);
     const active = u.active === true || u.active === 'active' || u.status === 'active';
     const matchStatus =
@@ -216,102 +216,102 @@ export default function UserManagement() {
                     return (
                       <Fragment key={user.id}>
                         <tr className={`hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${isExpanded ? 'bg-gray-50 dark:bg-gray-700/50' : ''}`}>
-                        <td className="px-6 py-4">
-                          <div>
-                            <p className="font-semibold text-gray-900 dark:text-white text-sm">{user.Name}</p>
-                            <p className="text-gray-600 dark:text-gray-400 text-xs mt-0.5">{user.Email}</p>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex px-2 py-0.5 rounded-md text-xs font-semibold ${getRoleBadgeClass(user.role)}`}>
-                            {(user.role?.map(r => r).join(', ') || '')}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold ${getStatusBadgeClass(active)}`}>
-                            <span className={`size-1.5 rounded-full ${active ? 'bg-emerald-500' : 'bg-gray-400'}`} />
-                            {active ? t("Admin.Active") : t("Admin.Inactive")}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 relative">
-                          <button
-                            type="button"
-                            className="p-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                            onClick={() => setOpenDropdownId(openDropdownId === user.id ? null : user.id)}
-                            aria-label="Actions"
-                          >
-                            <MoreVertical className="size-4" />
-                          </button>
-                          {openDropdownId === user.id && (
-                            <>
-                              <div
-                                className="fixed inset-0 z-10"
-                                onClick={() => setOpenDropdownId(null)}
-                                aria-hidden
-                              />
-                              <div className="absolute right-6 top-0 z-20 mt-1 w-48 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg py-1">
-                                <button
-                                  type="button"
-                                  className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                  onClick={() => openEdit(user)}
-                                >
-                                  <Edit className="size-3.5 text-gray-500" />
-                                  {t("Admin.EditUserRole")}
-                                </button>
-                                {active ? (
-                                  <button
-                                    type="button"
-                                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
-                                    onClick={() => handleStatusChange(user, false)}
-                                  >
-                                    <UserX className="size-3.5" />
-                                    {t("Admin.Deactivate")}
-                                  </button>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
-                                    onClick={() => handleStatusChange(user, true)}
-                                  >
-                                    <UserCheck className="size-3.5" />
-                                    {t("Admin.Activate")}
-                                  </button>
-                                )}
-                              </div>
-                            </>
-                          )}
-                        </td>
-                        <td className="px-4 py-4 text-right">
-                          <button
-                            onClick={() => setExpandedUserId(isExpanded ? null : user.id)}
-                            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                          >
-                            {isExpanded ? <ChevronDown className="size-5" /> : <ChevronRight className="size-5" />}
-                          </button>
-                        </td>
-                      </tr>
-                      {isExpanded && (
-                        <tr className="bg-gray-50 dark:bg-gray-800/50">
-                          <td colSpan="5" className="px-6 py-4 border-t border-gray-100 dark:border-gray-700">
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <p className="text-gray-500 dark:text-gray-400 font-semibold mb-1">Contact Details</p>
-                                <p className="text-gray-800 dark:text-gray-200"><span className="text-gray-500">Email:</span> {user.Email || 'N/A'}</p>
-                                <p className="text-gray-800 dark:text-gray-200"><span className="text-gray-500">Phone:</span> {user.Phone || 'N/A'}</p>
-                              </div>
-                              <div>
-                                <p className="text-gray-500 dark:text-gray-400 font-semibold mb-1">System Info</p>
-                                <p className="text-gray-800 dark:text-gray-200"><span className="text-gray-500">Created:</span> {new Date(user.created_at).toLocaleString()}</p>
-                                <p className="text-gray-800 dark:text-gray-200"><span className="text-gray-500">Updated:</span> {new Date(user.updated_at).toLocaleString()}</p>
-                                <p className="text-gray-800 dark:text-gray-200"><span className="text-gray-500">Last Seen:</span> {user.last_seen_at ? new Date(user.last_seen_at).toLocaleString() : 'N/A'}</p>
-                              </div>
+                          <td className="px-6 py-4">
+                            <div>
+                              <p className="font-semibold text-gray-900 dark:text-white text-sm">{user.Name}</p>
+                              <p className="text-gray-600 dark:text-gray-400 text-xs mt-0.5">{user.email}</p>
                             </div>
                           </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex px-2 py-0.5 rounded-md text-xs font-semibold ${getRoleBadgeClass(user.role)}`}>
+                              {(user.role?.map(r => r).join(', ') || '')}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold ${getStatusBadgeClass(active)}`}>
+                              <span className={`size-1.5 rounded-full ${active ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+                              {active ? t("Admin.Active") : t("Admin.Inactive")}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 relative">
+                            <button
+                              type="button"
+                              className="p-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                              onClick={() => setOpenDropdownId(openDropdownId === user.id ? null : user.id)}
+                              aria-label="Actions"
+                            >
+                              <MoreVertical className="size-4" />
+                            </button>
+                            {openDropdownId === user.id && (
+                              <>
+                                <div
+                                  className="fixed inset-0 z-10"
+                                  onClick={() => setOpenDropdownId(null)}
+                                  aria-hidden
+                                />
+                                <div className="absolute right-6 top-0 z-20 mt-1 w-48 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg py-1">
+                                  <button
+                                    type="button"
+                                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                    onClick={() => openEdit(user)}
+                                  >
+                                    <Edit className="size-3.5 text-gray-500" />
+                                    {t("Admin.EditUserRole")}
+                                  </button>
+                                  {active ? (
+                                    <button
+                                      type="button"
+                                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                                      onClick={() => handleStatusChange(user, false)}
+                                    >
+                                      <UserX className="size-3.5" />
+                                      {t("Admin.Deactivate")}
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
+                                      onClick={() => handleStatusChange(user, true)}
+                                    >
+                                      <UserCheck className="size-3.5" />
+                                      {t("Admin.Activate")}
+                                    </button>
+                                  )}
+                                </div>
+                              </>
+                            )}
+                          </td>
+                          <td className="px-4 py-4 text-right">
+                            <button
+                              onClick={() => setExpandedUserId(isExpanded ? null : user.id)}
+                              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            >
+                              {isExpanded ? <ChevronDown className="size-5" /> : <ChevronRight className="size-5" />}
+                            </button>
+                          </td>
                         </tr>
-                      )}
-                    </Fragment>
-                  );
-                })}
+                        {isExpanded && (
+                          <tr className="bg-gray-50 dark:bg-gray-800/50">
+                            <td colSpan="5" className="px-6 py-4 border-t border-gray-100 dark:border-gray-700">
+                              <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                  <p className="text-gray-500 dark:text-gray-400 font-semibold mb-1">Contact Details</p>
+                                  <p className="text-gray-800 dark:text-gray-200"><span className="text-gray-500">email:</span> {user.email || 'N/A'}</p>
+                                  <p className="text-gray-800 dark:text-gray-200"><span className="text-gray-500">Phone:</span> {user.Phone || 'N/A'}</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-500 dark:text-gray-400 font-semibold mb-1">System Info</p>
+                                  <p className="text-gray-800 dark:text-gray-200"><span className="text-gray-500">Created:</span> {new Date(user.created_at).toLocaleString()}</p>
+                                  <p className="text-gray-800 dark:text-gray-200"><span className="text-gray-500">Updated:</span> {new Date(user.updated_at).toLocaleString()}</p>
+                                  <p className="text-gray-800 dark:text-gray-200"><span className="text-gray-500">Last Seen:</span> {user.last_seen_at ? new Date(user.last_seen_at).toLocaleString() : 'N/A'}</p>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -335,7 +335,7 @@ export default function UserManagement() {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-bold text-gray-900 dark:text-white">{user.Name}</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{user.Email}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{user.email}</p>
                     </div>
                     <div className="relative">
                       <button
@@ -402,7 +402,7 @@ export default function UserManagement() {
                       <div className="mt-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 text-sm space-y-3">
                         <div>
                           <p className="text-gray-500 dark:text-gray-400 font-semibold mb-1 text-xs uppercase tracking-wider">Contact Details</p>
-                          <p className="text-gray-800 dark:text-gray-200"><span className="text-gray-500">Email:</span> {user.Email || 'N/A'}</p>
+                          <p className="text-gray-800 dark:text-gray-200"><span className="text-gray-500">email:</span> {user.email || 'N/A'}</p>
                           <p className="text-gray-800 dark:text-gray-200"><span className="text-gray-500">Phone:</span> {user.Phone || 'N/A'}</p>
                         </div>
                         <div>
@@ -445,8 +445,8 @@ export default function UserManagement() {
                   key={p}
                   onClick={() => setPage(p)}
                   className={`flex-shrink-0 w-9 h-9 rounded-xl text-sm font-bold transition-all border ${page === p
-                      ? 'bg-green-600 text-white border-green-600 shadow-md'
-                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    ? 'bg-green-600 text-white border-green-600 shadow-md'
+                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                 >
                   {p}
@@ -605,7 +605,7 @@ export default function UserManagement() {
 //     const matchSearch =
 //       !searchTerm ||
 //       (u.Name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       (u.Email || '').toLowerCase().includes(searchTerm.toLowerCase());
+//       (u.email || '').toLowerCase().includes(searchTerm.toLowerCase());
 //     const matchRole = roleFilter === 'all' || (u.role || '').includes(roleFilter);
 //     const active = u.active === true || u.active === 'active' || u.status === 'active';
 //     const matchStatus =
@@ -739,7 +739,7 @@ export default function UserManagement() {
 //                         <td className="px-6 py-4">
 //                           <div>
 //                             <p className="font-semibold text-slate-900 dark:text-white text-sm">{user.Name}</p>
-//                             <p className="text-slate-500 dark:text-gray-400 text-xs mt-0.5">{user.Email}</p>
+//                             <p className="text-slate-500 dark:text-gray-400 text-xs mt-0.5">{user.email}</p>
 //                           </div>
 //                         </td>
 //                         <td className="px-6 py-4">
@@ -826,7 +826,7 @@ export default function UserManagement() {
 //                   <div className="flex justify-between items-start">
 //                     <div>
 //                       <h3 className="font-bold text-slate-900 dark:text-white">{user.Name}</h3>
-//                       <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{user.Email}</p>
+//                       <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{user.email}</p>
 //                     </div>
 //                     <div className="relative">
 //                       <button

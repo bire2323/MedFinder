@@ -285,13 +285,13 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name'  => 'required|string|min:4|max:20',
             'phone' => 'unique:users,phone,' . $user->id,
-            'email' => 'email|unique:users,email,' . $user->id,
+            'Email' => 'email|unique:users,Email,' . $user->id,
         ]);
 
         $data = [
             'Name'  => $validated['name'],
             'Phone' => $validated['phone'] ?? null,
-            'Email' => $validated['email'] ?? null,
+            'email' => $validated['Email'] ?? null,
         ];
 
         $user->update(array_filter($data, fn($v) => !is_null($v)));
@@ -348,7 +348,7 @@ class AuthController extends Controller
             ->user();
 
         $user = User::firstOrCreate(
-            ['Email' => $googleUser->getEmail()],
+            ['email' => $googleUser->getemail()],
             [
                 'Name'     => $googleUser->getName(),
                 'Password' => bcrypt(Str::random(16)),

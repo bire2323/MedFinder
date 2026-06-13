@@ -245,7 +245,7 @@ export default function Step2Location() {
           </div>
 
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Contact Email</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Contact email</label>
             <input
               type="email"
               className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none ring-blue-500/30 focus:ring-4 dark:border-gray-600 dark:bg-gray-800 dark:text-white"

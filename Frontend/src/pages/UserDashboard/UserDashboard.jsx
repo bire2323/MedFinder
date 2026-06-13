@@ -182,7 +182,7 @@ export default function UserDashboard() {
                                     {user?.Name ? `${t("UserDashboard.Hi")}, ${user.Name}` : t("UserDashboard.YourHealthcareDashboard")}
                                 </p>
                                 <p className="text-[10px] text-slate-400 dark:text-gray-500">
-                                    {user?.Email || ""}
+                                    {user?.email || ""}
                                 </p>
                             </div>
                             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-emerald-500/10 select-none">

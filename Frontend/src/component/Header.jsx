@@ -452,7 +452,7 @@ export default function Header() {
                     <div className="absolute right-0 z-[120] mt-2 w-64 origin-top-right overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl transition-all duration-200 animate-in fade-in zoom-in dark:border-gray-800 dark:bg-gray-900">
                       <div className="mb-2 border-b border-slate-50 px-4 py-3 dark:border-gray-800">
                         <p className="text-xs font-bold text-slate-400">{t("headingNav.profile_dropdown.account")}</p>
-                        <p className="truncate text-sm font-bold dark:text-white">{user?.Email}</p>
+                        <p className="truncate text-sm font-bold dark:text-white">{user?.email}</p>
                       </div>
                       {user.status === "inactive" ? (
                         <p className="px-4 py-3 text-sm text-red-500">{t("headingNav.profile_dropdown.inactive")}</p>
@@ -651,7 +651,7 @@ export default function Header() {
                       </div>
                       <div className="flex-1 text-left min-w-0">
                         <p className="font-bold text-xs text-slate-800 dark:text-white truncate">{user?.Name}</p>
-                        <p className="text-[10px] text-slate-500 dark:text-gray-400 truncate">{user?.Email}</p>
+                        <p className="text-[10px] text-slate-500 dark:text-gray-400 truncate">{user?.email}</p>
                       </div>
                     </button>
 
@@ -659,7 +659,7 @@ export default function Header() {
                       <div className="rounded-xl border border-slate-100 bg-white shadow-md dark:border-gray-900 dark:bg-gray-900 overflow-hidden text-xs">
                         <div className="px-3 py-2 border-b border-slate-50 dark:border-gray-800 bg-slate-50/50 dark:bg-gray-950/50">
                           <p className="text-[10px] font-bold text-slate-400 dark:text-gray-500">{t("headingNav.profile_dropdown.account")}</p>
-                          <p className="truncate font-bold dark:text-white text-[11px]">{user?.Email}</p>
+                          <p className="truncate font-bold dark:text-white text-[11px]">{user?.email}</p>
                         </div>
 
                         {user.status === "inactive" ? (

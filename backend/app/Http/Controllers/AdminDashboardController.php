@@ -180,7 +180,7 @@ class AdminDashboardController extends Controller
                     ->orWhere('ip_address', 'LIKE', "%{$search}%")
                     ->orWhereHas('user', function ($q2) use ($search) {
                         $q2->where('Name', 'LIKE', "%{$search}%")
-                            ->orWhere('Email', 'LIKE', "%{$search}%")
+                            ->orWhere('email', 'LIKE', "%{$search}%")
                             ->orWhere('Phone', 'LIKE', "%{$search}%");
                     });
             });

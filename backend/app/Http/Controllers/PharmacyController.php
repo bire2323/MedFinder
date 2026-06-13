@@ -311,7 +311,7 @@ class PharmacyController extends Controller
             'license_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
             'logo' => 'nullable|file|mimes:jpg,jpeg,png|max:2048', // 2MB max
         ],[
-            'contact_email.unique' => 'Email already exists',
+            'contact_email.unique' => 'email already exists',
         ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->logAudit($request, 'PHARMACY_REGISTER', 'Pharmacy registration validation failed', 'failed', 'pharmacy', [

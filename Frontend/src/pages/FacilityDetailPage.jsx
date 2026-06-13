@@ -101,7 +101,7 @@ const FacilityDetailPage = () => {
     return `${start}${"•".repeat(Math.max(raw.length - start.length - end.length, 4))}${end}`;
   };
 
-  const maskEmail = (email) => {
+  const maskemail = (email) => {
     const raw = (email ?? "").toString().trim();
     if (!raw || !raw.includes("@")) return "••••••••";
     const [local, domain] = raw.split("@");
@@ -724,8 +724,8 @@ const FacilityDetailPage = () => {
                   {facility.contact_email && (
                     <ContactRow
                       icon={Mail}
-                      label="Email Address"
-                      value={isAuthenticated ? facility.contact_email : maskEmail(facility.contact_email)}
+                      label="email Address"
+                      value={isAuthenticated ? facility.contact_email : maskemail(facility.contact_email)}
                       href={isAuthenticated ? `mailto:${facility.contact_email}` : null}
                       themeColor={themeColor}
                       tooltip={!isAuthenticated ? loginToGetContactMsg : null}

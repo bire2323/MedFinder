@@ -268,7 +268,7 @@ const PharmacyDashboard = () => {
                           {t("headingNav.profile_dropdown.account")}
                         </p>
                         <p className="text-sm font-bold truncate dark:text-white">
-                          {user?.Email}
+                          {user?.email}
                         </p>
                       </div>
                       <button

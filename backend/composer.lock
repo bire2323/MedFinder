@@ -576,12 +576,12 @@
             "version": "4.0.4",
             "source": {
                 "type": "git",
-                "url": "https://github.com/egulias/EmailValidator.git",
+                "url": "https://github.com/egulias/emailValidator.git",
                 "reference": "d42c8731f0624ad6bdc8d3e5e9a4524f68801cfa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/egulias/EmailValidator/zipball/d42c8731f0624ad6bdc8d3e5e9a4524f68801cfa",
+                "url": "https://api.github.com/repos/egulias/emailValidator/zipball/d42c8731f0624ad6bdc8d3e5e9a4524f68801cfa",
                 "reference": "d42c8731f0624ad6bdc8d3e5e9a4524f68801cfa",
                 "shasum": ""
             },
@@ -605,7 +605,7 @@
             },
             "autoload": {
                 "psr-4": {
-                    "Egulias\\EmailValidator\\": "src"
+                    "Egulias\\emailValidator\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -618,7 +618,7 @@
                 }
             ],
             "description": "A library for validating emails against several RFCs",
-            "homepage": "https://github.com/egulias/EmailValidator",
+            "homepage": "https://github.com/egulias/emailValidator",
             "keywords": [
                 "email",
                 "emailvalidation",
@@ -627,8 +627,8 @@
                 "validator"
             ],
             "support": {
-                "issues": "https://github.com/egulias/EmailValidator/issues",
-                "source": "https://github.com/egulias/EmailValidator/tree/4.0.4"
+                "issues": "https://github.com/egulias/emailValidator/issues",
+                "source": "https://github.com/egulias/emailValidator/tree/4.0.4"
             },
             "funding": [
                 {

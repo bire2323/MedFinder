@@ -57,11 +57,11 @@ const Step1BasicInfo = () => {
 
   const handleNext = (e) => {
     e.preventDefault();
-console.log(localData);
+    console.log(localData);
     syncFormDataFromLocal(localData);
     if (validateStep1()) {
       navigate(`/register/${type}/location-info`);
-    }else{
+    } else {
       console.log("not valid");
     }
   };
@@ -131,7 +131,7 @@ console.log(localData);
         <div className="space-y-2">
           <label htmlFor="contact_email" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
             <Mail size={16} className="text-blue-500" />
-            {t('Registration.EmailAddress')}<span className="text-xs text-gray-400 font-normal"></span>
+            {t('Registration.emailAddress')}<span className="text-xs text-gray-400 font-normal"></span>
           </label>
           <input
             id="contact_email"
