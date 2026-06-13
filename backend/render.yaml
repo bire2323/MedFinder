@@ -6,6 +6,7 @@ services:
     branch: main
     buildCommand: ""
     startCommand: ""
+    releaseCommand: "php artisan migrate --force && php artisan config:cache"
     plan: free
     envVars:
       - key: APP_ENV
