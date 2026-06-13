@@ -3,6 +3,9 @@ FROM php:8.2-apache
 RUN apt-get update && apt-get install -y \
     git \
     curl \
+    unzip \
+    zip \
+    supervisor \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
@@ -10,9 +13,6 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libzip-dev \
     libpq-dev \
-    zip \
-    unzip \
-    supervisor \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
     pdo_mysql \
@@ -22,47 +22,55 @@ RUN apt-get update && apt-get install -y \
     bcmath \
     pcntl \
     gd \
-    zip
+    zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN a2enmod rewrite headers proxy proxy_http proxy_wstunnel
 
-COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
-
-RUN a2dissite 000-default || true \
-    && a2ensite 000-default
-
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Allow .htaccess overrides
 RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
 
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
-    /etc/apache2/sites-available/*.conf
-
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' \
-    /etc/apache2/apache2.conf \
-    /etc/apache2/conf-available/*.conf
+RUN a2ensite 000-default
 
 WORKDIR /var/www/html
 
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --prefer-dist
+
+RUN composer install \
+    --no-dev \
+    --prefer-dist \
+    --optimize-autoloader \
+    --no-interaction
 
 COPY . .
 
-# Permissions fix
-RUN mkdir -p storage/logs bootstrap/cache /var/log/apache2 \
-    && touch storage/logs/laravel.log \
-    && chown -R www-data:www-data storage bootstrap/cache /var/log/apache2 \
-    && chmod -R 775 storage bootstrap/cache \
-    && chmod 664 storage/logs/laravel.log
-
 RUN composer dump-autoload --optimize
+
+RUN mkdir -p \
+    storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache
+
+RUN chown -R www-data:www-data \
+    storage \
+    bootstrap/cache
+
+RUN chmod -R 775 \
+    storage \
+    bootstrap/cache
+
+RUN touch storage/logs/laravel.log
 
 COPY Supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+EXPOSE 80
+
+CMD ["/usr/bin/supervisord","-c","/etc/supervisor/conf.d/supervisord.conf"]
