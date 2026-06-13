@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: medfinder-backend
+    env: docker
+    dockerfilePath: Dockerfile.render
+    branch: main
+    buildCommand: ""
+    startCommand: ""
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: PORT
+        value: 8080
