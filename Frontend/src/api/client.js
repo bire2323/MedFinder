@@ -21,7 +21,7 @@ export function getXsrfToken() {
 }
 
 export async function ensureCsrfCookie() {
-  await fetch(`https://medfinder-nqdq.onrender.com/sanctum/csrf-cookie`, {
+  await fetch(`${API_BASE}/sanctum/csrf-cookie`, {
     method: "GET",
     credentials: "include",
   });
