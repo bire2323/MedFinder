@@ -102,7 +102,7 @@ class AdminDashboardController extends Controller
      */
     public function notifications()
     {
-        $notifications = Notification::latest()->get();
+        $notifications = Notification::where('user_id', auth()->id())->latest()->get();
 
         return response()->json([
             'success' => true,
