@@ -119,6 +119,7 @@ const HospitalDashboard = () => {
 
   const clearSession = useAuthStore((state) => state.clearSession);
 
+// <<<<<<< HEAD
   useEffect(() => {
 
     const init = async () => {
@@ -127,6 +128,15 @@ const HospitalDashboard = () => {
     };
     init();
   }, [navigate]);
+// =======
+//   // useEffect(() => {
+//   //   const init = async () => {
+//   //     const isAuthentic = await initializeAuth();
+//   //     if (!isAuthentic) navigate("/");
+//   //   };
+//   //   init();
+//   // }, [navigate]);
+// >>>>>>> 19a7c898b0044586c597eacd5183ec6bc8f38f05
 
   useEffect(() => {
     if (user?.status === "inactive") {
@@ -299,11 +309,9 @@ const HospitalDashboard = () => {
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <ChevronLeft className="text-slate-400 dark:text-slate-500 hover:text-blue-500 transition-colors hidden md:block text-xl cursor-pointer" onClick={() => navigate(-1)} />
+            <ChevronLeft className="text-slate-400 dark:text-slate-500 hover:text-blue-500 transition-colors hidden md:block text-xl cursor-pointer" onClick={() => navigate("/")} />
 
-            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 transition-all rounded-2xl">
-              <Menu size={20} className="text-slate-700 dark:text-slate-200" />
-            </button>
+
             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-black border border-slate-200/50 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
               <span className={`w-1.5 h-1.5 rounded-full ${hospitalProfile?.status === 'APPROVED' ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}></span>
               <span className="uppercase tracking-wider text-[9px] text-slate-500 dark:text-slate-450">{hospitalProfile?.status === 'APPROVED' ? "Live System" : "Pending Approval"}</span>
@@ -378,6 +386,9 @@ const HospitalDashboard = () => {
               )}
             </AnimatePresence>
           </div>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 transition-all rounded-2xl">
+            <Menu size={20} className="text-slate-700 dark:text-slate-200" />
+          </button>
         </div>
       </header>
       <div className="min-h-screen min-w-[320px] bg-slate-50 dark:bg-slate-950 flex text-slate-900 dark:text-gray-100 transition-colors duration-300">

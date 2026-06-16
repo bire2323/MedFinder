@@ -5,7 +5,7 @@ import { IoMdClose } from "react-icons/io";
 import { FaUser, FaUserCircle, FaMapMarkedAlt } from "react-icons/fa";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { LuLogOut } from "react-icons/lu";
-import { ChevronDown, Stethoscope, LayoutGrid, FileScan } from "lucide-react";
+import { ChevronDown, Stethoscope, LayoutGrid, FileScan, AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import ThemeToggle from "./DarkLightTeam";
@@ -78,12 +78,21 @@ export default function Header() {
   const [mobileFindCareOpen, setMobileFindCareOpen] = useState(false);
   const [isEditingLocation, setIsEditingLocation] = useState(false);
   const [newLocationName, setNewLocationName] = useState("");
+  const [showPermissionAlert, setShowPermissionAlert] = useState(false);
+  const [permissionAlertMessage, setPermissionAlertMessage] = useState("");
 
   const findCareRef = useRef(null);
 
-  const { locationName, setLocation, detectLocation, coordinates } = useLocationStore();
+  const { 
+    locationName, 
+    setLocation, 
+    detectLocation, 
+    coordinates,
+    permissionState,
+    permissionError 
+  } = useLocationStore();
   const [isDetecting, setIsDetecting] = useState(false);
-
+  console.log(coordinates);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -100,9 +109,39 @@ export default function Header() {
       setIsEditingLocation(false);
     } catch (err) {
       console.error("Auto-detection failed:", err);
+      setShowPermissionAlert(true);
+      setPermissionAlertMessage(
+        err.message || "Unable to detect location. Location features are disabled."
+      );
     } finally {
       setIsDetecting(false);
     }
+  };
+
+  /**
+   * Check if location permission is granted before navigating
+   */
+  const checkLocationPermissionBeforeNavigate = (targetPath) => {
+    if (permissionState === "denied") {
+      alert("you are not grant location and Location Features Stop Working");
+      setShowPermissionAlert(true);
+      setPermissionAlertMessage(
+        "you are not grant location and Location Features Stop Working"
+      );
+      return false;
+    }
+    
+    if (!coordinates) {
+      alert("you are not grant location and Location Features Stop Working");
+      setShowPermissionAlert(true);
+      setPermissionAlertMessage(
+        "you are not grant location and Location Features Stop Working"
+      );
+      return false;
+    }
+    
+    navigate(targetPath);
+    return true;
   };
 
   const handleLocationSubmit = (e) => {
@@ -218,12 +257,28 @@ export default function Header() {
               <Link to="/" className={linkClass(isHomeActive)} onClick={closeFindCare}>
                 {t("headingNav.home")}
               </Link>
-              <Link to="/home/search?type=hospital&q=" className={linkClass(isHospitalActive)} onClick={closeFindCare}>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  closeFindCare();
+                  checkLocationPermissionBeforeNavigate("/home/search?type=hospital&q=");
+                }}
+                className={linkClass(isHospitalActive)}
+                title={permissionState === "denied" ? "Location permission required" : ""}
+              >
                 {t("headingNav.hospitals")}
-              </Link>
-              <Link to="/home/search?type=pharmacy&q=" className={linkClass(isPharmacyActive)} onClick={closeFindCare}>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  closeFindCare();
+                  checkLocationPermissionBeforeNavigate("/home/search?type=pharmacy&q=");
+                }}
+                className={linkClass(isPharmacyActive)}
+                title={permissionState === "denied" ? "Location permission required" : ""}
+              >
                 {t("headingNav.pharmacies")}
-              </Link>
+              </button>
 
               <div className="relative shrink-0" ref={findCareRef}>
                 <button
@@ -263,17 +318,21 @@ export default function Header() {
                 </div>
               </div>
 
-              <Link
-                to="/home/map"
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  closeFindCare();
+                  checkLocationPermissionBeforeNavigate("/home/map");
+                }}
                 className={`flex shrink-0 items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-bold transition-all sm:gap-2 sm:px-3 sm:py-2 sm:text-sm ${isMapActive
                   ? "border-emerald-500 bg-emerald-600 text-white dark:border-emerald-500 dark:bg-emerald-600"
                   : "border-emerald-100 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800/60 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
                   }`}
-                onClick={closeFindCare}
+                title={permissionState === "denied" ? "Location permission required for map" : ""}
               >
                 <FaMapMarkedAlt className="shrink-0" />
                 <span>{t("headingNav.map")}</span>
-              </Link>
+              </button>
             </div>
           </nav>
 
@@ -454,27 +513,31 @@ export default function Header() {
                   {t("headingNav.home")}
                 </Link>
 
-                <Link
-                  to="/home/search?type=hospital&q="
-                  className={`block rounded-2xl px-4 py-4 text-lg font-bold transition-all ${isHospitalActive
+                <button
+                  onClick={() => {
+                    closeMobileMenu();
+                    checkLocationPermissionBeforeNavigate("/home/search?type=hospital&q=");
+                  }}
+                  className={`block w-full text-left rounded-2xl px-4 py-4 text-lg font-bold transition-all ${isHospitalActive
                     ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300"
                     : "text-slate-800 hover:bg-slate-100 dark:text-white dark:hover:bg-gray-900"
                     }`}
-                  onClick={closeMobileMenu}
                 >
                   {t("headingNav.hospitals")}
-                </Link>
+                </button>
 
-                <Link
-                  to="/home/search?type=pharmacy&q="
-                  className={`block rounded-2xl px-4 py-4 text-lg font-bold transition-all ${isPharmacyActive
+                <button
+                  onClick={() => {
+                    closeMobileMenu();
+                    checkLocationPermissionBeforeNavigate("/home/search?type=pharmacy&q=");
+                  }}
+                  className={`block w-full text-left rounded-2xl px-4 py-4 text-lg font-bold transition-all ${isPharmacyActive
                     ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300"
                     : "text-slate-800 hover:bg-slate-100 dark:text-white dark:hover:bg-gray-900"
                     }`}
-                  onClick={closeMobileMenu}
                 >
                   {t("headingNav.pharmacies")}
-                </Link>
+                </button>
               </div>
 
               {/* Find Care Accordion */}
@@ -607,6 +670,68 @@ export default function Header() {
           </div>
         </>,
         document.body
+      )}
+
+      {/* Permission Alert Modal */}
+      {showPermissionAlert && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl dark:bg-gray-900">
+            {/* Header */}
+            <div className="border-b border-slate-200 px-6 py-5 dark:border-gray-800">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30">
+                  <AlertCircle className="h-5 w-5" />
+                </div>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                  Location Permission Required
+                </h2>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-4">
+              <p className="text-sm text-slate-600 dark:text-gray-300 mb-4">
+                {permissionAlertMessage}
+              </p>
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-4">
+                <p className="text-xs font-semibold text-blue-900 dark:text-blue-200 mb-2">
+                  The following features require location access:
+                </p>
+                <ul className="text-xs text-blue-800 dark:text-blue-300 space-y-1 ml-4">
+                  <li>🏥 Hospital & Pharmacy Search</li>
+                  <li>📍 Live Tracking</li>
+                  <li>🗺️ Maps Centered on Your Location</li>
+                  <li>📌 Nearby Places Discovery</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-slate-200 px-6 py-4 dark:border-gray-800 flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPermissionAlert(false);
+                  setPermissionAlertMessage("");
+                }}
+                className="flex-1 rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                Dismiss
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPermissionAlert(false);
+                  setPermissionAlertMessage("");
+                  handleDetectLocation();
+                }}
+                className="flex-1 rounded-lg px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors dark:bg-emerald-600 dark:hover:bg-emerald-500"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </header>
   );

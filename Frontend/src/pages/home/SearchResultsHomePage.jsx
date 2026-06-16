@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { LayoutGrid, List } from "lucide-react";
+import { LayoutGrid, List, AlertCircle } from "lucide-react";
 
 import Header from "../../component/Header";
 import SearchBar from "../../component/search/SearchBar";
@@ -48,12 +48,15 @@ export default function SearchResultsHomePage() {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
 
-  const { coordinates: userLoc } = useLocationStore();
+  const { coordinates: userLoc, permissionState, permissionError } = useLocationStore();
 
   const initialQ = params.get("q") || "";
   const initialType = (params.get("type") || "all").toLowerCase();
   const [query, setQuery] = useState(initialQ);
   const debouncedQuery = useDebouncedValue(query, 250);
+
+  // State for permission alert
+  const [showPermissionAlert, setShowPermissionAlert] = useState(false);
 
   // Allow 'drug' as a valid incoming type from the URL so hero searches work
   const validTypes = ["hospital", "pharmacy", "drug", "all"];
@@ -80,6 +83,14 @@ export default function SearchResultsHomePage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const abortRef = useRef(null);
+
+  // Check location permission for hospital/pharmacy search
+  useEffect(() => {
+    if ((facilityType === "hospital" || facilityType === "pharmacy") && permissionState === "denied") {
+      alert("you are not grant location and Location Features Stop Working");
+      setShowPermissionAlert(true);
+    }
+  }, [facilityType, permissionState]);
 
   useEffect(() => {
     const next = new URLSearchParams(params);
@@ -315,6 +326,47 @@ export default function SearchResultsHomePage() {
 
             {/* Main Content Column */}
             <main className="lg:col-span-9">
+              {/* Show permission denied error for hospital/pharmacy search */}
+              {(facilityType === "hospital" || facilityType === "pharmacy") && permissionState === "denied" && (
+                <div className="rounded-2xl border-2 border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-900/20 p-6 text-center">
+                  <div className="flex justify-center mb-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30">
+                      <AlertCircle className="h-6 w-6" />
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-bold text-red-800 dark:text-red-200 mb-2">
+                    Location Permission Denied
+                  </h3>
+                  <p className="text-sm text-red-700 dark:text-red-300 mb-4">
+                    {facilityType === "hospital" 
+                      ? "Hospital search requires your location to provide accurate results and nearby facilities."
+                      : "Pharmacy search requires your location to show nearby pharmacies and distances."}
+                  </p>
+                  <p className="text-xs text-red-600 dark:text-red-400 mb-6">
+                    Please enable location access in your browser settings and refresh the page to use this feature.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button
+                      type="button"
+                      onClick={() => window.location.reload()}
+                      className="rounded-xl bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 text-white px-5 py-3 text-sm font-bold"
+                    >
+                      Refresh Page
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => navigate("/")}
+                      className="rounded-xl border border-red-200 dark:border-red-800 bg-white dark:bg-gray-900 px-5 py-3 text-sm font-bold text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-gray-800"
+                    >
+                      Go to Home
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Show normal search results only if permission is granted or not hospital/pharmacy search */}
+              {!((facilityType === "hospital" || facilityType === "pharmacy") && permissionState === "denied") && (
+                <>
               <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
                 <div>
                   <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -452,13 +504,76 @@ export default function SearchResultsHomePage() {
                   )}
                 </>
               )}
-            </main>
+            </>
+          )}
+        </main>
           </div>
         </div>
       </div>
       <div className="min-h-20 bg-slate-50 dark:bg-slate-950">
 
       </div>
+      
+      {/* Permission Alert Modal */}
+      {showPermissionAlert && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl dark:bg-gray-900">
+            {/* Header */}
+            <div className="border-b border-slate-200 px-6 py-5 dark:border-gray-800">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30">
+                  <AlertCircle className="h-5 w-5" />
+                </div>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                  Location Permission Required
+                </h2>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-4">
+              <p className="text-sm text-slate-600 dark:text-gray-300 mb-4">
+                {permissionError || "Location access is not granted. Hospital and Pharmacy search features require your location to provide accurate results."}
+              </p>
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-4">
+                <p className="text-xs font-semibold text-blue-900 dark:text-blue-200 mb-2">
+                  To use location-based search:
+                </p>
+                <ul className="text-xs text-blue-800 dark:text-blue-300 space-y-1 ml-4">
+                  <li>✓ Enable location permission in your browser</li>
+                  <li>✓ Allow access to your device location</li>
+                  <li>✓ Refresh the page to retry</li>
+                </ul>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-gray-400">
+                Or continue with <button onClick={() => navigate("/prescription-reader")} className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline">prescription reader</button> which doesn't require location.
+              </p>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-slate-200 px-6 py-4 dark:border-gray-800 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowPermissionAlert(false)}
+                className="flex-1 rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                Dismiss
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPermissionAlert(false);
+                  window.location.reload();
+                }}
+                className="flex-1 rounded-lg px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors dark:bg-emerald-600 dark:hover:bg-emerald-500"
+              >
+                Refresh Page
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </>
   );

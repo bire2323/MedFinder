@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
@@ -48,13 +46,13 @@ services:
       REVERB_PORT: 6001
       REVERB_SCHEME: http
       SESSION_DRIVER: database
-      SESSION_DOMAIN: .medfinder.com
       SESSION_SAME_SITE: none
       SESSION_SECURE_COOKIE: "true"
-      SANCTUM_STATEFUL_DOMAINS: medfinder.com
+      SANCTUM_STATEFUL_DOMAINS: "medfinder.com,localhost,127.0.0.1,*.ngrok-free.dev,*.ngrok.app,*.ngrok-free.app,*.ngrok.io"
       TRUSTED_PROXIES: "*"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     restart: unless-stopped
 
   reverb:
@@ -99,27 +97,29 @@ services:
     restart: unless-stopped
 
   rasa:
-    image: rasa/rasa:3.6.20
+    build:
+      context: ./RasaFM # folder containing your Rasa bot Dockerfile
+      dockerfile: Dockerfile # ./RasaFM/Dockerfile extends rasa/rasa:3.6.20
     container_name: medfinder-rasa
-    # internal only, no ports exposed
     volumes:
-      - ./RasaFM:/app
-    command: run --enable-api --cors "*" --port 5005
+      - ./RasaFM:/app # mount project for training/data
+    environment:
+      PYTHONUNBUFFERED: "1"
+    command: run --enable-api --cors "*" --port 5005 --debug --log-file /tmp/rasa.log
     depends_on:
       - action_server
     restart: unless-stopped
 
   action_server:
-    container_name: rasa_action-server
     build:
-      context: ./rasafm/actions # ← Point directly to the actions folder
-      dockerfile: Dockerfile
+      context: ./RasaFM/actions # folder containing your action server Dockerfile
+      dockerfile: Dockerfile # ./RasaFM/actions/Dockerfile extends rasa/rasa-sdk:3.6.0
+    container_name: action-server
     volumes:
-      - ./rasafm/actions:/app/actions # For development hot-reload
+      - ./RasaFM/actions:/app/actions # hot-reload for dev
     ports:
       - "5055:5055"
     restart: unless-stopped
-
   frontend:
     build:
       context: ./Frontend
@@ -130,16 +130,15 @@ services:
       - ./Frontend:/app
       - /app/node_modules
     environment:
-      VITE_API_BASE: "https://medfinder.com"
+      VITE_API_BASE: ""
       VITE_OSRM_URL: "http://medfinder-osrm:5000"
       VITE_TILESERVER_URL: "http://medfinder-tileserver:8080"
       VITE_REVERB_APP_KEY: ${VITE_REVERB_APP_KEY}
-      VITE_REVERB_HOST: "medfinder.com"
+      VITE_REVERB_HOST: ""
       VITE_REVERB_PORT: "443"
       VITE_REVERB_SCHEME: "wss"
-    depends_on:
-      - backend
-      - reverb
+      NODE_OPTIONS: "--max-old-space-size=2048"
+      VITE_USE_POLLING: "false"
     restart: unless-stopped
 
   nginx:

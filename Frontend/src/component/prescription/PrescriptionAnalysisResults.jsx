@@ -7,9 +7,10 @@ import SurfaceCard from "../ui/SurfaceCard";
 export default function PrescriptionAnalysisResults({ results }) {
   const { t } = useTranslation();
 
-  const drugs = Array.isArray(results?.detected_medicines) ? results.detected_medicines : [];
-  const pharmacies = Array.isArray(results?.nearby_pharmacies) ? results.nearby_pharmacies : [];
-  const explanation = typeof results?.response === "string" ? results.response : "";
+  const filename = results?.status === "success" && results.filename;
+  const drugs = Array.isArray(results?.clinical_analysis?.medicines) ? results.clinical_analysis.medicines : [];
+  const pharmacies = Array.isArray(results?.nearby_facilities) ? results.nearby_facilities : [];
+  const explanation = typeof results?.clinical_analysis?.explanation === "string" ? results?.clinical_analysis?.explanation : "";
 
   return (
     <div className="space-y-6">
