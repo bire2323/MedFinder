@@ -1,6 +1,6 @@
 .env
 dockerfile
-requirements.txt
+
 New Text Document (2).txt
 .dockerignore
 models/

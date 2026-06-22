@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+pytesseract
+pillow
+numpy==1.26.4
+httpx
+python-dotenv
+openai
+python-multipart
+transformers
+safetensors
+pillow

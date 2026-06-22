@@ -1,5 +1,31 @@
 # Rasa Chatbot - Laravel Backend Debug Report
 uvicorn app:app --reload --host 127.0.0.1 --port 8001
+.\venv\Scripts\Activate.ps1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cpu
 ## 🔍 FINDINGS
 

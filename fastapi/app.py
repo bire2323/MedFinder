@@ -10,6 +10,19 @@ from prescription1 import handle_prescription_ocr
 import httpx
 from dotenv import load_dotenv
 
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+# Allow React frontend
+origins = [
+    "http://localhost:5173",   # React dev server
+    "http://127.0.0.1:5173",   # sometimes React uses 127.0.0.1
+]
+import pytesseract
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+print(pytesseract.get_tesseract_version())
 load_dotenv()
 
 # Configure logging
@@ -40,7 +53,7 @@ async def root():
         "bilingual_ocr": "Tesseract (Amharic + English Enabled)"
     }
 
-@app.post("/prescription")
+@app.post("/ai/prescription")
 async def process_prescription(
     file: UploadFile = File(...),
     latitude: Optional[float] = Query(None),

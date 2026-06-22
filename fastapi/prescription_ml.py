@@ -15,22 +15,26 @@ LARAVEL_API_URL = "https://medfinder.com/api"
 import os
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 
+USE_GROK = os.getenv("USE_GROK", "false").lower() == "true"
+if USE_GROK:
+    print("[ML Initializer] Grok usage enabled. Skipping local model loading.")
+else:
 # Point directly to your local model folder inside the Docker app, fallback to local path if running outside Docker
-DOCKER_MODEL_DIR = "C:/active/MedFinder/fastapi/models/medfinder_multiclass_output/biobert_prescription_ner"
-LOCAL_MODEL_DIR = os.path.join(os.path.dirname(__file__), "models", "medfinder_multiclass_output", "biobert_prescription_ner")
-MODEL_DIR = DOCKER_MODEL_DIR if os.path.exists(DOCKER_MODEL_DIR) else LOCAL_MODEL_DIR
+    DOCKER_MODEL_DIR = "C:/active/MedFinder/fastapi/models/medfinder_multiclass_output/biobert_prescription_ner"
+    LOCAL_MODEL_DIR = os.path.join(os.path.dirname(__file__), "models", "medfinder_multiclass_output", "biobert_prescription_ner")
+    MODEL_DIR = DOCKER_MODEL_DIR if os.path.exists(DOCKER_MODEL_DIR) else LOCAL_MODEL_DIR
 
-print(f"[ML Initializer] Loading BioBERT Parser from path: {MODEL_DIR}")
-tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR, local_files_only=True)
-model = AutoModelForTokenClassification.from_pretrained(MODEL_DIR, local_files_only=True)
+    print(f"[ML Initializer] Loading BioBERT Parser from path: {MODEL_DIR}")
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR, local_files_only=True)
+    model = AutoModelForTokenClassification.from_pretrained(MODEL_DIR, local_files_only=True)
 
-ner_pipe = pipeline(
-    "token-classification", 
-    model=model, 
-    tokenizer=tokenizer,
-    aggregation_strategy="none",
-)
-print("[ML Initializer] Micro-inference architectures initialized successfully.")
+    ner_pipe = pipeline(
+        "token-classification", 
+        model=model, 
+        tokenizer=tokenizer,
+        aggregation_strategy="none",
+    )
+    print("[ML Initializer] Micro-inference architectures initialized successfully.")
 
 
 

@@ -1,8 +1,10 @@
 import { detectLanguage } from "../hooks/DetectLanguage";
 import { apiFetch, ensureCsrfCookie } from "./client";
 
+const baseUrl = import.meta.env.VITE_fast_API_BASE || "";
+
 async function sendMessage(text, lat, lng) {
-  const res = await fetch('http://localhost:8001/api/ai/chat', {
+  const res = await fetch(`${baseUrl}/api/ai/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message: text, lat, lng }),
